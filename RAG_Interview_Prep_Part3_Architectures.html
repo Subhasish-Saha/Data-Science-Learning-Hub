@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Interview Prep — Part 3: Alternative &amp; Agentic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 3 / 6</small>Alternative &amp; Agentic</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">RAG Prep<small>Knowledge Base</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 3 of 6</div>
+      <div class="v">Alternative &amp; Agentic</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 206 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">P3</span> Structured &amp; Graph <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#s3-1">3.1 · GraphRAG</a></li>
+          <li><a href="#s3-2">3.2 · Multi-hop retrieval</a></li>
+          <li><a href="#s3-3">3.3 · Text-to-SQL / structured</a></li>
+          <li><a href="#s3-4">3.4 · Multimodal RAG</a></li>
+          <li><a href="#s3-5">3.5 · Hierarchical RAG</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">P4</span> Agentic &amp; Adaptive <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#s3-6">3.6 · Agentic RAG</a></li>
+          <li><a href="#s3-7">3.7 · Self-RAG</a></li>
+          <li><a href="#s3-8">3.8 · Corrective RAG</a></li>
+          <li><a href="#s3-9">3.9 · Adaptive RAG &amp; routing</a></li>
+          <li><a href="#s3-10">3.10 · Agentic patterns</a></li>
+          <li><a href="#s3-11">3.11 · Cost &amp; interview focus</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      RAG Interview Prep<br>Part 3 — Alternative &amp; Agentic<br>Phase 3 + Phase 4<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 3 of 6 · Alternative &amp; Agentic Architectures</div>
+        <h1 class="title">When vectors aren't enough
+          <span class="sub">Retrieval beyond similarity search — knowledge graphs, SQL, images, hierarchy — and RAG that <em>thinks</em>: agents that decide when and what to retrieve, grade their own results, and route by difficulty.</span>
+        </h1>
+        <p class="thesis">Even a perfect vector pipeline (Part 2) has walls: it can't answer “who connects A to B across 500 emails” (relationships), can't compute “average revenue by region” (structured math), and can't read a chart. <strong>Phase 3</strong> reaches for the right tool — GraphRAG, text-to-SQL, multimodal, hierarchy. <strong>Phase 4</strong> hands the LLM the controls — <em>agentic</em> retrieval loops, <em>Self-RAG</em> reflection, <em>Corrective</em> RAG fallbacks, and <em>Adaptive</em> routing that spends compute only when the query demands it. Power with a price tag: agentic loops cost 3–10× tokens and 2–5× latency, so knowing <em>when not to</em> is half the skill.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Phase 3 + 4</b></span>
+          <span class="chip"><b>35</b> tracked topics</span>
+          <span class="chip">⏱ <b>~7–9h</b> deep read</span>
+          <span class="chip">🐍 LangGraph + <b>Python</b></span>
+          <span class="chip">🕸️ graphs · agents · routing</span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the entire resource — all 206 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">206</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 206 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- ============================ PHASE 3 ============================ -->
+      <section class="phase-head" id="phase3">
+        <div class="pk">Phase 3 · Structured &amp; Alternative Retrieval</div>
+        <h2>Reaching for the right tool, not just a bigger index</h2>
+        <p class="pd">Vector similarity is one retrieval primitive among several. Some questions are about <em>relationships</em>, some about <em>computation over structured data</em>, some about <em>pixels</em>. This phase is a tour of retrieval that isn't "nearest chunk" — and, crucially, when each is worth its added cost.</p>
+      </section>
+
+      <!-- ---------- 3.1 ---------- -->
+      <article class="topic" id="s3-1">
+        <h3><span class="tn">3.1</span> GraphRAG: retrieval over a knowledge graph</h3>
+        <p class="lead">Vector RAG retrieves chunks that are individually similar to the query. It has no way to <em>traverse relationships</em> or <em>aggregate across the whole corpus</em> — exactly what "how is A connected to D?" and "what are the main themes?" require. GraphRAG builds a graph and retrieves by walking it.</p>
+
+        <p>The pipeline has an extra offline stage. An LLM reads each chunk and extracts <span class="tag-term">entities</span> (people, orgs, products) and <span class="tag-term">relationships</span> (works_at, owns, cites) as <code class="ic">(subject, relation, object)</code> triples. Those triples assemble into a <span class="tag-term">knowledge graph</span>. At query time, instead of (or alongside) vector search, you locate the query's entities and <em>traverse</em> edges to gather connected facts — following a chain no single chunk contains.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="A knowledge graph of entities and relationships; a gold path traverses from the query entity Alice through Acme to ProjectX, answering a multi-hop relationship question no single document states.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">"How is Alice connected to Project X?" — answered by traversal, not similarity</text>
+              <!-- edges -->
+              <line x1="90" y1="150" x2="220" y2="95" stroke="#F0A81E" stroke-width="3"/>
+              <line x1="240" y1="110" x2="392" y2="150" stroke="#F0A81E" stroke-width="3"/>
+              <line x1="90" y1="150" x2="215" y2="215" stroke="#3a4453" stroke-width="1.4"/>
+              <line x1="240" y1="230" x2="392" y2="165" stroke="#3a4453" stroke-width="1.4"/>
+              <line x1="410" y1="130" x2="405" y2="60" stroke="#3a4453" stroke-width="1.4"/>
+              <line x1="428" y1="150" x2="558" y2="150" stroke="#3a4453" stroke-width="1.4"/>
+              <!-- edge labels -->
+              <text x="150" y="108" fill="#f0c274" font-size="9">works_at</text>
+              <text x="312" y="120" fill="#f0c274" font-size="9">owns</text>
+              <text x="150" y="200" fill="#697384" font-size="9">works_at</text>
+              <text x="470" y="150" fill="#697384" font-size="9">uses</text>
+              <!-- nodes -->
+              <circle cx="72" cy="150" r="26" fill="#F0A81E"/><text x="72" y="154" fill="#3a2a00" font-size="11" text-anchor="middle">Alice</text>
+              <circle cx="228" cy="95" r="24" fill="#5560D8"/><text x="228" y="99" fill="#fff" font-size="11" text-anchor="middle">Acme</text>
+              <circle cx="228" cy="228" r="22" fill="#3B45B5"/><text x="228" y="232" fill="#fff" font-size="10" text-anchor="middle">Bob</text>
+              <circle cx="410" cy="150" r="28" fill="#2E9E5B"/><text x="410" y="147" fill="#0b2016" font-size="10" text-anchor="middle">Project</text><text x="410" y="159" fill="#0b2016" font-size="10" text-anchor="middle">X</text>
+              <circle cx="402" cy="44" r="20" fill="#3B45B5"/><text x="402" y="48" fill="#fff" font-size="10" text-anchor="middle">Carol</text>
+              <circle cx="576" cy="150" r="22" fill="#3B45B5"/><text x="576" y="154" fill="#fff" font-size="9.5" text-anchor="middle">Vendor</text>
+              <!-- answer -->
+              <text x="360" y="255" fill="#bfe3cc" font-size="10.5">path: Alice —works_at→ Acme —owns→ Project X</text>
+            </svg>
+          </div>
+          <figcaption><b>The answer lives in the edges, not any node.</b> No single chunk says "Alice is connected to Project X" — that fact <em>emerges</em> from traversing two relationships. Vector search, matching chunks independently, structurally cannot find it; a graph walk can.</figcaption>
+        </figure>
+
+        <h4>Microsoft GraphRAG: local vs global</h4>
+        <p>Microsoft's GraphRAG adds two ideas on top. <b>Community detection</b> (Leiden algorithm) clusters the graph into groups of densely-connected entities, then an LLM writes a <b>summary</b> of each community, hierarchically. That unlocks two query modes: <span class="tag-term">local search</span> (start at an entity, explore its neighborhood — good for "tell me about X") and <span class="tag-term">global search</span> (map-reduce over community summaries — good for "what are the major themes across <em>all</em> documents?", a question vector RAG can't answer because no single chunk contains the answer).</p>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">LLM triple extraction → NetworkX graph → multi-hop traversal</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">import json, networkx as nx
+from openai import OpenAI
+client = OpenAI()
+
+def extract_triples(text):
+    prompt = ('Extract relationships as JSON {"triples":[["subj","relation","obj"],...]}.\n'
+              f"Text: {text}")
+    raw = client.chat.completions.create(
+        model="gpt-4o-mini", temperature=0,
+        response_format={"type": "json_object"},
+        messages=[{"role": "user", "content": prompt}]).choices[0].message.content
+    return json.loads(raw)["triples"]
+
+# Build the graph from every chunk's triples
+G = nx.DiGraph()
+for chunk in corpus:
+    for s, r, o in extract_triples(chunk):
+        G.add_edge(s, o, relation=r)          # entities = nodes, relationships = edges
+
+# Multi-hop question: how is Alice connected to Project X?
+path = nx.shortest_path(G, "Alice", "Project X")
+chain = [(a, G[a][b]["relation"], b) for a, b in zip(path, path[1:])]
+print(chain)   # [('Alice','works_at','Acme'), ('Acme','owns','Project X')]
+# Feed this relationship chain to the LLM as grounded context.
+</code></pre>
+        </figure>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3 2 20h20L12 3z" stroke="#C0392B" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Common pitfall · GraphRAG is expensive to build and maintain</span>
+          <p>Extraction runs an LLM over the <em>entire</em> corpus (cost + time), entity resolution is messy ("Acme", "Acme Corp", "ACME Inc." must merge), and the graph needs rebuilding as documents change. For simple fact-lookup RAG, that's a lot of machinery for no benefit. Reach for GraphRAG only when the questions are genuinely relational or global — otherwise a good hybrid+rerank vector pipeline is cheaper and just as good.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why does vector RAG struggle with "who is connected to X across 500 emails"?</summary>
+              <div class="ans"><p>Because the answer isn't <em>in</em> any single chunk — it's spread across many documents as a chain of relationships, and vector search retrieves chunks that are each independently similar to the query, with no mechanism to follow connections or aggregate across the corpus. You'd retrieve some emails mentioning X, but not reconstruct the multi-hop network. GraphRAG extracts entities/relationships into a graph and answers by traversal, so multi-hop and "connect the dots" questions become graph queries.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Local vs global search in GraphRAG?</summary>
+              <div class="ans"><p>Local search starts from specific entities and explores their graph neighborhood — good for focused, entity-centric questions. Global search runs a map-reduce over LLM-written community summaries to answer corpus-wide "sensemaking" questions ("what are the main themes/risks across everything?"), which no single chunk can answer. Microsoft's GraphRAG builds the communities via the Leiden algorithm and summarizes them hierarchically to make global search tractable.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>When is GraphRAG NOT worth the ingestion/maintenance cost?</summary>
+              <div class="ans"><p>When queries are mostly independent fact lookups rather than relational or global — the LLM extraction over the whole corpus, entity resolution, and graph rebuilds on updates are significant cost/complexity that buy nothing for "what's our refund window?". Also skip it when the corpus changes constantly (the graph goes stale fast) or is small enough that a strong hybrid+rerank vector pipeline already answers everything. Use it specifically for multi-hop relationship questions and cross-corpus sensemaking.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>What's the hardest part of building the graph, and how do you handle it?</summary>
+              <div class="ans"><p><b>Entity resolution</b> — the same real-world entity appears as "Acme", "Acme Corp", "ACME Inc.", "the company," and pronouns, so naive extraction creates duplicate, disconnected nodes and the traversal misses links. Handle it by normalizing/canonicalizing mentions (lowercasing, alias tables), <em>entity linking</em> to a canonical ID (embedding-similarity clustering of mentions, or linking to a knowledge base), and an LLM or rules pass to merge coreferent nodes. Relationship extraction has the same noise (varied phrasings of one relation). It's the main reason GraphRAG is expensive to build and stays imperfect — budget for it, evaluate the graph's connectivity, and don't assume extraction is clean.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <!-- ---------- 3.2 ---------- -->
+      <article class="topic" id="s3-2">
+        <h3><span class="tn">3.2</span> Multi-hop / iterative retrieval</h3>
+        <p class="lead">Some questions can't be answered in one retrieval because the <em>second</em> query depends on the <em>first</em> answer. "What's the capital of the country that hosted the 2016 Olympics?" needs hop 1 (host = Brazil) before you can even write hop 2 (capital of Brazil).</p>
+
+        <p><span class="tag-term">Multi-hop retrieval</span> interleaves retrieval and reasoning: retrieve, read what you found, formulate the <em>next</em> query from it, retrieve again, and stop when you have enough. This differs from query decomposition (§2.6): decomposition splits a question into <em>independent</em> sub-queries you can run in parallel; multi-hop is <em>sequential and dependent</em> — each hop is impossible to phrase until the previous one resolves. It's also the conceptual seed of agentic RAG (§3.6): the moment the LLM controls "should I retrieve again?", you've built an agent.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 230" role="img" aria-label="Iterative retrieval: hop one retrieves that the 2016 Olympics were in Brazil, which lets hop two retrieve that Brazil's capital is Brasilia, then the loop stops and answers.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">each hop's query is built from the previous hop's answer</text>
+              <rect x="20" y="40" width="150" height="44" rx="9" fill="#F0A81E"/><text x="95" y="60" fill="#3a2a00" font-size="10" text-anchor="middle">Q: capital of the</text><text x="95" y="74" fill="#3a2a00" font-size="10" text-anchor="middle">2016 Olympics host?</text>
+              <path d="M170 62 h30" stroke="#8892a0" stroke-width="1.5" marker-end="url(#i1)"/>
+              <!-- hop 1 -->
+              <rect x="202" y="40" width="130" height="44" rx="9" fill="#3B45B5"/><text x="267" y="60" fill="#fff" font-size="10" text-anchor="middle">hop 1: retrieve</text><text x="267" y="74" fill="#c9cdf0" font-size="9" text-anchor="middle">"2016 Olympics"</text>
+              <path d="M267 84 v22" stroke="#2E9E5B" stroke-width="1.6" marker-end="url(#ig)"/>
+              <rect x="202" y="108" width="130" height="30" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="267" y="127" fill="#7fd6a0" font-size="9.5" text-anchor="middle">learned: Brazil</text>
+              <!-- feed to hop 2 -->
+              <path d="M332 123 C 380 123, 380 62, 408 62" stroke="#F0A81E" stroke-width="1.8" marker-end="url(#i1)"/>
+              <text x="370" y="100" fill="#f0c274" font-size="9">reformulate</text>
+              <!-- hop 2 -->
+              <rect x="410" y="40" width="130" height="44" rx="9" fill="#3B45B5"/><text x="475" y="60" fill="#fff" font-size="10" text-anchor="middle">hop 2: retrieve</text><text x="475" y="74" fill="#c9cdf0" font-size="9" text-anchor="middle">"capital of Brazil"</text>
+              <path d="M475 84 v22" stroke="#2E9E5B" stroke-width="1.6" marker-end="url(#ig)"/>
+              <rect x="410" y="108" width="130" height="30" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="475" y="127" fill="#7fd6a0" font-size="9.5" text-anchor="middle">learned: Brasília</text>
+              <path d="M540 123 h34" stroke="#8892a0" stroke-width="1.5" marker-end="url(#i1)"/>
+              <rect x="576" y="100" width="104" height="46" rx="9" fill="#256b3f"/><text x="628" y="120" fill="#fff" font-size="10" text-anchor="middle">answer:</text><text x="628" y="134" fill="#fff" font-size="10" text-anchor="middle">Brasília</text>
+              <text x="20" y="180" fill="#8892a0" font-size="10">"enough to answer?" gate after each hop — cap the loop to bound cost (§3.6).</text>
+              <defs>
+                <marker id="i1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="ig" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Sequential, not parallel.</b> You literally cannot write hop 2 until hop 1 returns "Brazil." A single embedding of the full question retrieves neither fact cleanly — which is why chained retrieval (and, generalized, agentic loops) exists.</figcaption>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">a bounded iterative-retrieval loop</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">def multi_hop(question, retrieve, client, max_hops=3):
+    known = ""                                   # accumulated evidence
+    for hop in range(max_hops):
+        step = client.chat.completions.create(
+            model="gpt-4o-mini", temperature=0,
+            messages=[{"role": "user", "content":
+                f"Question: {question}\nKnown so far: {known or 'nothing'}\n"
+                "If you can answer now, reply ANSWER: &lt;answer&gt;. "
+                "Otherwise reply SEARCH: &lt;the next query to run&gt;."}]
+        ).choices[0].message.content.strip()
+
+        if step.startswith("ANSWER:"):
+            return step[len("ANSWER:"):].strip()  # loop stops when evidence suffices
+        query = step[len("SEARCH:"):].strip()
+        known += "\n" + "\n".join(retrieve(query))  # feed results into next hop
+    return "Could not resolve within hop budget."   # cap prevents runaway cost/latency
+</code></pre>
+        </figure>
+      </article>
+
+      <!-- ---------- 3.3 ---------- -->
+      <article class="topic" id="s3-3">
+        <h3><span class="tn">3.3</span> Text-to-SQL &amp; structured-data RAG</h3>
+        <p class="lead">If the answer is "average revenue by region last quarter," no amount of embedding search will compute it. When data is tabular, the right retrieval is a <em>query</em>, not a similarity search — translate the question to SQL and run it.</p>
+
+        <p>Vector search retrieves <em>text that resembles the question</em>; it cannot aggregate, filter precisely on numbers, join tables, or count. For structured data those are exactly the operations you need. <span class="tag-term">Text-to-SQL</span> has the LLM translate the natural-language question into a SQL query given the schema, executes it, and returns rows (optionally summarized by the LLM). Real systems then <span class="tag-term">route</span> per query: computational/structured questions go to SQL, open-ended/semantic ones go to the vector store.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 230" role="img" aria-label="A router sends computational questions down a text-to-SQL path against a database and open-text questions down a vector-retrieval path, then both feed the LLM.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">route by question type: compute in SQL, read from vectors</text>
+              <circle cx="50" cy="115" r="10" fill="#F0A81E"/><text x="50" y="142" fill="#F0A81E" font-size="9" text-anchor="middle">query</text>
+              <path d="M60 115 h24" stroke="#8892a0" stroke-width="1.5" marker-end="url(#s1)"/>
+              <rect x="86" y="94" width="80" height="42" rx="9" fill="#252D3A" stroke="#F0A81E"/><text x="126" y="112" fill="#f0c274" font-size="10" text-anchor="middle">router</text><text x="126" y="126" fill="#8892a0" font-size="8" text-anchor="middle">classify</text>
+              <!-- SQL branch -->
+              <path d="M166 104 L200 72" stroke="#8892a0" stroke-width="1.4" marker-end="url(#s1)"/>
+              <rect x="202" y="52" width="150" height="40" rx="8" fill="#3B45B5"/><text x="277" y="70" fill="#fff" font-size="9.5" text-anchor="middle">"avg revenue by region"</text><text x="277" y="84" fill="#c9cdf0" font-size="8.5" text-anchor="middle">→ NL-to-SQL</text>
+              <path d="M352 72 h26" stroke="#8892a0" stroke-width="1.3" marker-end="url(#s1)"/>
+              <rect x="380" y="52" width="70" height="40" rx="8" fill="#14181f" stroke="#5560D8"/><text x="415" y="76" fill="#aab2f0" font-size="9" text-anchor="middle">DB → rows</text>
+              <!-- vector branch -->
+              <path d="M166 126 L200 158" stroke="#8892a0" stroke-width="1.4" marker-end="url(#s1)"/>
+              <rect x="202" y="140" width="150" height="40" rx="8" fill="#3B45B5"/><text x="277" y="158" fill="#fff" font-size="9.5" text-anchor="middle">"what's the refund policy"</text><text x="277" y="172" fill="#c9cdf0" font-size="8.5" text-anchor="middle">→ embed + retrieve</text>
+              <path d="M352 160 h26" stroke="#8892a0" stroke-width="1.3" marker-end="url(#s1)"/>
+              <rect x="380" y="140" width="70" height="40" rx="8" fill="#14181f" stroke="#2E9E5B"/><text x="415" y="164" fill="#7fd6a0" font-size="9" text-anchor="middle">chunks</text>
+              <!-- converge -->
+              <path d="M450 72 C 500 72, 500 110, 528 114" stroke="#8892a0" stroke-width="1.4" marker-end="url(#s1)"/>
+              <path d="M450 160 C 500 160, 500 120, 528 118" stroke="#8892a0" stroke-width="1.4" marker-end="url(#s1)"/>
+              <rect x="530" y="94" width="74" height="42" rx="10" fill="#3B45B5"/><text x="567" y="119" fill="#fff" font-size="10.5" text-anchor="middle">LLM</text>
+              <path d="M604 115 h20" stroke="#2E9E5B" stroke-width="2" marker-end="url(#sg)"/>
+              <rect x="626" y="96" width="56" height="40" rx="8" fill="#14181f" stroke="#2E9E5B"/><text x="654" y="120" fill="#7fd6a0" font-size="9.5" text-anchor="middle">answer</text>
+              <defs>
+                <marker id="s1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="sg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Different questions, different retrieval.</b> "Average revenue by region" is a GROUP BY, not a similarity search. Embedding table rows as text can support lookups but never aggregation — so structured/computational queries route to SQL, semantic ones to vectors.</figcaption>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">guarded text-to-SQL + a simple router</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">SCHEMA = """orders(id, customer_id, region TEXT, amount REAL, created_at DATE)
+customers(id, name, tier TEXT)"""
+
+def text_to_sql(question, client):
+    sql = client.chat.completions.create(
+        model="gpt-4o-mini", temperature=0,
+        messages=[{"role": "user", "content":
+            f"SQLite schema:\n{SCHEMA}\nWrite ONE read-only query for: {question}\n"
+            "Return only SQL, no prose."}]
+    ).choices[0].message.content.strip().strip("`")
+    if not sql.lower().startswith("select"):        # guardrail: reject writes/DDL
+        raise ValueError("only SELECT permitted")
+    return sql
+
+def route(question, client):
+    r = client.chat.completions.create(model="gpt-4o-mini", temperature=0,
+        messages=[{"role": "user", "content":
+            f"Answer 'sql' if this needs computation/filtering over structured tables, "
+            f"else 'vector'. Question: {question}"}]).choices[0].message.content.lower()
+    return "sql" if "sql" in r else "vector"
+
+# rows = cursor.execute(text_to_sql("average order amount by region in 2024", client)).fetchall()
+</code></pre>
+        </figure>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3 2 20h20L12 3z" stroke="#C0392B" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Common pitfall · SQL injection &amp; schema bloat</span>
+          <p>An LLM writing SQL is an injection surface: run the query as a <em>read-only</em> role, allow only <code class="ic">SELECT</code>, set timeouts/row limits, and never string-format user text into the query yourself. Second issue: huge schemas don't fit the prompt and confuse the model — retrieve the <em>relevant tables/columns</em> first (schema retrieval) and pass only those. Always validate the generated SQL before executing it.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>Text-to-SQL vs embedding the rows as text — when each?</summary>
+              <div class="ans"><p>Embed rows as text when queries are semantic lookups ("find customers who complained about shipping") — similarity works. Use text-to-SQL when queries require computation, exact filters, joins, or aggregation ("total revenue by region where tier='Pro'") — embeddings fundamentally can't compute. Most real systems route: a classifier sends structured/analytical questions to SQL and open-ended ones to the vector store, then the LLM narrates the result. Guard SQL execution (read-only, SELECT-only, limits).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <!-- ---------- 3.4 ---------- -->
+      <article class="topic" id="s3-4">
+        <h3><span class="tn">3.4</span> Multimodal RAG</h3>
+        <p class="lead">Half the answer often lives in a chart, a diagram, or a scanned table. Multimodal RAG retrieves over images and tables — either by embedding them into a shared space with text, or by converting them to text first.</p>
+
+        <p>Two strategies, and the choice is mostly about how much you want to change your existing pipeline:</p>
+        <ul>
+          <li><b>Unified multimodal embeddings</b> (CLIP and successors): a model maps images <em>and</em> text into one shared vector space, so a text query can retrieve a relevant image directly. Powerful, but you run a separate embedding model and your text-only quality may lag a specialist.</li>
+          <li><b>Text-description conversion:</b> a vision LLM captions/describes each image, chart, or table ("Bar chart: Q3 revenue by region, APAC highest at $4.2M…"), you embed the <em>description</em> as text, and your existing text pipeline just works. Simpler, debuggable, and often good enough — at the cost of an LLM pass per image at ingest and some lost visual nuance.</li>
+        </ul>
+        <p>At generation time, either pass the retrieved <em>image itself</em> to a vision-capable LLM (GPT-4o, Claude) or pass the text description. Descriptions are cheaper and citable; raw images preserve detail the caption dropped.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 230" role="img" aria-label="Left: a shared CLIP embedding space where a text query is near a relevant image. Right: a vision LLM captions an image and the caption is embedded as text.">
+              <text x="30" y="22" fill="#8892a0" font-size="12">A · shared embedding (CLIP)</text>
+              <text x="400" y="22" fill="#8892a0" font-size="12">B · caption, then embed as text</text>
+              <line x1="360" y1="34" x2="360" y2="214" stroke="#2c3542" stroke-width="1" stroke-dasharray="3 4"/>
+              <!-- A: shared space -->
+              <rect x="24" y="40" width="300" height="170" rx="10" fill="#161b23" stroke="#2c3542"/>
+              <text x="174" y="60" fill="#8892a0" font-size="9.5" text-anchor="middle">one vector space, both modalities</text>
+              <circle cx="110" cy="120" r="9" fill="#F0A81E"/><text x="110" y="105" fill="#F0A81E" font-size="9" text-anchor="middle">text query</text>
+              <rect x="150" y="130" width="40" height="30" rx="4" fill="#2E9E5B"/><text x="170" y="150" fill="#0b2016" font-size="8" text-anchor="middle">📊 img</text>
+              <rect x="230" y="90" width="40" height="30" rx="4" fill="#3B45B5"/><text x="250" y="110" fill="#fff" font-size="8" text-anchor="middle">img</text>
+              <path d="M119 122 L150 140" stroke="#2E9E5B" stroke-width="2" stroke-dasharray="3 3"/>
+              <text x="130" y="185" fill="#bfe3cc" font-size="9">text ↔ image directly comparable</text>
+              <!-- B: caption -->
+              <rect x="384" y="70" width="46" height="34" rx="4" fill="#3B45B5"/><text x="407" y="91" fill="#fff" font-size="9" text-anchor="middle">📊</text>
+              <path d="M430 87 h24" stroke="#8892a0" stroke-width="1.4" marker-end="url(#v1)"/>
+              <rect x="456" y="68" width="80" height="38" rx="7" fill="#252D3A" stroke="#5560D8"/><text x="496" y="84" fill="#e6e9ef" font-size="8.5" text-anchor="middle">vision LLM</text><text x="496" y="97" fill="#aab2f0" font-size="8" text-anchor="middle">captions it</text>
+              <path d="M496 106 v18" stroke="#8892a0" stroke-width="1.4" marker-end="url(#v1)"/>
+              <rect x="410" y="126" width="180" height="34" rx="7" fill="#14181f" stroke="#3a4453"/><text x="500" y="142" fill="#c2cad6" font-size="8.5" text-anchor="middle">"Bar chart: Q3 revenue by region,</text><text x="500" y="154" fill="#c2cad6" font-size="8.5" text-anchor="middle">APAC highest at $4.2M"</text>
+              <path d="M590 143 C 620 143, 620 180, 560 182" stroke="#2E9E5B" stroke-width="1.6" marker-end="url(#vg)"/>
+              <text x="470" y="182" fill="#bfe3cc" font-size="9">embed as ordinary text ✓</text>
+              <defs>
+                <marker id="v1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="vg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Embed across modalities, or collapse to text first.</b> CLIP-style shared spaces retrieve images natively; captioning reuses your entire text stack. Start with captioning unless visual nuance is central — it's simpler and plays nicely with hybrid search and citations.</figcaption>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">shared-space (CLIP) vs caption-then-embed</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python"># --- A) Shared space: CLIP embeds text and images comparably ---
+from sentence_transformers import SentenceTransformer
+from PIL import Image
+clip = SentenceTransformer("clip-ViT-B-32")
+img_vec = clip.encode(Image.open("q3_chart.png"))
+txt_vec = clip.encode("quarterly revenue by region")   # same space -> cross-modal search
+
+# --- B) Caption-then-embed: reuse your text pipeline ---
+def caption(image_path, client):
+    import base64
+    b64 = base64.b64encode(open(image_path, "rb").read()).decode()
+    return client.chat.completions.create(
+        model="gpt-4o-mini", temperature=0,
+        messages=[{"role": "user", "content": [
+            {"type": "text", "text": "Describe this image for retrieval: data, labels, takeaway."},
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}},
+        ]}]).choices[0].message.content
+# embed caption(...) with your normal text embedder; index alongside text chunks.
+</code></pre>
+        </figure>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The key mental model · a vector DB stores vectors, not media</span>
+          <p>A vector database stores <b>embeddings + metadata</b> — never the raw image or PDF. The actual binary lives in object storage (S3/GCS/blob) or a document store; the chunk's metadata holds a <code class="ic">url</code>/<code class="ic">doc_id</code> pointer. So "storing an image" means: turn it into a vector (via CLIP or a caption), store that vector, and keep a reference to where the real file lives. Retrieval returns the vector's metadata → you fetch the file/caption to show or feed the LLM.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you store <em>images</em> in a vector database?</summary>
+              <div class="ans"><p>You store a <em>vector representation</em> of the image plus metadata — not the pixels. Two ways to get that vector: <b>(1) multimodal embeddings</b> — run the image through a vision encoder like CLIP that maps images and text into one shared space, so a text query can retrieve the image directly; <b>(2) caption-then-embed</b> — a vision LLM describes the image, and you embed the <em>description</em> with your normal text embedder. Either way, the actual image file stays in object storage (S3/GCS), and the chunk's metadata holds a URL/ID pointing to it. At answer time you fetch the referenced image for a vision LLM, or use the caption. Start with captioning unless visual nuance is central — it reuses your whole text + hybrid + citation pipeline.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you store / represent <em>tables</em> in a vector database?</summary>
+              <div class="ans"><p>First <b>serialize the table to structure-preserving text</b> at ingestion (§1.3) — markdown or HTML, with column headers kept next to their values (a cell like "$0" is meaningless without its "Fee" header). Then embed and store that text like any chunk, tagged <code class="ic">type: table</code> with source/page metadata. Granularity options: the <b>whole table as one chunk</b> (for "what does the table say about X"), <b>row-level chunks</b> with headers repeated (for row lookups), or an <b>LLM summary embedded + full table kept in the parent</b> (small-to-big, §2.8). The crucial caveat: for <em>computation</em> (sums, filters, "average by region"), don't embed the table at all — keep it in SQL/a dataframe and route via text-to-SQL (§3.3), because embeddings can't do arithmetic. The classic mistake is flattening a table into bare numbers, which destroys the column semantics and wrecks retrieval.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>So do you put the raw PDF/image bytes into the vector DB?</summary>
+              <div class="ans"><p>No. The vector DB indexes embeddings and metadata for fast similarity search; storing large binaries there is wasteful and not what it's for. Keep the raw file in blob/object storage and store only its vector + a reference (<code class="ic">doc_id</code>/URL, page, bounding box for a cropped figure). This separation also makes access control, updates, and citations clean — you version and permission the source file independently of its vector.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ---------- 3.5 ---------- -->
+      <article class="topic" id="s3-5">
+        <h3><span class="tn">3.5</span> Hierarchical / long-document RAG</h3>
+        <p class="lead">A 300-page manual gets asked both "what's the overall architecture?" (needs the summary) and "what's the timeout on line 4,120?" (needs the detail). Flat chunking serves one or the other. Hierarchical RAG builds a tree so you can retrieve at the right altitude.</p>
+
+        <p>The idea: cluster and <span class="tag-term">summarize</span> recursively. Chunks are grouped and summarized; those summaries are grouped and summarized again; up to a document-level summary. You embed <em>every</em> level. A high-level query matches a summary node; a detailed query matches a leaf chunk. Two well-known forms:</p>
+        <ul>
+          <li><b>RAPTOR</b> — recursively clusters chunks and generates summaries into a tree; retrieval can pull from any level, so both broad and specific questions find their natural altitude.</li>
+          <li><b>Auto-merging retrieval</b> (LlamaIndex) — if enough sibling child-chunks under one parent get retrieved, return the <em>parent</em> instead, automatically trading granularity for coherence.</li>
+        </ul>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="A tree with a document summary at the root, section summaries in the middle, and leaf chunks at the bottom; a broad query matches a summary node while a detailed query matches a leaf.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">summarize-then-drill-down: retrieve at the altitude the question needs</text>
+              <!-- root -->
+              <rect x="290" y="36" width="120" height="30" rx="7" fill="#3B45B5"/><text x="350" y="55" fill="#fff" font-size="10" text-anchor="middle">document summary</text>
+              <!-- section summaries -->
+              <rect x="90" y="110" width="120" height="28" rx="6" fill="#5560D8"/><text x="150" y="128" fill="#fff" font-size="9.5" text-anchor="middle">§ summary A</text>
+              <rect x="290" y="110" width="120" height="28" rx="6" fill="#2E9E5B"/><text x="350" y="128" fill="#0b2016" font-size="9.5" text-anchor="middle">§ summary B</text>
+              <rect x="490" y="110" width="120" height="28" rx="6" fill="#5560D8"/><text x="550" y="128" fill="#fff" font-size="9.5" text-anchor="middle">§ summary C</text>
+              <!-- leaves -->
+              <g font-size="8.5" text-anchor="middle" fill="#c2cad6">
+                <rect x="80" y="180" width="54" height="24" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="107" y="196">chunk</text>
+                <rect x="140" y="180" width="54" height="24" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="167" y="196">chunk</text>
+                <rect x="290" y="180" width="54" height="24" rx="4" fill="#14181f" stroke="#2E9E5B"/><text x="317" y="196" fill="#7fd6a0">chunk</text>
+                <rect x="352" y="180" width="54" height="24" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="379" y="196">chunk</text>
+                <rect x="496" y="180" width="54" height="24" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="523" y="196">chunk</text>
+                <rect x="556" y="180" width="54" height="24" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="583" y="196">chunk</text>
+              </g>
+              <!-- edges -->
+              <g stroke="#3a4453" stroke-width="1.2">
+                <line x1="330" y1="66" x2="150" y2="110"/><line x1="350" y1="66" x2="350" y2="110"/><line x1="370" y1="66" x2="550" y2="110"/>
+                <line x1="150" y1="138" x2="107" y2="180"/><line x1="150" y1="138" x2="167" y2="180"/>
+                <line x1="350" y1="138" x2="317" y2="180"/><line x1="350" y1="138" x2="379" y2="180"/>
+                <line x1="550" y1="138" x2="523" y2="180"/><line x1="550" y1="138" x2="583" y2="180"/>
+              </g>
+              <!-- query annotations -->
+              <text x="470" y="55" fill="#f0c274" font-size="9">◆ "overall architecture?" → root</text>
+              <text x="230" y="222" fill="#7fd6a0" font-size="9">◆ "timeout value?" → leaf chunk</text>
+            </svg>
+          </div>
+          <figcaption><b>Every level is embedded and searchable.</b> Broad questions land on summaries; specific ones land on leaves. RAPTOR builds this tree by recursive clustering + summarization; auto-merging climbs from leaves to parents when siblings co-retrieve.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>Users ask both big-picture and pinpoint questions about huge documents. Design retrieval.</summary>
+              <div class="ans"><p>Build a hierarchy (RAPTOR-style): chunk, then recursively cluster + summarize into a tree, embedding every level. Broad questions retrieve summary nodes; specific questions retrieve leaf chunks; auto-merging returns a parent when many of its children co-retrieve. This avoids the flat-chunking dilemma where small chunks answer detail but can't answer "what's the overall theme," and large chunks do the reverse. Pair with metadata (section path) for citations.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <!-- ============================ PHASE 4 ============================ -->
+      <section class="phase-head" id="phase4">
+        <div class="pk">Phase 4 · Agentic &amp; Adaptive RAG</div>
+        <h2>Handing the model the controls</h2>
+        <p class="pd">So far the pipeline decides everything and the LLM just reads at the end. Agentic RAG flips it: the model decides <em>whether</em> to retrieve, <em>what</em> and <em>how many times</em>, grades its own results, and routes by difficulty. Enormous capability, real cost — the interview skill is knowing when the loop is worth it.</p>
+      </section>
+
+      <!-- ---------- 3.6 ---------- -->
+      <article class="topic" id="s3-6">
+        <h3><span class="tn">3.6</span> Agentic RAG: the core idea</h3>
+        <p class="lead">Naive RAG always retrieves once, no matter the question. Agentic RAG makes retrieval a <em>tool the LLM chooses to use</em> — deciding whether to search at all, which source, how to phrase it, whether the results suffice, and when to stop.</p>
+
+        <p>An <span class="tag-term">agent</span> is an LLM in a loop with tools. Retrieval becomes one tool among many — vector search, BM25, SQL (§3.3), web search, a calculator, an API. Each turn the model reasons about what it needs, calls a tool, observes the result, and either answers or loops again. That adaptivity is the power: a factual "what's 2+2" needs no retrieval; a multi-hop question (§3.2) needs several. The danger is the same adaptivity — an uncapped loop can spiral — so <span class="tag-term">iteration control</span> (a hard cap on rounds, a token/time budget, and logging every round) is not optional.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="An agent loop: the LLM reasons, chooses a tool (vector search, SQL, or web), observes the result, and either loops again up to a cap or emits the answer.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">the agent loop — retrieval is one tool, chosen when needed (≤ N rounds)</text>
+              <!-- LLM center -->
+              <rect x="290" y="50" width="120" height="52" rx="12" fill="#3B45B5"/><text x="350" y="74" fill="#fff" font-size="12" text-anchor="middle">LLM (agent)</text><text x="350" y="90" fill="#c9cdf0" font-size="9" text-anchor="middle">reason → act</text>
+              <!-- self loop -->
+              <path d="M410 62 C 460 40, 470 96, 414 92" fill="none" stroke="#F0A81E" stroke-width="1.8" marker-end="url(#a1)"/>
+              <text x="470" y="66" fill="#f0c274" font-size="9">loop ≤ N</text>
+              <!-- tools -->
+              <path d="M320 102 L200 160" stroke="#8892a0" stroke-width="1.4" marker-end="url(#a1)"/>
+              <path d="M350 102 L350 160" stroke="#8892a0" stroke-width="1.4" marker-end="url(#a1)"/>
+              <path d="M380 102 L500 160" stroke="#8892a0" stroke-width="1.4" marker-end="url(#a1)"/>
+              <g font-size="9.5" text-anchor="middle" fill="#fff">
+                <rect x="140" y="164" width="110" height="34" rx="7" fill="#252D3A" stroke="#5560D8"/><text x="195" y="185">vector search</text>
+                <rect x="295" y="164" width="110" height="34" rx="7" fill="#252D3A" stroke="#5560D8"/><text x="350" y="185">SQL / DB</text>
+                <rect x="450" y="164" width="110" height="34" rx="7" fill="#252D3A" stroke="#5560D8"/><text x="505" y="185">web search</text>
+              </g>
+              <!-- observe back -->
+              <path d="M195 164 C 195 130, 260 120, 288 100" stroke="#2E9E5B" stroke-width="1.4" stroke-dasharray="3 3" marker-end="url(#ag)"/>
+              <text x="220" y="128" fill="#7fd6a0" font-size="8.5">observe</text>
+              <!-- answer exit -->
+              <path d="M410 76 h50" stroke="#2E9E5B" stroke-width="2" marker-end="url(#ag)"/>
+              <rect x="560" y="56" width="120" height="40" rx="9" fill="#14181f" stroke="#2E9E5B"/><text x="620" y="80" fill="#7fd6a0" font-size="10" text-anchor="middle">answer (when done)</text>
+              <defs>
+                <marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="ag" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Adaptivity is the feature and the risk.</b> The agent spends retrieval only when the question needs it — but without a hard iteration cap, a budget, and per-round logging, a confused agent burns tokens in circles. Bound it explicitly.</figcaption>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">a bounded agentic loop with tool selection (LangGraph in prod)</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">import json
+TOOLS = {"search": vector_search, "sql": run_sql, "web": web_search}
+
+def agentic_rag(question, client, max_steps=4):
+    history = ""
+    for step in range(max_steps):                     # HARD cap = iteration control
+        decision = client.chat.completions.create(
+            model="gpt-4o-mini", temperature=0,
+            response_format={"type": "json_object"},
+            messages=[{"role": "user", "content":
+                f"Question: {question}\nHistory: {history or 'none'}\n"
+                'Reply JSON: {"tool":"search|sql|web","arg":"..."} to gather more, '
+                'or {"answer":"..."} if you can answer now. Tools: '
+                + ", ".join(TOOLS)}]
+        ).choices[0].message.content
+        d = json.loads(decision)
+        if "answer" in d:
+            return d["answer"]                          # agent decides it's done
+        obs = TOOLS[d["tool"]](d["arg"])                # act
+        history += f"\n[{d['tool']}({d['arg']})] -> {obs}"   # observe (also: log for tracing)
+    return "Stopped at step cap; return best partial answer + flag for review."
+# LangGraph models this as a state graph with a conditional 'should_continue' edge.
+</code></pre>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How do you bound cost when the LLM controls its own retrieval loop?</summary>
+              <div class="ans"><p>Multiple guards: a hard cap on iterations (e.g., ≤3–5), a token/time budget that aborts and returns a best-effort answer, a relevance/faithfulness gate that stops early once evidence is sufficient, and adaptive routing so simple queries never enter the loop at all (§3.9). Log every round (query, tool, result) for observability so you can see where loops run long. In short: give the agent freedom <em>inside</em> a fence, and prefer the cheapest strategy that answers the query.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What makes RAG "agentic" versus a fixed pipeline?</summary>
+              <div class="ans"><p>Control flow moves from the pipeline to the model. In fixed RAG the steps are hard-coded (always retrieve once, always with the vector store). In agentic RAG the LLM decides whether to retrieve, which tool/source to use, how to reformulate, whether results are adequate, and when to stop — possibly looping. Retrieval becomes a tool call. That buys adaptivity (right effort per query) at the cost of latency, tokens, and non-determinism.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ---------- 3.7 ---------- -->
+      <article class="topic" id="s3-7">
+        <h3><span class="tn">3.7</span> Self-RAG</h3>
+        <p class="lead">Self-RAG bakes the critique <em>into</em> generation: a specially-trained model emits <span class="tag-term">reflection tokens</span> that decide when to retrieve, judge whether each passage is relevant, and check whether its own sentences are actually supported by the evidence.</p>
+
+        <p>A Self-RAG model is fine-tuned to interleave normal text with control tokens:</p>
+        <ul>
+          <li><code class="ic">Retrieve?</code> — is retrieval needed for this span at all? (Skip it for "2+2".)</li>
+          <li><code class="ic">IsRel</code> — is this retrieved passage relevant? (Discard the ones that aren't.)</li>
+          <li><code class="ic">IsSup</code> — is this generated sentence <em>supported</em> by the passage? (Catch ungrounded claims.)</li>
+          <li><code class="ic">IsUse</code> — how useful is the overall answer? (Self-score.)</li>
+        </ul>
+        <p>The effect: retrieval on demand (not always), passage-level relevance filtering, and self-verification of grounding — all as part of decoding. It's a single model doing what naive RAG needs extra plumbing for, but it requires that fine-tuned model.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 220" role="img" aria-label="Self-RAG generation: a Retrieve decision gate, then per-passage relevance checks, then generation with a support check on each sentence and a usefulness score.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">reflection tokens gate and grade generation from the inside</text>
+              <rect x="20" y="46" width="90" height="40" rx="9" fill="#F0A81E"/><text x="65" y="70" fill="#3a2a00" font-size="10" text-anchor="middle">prompt</text>
+              <path d="M110 66 h24" stroke="#8892a0" stroke-width="1.5" marker-end="url(#sr1)"/>
+              <!-- Retrieve? diamond -->
+              <path d="M180 46 L214 66 L180 86 L146 66 Z" fill="#252D3A" stroke="#F0A81E"/><text x="180" y="70" fill="#f0c274" font-size="9" text-anchor="middle">Retrieve?</text>
+              <path d="M214 66 h24" stroke="#8892a0" stroke-width="1.4" marker-end="url(#sr1)"/>
+              <text x="200" y="40" fill="#8892a0" font-size="8">yes</text>
+              <!-- IsRel -->
+              <rect x="240" y="46" width="90" height="40" rx="8" fill="#3B45B5"/><text x="285" y="66" fill="#fff" font-size="9" text-anchor="middle">IsRel per</text><text x="285" y="79" fill="#c9cdf0" font-size="9" text-anchor="middle">passage</text>
+              <path d="M330 66 h24" stroke="#8892a0" stroke-width="1.4" marker-end="url(#sr1)"/>
+              <!-- generate -->
+              <rect x="356" y="46" width="90" height="40" rx="8" fill="#3B45B5"/><text x="401" y="70" fill="#fff" font-size="10" text-anchor="middle">generate</text>
+              <path d="M446 66 h24" stroke="#8892a0" stroke-width="1.4" marker-end="url(#sr1)"/>
+              <!-- IsSup diamond -->
+              <path d="M506 46 L540 66 L506 86 L472 66 Z" fill="#252D3A" stroke="#2E9E5B"/><text x="506" y="70" fill="#7fd6a0" font-size="8.5" text-anchor="middle">IsSup?</text>
+              <path d="M540 66 h20" stroke="#2E9E5B" stroke-width="1.8" marker-end="url(#srg)"/>
+              <rect x="562" y="46" width="118" height="40" rx="9" fill="#14181f" stroke="#2E9E5B"/><text x="621" y="66" fill="#7fd6a0" font-size="9.5" text-anchor="middle">grounded answer</text><text x="621" y="79" fill="#8892a0" font-size="8.5" text-anchor="middle">+ IsUse score</text>
+              <!-- no-retrieve path -->
+              <path d="M180 86 C 180 140, 401 140, 401 88" fill="none" stroke="#8892a0" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#sr1)"/>
+              <text x="270" y="155" fill="#8892a0" font-size="8.5">no → answer from parametric knowledge directly</text>
+              <defs>
+                <marker id="sr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="srg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Self-critique as decoding.</b> The model itself decides to retrieve, filters passages by relevance, and flags unsupported sentences — turning "trust me" into "here's my evidence check." Requires the Self-RAG-trained model; the <em>behavior</em> can be approximated with prompted structured-output checks.</figcaption>
+        </figure>
+      </article>
+      <!-- ---------- 3.8 ---------- -->
+      <article class="topic" id="s3-8">
+        <h3><span class="tn">3.8</span> Corrective RAG (CRAG)</h3>
+        <p class="lead">Naive RAG generates from whatever it retrieved, even when that's garbage. CRAG adds a cheap grader that <em>checks</em> the retrieval first and, if it's bad, <em>corrects course</em> — typically by falling back to web search — before the LLM ever writes an answer.</p>
+
+        <p>CRAG inserts a lightweight <span class="tag-term">retrieval evaluator</span> that grades the retrieved set against the query into three buckets, each with a different action:</p>
+        <ul>
+          <li><b>Correct</b> → the docs are relevant; refine them (decompose into "knowledge strips," drop the irrelevant bits) and generate.</li>
+          <li><b>Incorrect</b> → the docs miss; <em>discard them</em> and trigger a fallback — usually a web search — to fetch better knowledge, then generate from that.</li>
+          <li><b>Ambiguous</b> → unsure; combine the retrieved docs <em>and</em> the fallback for safety.</li>
+        </ul>
+        <p>The point is corrective action on bad retrieval, which is exactly the failure that produces confident, ungrounded answers. CRAG and Self-RAG (§3.7) are cousins — both add self-evaluation — but CRAG's evaluator is an external, lightweight module with an explicit <em>fallback</em>, whereas Self-RAG's judgments are reflection tokens emitted by one fine-tuned model.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="CRAG: retrieve, then a grader labels the results correct, ambiguous, or incorrect; correct refines and generates, incorrect falls back to web search, ambiguous combines both.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">grade the retrieval, then correct it before generating</text>
+              <rect x="20" y="94" width="90" height="40" rx="9" fill="#3B45B5"/><text x="65" y="118" fill="#fff" font-size="10" text-anchor="middle">retrieve</text>
+              <path d="M110 114 h24" stroke="#8892a0" stroke-width="1.5" marker-end="url(#g1)"/>
+              <rect x="136" y="92" width="94" height="44" rx="9" fill="#252D3A" stroke="#F0A81E"/><text x="183" y="112" fill="#f0c274" font-size="10" text-anchor="middle">grader</text><text x="183" y="126" fill="#8892a0" font-size="8" text-anchor="middle">relevant?</text>
+              <!-- three branches -->
+              <path d="M230 100 L268 60" stroke="#2E9E5B" stroke-width="1.6" marker-end="url(#gg)"/>
+              <path d="M230 114 L268 114" stroke="#F0A81E" stroke-width="1.6" marker-end="url(#gy)"/>
+              <path d="M230 128 L268 172" stroke="#C0392B" stroke-width="1.6" marker-end="url(#gr)"/>
+              <g font-size="9" text-anchor="middle">
+                <rect x="270" y="44" width="150" height="34" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="345" y="60" fill="#7fd6a0">Correct → refine strips</text><text x="345" y="72" fill="#8892a0" font-size="8">keep relevant sentences</text>
+                <rect x="270" y="97" width="150" height="34" rx="7" fill="#14181f" stroke="#F0A81E"/><text x="345" y="113" fill="#f0c274">Ambiguous → docs + web</text>
+                <rect x="270" y="158" width="150" height="34" rx="7" fill="#14181f" stroke="#C0392B"/><text x="345" y="174" fill="#e0a3a8">Incorrect → discard,</text><text x="345" y="186" fill="#e0a3a8">web-search fallback</text>
+              </g>
+              <!-- converge to generate -->
+              <path d="M420 61 C 470 61, 470 108, 500 114" stroke="#8892a0" stroke-width="1.3" marker-end="url(#g1)"/>
+              <path d="M420 114 h80" stroke="#8892a0" stroke-width="1.3" marker-end="url(#g1)"/>
+              <path d="M420 175 C 470 175, 470 122, 500 118" stroke="#8892a0" stroke-width="1.3" marker-end="url(#g1)"/>
+              <rect x="502" y="94" width="80" height="40" rx="9" fill="#3B45B5"/><text x="542" y="118" fill="#fff" font-size="10" text-anchor="middle">generate</text>
+              <path d="M582 114 h20" stroke="#2E9E5B" stroke-width="2" marker-end="url(#gg)"/>
+              <rect x="604" y="94" width="76" height="40" rx="8" fill="#14181f" stroke="#2E9E5B"/><text x="642" y="118" fill="#7fd6a0" font-size="9.5" text-anchor="middle">answer</text>
+              <defs>
+                <marker id="g1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="gg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+                <marker id="gy" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#F0A81E"/></marker>
+                <marker id="gr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#C0392B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Bad retrieval gets fixed, not answered from.</b> The grader is cheap (a small classifier or a quick LLM call); the web-search fallback is what rescues queries your corpus simply can't answer — a common cause of confident hallucination in naive RAG.</figcaption>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">retrieval grader + corrective fallback</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">def grade_retrieval(question, docs, client):
+    joined = "\n---\n".join(docs)
+    verdict = client.chat.completions.create(
+        model="gpt-4o-mini", temperature=0,
+        messages=[{"role": "user", "content":
+            f"Do these docs contain enough to answer the question? "
+            f"Reply one word: correct / ambiguous / incorrect.\n"
+            f"Q: {question}\nDocs:\n{joined}"}]
+    ).choices[0].message.content.strip().lower()
+    return verdict
+
+def crag(question, retrieve, web_search, generate, client, k=5):
+    docs = retrieve(question, k)
+    grade = grade_retrieval(question, docs, client)
+    if grade == "incorrect":
+        docs = web_search(question)                 # discard + fallback to fresh knowledge
+    elif grade == "ambiguous":
+        docs = docs + web_search(question)          # hedge: use both
+    return generate(question, docs)                 # 'correct' -> generate as-is (or refine)
+</code></pre>
+        </figure>
+      </article>
+
+      <!-- ---------- 3.9 ---------- -->
+      <article class="topic" id="s3-9">
+        <h3><span class="tn">3.9</span> Adaptive RAG &amp; routing</h3>
+        <p class="lead">Running a 5-hop agent on "what's our refund policy?" wastes money and latency; running naive one-shot RAG on a gnarly multi-hop question fails. Adaptive RAG classifies query complexity first and routes to the <em>cheapest strategy that will actually work</em>.</p>
+
+        <p>A <span class="tag-term">complexity classifier</span> (a small model or a quick LLM call) labels the incoming query, and a router sends it down the matching lane:</p>
+        <ul>
+          <li><b>Simple / general</b> → answer directly from parametric knowledge, <em>no retrieval</em> ("who wrote Hamlet?").</li>
+          <li><b>Single-fact</b> → one-shot RAG ("what's the Pro refund window?").</li>
+          <li><b>Complex / multi-hop</b> → iterative or agentic RAG (§3.6), spending the extra rounds only here.</li>
+        </ul>
+        <p>This is the <span class="tag-term">router pattern</span> generalized. You can route on complexity (cost), on <em>source</em> (SQL vs vector vs graph, §3.3), or on <em>modality</em> (text vs image). The payoff is spending compute in proportion to difficulty — the single biggest lever for keeping an agentic system affordable.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 210" role="img" aria-label="A complexity classifier routes simple queries to a direct answer, single-fact queries to one-shot RAG, and complex queries to an agentic loop.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">match effort to difficulty: cheapest sufficient path wins</text>
+              <circle cx="50" cy="105" r="10" fill="#F0A81E"/><text x="50" y="132" fill="#F0A81E" font-size="9" text-anchor="middle">query</text>
+              <path d="M60 105 h24" stroke="#8892a0" stroke-width="1.5" marker-end="url(#r1)"/>
+              <rect x="86" y="82" width="96" height="46" rx="10" fill="#252D3A" stroke="#F0A81E"/><text x="134" y="102" fill="#f0c274" font-size="10" text-anchor="middle">complexity</text><text x="134" y="116" fill="#8892a0" font-size="9" text-anchor="middle">classifier</text>
+              <!-- lanes -->
+              <path d="M182 92 L228 58" stroke="#2E9E5B" stroke-width="1.5" marker-end="url(#rg)"/>
+              <path d="M182 105 L228 105" stroke="#8892a0" stroke-width="1.5" marker-end="url(#r1)"/>
+              <path d="M182 118 L228 156" stroke="#8892a0" stroke-width="1.5" marker-end="url(#r1)"/>
+              <g font-size="9.5">
+                <rect x="230" y="42" width="200" height="34" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="242" y="63" fill="#7fd6a0">Simple → direct answer (no retrieval)</text>
+                <rect x="230" y="88" width="200" height="34" rx="7" fill="#14181f" stroke="#5560D8"/><text x="242" y="109" fill="#aab2f0">Single-fact → one-shot RAG</text>
+                <rect x="230" y="138" width="200" height="34" rx="7" fill="#14181f" stroke="#3B45B5"/><text x="242" y="159" fill="#c9cdf0">Complex → agentic / multi-hop</text>
+              </g>
+              <text x="470" y="60" fill="#8892a0" font-size="9">$ cheapest</text>
+              <text x="470" y="109" fill="#8892a0" font-size="9">$$</text>
+              <text x="470" y="159" fill="#8892a0" font-size="9">$$$ (only when needed)</text>
+              <defs>
+                <marker id="r1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="rg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Adaptive RAG = compute proportional to difficulty.</b> Most queries are simple or single-fact; sending only the genuinely hard ones into the expensive agentic lane is what makes an agentic product economically viable.</figcaption>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">complexity classifier + router</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">def classify(question, client):
+    r = client.chat.completions.create(model="gpt-4o-mini", temperature=0,
+        messages=[{"role": "user", "content":
+            "Classify complexity as exactly one of: simple, single, complex.\n"
+            "simple = answerable from general knowledge (no retrieval);\n"
+            "single = one lookup in the docs;\n"
+            "complex = multi-hop / needs several retrievals.\n"
+            f"Question: {question}"}]).choices[0].message.content.strip().lower()
+    return next((c for c in ("complex", "single", "simple") if c in r), "single")
+
+def adaptive_rag(question, client):
+    lane = classify(question, client)
+    if lane == "simple":  return direct_answer(question, client)      # $   no retrieval
+    if lane == "single":  return naive_rag(question, client)          # $$  one-shot
+    return agentic_rag(question, client)                              # $$$ only if needed
+</code></pre>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How do you decide when a query needs agentic retrieval vs a simple pipeline?</summary>
+              <div class="ans"><p>Classify complexity up front (adaptive RAG). Simple/general questions get a direct answer with no retrieval; single-fact questions get one-shot RAG; only genuinely multi-hop or ambiguous questions enter the agentic loop. The classifier can be a small fine-tuned model or a cheap LLM call. This keeps latency and cost proportional to difficulty — most traffic takes a cheap lane, and you reserve the expensive iterative path for the minority that truly needs it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Difference between Self-RAG and Corrective RAG?</summary>
+              <div class="ans"><p>Both add self-evaluation, but differently. <b>Self-RAG</b> is a single fine-tuned model that emits reflection tokens during decoding — deciding when to retrieve, whether passages are relevant, and whether its sentences are supported. <b>CRAG</b> is a modular add-on: a separate lightweight evaluator grades the retrieved set (correct/ambiguous/incorrect) and triggers a corrective <em>fallback</em> (e.g., web search) when retrieval is poor. Self-RAG bakes judgment into the model; CRAG bolts a grader + fallback onto any pipeline and is easier to adopt without training.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <!-- ---------- 3.10 ---------- -->
+      <article class="topic" id="s3-10">
+        <h3><span class="tn">3.10</span> Agentic patterns: ReAct, plan-and-execute, multi-agent</h3>
+        <p class="lead">"Agentic RAG" isn't one architecture — it's a family of control-flow patterns. Knowing the three canonical ones (plus routing from §3.9) lets you pick the right shape for a problem instead of reaching for the heaviest one.</p>
+
+        <ul>
+          <li><b>ReAct</b> (Reason + Act) — interleave <em>thought → action → observation</em> in a loop; the model reasons about what to do, calls a tool, reads the result, and repeats. The default single-agent loop; flexible, but can wander.</li>
+          <li><b>Plan-and-execute</b> — the model writes a full plan up front, then executes the steps (re-planning only if a step fails). Fewer reasoning calls, more predictable, better for well-structured multi-step tasks.</li>
+          <li><b>Multi-agent</b> — a supervisor delegates to specialized agents (e.g., one retriever per source: docs, SQL, web) and synthesizes their outputs. Best when sources/skills are heterogeneous; costs coordination overhead.</li>
+        </ul>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 220" role="img" aria-label="Three agentic patterns side by side: ReAct as a think-act-observe loop, plan-and-execute as a plan followed by sequential steps, and multi-agent as a supervisor delegating to specialist agents.">
+              <!-- ReAct -->
+              <text x="115" y="24" fill="#8892a0" font-size="11" text-anchor="middle">ReAct (loop)</text>
+              <rect x="60" y="40" width="110" height="30" rx="7" fill="#3B45B5"/><text x="115" y="59" fill="#fff" font-size="9">Thought</text>
+              <rect x="60" y="80" width="110" height="30" rx="7" fill="#5560D8"/><text x="115" y="99" fill="#fff" font-size="9">Action (tool)</text>
+              <rect x="60" y="120" width="110" height="30" rx="7" fill="#252D3A" stroke="#2E9E5B"/><text x="115" y="139" fill="#7fd6a0" font-size="9">Observation</text>
+              <path d="M115 70 v10" stroke="#8892a0" stroke-width="1.3" marker-end="url(#p1)"/>
+              <path d="M115 110 v10" stroke="#8892a0" stroke-width="1.3" marker-end="url(#p1)"/>
+              <path d="M60 135 C 30 135, 30 55, 58 55" fill="none" stroke="#F0A81E" stroke-width="1.5" marker-end="url(#p1)"/>
+              <text x="115" y="172" fill="#8892a0" font-size="8.5" text-anchor="middle">repeat until done</text>
+
+              <!-- Plan-execute -->
+              <text x="350" y="24" fill="#8892a0" font-size="11" text-anchor="middle">Plan-and-execute</text>
+              <rect x="270" y="40" width="160" height="30" rx="7" fill="#3B45B5"/><text x="350" y="59" fill="#fff" font-size="9">Plan: [s1, s2, s3]</text>
+              <path d="M350 70 v8" stroke="#8892a0" stroke-width="1.3" marker-end="url(#p1)"/>
+              <g font-size="8.5" text-anchor="middle" fill="#fff">
+                <rect x="270" y="82" width="48" height="26" rx="5" fill="#5560D8"/><text x="294" y="99">s1</text>
+                <rect x="326" y="82" width="48" height="26" rx="5" fill="#5560D8"/><text x="350" y="99">s2</text>
+                <rect x="382" y="82" width="48" height="26" rx="5" fill="#5560D8"/><text x="406" y="99">s3</text>
+              </g>
+              <path d="M318 95 h8" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p1)"/>
+              <path d="M374 95 h8" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p1)"/>
+              <path d="M350 108 v8" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#pg)"/>
+              <rect x="300" y="118" width="100" height="28" rx="6" fill="#14181f" stroke="#2E9E5B"/><text x="350" y="136" fill="#7fd6a0" font-size="9" text-anchor="middle">answer</text>
+              <text x="350" y="172" fill="#8892a0" font-size="8.5" text-anchor="middle">plan once, then run</text>
+
+              <!-- Multi-agent -->
+              <text x="590" y="24" fill="#8892a0" font-size="11" text-anchor="middle">Multi-agent</text>
+              <rect x="540" y="40" width="100" height="28" rx="7" fill="#F0A81E"/><text x="590" y="58" fill="#3a2a00" font-size="9">supervisor</text>
+              <path d="M560 68 L515 100" stroke="#8892a0" stroke-width="1.2" marker-end="url(#p1)"/>
+              <path d="M590 68 L590 100" stroke="#8892a0" stroke-width="1.2" marker-end="url(#p1)"/>
+              <path d="M620 68 L665 100" stroke="#8892a0" stroke-width="1.2" marker-end="url(#p1)"/>
+              <g font-size="8" text-anchor="middle" fill="#fff">
+                <rect x="486" y="102" width="58" height="26" rx="5" fill="#5560D8"/><text x="515" y="119">docs</text>
+                <rect x="561" y="102" width="58" height="26" rx="5" fill="#5560D8"/><text x="590" y="119">SQL</text>
+                <rect x="636" y="102" width="52" height="26" rx="5" fill="#5560D8"/><text x="662" y="119">web</text>
+              </g>
+              <path d="M515 128 C 515 150, 585 150, 588 138" fill="none" stroke="#2E9E5B" stroke-width="1.2" stroke-dasharray="2 2" marker-end="url(#pg)"/>
+              <text x="590" y="172" fill="#8892a0" font-size="8.5" text-anchor="middle">delegate + synthesize</text>
+              <defs>
+                <marker id="p1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="pg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Pick the lightest pattern that fits.</b> ReAct for open-ended exploration, plan-and-execute for structured multi-step tasks, multi-agent for heterogeneous sources. All are usually built on LangGraph today; all need the same iteration caps and observability from §3.6.</figcaption>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">a minimal ReAct loop</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">import re
+def react(question, tools, client, max_steps=5):
+    scratch = ""
+    for _ in range(max_steps):
+        out = client.chat.completions.create(model="gpt-4o-mini", temperature=0,
+            messages=[{"role": "user", "content":
+                f"Question: {question}\n{scratch}\n"
+                f"Available tools: {list(tools)}.\n"
+                "Reply either 'Action: tool | arg' to gather info, or 'Final: &lt;answer&gt;'."}]
+        ).choices[0].message.content.strip()
+        if out.startswith("Final:"):
+            return out[len("Final:"):].strip()
+        m = re.match(r"Action:\s*(\w+)\s*\|\s*(.+)", out)
+        tool, arg = m.group(1), m.group(2)
+        obs = tools[tool](arg)
+        scratch += f"\nAction: {tool}({arg})\nObservation: {obs}"   # reason → act → observe
+    return "Step cap reached."
+</code></pre>
+        </figure>
+      </article>
+
+      <!-- ---------- 3.11 ---------- -->
+      <article class="topic" id="s3-11">
+        <h3><span class="tn">3.11</span> Cost, latency &amp; interview focus</h3>
+        <p class="lead">Every technique in this part trades money and milliseconds for capability. The senior signal in an interview is naming that trade explicitly and defaulting to the <em>simplest</em> architecture the problem allows.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 200" role="img" aria-label="Relative token cost and latency grow from direct answer to naive RAG to agentic RAG, roughly 3 to 10 times more tokens and 2 to 5 times more latency for agentic loops.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">relative cost by architecture (illustrative)</text>
+              <line x1="120" y1="170" x2="660" y2="170" stroke="#2c3542" stroke-width="1"/>
+              <g text-anchor="middle" font-size="10">
+                <rect x="150" y="150" width="70" height="20" rx="4" fill="#2E9E5B"/><text x="185" y="188" fill="#c2cad6">direct</text><text x="185" y="144" fill="#7fd6a0" font-size="9">1×</text>
+                <rect x="320" y="120" width="70" height="50" rx="4" fill="#5560D8"/><text x="355" y="188" fill="#c2cad6">naive RAG</text><text x="355" y="114" fill="#aab2f0" font-size="9">~1.5×</text>
+                <rect x="490" y="50" width="70" height="120" rx="4" fill="#F0A81E"/><text x="525" y="188" fill="#c2cad6">agentic</text><text x="525" y="44" fill="#f0c274" font-size="9">3–10× tokens</text>
+                <rect x="580" y="80" width="70" height="90" rx="4" fill="#c9820f"/><text x="615" y="188" fill="#c2cad6">agentic</text><text x="615" y="74" fill="#f0c274" font-size="9">2–5× latency</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Agentic isn't free.</b> Multiple LLM calls per query (routing, grading, reasoning, re-retrieval) multiply tokens and latency. Adaptive routing (§3.9), caps (§3.6), and caching (Part 4) are how you keep the capability without the bill.</figcaption>
+        </figure>
+
+        <h4>Which architecture for which problem</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Problem shape</th><th>Reach for</th><th>§</th></tr></thead>
+            <tbody>
+              <tr><td>Semantic + exact-term lookup</td><td>Hybrid vector RAG + rerank (the default)</td><td>Part 2</td></tr>
+              <tr><td>Relationship / "connect the dots" / global themes</td><td>GraphRAG</td><td>§3.1</td></tr>
+              <tr><td>Aggregation, filters, math over tables</td><td>Text-to-SQL (routed)</td><td>§3.3</td></tr>
+              <tr><td>Images, charts, scanned tables</td><td>Multimodal (CLIP or caption)</td><td>§3.4</td></tr>
+              <tr><td>Very long, hierarchical documents</td><td>Hierarchical / RAPTOR</td><td>§3.5</td></tr>
+              <tr><td>Chained, dependent sub-questions</td><td>Multi-hop / agentic loop</td><td>§3.2, §3.6</td></tr>
+              <tr><td>Retrieval quality is unreliable</td><td>CRAG (grade + fallback) / Self-RAG</td><td>§3.7–3.8</td></tr>
+              <tr><td>Mixed traffic, cost-sensitive</td><td>Adaptive routing</td><td>§3.9</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="cl-lab">Interview tip · resist the shiny architecture</span>
+          <p>Interviewers love watching whether you jump straight to GraphRAG or a multi-agent swarm. The strong candidate starts with "what do the queries actually look like?" and defaults to hybrid+rerank vector RAG, escalating to graph/SQL/agentic <em>only</em> when a specific query class demands it — and names the cost each escalation adds. Sophistication is knowing when <em>not</em> to use the advanced thing.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Phase 3 + 4 interview classics</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What would you use instead of vector RAG for relationship questions, and why?</summary>
+              <div class="ans"><p>GraphRAG. Relationship questions ("who connects A and D", "trace the ownership chain") depend on facts spread across documents as a network of entities and relations; vector search retrieves independently-similar chunks and can't traverse or aggregate those connections. Extracting entities/relationships into a knowledge graph lets you answer by graph traversal (local search) and, with community summaries, answer corpus-wide sensemaking questions (global search). Use it only when queries are genuinely relational — it's costly to build and maintain.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Give a bound-the-cost design for an agentic RAG product.</summary>
+              <div class="ans"><p>Front it with adaptive routing so most queries take a cheap non-agentic lane. For the agentic lane: cap iterations (≤3–5), enforce a token/time budget that returns a best-effort answer on overrun, add a relevance gate to stop early when evidence suffices, and cache aggressively (semantic query cache, embedding cache, tool-result cache — Part 4). Log every round for observability and to find loops that run long. The architecture is "freedom inside a fence," with cost dominated by the fraction of traffic that legitimately needs the fence.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>An agent keeps looping and burning tokens on some queries. What's wrong and how do you fix it?</summary>
+              <div class="ans"><p>Usually the stop condition is weak — the agent can't tell when it has "enough," so it keeps retrieving. Fixes: a hard iteration cap with a graceful fallback answer, an explicit sufficiency check (a grader that says "you can answer now"), better tool result formatting so observations are usable, and routing genuinely-unanswerable queries to an abstention path rather than infinite retry. Also log rounds to spot the offending query classes and add targeted handling.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t">Part 2 · Advanced Retrieval</div><ul><li>Hybrid, rerank, HyDE, MMR</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 3 · Alternative &amp; Agentic</div><ul><li>GraphRAG, agentic, adaptive</li></ul></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t">Part 4 · Evaluation &amp; Production</div><ul><li>Metrics, RAGAS, LLM-as-judge</li><li>Caching, guardrails, monitoring</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        RAG Interview Prep — Part 3 of 6 · Alternative &amp; Agentic<br>
+        Covers tracker items 72–106 (Phase 3 + Phase 4). Diagrams use a fixed grammar: <span style="color:var(--gold-2)">gold = query/signal</span>, <span style="color:var(--indigo-2)">indigo = corpus/document</span>, <span style="color:var(--green)">green = relevant match</span>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">ragPrepStatus_v1</code> and is shared by every part of this resource.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 206 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {
+  p0:"Phase 0 · Prerequisites", p1:"Phase 1 · Naive RAG Foundations",
+  p2:"Phase 2 · Advanced RAG — Retrieval Quality", p3:"Phase 3 · Structured & Alternative Retrieval",
+  p4:"Phase 4 · Agentic & Adaptive RAG", p5:"Phase 5 · Evaluation, Observability & Production",
+  p6:"Phase 6 · System Design Integration", cap:"Capstone Project",
+  tool:"Tools & Frameworks", paper:"Core Papers to Skim", qa:"Interview Q&A Bank"
+};
+const ORDER = ["p0","p1","p2","p3","p4","p5","p6","cap","tool","paper","qa"];
+const TRACKER = [
+[1,"p0","Theory","Medium",0,"Embeddings: how dense vector embeddings are trained (contrastive learning)"],
+[2,"p0","Theory","Medium",0,"Cosine similarity vs dot product vs Euclidean distance"],
+[3,"p0","Theory","Medium",0,"Transformers basics: attention mechanism"],
+[4,"p0","Theory","Medium",0,"Why context windows are limited"],
+[5,"p0","Theory","Medium",0,"How tokenization affects chunking"],
+[6,"p0","Theory","Medium",0,"LLM inference: temperature, top-k / top-p sampling"],
+[7,"p0","Theory","Medium",0,"Context window limits and why hallucination happens"],
+[8,"p0","Theory","Medium",0,"Basic vector math: cosine similarity"],
+[9,"p0","Theory","Medium",0,"Curse of dimensionality in high-dimensional similarity search"],
+[10,"p1","Theory","Medium",0,"What RAG solves: parametric knowledge limits"],
+[11,"p1","Theory","Medium",0,"What RAG solves: hallucination"],
+[12,"p1","Theory","Medium",0,"What RAG solves: staleness of knowledge"],
+[13,"p1","Theory","Medium",0,"What RAG solves: lack of source attribution"],
+[14,"p1","Theory","Medium",0,"What RAG solves: cost of fine-tuning for knowledge updates"],
+[15,"p1","Theory","Medium",0,"Basic pipeline: Ingest -> Chunk -> Embed -> Store -> Query -> Retrieve -> Augment -> Generate"],
+[16,"p1","Theory","High",1,"Document parsing & preprocessing (OCR, layout/table extraction; unstructured, LlamaParse)"],
+[17,"p1","Theory","Medium",0,"Chunking strategy: fixed-size chunking"],
+[18,"p1","Theory","Medium",0,"Chunking strategy: sentence-based chunking"],
+[19,"p1","Theory","Medium",0,"Chunking strategy: recursive character splitting"],
+[20,"p1","Theory","Medium",0,"Chunking strategy: semantic chunking (embedding-based boundary detection)"],
+[21,"p1","Theory","Medium",0,"Chunking strategy: document-structure-aware chunking (headers, tables)"],
+[22,"p1","Theory","Medium",1,"Late chunking (embed full document, then split token embeddings)"],
+[23,"p1","Theory","Medium",0,"Chunk size / overlap tradeoffs"],
+[24,"p1","Theory","Medium",0,"Embedding models: open-source (BGE, E5, GTE, Nomic)"],
+[25,"p1","Theory","Medium",0,"Embedding models: proprietary (OpenAI text-embedding-3, Voyage, Cohere embed)"],
+[26,"p1","Theory","Medium",1,"Matryoshka / adaptive-dimension embeddings (MRL)"],
+[27,"p1","Theory","Medium",0,"When to fine-tune your own embedding model"],
+[28,"p1","Theory","Medium",0,"Vector DB internals: ANN search — HNSW"],
+[29,"p1","Theory","Medium",0,"Vector DB internals: ANN search — IVF"],
+[30,"p1","Theory","Medium",0,"Vector DB internals: product quantization (+ binary/scalar quantization)"],
+[31,"p1","Theory","Medium",0,"Tradeoffs of exact vs approximate search"],
+[32,"p1","Theory","Medium",0,"Distance metrics: cosine vs dot product vs L2 (normalized vs unnormalized)"],
+[33,"p1","Theory","High",1,"Prompt & context assembly + grounded citation (answer-only-from-context)"],
+[34,"p1","Practical","Medium",0,"Build minimal RAG pipeline from scratch (no framework)"],
+[35,"p1","Practical","Medium",0,"Implement PDF/text ingestion + try 2-3 chunking strategies"],
+[36,"p1","Practical","Medium",0,"Use a free embedding model via sentence-transformers"],
+[37,"p1","Practical","Medium",0,"Set up vector store: FAISS (in-memory, learn internals)"],
+[38,"p1","Practical","Medium",0,"Move pipeline to Chroma or Qdrant"],
+[39,"p1","Practical","Medium",0,"Build simple retrieval + prompt template + LLM call"],
+[40,"p1","Practical","Medium",0,"Deliberately break pipeline: test bad chunk sizes, measure degradation"],
+[41,"p1","Practical","Medium",0,"Log retrieved results for 10 test queries and manually judge relevance"],
+[42,"p1","Interview Prep","Medium",0,"Walk through query-to-response flow end to end"],
+[43,"p1","Interview Prep","Medium",0,"How to choose chunk size for a 200-page legal doc vs Slack archive"],
+[44,"p1","Interview Prep","Medium",0,"Why not just put the whole document in the context window now that windows are huge?"],
+[45,"p2","Theory","High",0,"Hybrid search: combining dense (semantic) + sparse (BM25) retrieval"],
+[46,"p2","Theory","High",0,"Why pure semantic search fails on exact terms, IDs, acronyms, numbers"],
+[47,"p2","Theory","High",0,"Reciprocal Rank Fusion (RRF) and other result-merging methods"],
+[48,"p2","Theory","High",1,"RAG-Fusion (multi-query -> per-query retrieval -> RRF)"],
+[49,"p2","Theory","High",0,"Re-ranking: cross-encoders vs bi-encoders"],
+[50,"p2","Theory","High",0,"Two-stage retrieve-then-rerank pipeline rationale"],
+[51,"p2","Theory","High",0,"Cost / latency tradeoff of reranking"],
+[52,"p2","Theory","High",1,"MMR (Maximal Marginal Relevance) for diversity / de-duplication"],
+[53,"p2","Theory","High",0,"Query rewriting / expansion (HyDE — Hypothetical Document Embeddings)"],
+[54,"p2","Theory","High",0,"Query decomposition (breaking multi-part questions into sub-queries)"],
+[55,"p2","Theory","Medium",0,"Step-back prompting (generating a more abstract question first)"],
+[56,"p2","Theory","Medium",0,"Multi-query retrieval (N paraphrases, retrieve each, deduplicate)"],
+[57,"p2","Theory","Medium",0,"Metadata filtering (pre-filter by date, source, department)"],
+[58,"p2","Theory","Medium",0,"Parent-child / small-to-big retrieval"],
+[59,"p2","Theory","High",0,"Contextual retrieval (prepend chunk-level context before embedding)"],
+[60,"p2","Theory","Medium",0,"Sentence-window retrieval"],
+[61,"p2","Theory","High",1,"Contextual compression (LLM/extractor-based chunk compression)"],
+[62,"p2","Theory","Medium",1,"Lost-in-the-middle & retrieved-context ordering"],
+[63,"p2","Theory","Medium",1,"ColBERT / late-interaction (multi-vector) retrieval"],
+[64,"p2","Practical","High",0,"Add BM25 (rank_bm25 / Elasticsearch / OpenSearch) alongside vector store"],
+[65,"p2","Practical","High",0,"Implement RRF fusion of dense + sparse results"],
+[66,"p2","Practical","High",0,"Add cross-encoder reranker (bge-reranker or Cohere rerank API)"],
+[67,"p2","Practical","Medium",0,"Implement HyDE: generate hypothetical answer, embed it, retrieve"],
+[68,"p2","Practical","Medium",0,"Compare retrieval@k precision before/after each technique on labeled eval set"],
+[69,"p2","Interview Prep","High",0,"Why RAG fails on queries with product SKUs / exact numbers, and how to fix it"],
+[70,"p2","Interview Prep","Medium",0,"When is reranking not worth the added latency?"],
+[71,"p2","Interview Prep","Medium",0,"Explain HyDE and when it helps vs hurts"],
+[72,"p3","Theory","High",0,"GraphRAG: building a knowledge graph (entities + relationships) from documents"],
+[73,"p3","Theory","High",0,"GraphRAG: retrieval via graph traversal vs vector search"],
+[74,"p3","Theory","High",0,"When GraphRAG beats vector RAG (multi-hop relationship questions) vs overkill"],
+[75,"p3","Theory","Medium",0,"Community detection / hierarchical summarization in GraphRAG (Microsoft approach)"],
+[76,"p3","Theory","Medium",0,"Multi-hop retrieval (iterative retrieval based on intermediate reasoning)"],
+[77,"p3","Theory","Medium",0,"Table/structured data RAG: text-to-SQL as alternative to vector search"],
+[78,"p3","Theory","Medium",0,"Hybrid systems routing between SQL and vector retrieval"],
+[79,"p3","Theory","Medium",0,"Multimodal RAG: retrieving over images / tables / charts"],
+[80,"p3","Theory","Medium",0,"Vision-capable embedding models (e.g., CLIP) or text-description conversion"],
+[81,"p3","Theory","Medium",0,"Long-document / hierarchical RAG: summarize-then-drill-down patterns"],
+[82,"p3","Practical","Medium",0,"Build tiny GraphRAG prototype: LLM-based entity/relation extraction"],
+[83,"p3","Practical","Medium",0,"Store extracted graph in NetworkX and answer a relationship question via traversal"],
+[84,"p3","Practical","Medium",0,"Try text-to-SQL RAG on a toy database"],
+[85,"p3","Practical","Medium",0,"Compare text-to-SQL approach vs embedding schema/rows as text"],
+[86,"p3","Interview Prep","Medium",0,"Why vector RAG struggles on 'who is connected to X across 500 emails' questions"],
+[87,"p3","Interview Prep","Medium",0,"What to use instead of vector RAG for relationship questions"],
+[88,"p3","Interview Prep","Medium",0,"When is GraphRAG not worth the ingestion/maintenance cost?"],
+[89,"p4","Theory","High",0,"Agentic RAG: LLM decides whether/what/how many times to retrieve and when to stop"],
+[90,"p4","Theory","High",0,"Self-RAG: reflection/critique tokens for retrieval necessity + self-evaluation"],
+[91,"p4","Theory","High",0,"Corrective RAG (CRAG): lightweight evaluator grades retrieved chunks"],
+[92,"p4","Theory","High",0,"CRAG fallback strategies (e.g., web search) when retrieval is insufficient"],
+[93,"p4","Theory","High",0,"Adaptive RAG: query complexity classifier routes to cheapest sufficient strategy"],
+[94,"p4","Theory","High",0,"Cost/latency tradeoffs of agentic loops (3-10x tokens, 2-5x latency)"],
+[95,"p4","Theory","Medium",0,"Architectural pattern: router pattern"],
+[96,"p4","Theory","Medium",0,"Architectural pattern: ReAct-style iterative retrieval"],
+[97,"p4","Theory","Medium",0,"Architectural pattern: plan-and-execute"],
+[98,"p4","Theory","Medium",0,"Architectural pattern: multi-agent retrieval (specialized retriever agents per source)"],
+[99,"p4","Theory","Medium",0,"Tool use in RAG: retrieval as one tool among many (SQL, calculator, web, API)"],
+[100,"p4","Theory","High",0,"Iteration control: capping retrieval loops, logging rounds for observability"],
+[101,"p4","Practical","High",0,"Build simple agentic loop: LLM decides retrieve-again vs answer, cap at 3 iterations"],
+[102,"p4","Practical","High",0,"Add relevance/faithfulness check after retrieval (mini CRAG) via structured output"],
+[103,"p4","Practical","High",0,"Build query complexity classifier routing: direct / naive RAG / agentic RAG"],
+[104,"p4","Interview Prep","High",0,"How do you decide when a query needs agentic retrieval vs a simple pipeline?"],
+[105,"p4","Interview Prep","High",0,"How do you bound cost when giving an LLM control of its own retrieval loop?"],
+[106,"p4","Interview Prep","High",0,"Difference between Self-RAG and Corrective RAG"],
+[107,"p5","Theory","High",0,"Retrieval metric: Precision@k"],
+[108,"p5","Theory","High",0,"Retrieval metric: Recall@k"],
+[109,"p5","Theory","High",0,"Retrieval metric: MRR (Mean Reciprocal Rank)"],
+[110,"p5","Theory","Medium",0,"Retrieval metric: NDCG (Normalized Discounted Cumulative Gain)"],
+[111,"p5","Theory","Medium",0,"Retrieval metric: Hit Rate"],
+[112,"p5","Theory","High",0,"Generation metric: Faithfulness / groundedness"],
+[113,"p5","Theory","High",0,"Generation metric: Answer relevance"],
+[114,"p5","Theory","Medium",0,"Generation metric: Context precision"],
+[115,"p5","Theory","Medium",0,"Generation metric: Context recall"],
+[116,"p5","Theory","High",0,"Eval framework: RAGAS — overview and how it fits the workflow"],
+[117,"p5","Theory","High",0,"RAGAS metric: Faithfulness"],
+[118,"p5","Theory","High",0,"RAGAS metric: Answer Relevancy"],
+[119,"p5","Theory","High",0,"RAGAS metric: Context Precision"],
+[120,"p5","Theory","High",0,"RAGAS metric: Context Recall"],
+[121,"p5","Theory","Medium",0,"RAGAS metric: Context Entity Recall"],
+[122,"p5","Theory","Medium",0,"RAGAS metric: Answer Semantic Similarity"],
+[123,"p5","Theory","Medium",0,"RAGAS metric: Answer Correctness"],
+[124,"p5","Theory","Medium",0,"RAGAS metric: Noise Sensitivity"],
+[125,"p5","Theory","High",0,"RAGAS workflow: how it uses an LLM + embeddings under the hood"],
+[126,"p5","Theory","Medium",0,"RAGAS workflow: required inputs per metric"],
+[127,"p5","Theory","Medium",0,"Eval framework: TruLens — feedback functions"],
+[128,"p5","Theory","Medium",0,"Eval framework: TruLens — RAG Triad"],
+[129,"p5","Theory","Medium",0,"Eval framework: DeepEval — test-case based evaluation"],
+[130,"p5","Theory","Medium",0,"DeepEval metric: G-Eval"],
+[131,"p5","Theory","Medium",0,"DeepEval metric: Hallucination metric"],
+[132,"p5","Theory","Medium",0,"Comparing RAGAS vs TruLens vs DeepEval: when to pick which"],
+[133,"p5","Theory","Medium",0,"Building eval dataset: synthetic QA generation from corpus"],
+[134,"p5","Theory","Medium",0,"Building eval dataset: human-labeled golden sets"],
+[135,"p5","Theory","Medium",0,"LLM-as-judge: how it works"],
+[136,"p5","Theory","High",0,"LLM-as-judge biases: position, verbosity, self-preference + mitigations"],
+[137,"p5","Theory","Medium",0,"Hallucination detection: NLI-based or LLM-based entailment checks"],
+[138,"p5","Theory","Medium",0,"Detecting chunking/embedding drift (stale or contradictory documents)"],
+[139,"p5","Theory","Medium",0,"Latency/cost budgeting: where time goes"],
+[140,"p5","Theory","Medium",0,"Caching strategies: semantic caching of queries"],
+[141,"p5","Theory","Medium",0,"Caching strategies: caching embeddings"],
+[142,"p5","Theory","Medium",0,"Caching strategies: caching reranker outputs"],
+[143,"p5","Theory","High",0,"Guardrails: prompt injection via retrieved documents"],
+[144,"p5","Theory","High",0,"Guardrails: PII leakage from retrieved content"],
+[145,"p5","Theory","High",0,"Guardrails: access control at retrieval time (row-level security)"],
+[146,"p5","Theory","Medium",0,"Production monitoring: logging retrieved chunks per query"],
+[147,"p5","Theory","Medium",0,"Production monitoring: tracking retrieval-quality drift over time"],
+[148,"p5","Theory","Medium",0,"Production monitoring: human feedback loops tied to specific chunks"],
+[149,"p5","Theory","High",1,"Abstention / 'no relevant context' handling & answer-confidence thresholds"],
+[150,"p5","Practical","High",0,"Build eval set of 20-30 Q&A pairs for Phase 1-2 pipeline"],
+[151,"p5","Practical","High",0,"Run RAGAS Faithfulness score on pipeline outputs"],
+[152,"p5","Practical","High",0,"Run RAGAS Answer Relevancy score on pipeline outputs"],
+[153,"p5","Practical","High",0,"Run RAGAS Context Precision score on pipeline outputs"],
+[154,"p5","Practical","High",0,"Run RAGAS Context Recall score on pipeline outputs"],
+[155,"p5","Practical","High",0,"Compare full RAGAS score set before vs after hybrid + reranking"],
+[156,"p5","Practical","High",0,"Implement a basic prompt-injection test on retrieved chunk content"],
+[157,"p5","Practical","High",0,"Fix prompt-injection: delimit retrieved content, treat as data not instructions"],
+[158,"p5","Practical","High",0,"Add access-control-aware retrieval: permission field + filter at query time"],
+[159,"p5","Interview Prep","Medium",0,"How do you know if a chunking strategy change actually improved things?"],
+[160,"p5","Interview Prep","High",0,"How would you prevent a malicious PDF from hijacking your RAG assistant?"],
+[161,"p5","Interview Prep","High",0,"How do you ensure User A can't retrieve User B's private documents?"],
+[162,"p5","Interview Prep","High",0,"Debug: RAG answers got worse over a month with no code changes — what do you check?"],
+[163,"p6","Theory","High",0,"Full architecture: ingestion pipeline vs query-time serving pipeline"],
+[164,"p6","Theory","Medium",0,"Scaling: sharding vector indexes"],
+[165,"p6","Theory","Medium",0,"Scaling: handling millions/billions of vectors"],
+[166,"p6","Theory","Medium",0,"Scaling: incremental re-indexing vs full rebuilds"],
+[167,"p6","Theory","Medium",0,"Freshness: incremental embedding updates, TTLs, versioning"],
+[168,"p6","Theory","High",0,"Cost modeling: embedding (ingest) vs per-query retrieval vs generation"],
+[169,"p6","Theory","High",0,"Choosing a vector DB: Pinecone vs Weaviate vs Qdrant vs Milvus vs pgvector"],
+[170,"p6","Theory","High",0,"When NOT to use RAG: RAG vs fine-tuning distinction"],
+[171,"p6","Practical","High",0,"Full mock system design: support assistant, 500K docs, daily updates, sub-2s, RBAC"],
+[172,"p6","Interview Prep","High",0,"RAG or fine-tuning — how do you decide?"],
+[173,"p6","Interview Prep","Medium",0,"How would this design change at 10x the document volume?"],
+[174,"p6","Interview Prep","Medium",0,"Where's the single point of failure in your design, and how do you mitigate it?"],
+[175,"cap","Capstone","High",0,"Query complexity classifier routing (naive vs agentic vs SQL)"],
+[176,"cap","Capstone","High",0,"Hybrid search + reranking implemented for the naive path"],
+[177,"cap","Capstone","High",0,"Iterative agentic loop with relevance-check gate for complex queries"],
+[178,"cap","Capstone","High",0,"Eval harness (RAGAS) with a before/after report"],
+[179,"cap","Capstone","High",0,"Basic guardrails: injection resistance"],
+[180,"cap","Capstone","High",0,"Basic guardrails: access control"],
+[181,"cap","Capstone","High",0,"Architecture diagram + written design doc explaining every tradeoff"],
+[182,"tool","Tools","Medium",0,"LangChain"],
+[183,"tool","Tools","Medium",0,"LlamaIndex"],
+[184,"tool","Tools","Medium",0,"LangGraph (for agentic loops)"],
+[185,"tool","Tools","Medium",0,"FAISS (learn internals)"],
+[186,"tool","Tools","Medium",0,"Qdrant or Weaviate (production features)"],
+[187,"tool","Tools","Medium",0,"pgvector (if already on Postgres)"],
+[188,"tool","Tools","Medium",0,"Cohere Rerank"],
+[189,"tool","Tools","Medium",0,"BGE-reranker (open source)"],
+[190,"tool","Tools","Medium",0,"RAGAS"],
+[191,"tool","Tools","Medium",0,"TruLens"],
+[192,"tool","Tools","Medium",0,"DeepEval"],
+[193,"tool","Tools","Medium",0,"OpenAI text-embedding-3"],
+[194,"tool","Tools","Medium",0,"Voyage AI embeddings"],
+[195,"tool","Tools","Medium",0,"BGE / E5 (open source embeddings)"],
+[196,"tool","Tools","Medium",0,"LangSmith (observability)"],
+[197,"tool","Tools","Medium",0,"Langfuse (observability)"],
+[198,"paper","Papers","Medium",0,"Lewis et al. 2020 — original RAG paper"],
+[199,"paper","Papers","Medium",0,"Asai et al. 2024 — Self-RAG"],
+[200,"paper","Papers","Medium",0,"Corrective RAG (CRAG) paper"],
+[201,"paper","Papers","Medium",0,"Microsoft GraphRAG paper"],
+[202,"paper","Papers","Medium",0,"Anthropic 'Contextual Retrieval' blog post"],
+[203,"qa","QA Bank","High",1,"Interview Q&A Bank — Conceptual questions"],
+[204,"qa","QA Bank","High",1,"Interview Q&A Bank — 'Design a RAG system for X'"],
+[205,"qa","QA Bank","High",1,"Interview Q&A Bank — Debugging & troubleshooting"],
+[206,"qa","QA Bank","Medium",1,"Interview Q&A Bank — Coding questions"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="ragPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 206 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+</body>
+</html>

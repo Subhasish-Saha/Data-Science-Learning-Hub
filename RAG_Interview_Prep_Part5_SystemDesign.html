@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG Interview Prep — Part 5: System Design &amp; Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 5 / 6</small>System Design &amp; Reference</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">RAG Prep<small>Knowledge Base</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 5 of 6</div>
+      <div class="v">System Design &amp; Reference</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 206 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">P6</span> System Design <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#s5-1">5.1 · Two-pipeline architecture</a></li>
+          <li><a href="#s5-2">5.2 · Scaling</a></li>
+          <li><a href="#s5-3">5.3 · Freshness &amp; updates</a></li>
+          <li><a href="#s5-4">5.4 · Cost modeling</a></li>
+          <li><a href="#s5-5">5.5 · Choosing a vector DB</a></li>
+          <li><a href="#s5-6">5.6 · When NOT to use RAG</a></li>
+          <li><a href="#s5-7">5.7 · Mock system design</a></li>
+          <li><a href="#s5-8">5.8 · Design interview focus</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">REF</span> Capstone &amp; Reference <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#s5-9">5.9 · Capstone project</a></li>
+          <li><a href="#s5-10">5.10 · Tools &amp; frameworks</a></li>
+          <li><a href="#s5-11">5.11 · Core papers</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      RAG Interview Prep<br>Part 5 — System Design &amp; Reference<br>Phase 6 + Capstone + Reference<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 5 of 6 · System Design, Capstone &amp; Reference</div>
+        <h1 class="title">Putting it all together
+          <span class="sub">The senior-level integration: the full production architecture, scaling and cost, choosing your stack, and when <em>not</em> to use RAG — plus a worked mock system design, a capstone blueprint, and quick-reference tool and paper lists.</span>
+        </h1>
+        <p class="thesis">System-design rounds don't test whether you know HyDE — they test whether you can assemble the whole machine and defend every trade-off. This part walks the <strong>full production architecture</strong> (separate ingestion and serving pipelines), the scaling/freshness/cost levers, how to <strong>choose a vector database</strong>, and the crucial <strong>“when NOT to use RAG”</strong> judgment. Then a complete <strong>worked mock design</strong> (support assistant · 500K docs · daily updates · sub-2s · RBAC), a <strong>capstone</strong> that proves you can build it end to end, and reference lists of the <strong>tools</strong> and <strong>papers</strong> worth knowing by name.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Phase 6 + Capstone</b></span>
+          <span class="chip"><b>40</b> tracked topics</span>
+          <span class="chip">⏱ <b>~6–8h</b> deep read</span>
+          <span class="chip">🏗️ system design</span>
+          <span class="chip">🧰 tools + papers</span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the entire resource — all 206 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">206</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 206 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- ============================ PHASE 6 ============================ -->
+      <section class="phase-head" id="phase6">
+        <div class="pk">Phase 6 · System Design Integration</div>
+        <h2>The whole machine, and its trade-offs</h2>
+        <p class="pd">Everything in Parts 1–4 was a component. System design is the assembly: two pipelines, a scaling story, a cost model, a stack choice, and the judgment to know when RAG is the wrong answer entirely. This is what senior rounds actually test.</p>
+      </section>
+
+      <!-- ---------- 5.1 ---------- -->
+      <article class="topic" id="s5-1">
+        <h3><span class="tn">5.1</span> The two-pipeline architecture</h3>
+        <p class="lead">A production RAG system is really <em>two</em> systems that share one artifact. The <strong>ingestion pipeline</strong> (offline, batch, latency-tolerant) builds the index; the <strong>serving pipeline</strong> (online, synchronous, latency-bound) reads it. Conflating them is the most common junior mistake.</p>
+
+        <p>They have opposite requirements, so you build, scale, and deploy them independently:</p>
+        <ul>
+          <li><b>Ingestion</b> runs when documents change. It parses (§1.3), chunks, embeds, de-duplicates, versions, and upserts into the index + metadata store. It can be async, batched, and retried; throughput matters, latency doesn't.</li>
+          <li><b>Serving</b> runs per user query under a strict SLA: embed → retrieve → rerank → augment → generate → cache. It's synchronous, high-QPS, and latency-critical.</li>
+          <li><b>The shared artifact</b> is the vector index + metadata store (and caches). It's the contract between the two halves.</li>
+        </ul>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 330" role="img" aria-label="Top: an offline ingestion pipeline (sources, parse, chunk, embed, dedup/version) writes a shared index and metadata store. Bottom: an online serving pipeline (query, embed, retrieve, rerank, augment, LLM, cache) reads it. The two are decoupled.">
+              <!-- ingestion band -->
+              <rect x="14" y="34" width="672" height="96" rx="12" fill="#161b23" stroke="#2c3542"/>
+              <text x="28" y="54" fill="#F0A81E" font-size="11">INGESTION · offline · batch · latency-tolerant</text>
+              <g font-size="9.5" text-anchor="middle" fill="#fff">
+                <rect x="28" y="66" width="86" height="44" rx="8" fill="#252D3A" stroke="#3a4453"/><text x="71" y="92" fill="#e6e9ef">sources</text>
+                <rect x="130" y="66" width="86" height="44" rx="8" fill="#3B45B5"/><text x="173" y="88">parse</text><text x="173" y="100" fill="#c9cdf0" font-size="8">OCR/tables</text>
+                <rect x="232" y="66" width="80" height="44" rx="8" fill="#3B45B5"/><text x="272" y="92">chunk</text>
+                <rect x="328" y="66" width="80" height="44" rx="8" fill="#3B45B5"/><text x="368" y="92">embed</text>
+                <rect x="424" y="66" width="110" height="44" rx="8" fill="#3B45B5"/><text x="479" y="88">dedup +</text><text x="479" y="100" font-size="8" fill="#c9cdf0">version</text>
+              </g>
+              <path d="M114 88 h14" stroke="#8892a0" stroke-width="1.3" marker-end="url(#a1)"/>
+              <path d="M216 88 h14" stroke="#8892a0" stroke-width="1.3" marker-end="url(#a1)"/>
+              <path d="M312 88 h14" stroke="#8892a0" stroke-width="1.3" marker-end="url(#a1)"/>
+              <path d="M408 88 h14" stroke="#8892a0" stroke-width="1.3" marker-end="url(#a1)"/>
+              <path d="M534 100 C 580 110, 350 120, 350 150" stroke="#F0A81E" stroke-width="2" marker-end="url(#ag)"/>
+              <text x="560" y="100" fill="#f0c274" font-size="9">upsert</text>
+
+              <!-- shared store -->
+              <rect x="250" y="150" width="200" height="46" rx="11" fill="#14181f" stroke="#5560D8" stroke-width="1.6"/>
+              <text x="350" y="170" fill="#fff" font-size="11" text-anchor="middle">Vector index + metadata</text>
+              <text x="350" y="186" fill="#aab2f0" font-size="9" text-anchor="middle">(the shared contract)</text>
+
+              <!-- serving band -->
+              <rect x="14" y="212" width="672" height="104" rx="12" fill="#161b23" stroke="#2c3542"/>
+              <text x="28" y="232" fill="#5560D8" font-size="11">SERVING · online · synchronous · SLA-bound</text>
+              <g font-size="9" text-anchor="middle" fill="#fff">
+                <rect x="28" y="248" width="70" height="40" rx="8" fill="#F0A81E"/><text x="63" y="272" fill="#3a2a00">query</text>
+                <rect x="112" y="248" width="70" height="40" rx="8" fill="#3B45B5"/><text x="147" y="272">embed</text>
+                <rect x="196" y="248" width="80" height="40" rx="8" fill="#3B45B5"/><text x="236" y="272">retrieve</text>
+                <rect x="290" y="248" width="70" height="40" rx="8" fill="#3B45B5"/><text x="325" y="272">rerank</text>
+                <rect x="374" y="248" width="80" height="40" rx="8" fill="#3B45B5"/><text x="414" y="272">augment</text>
+                <rect x="468" y="248" width="60" height="40" rx="8" fill="#3B45B5"/><text x="498" y="272">LLM</text>
+                <rect x="542" y="248" width="64" height="40" rx="8" fill="#252D3A" stroke="#2E9E5B"/><text x="574" y="272" fill="#7fd6a0">cache</text>
+                <rect x="620" y="248" width="60" height="40" rx="8" fill="#14181f" stroke="#2E9E5B"/><text x="650" y="272" fill="#7fd6a0">answer</text>
+              </g>
+              <path d="M98 268 h12" stroke="#8892a0" stroke-width="1.2" marker-end="url(#a1)"/>
+              <path d="M182 268 h12" stroke="#8892a0" stroke-width="1.2" marker-end="url(#a1)"/>
+              <path d="M276 268 h12" stroke="#8892a0" stroke-width="1.2" marker-end="url(#a1)"/>
+              <path d="M360 268 h12" stroke="#8892a0" stroke-width="1.2" marker-end="url(#a1)"/>
+              <path d="M454 268 h12" stroke="#8892a0" stroke-width="1.2" marker-end="url(#a1)"/>
+              <path d="M528 268 h12" stroke="#8892a0" stroke-width="1.2" marker-end="url(#a1)"/>
+              <path d="M606 268 h12" stroke="#2E9E5B" stroke-width="1.6" marker-end="url(#ag)"/>
+              <path d="M300 196 C 260 210, 250 240, 240 246" stroke="#5560D8" stroke-width="2" marker-end="url(#ai)"/>
+              <text x="255" y="216" fill="#aab2f0" font-size="9">read</text>
+              <defs>
+                <marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="ag" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+                <marker id="ai" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#5560D8"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Two pipelines, one index.</b> Ingestion optimizes throughput and correctness; serving optimizes latency and QPS. Decoupling them means you can re-index without downtime, scale the query path for traffic spikes independently, and reason about failures separately — the hallmark of a production design.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>Sketch the architecture of a production RAG system.</summary>
+              <div class="ans"><p>Two decoupled pipelines sharing an index. <b>Ingestion</b> (offline, event- or batch-driven): parse with layout/OCR, chunk, embed, de-duplicate, version, and upsert into the vector index + metadata store; it's async, retryable, throughput-oriented. <b>Serving</b> (online, per-query, SLA-bound): embed the query, retrieve (hybrid + filters), rerank, augment with a grounded prompt, generate, and cache; wrap with auth/ACL, guardrails, and logging. The shared vector index + metadata store is the contract. Add observability (log retrieved chunks, latency, feedback) and a scheduled golden-set eval. They scale and deploy independently.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ---------- 5.2 ---------- -->
+      <article class="topic" id="s5-2">
+        <h3><span class="tn">5.2</span> Scaling to millions (and billions) of vectors</h3>
+        <p class="lead">A single HNSW index in RAM is fine to ~a few million vectors. Past that, you shard, quantize, and rethink re-indexing. The interviewer's favorite follow-up — "what changes at 10× the volume?" — is really asking whether you know these levers.</p>
+
+        <ul>
+          <li><b>Sharding</b> — partition the index across nodes, by namespace/tenant/topic when queries are scoped (route to the right shard) or randomly with <em>scatter-gather</em> (query all shards, merge top-k). Scoped sharding also cuts search space and enforces isolation.</li>
+          <li><b>Compression for scale</b> — at hundreds of millions/billions, full-precision HNSW won't fit in RAM; use IVF+PQ (§1.6), disk-backed indexes (DiskANN), or binary/scalar quantization, with a full-precision rescoring pass to recover recall.</li>
+          <li><b>Incremental vs full re-index</b> — HNSW supports live inserts (incremental); IVF's cluster centroids drift as data grows, so you periodically retrain; a major embedding-model change forces a <em>full</em> re-embed + rebuild. Plan for zero-downtime rebuilds (build new index, atomic swap).</li>
+        </ul>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 210" role="img" aria-label="A query fans out to three shards via scatter-gather; each returns its local top-k and a merge step combines them into the global top-k.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">scatter-gather over shards: query all, merge the tops</text>
+              <circle cx="50" cy="105" r="10" fill="#F0A81E"/><text x="50" y="132" fill="#F0A81E" font-size="9" text-anchor="middle">query</text>
+              <path d="M60 105 h30" stroke="#8892a0" stroke-width="1.4" marker-end="url(#sc1)"/>
+              <rect x="92" y="86" width="70" height="38" rx="8" fill="#252D3A" stroke="#F0A81E"/><text x="127" y="109" fill="#f0c274" font-size="9.5" text-anchor="middle">router</text>
+              <g font-size="9" text-anchor="middle" fill="#fff">
+                <path d="M162 96 L210 60" stroke="#8892a0" stroke-width="1.3" marker-end="url(#sc1)"/>
+                <path d="M162 105 L210 105" stroke="#8892a0" stroke-width="1.3" marker-end="url(#sc1)"/>
+                <path d="M162 114 L210 150" stroke="#8892a0" stroke-width="1.3" marker-end="url(#sc1)"/>
+                <rect x="212" y="46" width="110" height="30" rx="6" fill="#3B45B5"/><text x="267" y="65">shard 1 · top-k</text>
+                <rect x="212" y="90" width="110" height="30" rx="6" fill="#3B45B5"/><text x="267" y="109">shard 2 · top-k</text>
+                <rect x="212" y="134" width="110" height="30" rx="6" fill="#3B45B5"/><text x="267" y="153">shard 3 · top-k</text>
+              </g>
+              <path d="M322 61 C 370 61, 380 100, 408 105" stroke="#8892a0" stroke-width="1.3" marker-end="url(#sc1)"/>
+              <path d="M322 105 h86" stroke="#8892a0" stroke-width="1.3" marker-end="url(#sc1)"/>
+              <path d="M322 149 C 370 149, 380 110, 408 108" stroke="#8892a0" stroke-width="1.3" marker-end="url(#sc1)"/>
+              <rect x="410" y="86" width="90" height="40" rx="9" fill="#256b3f"/><text x="455" y="110" fill="#fff" font-size="10" text-anchor="middle">merge top-k</text>
+              <path d="M500 106 h24" stroke="#2E9E5B" stroke-width="1.8" marker-end="url(#scg)"/>
+              <rect x="526" y="86" width="120" height="40" rx="8" fill="#14181f" stroke="#2E9E5B"/><text x="586" y="110" fill="#7fd6a0" font-size="9.5" text-anchor="middle">global top-k</text>
+              <defs>
+                <marker id="sc1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
+                <marker id="scg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Sharding trades a merge step for horizontal scale.</b> Scoped sharding (per tenant/topic) is best — it shrinks the search space <em>and</em> isolates data; random sharding needs scatter-gather across every shard. Either way, a managed DB (Milvus, Pinecone) hides most of this if you'd rather not run it.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How would your design change at 10× the document volume?</summary>
+              <div class="ans"><p>Retrieval, not generation, is what feels 10× — so: shard the index (scoped by tenant/topic if queries allow, else scatter-gather); switch from in-RAM full-precision HNSW to IVF+PQ or a disk-backed index with a rescoring pass to fit memory/budget; move re-indexing to incremental upserts with periodic retraining and zero-downtime atomic swaps; and scale ingestion throughput (parallel embedding). Costs shift toward storage and embedding; query latency stays roughly flat if sharded well. Serving compute scales with QPS independently. Also revisit caching hit-rates, which improve at scale.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <!-- ---------- 5.3 ---------- -->
+      <article class="topic" id="s5-3">
+        <h3><span class="tn">5.3</span> Freshness &amp; update pipelines</h3>
+        <p class="lead">RAG's headline advantage over fine-tuning is freshness — but only if your update pipeline is real. Naive systems append new docs and never remove old ones, so contradictory versions pile up and retrieval degrades (the drift from §4.11).</p>
+
+        <p>The mechanics of keeping an index fresh:</p>
+        <ul>
+          <li><b>Incremental upsert.</b> When a document changes, don't rebuild — locate its existing chunks <em>by <code class="ic">doc_id</code></em>, delete those vectors, re-chunk/re-embed the new version, and insert. HNSW handles live inserts/deletes.</li>
+          <li><b>Versioning &amp; deletes.</b> Stamp chunks with a <code class="ic">version</code>/<code class="ic">updated_at</code>; on update, remove the old version (hard delete or a tombstone filtered at query time) so old and new never both surface. This single discipline prevents a major class of "answers contradict each other" bugs.</li>
+          <li><b>TTLs</b> for inherently time-bound content (promotions, status pages) so stale facts expire automatically.</li>
+          <li><b>Triggering</b> via change-data-capture / webhooks / scheduled crawls, feeding the ingestion pipeline (§5.1). And <b>invalidate caches</b> (§4.9) for the affected content.</li>
+        </ul>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 180" role="img" aria-label="A document update flow: a changed document triggers lookup of its old chunks by doc id, deletion of old vectors, re-chunk and re-embed, upsert of new vectors, and cache invalidation.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">document v2 arrives → replace, don't just append</text>
+              <g font-size="9" text-anchor="middle" fill="#fff">
+                <rect x="16" y="66" width="92" height="42" rx="8" fill="#F0A81E"/><text x="62" y="84" fill="#3a2a00">doc changed</text><text x="62" y="97" fill="#5a4300" font-size="8">(CDC / webhook)</text>
+                <rect x="124" y="66" width="96" height="42" rx="8" fill="#252D3A" stroke="#3a4453"/><text x="172" y="84" fill="#e6e9ef">find chunks</text><text x="172" y="97" fill="#8892a0" font-size="8">by doc_id</text>
+                <rect x="236" y="66" width="96" height="42" rx="8" fill="#14181f" stroke="#C0392B"/><text x="284" y="84" fill="#e0a3a8">delete old</text><text x="284" y="97" fill="#e0a3a8" font-size="8">vectors</text>
+                <rect x="348" y="66" width="110" height="42" rx="8" fill="#3B45B5"/><text x="403" y="84">re-chunk +</text><text x="403" y="97" font-size="8" fill="#c9cdf0">re-embed v2</text>
+                <rect x="474" y="66" width="90" height="42" rx="8" fill="#256b3f"/><text x="519" y="90">upsert new</text>
+                <rect x="580" y="66" width="104" height="42" rx="8" fill="#252D3A" stroke="#2E9E5B"/><text x="632" y="84" fill="#7fd6a0">invalidate</text><text x="632" y="97" fill="#7fd6a0" font-size="8">cache</text>
+              </g>
+              <g stroke="#8892a0" stroke-width="1.3">
+                <path d="M108 87 h14" marker-end="url(#f1)"/><path d="M220 87 h14" marker-end="url(#f1)"/>
+                <path d="M332 87 h14" marker-end="url(#f1)"/><path d="M458 87 h14" marker-end="url(#f1)"/><path d="M564 87 h14" marker-end="url(#f1)"/>
+              </g>
+              <text x="20" y="145" fill="#8892a0" font-size="10">Skip the delete step and old + new versions coexist → contradictory retrievals → silent drift.</text>
+              <defs><marker id="f1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker></defs>
+            </svg>
+          </div>
+          <figcaption><b>Freshness is a delete problem, not just an insert problem.</b> The advantage over fine-tuning is real only if updates <em>replace</em> stale content. Version every chunk and remove superseded ones — otherwise your "always current" system quietly serves last quarter's policy alongside this quarter's.</figcaption>
+        </figure>
+      </article>
+
+      <!-- ---------- 5.4 ---------- -->
+      <article class="topic" id="s5-4">
+        <h3><span class="tn">5.4</span> Cost modeling</h3>
+        <p class="lead">Cost splits into three buckets that scale with completely different things. Model them separately or you'll optimize the wrong one — teams routinely agonize over embedding cost while generation quietly eats 90% of the bill.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Bucket</th><th>When paid</th><th>Scales with</th><th>Typically…</th></tr></thead>
+            <tbody>
+              <tr><td><b>Embedding (ingest)</b></td><td>Once per doc + on change</td><td>Corpus size × re-index frequency</td><td>One-time-ish; cheap if self-hosted</td></tr>
+              <tr><td><b>Retrieval</b></td><td>Per query</td><td>QPS × index size</td><td>Near-negligible</td></tr>
+              <tr><td><b>Reranking</b></td><td>Per query</td><td>QPS × shortlist size</td><td>Moderate (a model pass)</td></tr>
+              <tr><td><b>Generation</b></td><td>Per query</td><td>QPS × (input + output tokens)</td><td><b>Dominant</b> — often 80–95%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>So the levers that actually move the bill are on <em>generation</em>: a smaller/cheaper model where quality allows, fewer output tokens, shorter context (rerank + compress so you send 5 chunks not 20), prompt caching for the static prefix, and semantic caching to skip generation entirely on repeat questions. Agentic loops (§3.6) multiply the generation bucket 3–10×, which is why adaptive routing is a cost lever, not just a quality one. Embedding/storage costs matter mainly at very large corpora — there, quantization (§1.6) is the lever.</p>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">a back-of-envelope monthly cost model</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python"># Example: 500k docs, ~10 chunks each, 50k queries/day. (Rates illustrative — plug in yours.)
+docs, chunks_per_doc, tok_per_chunk = 500_000, 10, 400
+n_chunks = docs * chunks_per_doc                       # 5M chunks
+
+# --- one-time ingest (embedding) ---
+embed_rate = 0.02 / 1_000_000                           # $ per token (or ~0 if self-hosted)
+ingest = n_chunks * tok_per_chunk * embed_rate
+print(f"ingest embedding (one-time): ${ingest:,.0f}")
+
+# --- monthly generation (the bucket that matters) ---
+qpm = 50_000 * 30                                       # queries/month
+in_tok, out_tok = 1_500, 250                            # prompt (context!) + answer
+in_rate, out_rate = 0.15 / 1_000_000, 0.60 / 1_000_000  # $ per token
+gen = qpm * (in_tok * in_rate + out_tok * out_rate)
+print(f"monthly generation: ${gen:,.0f}")               # dwarfs ingest & retrieval
+# Halving input tokens (rerank+compress) or caching 40% of queries cuts this bucket directly.
+</code></pre>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>Walk through the cost model of a RAG system and where you'd optimize.</summary>
+              <div class="ans"><p>Three buckets: embedding (ingest — scales with corpus size × re-index frequency, one-time-ish, cheap if self-hosted), retrieval (per query, near-negligible), and generation (per query, scales with QPS × tokens — usually 80–95% of cost). So optimize generation first: smaller model where quality permits, fewer output tokens, shorter context via rerank+compress, prompt caching for the static prefix, and semantic caching to skip repeats. Agentic loops multiply this bucket, so route adaptively. Embedding/storage cost only dominates at very large corpora, where quantization is the lever. Always measure the split before optimizing.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <!-- ---------- 5.5 ---------- -->
+      <article class="topic" id="s5-5">
+        <h3><span class="tn">5.5</span> Choosing a vector database</h3>
+        <p class="lead">Almost all of them use HNSW under the hood, so the decision is rarely about raw search quality — it's about operations: managed vs self-hosted, scale, filtering power, hybrid support, and what stack you already run.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="A decision tree for choosing a vector database based on existing stack, ops preference, scale, and filtering needs.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">a decision tree, not a leaderboard</text>
+              <g font-size="9" text-anchor="middle">
+                <rect x="250" y="32" width="200" height="30" rx="7" fill="#252D3A" stroke="#F0A81E"/><text x="350" y="51" fill="#f0c274">Already on Postgres, ≤ ~10M vectors?</text>
+                <rect x="20" y="86" width="120" height="30" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="80" y="105" fill="#7fd6a0">pgvector</text>
+                <rect x="250" y="86" width="200" height="30" rx="7" fill="#252D3A" stroke="#F0A81E"/><text x="350" y="105" fill="#f0c274">Want zero ops / serverless?</text>
+                <rect x="20" y="140" width="120" height="30" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="80" y="159" fill="#7fd6a0">Pinecone</text>
+                <rect x="250" y="140" width="200" height="30" rx="7" fill="#252D3A" stroke="#F0A81E"/><text x="350" y="159" fill="#f0c274">Billions of vectors / distributed?</text>
+                <rect x="500" y="140" width="120" height="30" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="560" y="159" fill="#7fd6a0">Milvus</text>
+                <rect x="250" y="194" width="200" height="30" rx="7" fill="#252D3A" stroke="#F0A81E"/><text x="350" y="213" fill="#f0c274">Heavy metadata filtering / self-host?</text>
+                <rect x="20" y="194" width="120" height="30" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="80" y="213" fill="#7fd6a0">Qdrant</text>
+                <rect x="500" y="194" width="150" height="30" rx="7" fill="#14181f" stroke="#5560D8"/><text x="575" y="213" fill="#aab2f0">Weaviate (hybrid) / Chroma (dev)</text>
+              </g>
+              <g stroke="#8892a0" stroke-width="1.2" font-size="8" fill="#8892a0">
+                <path d="M250 51 h-90 a8 8 0 0 0 -8 8 v18" marker-end="url(#t1)"/><text x="180" y="74">yes</text>
+                <path d="M350 62 v18" marker-end="url(#t1)"/><text x="360" y="76">no</text>
+                <path d="M250 101 h-90 a8 8 0 0 0 -8 8 v27" marker-end="url(#t1)"/><text x="180" y="128">yes</text>
+                <path d="M350 116 v18" marker-end="url(#t1)"/><text x="360" y="130">no</text>
+                <path d="M450 155 h40" marker-end="url(#t1)"/><text x="470" y="150">yes</text>
+                <path d="M350 170 v18" marker-end="url(#t1)"/><text x="360" y="184">no</text>
+                <path d="M250 209 h-90" marker-end="url(#t1)"/><text x="180" y="204">yes</text>
+                <path d="M450 209 h40" marker-end="url(#t1)"/><text x="470" y="204">no</text>
+              </g>
+              <defs><marker id="t1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker></defs>
+            </svg>
+          </div>
+          <figcaption><b>Match the DB to your constraints.</b> pgvector to avoid new infra; Pinecone to avoid ops; Milvus for billion-scale; Qdrant for filtering-heavy self-hosted; Weaviate for built-in hybrid; Chroma/FAISS for prototyping. The "best" retrieval quality is roughly equal — you're choosing an operational profile.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>Pinecone vs Weaviate vs Qdrant vs Milvus vs pgvector — how do you choose?</summary>
+              <div class="ans"><p>By operational fit, since they're all HNSW-class on quality. If you're already on Postgres and at modest scale, pgvector keeps everything in one system. If you want zero ops, Pinecone (managed serverless). For billions of vectors / horizontal scale, Milvus. For heavy metadata filtering and cost-effective self-hosting, Qdrant. For built-in hybrid search and vectorizer modules, Weaviate. For prototyping, Chroma or FAISS. Decide on managed-vs-self-hosted (privacy, cost, ops burden), scale, filtering needs, hybrid support, and existing stack — not benchmark deltas.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ---------- 5.6 ---------- -->
+      <article class="topic" id="s5-6">
+        <h3><span class="tn">5.6</span> When NOT to use RAG</h3>
+        <p class="lead">The most senior answer in any RAG interview is sometimes "I wouldn't use RAG here." Reaching for retrieval when the problem is behavior, computation, or a tiny static fact set is a real and common design error.</p>
+
+        <p>Decide by asking what the requirement actually <em>is</em>:</p>
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="A decision tree: if the need is behavior/format/style, fine-tune; if it is computation over structured data, use tools/SQL; if it is knowledge and small and static, prompt-stuff or long-context; if knowledge and large/fresh/private/citable, use RAG.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">"do I actually need RAG?"</text>
+              <g font-size="9" text-anchor="middle">
+                <rect x="260" y="30" width="180" height="30" rx="7" fill="#252D3A" stroke="#F0A81E"/><text x="350" y="49" fill="#f0c274">What is the requirement?</text>
+                <!-- behavior -->
+                <rect x="20" y="92" width="150" height="34" rx="7" fill="#14181f" stroke="#5560D8"/><text x="95" y="106" fill="#aab2f0">Behavior / format / style</text><text x="95" y="119" fill="#7fd6a0">→ fine-tune</text>
+                <!-- computation -->
+                <rect x="185" y="92" width="150" height="34" rx="7" fill="#14181f" stroke="#5560D8"/><text x="260" y="106" fill="#aab2f0">Computation on tables</text><text x="260" y="119" fill="#7fd6a0">→ tools / text-to-SQL</text>
+                <!-- knowledge -->
+                <rect x="360" y="92" width="150" height="34" rx="7" fill="#252D3A" stroke="#F0A81E"/><text x="435" y="110" fill="#f0c274">Knowledge / facts →</text>
+                <rect x="525" y="92" width="155" height="34" rx="7" fill="#14181f" stroke="#5560D8"/><text x="602" y="106" fill="#aab2f0">Skill / reasoning</text><text x="602" y="119" fill="#7fd6a0">→ better model/prompt</text>
+                <!-- knowledge split -->
+                <rect x="300" y="160" width="160" height="30" rx="7" fill="#252D3A" stroke="#F0A81E"/><text x="380" y="179" fill="#f0c274">Small &amp; static?</text>
+                <rect x="150" y="210" width="200" height="30" rx="7" fill="#14181f" stroke="#2E9E5B"/><text x="250" y="229" fill="#7fd6a0">prompt-stuff / long-context</text>
+                <rect x="400" y="210" width="260" height="30" rx="7" fill="#256b3f"/><text x="530" y="229" fill="#fff">large / fresh / private / citable → RAG</text>
+              </g>
+              <g stroke="#8892a0" stroke-width="1.2" font-size="8" fill="#8892a0">
+                <path d="M280 60 C 150 70, 95 78, 95 90" marker-end="url(#w1)"/>
+                <path d="M320 60 C 280 74, 260 80, 260 90" marker-end="url(#w1)"/>
+                <path d="M400 60 C 420 74, 435 80, 435 90" marker-end="url(#w1)"/>
+                <path d="M430 60 C 560 70, 602 78, 602 90" marker-end="url(#w1)"/>
+                <path d="M435 126 v10 a8 8 0 0 1 -8 8 h-40 a8 8 0 0 0 -8 8 v6" marker-end="url(#w1)"/>
+                <path d="M340 175 h-90 v33" marker-end="url(#w1)"/><text x="270" y="200">yes</text>
+                <path d="M460 175 h60 v33" marker-end="url(#w1)"/><text x="500" y="200">no</text>
+              </g>
+              <defs><marker id="w1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker></defs>
+            </svg>
+          </div>
+          <figcaption><b>RAG is for knowledge that's large, fresh, private, or must be cited.</b> Behavior → fine-tune. Math over tables → tools/SQL. A tiny static FAQ → just put it in the prompt. And they combine: fine-tune for format + RAG for facts is a common production pairing.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>RAG or fine-tuning — how do you decide?</summary>
+              <div class="ans"><p>Separate knowledge from behavior. If the requirement is factual knowledge that's large, changing, private, or must be cited → RAG (update by re-indexing, get citations for free). If it's about how the model behaves — format, tone, a classification skill, domain phrasing → fine-tuning. They're complementary: a common stack fine-tunes the generator for format/faithfulness and the embedder for the domain, while RAG supplies the facts. Use fine-tuning-for-knowledge only when the knowledge is small, static, and latency forbids retrieval. And sometimes the answer is neither — pure computation is a tools/SQL job, a tiny static FAQ just goes in the prompt.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Give a scenario where adding RAG would make a system worse.</summary>
+              <div class="ans"><p>A latency-critical classifier or a fixed-format transformer (e.g., "rewrite this in our house style") — the knowledge is already in the model or the task is behavioral, so retrieval only adds latency, cost, and a new failure mode (bad retrieval) for no accuracy gain. Also a purely computational query ("sum this column") where RAG returns text about numbers instead of computing them — text-to-SQL/tools is correct. And a tiny, stable knowledge set that fits in the system prompt: an index is over-engineering.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <!-- ---------- 5.7 ---------- -->
+      <article class="topic" id="s5-7">
+        <h3><span class="tn">5.7</span> Mock system design — a support assistant</h3>
+        <p class="lead">The classic prompt: <em>"Design a customer-support assistant over 500K docs, updated daily, sub-2s latency, with RBAC so users only see their org's documents, and answers must cite sources."</em> Here's how to work it — clarify, map each requirement to a decision, then defend the trade-offs.</p>
+
+        <p><b>Step 1 — clarify.</b> Confirm scale (500K docs ≈ ~5M chunks), QPS, the ~2s budget is p95 end-to-end, RBAC granularity (per-org), freshness (daily is fine → batch, not streaming), and that grounded citations are mandatory. <b>Step 2 — map requirements to decisions:</b></p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Requirement</th><th>Decision</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>500K docs (~5M chunks)</td><td>HNSW in Qdrant; shard by org</td><td>Fits RAM at this scale; org-sharding shrinks search + isolates data</td></tr>
+              <tr><td>RBAC (org isolation)</td><td>Mandatory <code>org_id</code>/<code>acl</code> filter at retrieval</td><td>Enforce in the query, never in the prompt (§4.10)</td></tr>
+              <tr><td>Daily updates</td><td>Nightly CDC → incremental upsert + version-delete</td><td>Replace stale chunks; avoid contradictions (§5.3)</td></tr>
+              <tr><td>Sub-2s latency</td><td>Hybrid retrieve → rerank top 50→5 → streamed LLM + semantic cache</td><td>Budget fits; cache makes repeats instant (see below)</td></tr>
+              <tr><td>Must cite sources</td><td>Carry <code>doc_id</code>/URL metadata; grounded prompt with <code>[Sn]</code></td><td>Verifiable answers; abstain if weak (§1.7, §4.7)</td></tr>
+              <tr><td>Cost / privacy</td><td>Self-hosted BGE embeddings + reranker; managed LLM</td><td>Embeddings cheap+private at scale; LLM quality where it counts</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 180" role="img" aria-label="A latency budget for the sub-2-second serving path: embedding 5ms, hybrid retrieval 40ms, rerank 120ms, LLM streamed with 400ms to first token and 1200ms total, plus overhead, fitting under 2000ms; a cache hit returns in about 50ms.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">serving-path latency budget (p95 target = 2000 ms)</text>
+              <line x1="20" y1="150" x2="660" y2="150" stroke="#2c3542"/>
+              <!-- budget bar segments (scaled: 1ms ~ 0.3px, total ~1465ms shown) -->
+              <g font-size="8.5" text-anchor="middle">
+                <rect x="20" y="70" width="8" height="40" fill="#2E9E5B"/><text x="24" y="124" fill="#8892a0">5</text>
+                <rect x="30" y="70" width="26" height="40" fill="#5560D8"/><text x="43" y="124" fill="#8892a0">40</text>
+                <rect x="58" y="70" width="70" height="40" fill="#3B45B5"/><text x="93" y="124" fill="#c2cad6">rerank 120</text>
+                <rect x="130" y="70" width="360" height="40" fill="#F0A81E"/><text x="310" y="95" fill="#3a2a00">LLM: ~400 ms to first token, ~1200 ms full (streamed)</text>
+                <rect x="492" y="70" width="60" height="40" fill="#252D3A" stroke="#3a4453"/><text x="522" y="124" fill="#8892a0">overhead</text>
+              </g>
+              <text x="130" y="64" fill="#f0c274" font-size="8">↑ user sees tokens here — perceived latency ≈ 500 ms</text>
+              <line x1="560" y1="60" x2="560" y2="150" stroke="#C0392B" stroke-width="1.2" stroke-dasharray="4 3"/><text x="560" y="168" fill="#e0a3a8" font-size="9" text-anchor="middle">2000 ms cap</text>
+              <!-- cache path -->
+              <rect x="580" y="76" width="90" height="28" rx="6" fill="#14181f" stroke="#2E9E5B"/><text x="625" y="94" fill="#7fd6a0" font-size="9" text-anchor="middle">cache hit ~50 ms</text>
+            </svg>
+          </div>
+          <figcaption><b>The budget fits — barely — and streaming saves the UX.</b> Generation dominates (§4.8), so stream tokens (perceived latency ≈ time-to-first-token) and let the semantic cache turn repeat questions into ~50 ms responses. Rerank only the top 50 to keep stage 2 bounded.</figcaption>
+        </figure>
+
+        <p><b>Step 3 — name the trade-offs &amp; failure modes.</b> Self-hosted embeddings trade ops burden for cost/privacy. Org-sharding trades cross-org search (which you don't want anyway) for isolation and speed. The reranker adds ~120ms for ordering quality — worth it here. Wrap it all with a golden-set eval (§4.5), RAGAS in CI, and production logging + drift alerts (§4.11). Then volunteer the failure modes before you're asked (next section).</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="cl-lab">Interview tip · the structure is the score</span>
+          <p>In a system-design round, <em>how</em> you proceed matters more than any single choice: (1) clarify requirements and constraints, (2) draw the two pipelines, (3) map each requirement to a decision with a one-line rationale, (4) call out the latency/cost budget, (5) name eval + monitoring, (6) volunteer failure modes and mitigations. Candidates who jump straight to "use Pinecone and GPT-4" without this structure read as junior even when the components are right.</p>
+        </div>
+      </article>
+
+      <!-- ---------- 5.8 ---------- -->
+      <article class="topic" id="s5-8">
+        <h3><span class="tn">5.8</span> Design interview focus</h3>
+        <p class="lead">A reusable framework for <em>any</em> RAG system-design question, plus the two follow-ups that always come: scaling and single points of failure.</p>
+
+        <p><b>The framework</b> (works for "design X over Y docs"): Clarify → Two pipelines → Decisions-with-rationale → Budget (latency + cost) → Eval &amp; monitoring → Failure modes → Scale story. Walk it out loud; it demonstrates seniority regardless of the specific stack.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>The design follow-ups</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>Where's the single point of failure in your design, and how do you mitigate it?</summary>
+              <div class="ans"><p>Usually two candidates. (1) The <b>LLM provider</b> — a managed API is a hard dependency; mitigate with a fallback model/provider, timeouts with a graceful degraded response (return retrieved sources without a synthesized answer), and circuit breakers. (2) The <b>vector store</b> — mitigate with replicas/HA, health checks, and (in the worst case) a keyword/BM25 fallback so the system degrades to lexical search rather than failing. Also the <b>ingestion pipeline</b>: if it silently breaks, the index goes stale — monitor freshness (last-successful-index age) and alert. The theme: identify hard dependencies, add fallbacks/replicas, and prefer graceful degradation over hard failure.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>How do you approach a RAG system-design question you've never seen?</summary>
+              <div class="ans"><p>Run the framework. Clarify scale, latency SLA, freshness, security, and citation needs first. Sketch the two pipelines (ingestion vs serving). Then make each decision — parser, chunker, embedder, index/DB, hybrid+rerank, prompt, LLM — with a one-line "because." State the latency and cost budget and where the time/money goes. Add eval (golden set + RAGAS) and monitoring (log chunks, drift alerts). Volunteer failure modes and mitigations. Close with the scale story ("at 10× I'd shard and quantize"). The structure signals experience; the specific components can be swapped.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>What are the most common ways a RAG system design goes wrong?</summary>
+              <div class="ans"><p>Conflating ingestion and serving (no clean re-index path); dense-only retrieval (misses exact terms); enforcing access control in the prompt instead of the retrieval filter; appending updates without deleting stale versions (drift); no evaluation (can't tell if changes help); reranking or agentic loops with no latency/cost budget; and no abstention path (hallucinates on unanswerable queries). Naming these unprompted shows you've operated RAG, not just built a demo.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ============================ CAPSTONE & REFERENCE ============================ -->
+      <section class="phase-head" id="reference">
+        <div class="pk">Capstone · Tools · Papers</div>
+        <h2>Prove it, and know the landscape</h2>
+        <p class="pd">A capstone that exercises every phase is the best interview artifact you can bring — and being able to name the right tool and the seminal papers signals you're current. Quick-reference material to round out the resource.</p>
+      </section>
+
+      <!-- ---------- 5.9 ---------- -->
+      <article class="topic" id="s5-9">
+        <h3><span class="tn">5.9</span> Capstone project</h3>
+        <p class="lead">One project that touches routing, hybrid retrieval, an agentic path, evaluation, and guardrails proves you can assemble the whole stack — far more convincing than a tutorial clone. Here's the blueprint (tracker items 175–181).</p>
+
+        <p>Build an <b>adaptive support assistant</b> that demonstrates every phase:</p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Component</th><th>What it shows</th><th>Ties to</th></tr></thead>
+            <tbody>
+              <tr><td><b>Query complexity router</b></td><td>Routes simple / naive-RAG / agentic / SQL</td><td>§3.9</td></tr>
+              <tr><td><b>Hybrid + rerank path</b></td><td>Dense+BM25+RRF+cross-encoder for the naive lane</td><td>§2.2, §2.4</td></tr>
+              <tr><td><b>Agentic loop w/ relevance gate</b></td><td>Iterative retrieval + CRAG-style check for complex queries</td><td>§3.6, §3.8</td></tr>
+              <tr><td><b>Eval harness (RAGAS)</b></td><td>Before/after report on a golden set</td><td>§4.3, §4.5</td></tr>
+              <tr><td><b>Guardrails</b></td><td>Injection resistance + access control</td><td>§4.10</td></tr>
+              <tr><td><b>Architecture doc + diagram</b></td><td>Written rationale for every trade-off</td><td>§5.1, §5.7</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The deliverable that matters most is the <b>before/after evaluation report</b> — "naive RAG scored 0.61 faithfulness / 0.55 context-recall; adding hybrid+rerank took it to 0.78 / 0.81; here's the RAGAS table and three example queries." That single artifact demonstrates you can measure, improve, and justify — exactly what the whole resource has been training.</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">How to talk about it</span>
+          <p>In interviews, lead with the <em>decisions and measurements</em>, not the framework. "I routed by complexity to control cost, used hybrid+RRF because exact SKUs were failing, and proved the reranker helped with a +0.15 context-precision delta on my golden set" beats "I used LangChain and Pinecone." The capstone's value is the story of trade-offs it lets you tell.</p>
+        </div>
+      </article>
+      <!-- ---------- 5.10 ---------- -->
+      <article class="topic" id="s5-10">
+        <h3><span class="tn">5.10</span> Tools &amp; frameworks reference</h3>
+        <p class="lead">You don't need to have used all of these, but you should be able to place each one on the pipeline and say when you'd reach for it. Here's the landscape mapped to the stages you now know (tracker items 182–197).</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 200" role="img" aria-label="The tool landscape mapped onto the RAG pipeline stages: orchestration frameworks span everything; embeddings, vector stores, rerankers, LLMs, evaluation, and observability tools sit at their respective stages.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">where each tool sits on the pipeline</text>
+              <!-- orchestration spanning -->
+              <rect x="20" y="34" width="660" height="26" rx="6" fill="#252D3A" stroke="#F0A81E"/><text x="350" y="51" fill="#f0c274" font-size="10" text-anchor="middle">Orchestration: LangChain · LlamaIndex · LangGraph (agentic)</text>
+              <!-- stages -->
+              <g font-size="8.5" text-anchor="middle">
+                <rect x="20" y="72" width="120" height="52" rx="7" fill="#3B45B5"/><text x="80" y="90" fill="#fff">Embeddings</text><text x="80" y="104" fill="#c9cdf0">OpenAI-3 · Voyage</text><text x="80" y="116" fill="#c9cdf0">BGE · E5</text>
+                <rect x="148" y="72" width="130" height="52" rx="7" fill="#3B45B5"/><text x="213" y="90" fill="#fff">Vector store</text><text x="213" y="104" fill="#c9cdf0">FAISS · Qdrant · Weaviate</text><text x="213" y="116" fill="#c9cdf0">Milvus · pgvector · Pinecone</text>
+                <rect x="286" y="72" width="110" height="52" rx="7" fill="#3B45B5"/><text x="341" y="90" fill="#fff">Rerank</text><text x="341" y="104" fill="#c9cdf0">Cohere Rerank</text><text x="341" y="116" fill="#c9cdf0">BGE-reranker</text>
+                <rect x="404" y="72" width="90" height="52" rx="7" fill="#3B45B5"/><text x="449" y="90" fill="#fff">LLM</text><text x="449" y="104" fill="#c9cdf0">GPT-4o</text><text x="449" y="116" fill="#c9cdf0">Claude · Llama</text>
+                <rect x="502" y="72" width="80" height="52" rx="7" fill="#252D3A" stroke="#2E9E5B"/><text x="542" y="90" fill="#7fd6a0">Eval</text><text x="542" y="104" fill="#c2cad6">RAGAS</text><text x="542" y="116" fill="#c2cad6">DeepEval</text>
+                <rect x="590" y="72" width="90" height="52" rx="7" fill="#252D3A" stroke="#5560D8"/><text x="635" y="90" fill="#aab2f0">Observe</text><text x="635" y="104" fill="#c2cad6">LangSmith</text><text x="635" y="116" fill="#c2cad6">Langfuse · TruLens</text>
+              </g>
+              <text x="20" y="152" fill="#8892a0" font-size="9.5">Orchestration frameworks glue the stages; the rest are swappable at their layer.</text>
+              <text x="20" y="170" fill="#8892a0" font-size="9.5">Interview move: name the layer, then the 1–2 tools you'd pick and why.</text>
+            </svg>
+          </div>
+          <figcaption><b>Think in layers, not brand names.</b> Each pipeline stage has 2–3 credible tools; the skill is choosing per constraint (cost, privacy, scale, ops) — the same reasoning as §5.5, applied to the whole stack.</figcaption>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Layer</th><th>Tools</th><th>Reach for it when</th></tr></thead>
+            <tbody>
+              <tr><td><b>Orchestration</b></td><td>LangChain, LlamaIndex, <b>LangGraph</b></td><td>LangChain/LlamaIndex for pipelines; LangGraph for stateful agentic loops (§3.6)</td></tr>
+              <tr><td><b>Embeddings</b></td><td>OpenAI text-embedding-3, Voyage, BGE, E5</td><td>API for quality/ease; BGE/E5 self-hosted for cost/privacy (§1.5)</td></tr>
+              <tr><td><b>Vector store</b></td><td>FAISS, Qdrant, Weaviate, Milvus, pgvector, Pinecone</td><td>Per §5.5 decision tree</td></tr>
+              <tr><td><b>Reranker</b></td><td>Cohere Rerank, BGE-reranker</td><td>Managed (Cohere) vs self-hosted (BGE) cross-encoder (§2.4)</td></tr>
+              <tr><td><b>Evaluation</b></td><td>RAGAS, TruLens, DeepEval</td><td>Batch metrics / live tracing / CI gates respectively (§4.3–4.4)</td></tr>
+              <tr><td><b>Observability</b></td><td>LangSmith, Langfuse</td><td>Tracing, logging retrieved chunks, latency, feedback (§4.11)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- ---------- 5.11 ---------- -->
+      <article class="topic" id="s5-11">
+        <h3><span class="tn">5.11</span> Core papers to know by name</h3>
+        <p class="lead">Five papers cover the arc from "what is RAG" to the 2024 techniques. You don't need every detail — you need the <em>one idea</em> each contributed and why it mattered, so you can name-drop them accurately (tracker items 198–202).</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 150" role="img" aria-label="A timeline: 2020 original RAG paper, then 2024 Self-RAG, Corrective RAG, Microsoft GraphRAG, and Anthropic Contextual Retrieval.">
+              <line x1="40" y1="80" x2="660" y2="80" stroke="#3a4453" stroke-width="2"/>
+              <g font-size="9" text-anchor="middle">
+                <circle cx="90" cy="80" r="7" fill="#F0A81E"/><text x="90" y="62" fill="#f0c274">2020</text><text x="90" y="108" fill="#c2cad6">RAG</text><text x="90" y="120" fill="#8892a0" font-size="8">(Lewis)</text>
+                <circle cx="280" cy="80" r="6" fill="#5560D8"/><text x="280" y="62" fill="#aab2f0">2024</text><text x="280" y="108" fill="#c2cad6">Self-RAG</text>
+                <circle cx="400" cy="80" r="6" fill="#5560D8"/><text x="400" y="108" fill="#c2cad6">CRAG</text>
+                <circle cx="520" cy="80" r="6" fill="#2E9E5B"/><text x="520" y="108" fill="#c2cad6">GraphRAG</text><text x="520" y="120" fill="#8892a0" font-size="8">(Microsoft)</text>
+                <circle cx="630" cy="80" r="6" fill="#2E9E5B"/><text x="630" y="108" fill="#c2cad6">Contextual</text><text x="630" y="120" fill="#8892a0" font-size="8">(Anthropic)</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Four years, one idea each.</b> RAG defined the pattern; Self-RAG and CRAG added self-evaluation; GraphRAG added relational/global retrieval; Contextual Retrieval fixed the isolated-chunk problem. Together they trace the field's evolution from "retrieve + read" to "retrieve, reason, and verify."</figcaption>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Paper</th><th>The one idea</th><th>Maps to</th></tr></thead>
+            <tbody>
+              <tr><td><b>Lewis et al., 2020</b> — "Retrieval-Augmented Generation…"</td><td>The original RAG: combine a parametric LLM with a non-parametric retriever, trained end-to-end. Defined the pattern.</td><td>§1.1–1.2</td></tr>
+              <tr><td><b>Asai et al., 2024</b> — Self-RAG</td><td>Train the model to emit reflection tokens: retrieve on demand, judge passage relevance, and self-check that its output is supported.</td><td>§3.7</td></tr>
+              <tr><td><b>Yan et al., 2024</b> — Corrective RAG (CRAG)</td><td>A lightweight retrieval evaluator grades results and triggers a web-search fallback when they're insufficient.</td><td>§3.8</td></tr>
+              <tr><td><b>Microsoft, 2024</b> — GraphRAG</td><td>Build a knowledge graph + community summaries so RAG can answer multi-hop and corpus-wide "global" questions.</td><td>§3.1</td></tr>
+              <tr><td><b>Anthropic, 2024</b> — Contextual Retrieval (blog)</td><td>Prepend LLM-generated context to each chunk before embedding (and BM25), sharply cutting retrieval failures.</td><td>§2.8</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="cl-lab">Interview tip · cite the idea, not just the title</span>
+          <p>Saying "Self-RAG adds reflection tokens so the model decides when to retrieve and whether its output is grounded" is far stronger than "there's a paper called Self-RAG." Anchor each name to its one contribution and the problem it solved — that's what signals you've read (or at least genuinely understood) the work.</p>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t">Part 4 · Evaluation &amp; Production</div><ul><li>Metrics, RAGAS, guardrails, ops</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 5 · System Design &amp; Reference</div><ul><li>Architecture, scaling, capstone, refs</li></ul></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t">Part 6 · Interview Q&amp;A Bank</div><ul><li>40+ Q&amp;A: conceptual, design</li><li>debugging, coding</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        RAG Interview Prep — Part 5 of 6 · System Design &amp; Reference<br>
+        Covers tracker items 163–202 (Phase 6 + Capstone + Reference). Diagrams use a fixed grammar: <span style="color:var(--gold-2)">gold = query/signal</span>, <span style="color:var(--indigo-2)">indigo = corpus/document</span>, <span style="color:var(--green)">green = relevant match</span>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">ragPrepStatus_v1</code> and is shared by every part of this resource.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 206 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {
+  p0:"Phase 0 · Prerequisites", p1:"Phase 1 · Naive RAG Foundations",
+  p2:"Phase 2 · Advanced RAG — Retrieval Quality", p3:"Phase 3 · Structured & Alternative Retrieval",
+  p4:"Phase 4 · Agentic & Adaptive RAG", p5:"Phase 5 · Evaluation, Observability & Production",
+  p6:"Phase 6 · System Design Integration", cap:"Capstone Project",
+  tool:"Tools & Frameworks", paper:"Core Papers to Skim", qa:"Interview Q&A Bank"
+};
+const ORDER = ["p0","p1","p2","p3","p4","p5","p6","cap","tool","paper","qa"];
+const TRACKER = [
+[1,"p0","Theory","Medium",0,"Embeddings: how dense vector embeddings are trained (contrastive learning)"],
+[2,"p0","Theory","Medium",0,"Cosine similarity vs dot product vs Euclidean distance"],
+[3,"p0","Theory","Medium",0,"Transformers basics: attention mechanism"],
+[4,"p0","Theory","Medium",0,"Why context windows are limited"],
+[5,"p0","Theory","Medium",0,"How tokenization affects chunking"],
+[6,"p0","Theory","Medium",0,"LLM inference: temperature, top-k / top-p sampling"],
+[7,"p0","Theory","Medium",0,"Context window limits and why hallucination happens"],
+[8,"p0","Theory","Medium",0,"Basic vector math: cosine similarity"],
+[9,"p0","Theory","Medium",0,"Curse of dimensionality in high-dimensional similarity search"],
+[10,"p1","Theory","Medium",0,"What RAG solves: parametric knowledge limits"],
+[11,"p1","Theory","Medium",0,"What RAG solves: hallucination"],
+[12,"p1","Theory","Medium",0,"What RAG solves: staleness of knowledge"],
+[13,"p1","Theory","Medium",0,"What RAG solves: lack of source attribution"],
+[14,"p1","Theory","Medium",0,"What RAG solves: cost of fine-tuning for knowledge updates"],
+[15,"p1","Theory","Medium",0,"Basic pipeline: Ingest -> Chunk -> Embed -> Store -> Query -> Retrieve -> Augment -> Generate"],
+[16,"p1","Theory","High",1,"Document parsing & preprocessing (OCR, layout/table extraction; unstructured, LlamaParse)"],
+[17,"p1","Theory","Medium",0,"Chunking strategy: fixed-size chunking"],
+[18,"p1","Theory","Medium",0,"Chunking strategy: sentence-based chunking"],
+[19,"p1","Theory","Medium",0,"Chunking strategy: recursive character splitting"],
+[20,"p1","Theory","Medium",0,"Chunking strategy: semantic chunking (embedding-based boundary detection)"],
+[21,"p1","Theory","Medium",0,"Chunking strategy: document-structure-aware chunking (headers, tables)"],
+[22,"p1","Theory","Medium",1,"Late chunking (embed full document, then split token embeddings)"],
+[23,"p1","Theory","Medium",0,"Chunk size / overlap tradeoffs"],
+[24,"p1","Theory","Medium",0,"Embedding models: open-source (BGE, E5, GTE, Nomic)"],
+[25,"p1","Theory","Medium",0,"Embedding models: proprietary (OpenAI text-embedding-3, Voyage, Cohere embed)"],
+[26,"p1","Theory","Medium",1,"Matryoshka / adaptive-dimension embeddings (MRL)"],
+[27,"p1","Theory","Medium",0,"When to fine-tune your own embedding model"],
+[28,"p1","Theory","Medium",0,"Vector DB internals: ANN search — HNSW"],
+[29,"p1","Theory","Medium",0,"Vector DB internals: ANN search — IVF"],
+[30,"p1","Theory","Medium",0,"Vector DB internals: product quantization (+ binary/scalar quantization)"],
+[31,"p1","Theory","Medium",0,"Tradeoffs of exact vs approximate search"],
+[32,"p1","Theory","Medium",0,"Distance metrics: cosine vs dot product vs L2 (normalized vs unnormalized)"],
+[33,"p1","Theory","High",1,"Prompt & context assembly + grounded citation (answer-only-from-context)"],
+[34,"p1","Practical","Medium",0,"Build minimal RAG pipeline from scratch (no framework)"],
+[35,"p1","Practical","Medium",0,"Implement PDF/text ingestion + try 2-3 chunking strategies"],
+[36,"p1","Practical","Medium",0,"Use a free embedding model via sentence-transformers"],
+[37,"p1","Practical","Medium",0,"Set up vector store: FAISS (in-memory, learn internals)"],
+[38,"p1","Practical","Medium",0,"Move pipeline to Chroma or Qdrant"],
+[39,"p1","Practical","Medium",0,"Build simple retrieval + prompt template + LLM call"],
+[40,"p1","Practical","Medium",0,"Deliberately break pipeline: test bad chunk sizes, measure degradation"],
+[41,"p1","Practical","Medium",0,"Log retrieved results for 10 test queries and manually judge relevance"],
+[42,"p1","Interview Prep","Medium",0,"Walk through query-to-response flow end to end"],
+[43,"p1","Interview Prep","Medium",0,"How to choose chunk size for a 200-page legal doc vs Slack archive"],
+[44,"p1","Interview Prep","Medium",0,"Why not just put the whole document in the context window now that windows are huge?"],
+[45,"p2","Theory","High",0,"Hybrid search: combining dense (semantic) + sparse (BM25) retrieval"],
+[46,"p2","Theory","High",0,"Why pure semantic search fails on exact terms, IDs, acronyms, numbers"],
+[47,"p2","Theory","High",0,"Reciprocal Rank Fusion (RRF) and other result-merging methods"],
+[48,"p2","Theory","High",1,"RAG-Fusion (multi-query -> per-query retrieval -> RRF)"],
+[49,"p2","Theory","High",0,"Re-ranking: cross-encoders vs bi-encoders"],
+[50,"p2","Theory","High",0,"Two-stage retrieve-then-rerank pipeline rationale"],
+[51,"p2","Theory","High",0,"Cost / latency tradeoff of reranking"],
+[52,"p2","Theory","High",1,"MMR (Maximal Marginal Relevance) for diversity / de-duplication"],
+[53,"p2","Theory","High",0,"Query rewriting / expansion (HyDE — Hypothetical Document Embeddings)"],
+[54,"p2","Theory","High",0,"Query decomposition (breaking multi-part questions into sub-queries)"],
+[55,"p2","Theory","Medium",0,"Step-back prompting (generating a more abstract question first)"],
+[56,"p2","Theory","Medium",0,"Multi-query retrieval (N paraphrases, retrieve each, deduplicate)"],
+[57,"p2","Theory","Medium",0,"Metadata filtering (pre-filter by date, source, department)"],
+[58,"p2","Theory","Medium",0,"Parent-child / small-to-big retrieval"],
+[59,"p2","Theory","High",0,"Contextual retrieval (prepend chunk-level context before embedding)"],
+[60,"p2","Theory","Medium",0,"Sentence-window retrieval"],
+[61,"p2","Theory","High",1,"Contextual compression (LLM/extractor-based chunk compression)"],
+[62,"p2","Theory","Medium",1,"Lost-in-the-middle & retrieved-context ordering"],
+[63,"p2","Theory","Medium",1,"ColBERT / late-interaction (multi-vector) retrieval"],
+[64,"p2","Practical","High",0,"Add BM25 (rank_bm25 / Elasticsearch / OpenSearch) alongside vector store"],
+[65,"p2","Practical","High",0,"Implement RRF fusion of dense + sparse results"],
+[66,"p2","Practical","High",0,"Add cross-encoder reranker (bge-reranker or Cohere rerank API)"],
+[67,"p2","Practical","Medium",0,"Implement HyDE: generate hypothetical answer, embed it, retrieve"],
+[68,"p2","Practical","Medium",0,"Compare retrieval@k precision before/after each technique on labeled eval set"],
+[69,"p2","Interview Prep","High",0,"Why RAG fails on queries with product SKUs / exact numbers, and how to fix it"],
+[70,"p2","Interview Prep","Medium",0,"When is reranking not worth the added latency?"],
+[71,"p2","Interview Prep","Medium",0,"Explain HyDE and when it helps vs hurts"],
+[72,"p3","Theory","High",0,"GraphRAG: building a knowledge graph (entities + relationships) from documents"],
+[73,"p3","Theory","High",0,"GraphRAG: retrieval via graph traversal vs vector search"],
+[74,"p3","Theory","High",0,"When GraphRAG beats vector RAG (multi-hop relationship questions) vs overkill"],
+[75,"p3","Theory","Medium",0,"Community detection / hierarchical summarization in GraphRAG (Microsoft approach)"],
+[76,"p3","Theory","Medium",0,"Multi-hop retrieval (iterative retrieval based on intermediate reasoning)"],
+[77,"p3","Theory","Medium",0,"Table/structured data RAG: text-to-SQL as alternative to vector search"],
+[78,"p3","Theory","Medium",0,"Hybrid systems routing between SQL and vector retrieval"],
+[79,"p3","Theory","Medium",0,"Multimodal RAG: retrieving over images / tables / charts"],
+[80,"p3","Theory","Medium",0,"Vision-capable embedding models (e.g., CLIP) or text-description conversion"],
+[81,"p3","Theory","Medium",0,"Long-document / hierarchical RAG: summarize-then-drill-down patterns"],
+[82,"p3","Practical","Medium",0,"Build tiny GraphRAG prototype: LLM-based entity/relation extraction"],
+[83,"p3","Practical","Medium",0,"Store extracted graph in NetworkX and answer a relationship question via traversal"],
+[84,"p3","Practical","Medium",0,"Try text-to-SQL RAG on a toy database"],
+[85,"p3","Practical","Medium",0,"Compare text-to-SQL approach vs embedding schema/rows as text"],
+[86,"p3","Interview Prep","Medium",0,"Why vector RAG struggles on 'who is connected to X across 500 emails' questions"],
+[87,"p3","Interview Prep","Medium",0,"What to use instead of vector RAG for relationship questions"],
+[88,"p3","Interview Prep","Medium",0,"When is GraphRAG not worth the ingestion/maintenance cost?"],
+[89,"p4","Theory","High",0,"Agentic RAG: LLM decides whether/what/how many times to retrieve and when to stop"],
+[90,"p4","Theory","High",0,"Self-RAG: reflection/critique tokens for retrieval necessity + self-evaluation"],
+[91,"p4","Theory","High",0,"Corrective RAG (CRAG): lightweight evaluator grades retrieved chunks"],
+[92,"p4","Theory","High",0,"CRAG fallback strategies (e.g., web search) when retrieval is insufficient"],
+[93,"p4","Theory","High",0,"Adaptive RAG: query complexity classifier routes to cheapest sufficient strategy"],
+[94,"p4","Theory","High",0,"Cost/latency tradeoffs of agentic loops (3-10x tokens, 2-5x latency)"],
+[95,"p4","Theory","Medium",0,"Architectural pattern: router pattern"],
+[96,"p4","Theory","Medium",0,"Architectural pattern: ReAct-style iterative retrieval"],
+[97,"p4","Theory","Medium",0,"Architectural pattern: plan-and-execute"],
+[98,"p4","Theory","Medium",0,"Architectural pattern: multi-agent retrieval (specialized retriever agents per source)"],
+[99,"p4","Theory","Medium",0,"Tool use in RAG: retrieval as one tool among many (SQL, calculator, web, API)"],
+[100,"p4","Theory","High",0,"Iteration control: capping retrieval loops, logging rounds for observability"],
+[101,"p4","Practical","High",0,"Build simple agentic loop: LLM decides retrieve-again vs answer, cap at 3 iterations"],
+[102,"p4","Practical","High",0,"Add relevance/faithfulness check after retrieval (mini CRAG) via structured output"],
+[103,"p4","Practical","High",0,"Build query complexity classifier routing: direct / naive RAG / agentic RAG"],
+[104,"p4","Interview Prep","High",0,"How do you decide when a query needs agentic retrieval vs a simple pipeline?"],
+[105,"p4","Interview Prep","High",0,"How do you bound cost when giving an LLM control of its own retrieval loop?"],
+[106,"p4","Interview Prep","High",0,"Difference between Self-RAG and Corrective RAG"],
+[107,"p5","Theory","High",0,"Retrieval metric: Precision@k"],
+[108,"p5","Theory","High",0,"Retrieval metric: Recall@k"],
+[109,"p5","Theory","High",0,"Retrieval metric: MRR (Mean Reciprocal Rank)"],
+[110,"p5","Theory","Medium",0,"Retrieval metric: NDCG (Normalized Discounted Cumulative Gain)"],
+[111,"p5","Theory","Medium",0,"Retrieval metric: Hit Rate"],
+[112,"p5","Theory","High",0,"Generation metric: Faithfulness / groundedness"],
+[113,"p5","Theory","High",0,"Generation metric: Answer relevance"],
+[114,"p5","Theory","Medium",0,"Generation metric: Context precision"],
+[115,"p5","Theory","Medium",0,"Generation metric: Context recall"],
+[116,"p5","Theory","High",0,"Eval framework: RAGAS — overview and how it fits the workflow"],
+[117,"p5","Theory","High",0,"RAGAS metric: Faithfulness"],
+[118,"p5","Theory","High",0,"RAGAS metric: Answer Relevancy"],
+[119,"p5","Theory","High",0,"RAGAS metric: Context Precision"],
+[120,"p5","Theory","High",0,"RAGAS metric: Context Recall"],
+[121,"p5","Theory","Medium",0,"RAGAS metric: Context Entity Recall"],
+[122,"p5","Theory","Medium",0,"RAGAS metric: Answer Semantic Similarity"],
+[123,"p5","Theory","Medium",0,"RAGAS metric: Answer Correctness"],
+[124,"p5","Theory","Medium",0,"RAGAS metric: Noise Sensitivity"],
+[125,"p5","Theory","High",0,"RAGAS workflow: how it uses an LLM + embeddings under the hood"],
+[126,"p5","Theory","Medium",0,"RAGAS workflow: required inputs per metric"],
+[127,"p5","Theory","Medium",0,"Eval framework: TruLens — feedback functions"],
+[128,"p5","Theory","Medium",0,"Eval framework: TruLens — RAG Triad"],
+[129,"p5","Theory","Medium",0,"Eval framework: DeepEval — test-case based evaluation"],
+[130,"p5","Theory","Medium",0,"DeepEval metric: G-Eval"],
+[131,"p5","Theory","Medium",0,"DeepEval metric: Hallucination metric"],
+[132,"p5","Theory","Medium",0,"Comparing RAGAS vs TruLens vs DeepEval: when to pick which"],
+[133,"p5","Theory","Medium",0,"Building eval dataset: synthetic QA generation from corpus"],
+[134,"p5","Theory","Medium",0,"Building eval dataset: human-labeled golden sets"],
+[135,"p5","Theory","Medium",0,"LLM-as-judge: how it works"],
+[136,"p5","Theory","High",0,"LLM-as-judge biases: position, verbosity, self-preference + mitigations"],
+[137,"p5","Theory","Medium",0,"Hallucination detection: NLI-based or LLM-based entailment checks"],
+[138,"p5","Theory","Medium",0,"Detecting chunking/embedding drift (stale or contradictory documents)"],
+[139,"p5","Theory","Medium",0,"Latency/cost budgeting: where time goes"],
+[140,"p5","Theory","Medium",0,"Caching strategies: semantic caching of queries"],
+[141,"p5","Theory","Medium",0,"Caching strategies: caching embeddings"],
+[142,"p5","Theory","Medium",0,"Caching strategies: caching reranker outputs"],
+[143,"p5","Theory","High",0,"Guardrails: prompt injection via retrieved documents"],
+[144,"p5","Theory","High",0,"Guardrails: PII leakage from retrieved content"],
+[145,"p5","Theory","High",0,"Guardrails: access control at retrieval time (row-level security)"],
+[146,"p5","Theory","Medium",0,"Production monitoring: logging retrieved chunks per query"],
+[147,"p5","Theory","Medium",0,"Production monitoring: tracking retrieval-quality drift over time"],
+[148,"p5","Theory","Medium",0,"Production monitoring: human feedback loops tied to specific chunks"],
+[149,"p5","Theory","High",1,"Abstention / 'no relevant context' handling & answer-confidence thresholds"],
+[150,"p5","Practical","High",0,"Build eval set of 20-30 Q&A pairs for Phase 1-2 pipeline"],
+[151,"p5","Practical","High",0,"Run RAGAS Faithfulness score on pipeline outputs"],
+[152,"p5","Practical","High",0,"Run RAGAS Answer Relevancy score on pipeline outputs"],
+[153,"p5","Practical","High",0,"Run RAGAS Context Precision score on pipeline outputs"],
+[154,"p5","Practical","High",0,"Run RAGAS Context Recall score on pipeline outputs"],
+[155,"p5","Practical","High",0,"Compare full RAGAS score set before vs after hybrid + reranking"],
+[156,"p5","Practical","High",0,"Implement a basic prompt-injection test on retrieved chunk content"],
+[157,"p5","Practical","High",0,"Fix prompt-injection: delimit retrieved content, treat as data not instructions"],
+[158,"p5","Practical","High",0,"Add access-control-aware retrieval: permission field + filter at query time"],
+[159,"p5","Interview Prep","Medium",0,"How do you know if a chunking strategy change actually improved things?"],
+[160,"p5","Interview Prep","High",0,"How would you prevent a malicious PDF from hijacking your RAG assistant?"],
+[161,"p5","Interview Prep","High",0,"How do you ensure User A can't retrieve User B's private documents?"],
+[162,"p5","Interview Prep","High",0,"Debug: RAG answers got worse over a month with no code changes — what do you check?"],
+[163,"p6","Theory","High",0,"Full architecture: ingestion pipeline vs query-time serving pipeline"],
+[164,"p6","Theory","Medium",0,"Scaling: sharding vector indexes"],
+[165,"p6","Theory","Medium",0,"Scaling: handling millions/billions of vectors"],
+[166,"p6","Theory","Medium",0,"Scaling: incremental re-indexing vs full rebuilds"],
+[167,"p6","Theory","Medium",0,"Freshness: incremental embedding updates, TTLs, versioning"],
+[168,"p6","Theory","High",0,"Cost modeling: embedding (ingest) vs per-query retrieval vs generation"],
+[169,"p6","Theory","High",0,"Choosing a vector DB: Pinecone vs Weaviate vs Qdrant vs Milvus vs pgvector"],
+[170,"p6","Theory","High",0,"When NOT to use RAG: RAG vs fine-tuning distinction"],
+[171,"p6","Practical","High",0,"Full mock system design: support assistant, 500K docs, daily updates, sub-2s, RBAC"],
+[172,"p6","Interview Prep","High",0,"RAG or fine-tuning — how do you decide?"],
+[173,"p6","Interview Prep","Medium",0,"How would this design change at 10x the document volume?"],
+[174,"p6","Interview Prep","Medium",0,"Where's the single point of failure in your design, and how do you mitigate it?"],
+[175,"cap","Capstone","High",0,"Query complexity classifier routing (naive vs agentic vs SQL)"],
+[176,"cap","Capstone","High",0,"Hybrid search + reranking implemented for the naive path"],
+[177,"cap","Capstone","High",0,"Iterative agentic loop with relevance-check gate for complex queries"],
+[178,"cap","Capstone","High",0,"Eval harness (RAGAS) with a before/after report"],
+[179,"cap","Capstone","High",0,"Basic guardrails: injection resistance"],
+[180,"cap","Capstone","High",0,"Basic guardrails: access control"],
+[181,"cap","Capstone","High",0,"Architecture diagram + written design doc explaining every tradeoff"],
+[182,"tool","Tools","Medium",0,"LangChain"],
+[183,"tool","Tools","Medium",0,"LlamaIndex"],
+[184,"tool","Tools","Medium",0,"LangGraph (for agentic loops)"],
+[185,"tool","Tools","Medium",0,"FAISS (learn internals)"],
+[186,"tool","Tools","Medium",0,"Qdrant or Weaviate (production features)"],
+[187,"tool","Tools","Medium",0,"pgvector (if already on Postgres)"],
+[188,"tool","Tools","Medium",0,"Cohere Rerank"],
+[189,"tool","Tools","Medium",0,"BGE-reranker (open source)"],
+[190,"tool","Tools","Medium",0,"RAGAS"],
+[191,"tool","Tools","Medium",0,"TruLens"],
+[192,"tool","Tools","Medium",0,"DeepEval"],
+[193,"tool","Tools","Medium",0,"OpenAI text-embedding-3"],
+[194,"tool","Tools","Medium",0,"Voyage AI embeddings"],
+[195,"tool","Tools","Medium",0,"BGE / E5 (open source embeddings)"],
+[196,"tool","Tools","Medium",0,"LangSmith (observability)"],
+[197,"tool","Tools","Medium",0,"Langfuse (observability)"],
+[198,"paper","Papers","Medium",0,"Lewis et al. 2020 — original RAG paper"],
+[199,"paper","Papers","Medium",0,"Asai et al. 2024 — Self-RAG"],
+[200,"paper","Papers","Medium",0,"Corrective RAG (CRAG) paper"],
+[201,"paper","Papers","Medium",0,"Microsoft GraphRAG paper"],
+[202,"paper","Papers","Medium",0,"Anthropic 'Contextual Retrieval' blog post"],
+[203,"qa","QA Bank","High",1,"Interview Q&A Bank — Conceptual questions"],
+[204,"qa","QA Bank","High",1,"Interview Q&A Bank — 'Design a RAG system for X'"],
+[205,"qa","QA Bank","High",1,"Interview Q&A Bank — Debugging & troubleshooting"],
+[206,"qa","QA Bank","Medium",1,"Interview Q&A Bank — Coding questions"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="ragPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 206 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+</body>
+</html>
