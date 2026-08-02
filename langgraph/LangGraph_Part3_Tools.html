@@ -604,6 +604,49 @@ agent.invoke({"messages": [{"role": "user", "content": "How did AAPL close today
           </div>
           <figcaption><b>Prebuilt = fast; hand-built <code>StateGraph</code> = full control.</b> Interviewers ask when you'd drop down: custom control flow, multi-agent topologies, bespoke state beyond <code>messages</code>, or non-ReAct patterns like plan-and-execute.</figcaption>
         </figure>
+
+        <h4>What LangChain 1.1 → 1.3 added (Nov 2025 – May 2026)</h4>
+        <p>Most of the post-1.0 investment went into <code class="ic">create_agent</code>. Knowing these signals you're current:</p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Feature</th><th>What it does</th><th>Ver.</th></tr></thead>
+            <tbody>
+              <tr><td><b>Built-in middleware</b></td><td><b>Summarization</b> (flexible trigger points), <b>model retry</b> with exponential backoff, <b>OpenAI content moderation</b> — composable, no graph rewrite</td><td>1.1</td></tr>
+              <tr><td><b>Model profiles</b></td><td><code>model.profile</code> exposes capabilities (from models.dev) so you can branch on what a model actually supports instead of hard-coding</td><td>1.1</td></tr>
+              <tr><td><code>SystemMessage</code> in <code>system_prompt</code></td><td>Pass a full message object, not just a string</td><td>1.1</td></tr>
+              <tr><td><b>Tool <code>extras</code></b></td><td>An <code>extras</code> attribute on tools carries provider-specific parameters — replaces per-provider branching in your own code</td><td>1.2</td></tr>
+              <tr><td><b>Provider tool features</b></td><td>Anthropic programmatic tool calling &amp; tool search; built-in client-side tools for Anthropic and OpenAI</td><td>1.2</td></tr>
+              <tr><td><code>ProviderStrategy</code></td><td>Strict schema adherence in <code>response_format</code>, inferred from the model profile</td><td>1.1–1.2</td></tr>
+              <tr><td><b>v3 event streaming</b></td><td><code>version="v3"</code> in <code>stream_events</code>/<code>astream_events</code> — typed projections (Part 5 §5.5)</td><td>1.3</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="code">
+          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">middleware &amp; model profiles in practice</span><button class="copy">Copy</button></div>
+<pre><code class="language-python">from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware, ModelRetryMiddleware
+
+agent = create_agent(
+    model="openai:gpt-4o-mini",
+    tools=[search_policy_docs],
+    system_prompt="You are a support assistant.",
+    middleware=[
+        SummarizationMiddleware(max_tokens_before_summary=4000),  # context mgmt, no graph change
+        ModelRetryMiddleware(max_retries=3),                       # exponential backoff
+    ],
+)
+
+# model profiles: branch on real capabilities instead of hard-coding model names
+if model.profile.supports_structured_output:
+    model = model.with_structured_output(Schema)
+</code></pre>
+        </figure>
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="cl-lab">Interview tip · middleware is the "how do you add X without rewriting the graph" answer</span>
+          <p>When asked how you'd add summarization, guardrails, retries, or logging to an existing agent, the current answer is <b>middleware</b> — composable hooks around the model and tool calls — not "I'd restructure the graph." Naming the built-ins (summarization, model-retry, moderation) shows you're on 1.1+ rather than quoting 1.0 docs.</p>
+        </div>
       </article>
 
       <!-- ---------- 3.4 ---------- -->
@@ -939,7 +982,7 @@ builder.add_edge("web_search", "generate")
 
       <div class="doc-foot">
         LangGraph &amp; Agentic AI — Part 3 of 6 · Tools, MCP &amp; RAG<br>
-        API-current for <b>LangGraph v1</b> (Oct 2025 LTS): <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 

@@ -99,14 +99,14 @@ p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
   </div>
 
   <div class="note">
-    <h3>⚠ API currency — August 2026</h3>
-    <p>LangChain and LangGraph hit <b>1.0 LTS in October 2025</b>. This resource is written against v1:</p>
+    <h3>⚠ API currency — verified August 2026</h3>
+    <p>Both libraries hit <b>1.0 on 22 Oct 2025</b>, with a commitment to <b>no breaking changes until 2.0</b>. Written against the current releases:</p>
     <ul>
-      <li><code>AgentExecutor</code>, <code>initialize_agent</code>, and <code>langgraph.prebuilt.create_react_agent</code> are <b>deprecated</b>.</li>
-      <li>The current prebuilt entry point is <code>from langchain.agents import create_agent</code>, which runs on the LangGraph runtime.</li>
+      <li><b>LangChain 1.3.14</b> (16 Jul 2026) · <b>LangGraph 1.2.9</b> (10 Jul 2026) · <b>Python 3.10–3.14</b>.</li>
+      <li><code>AgentExecutor</code>, <code>initialize_agent</code>, and <code>langgraph.prebuilt.create_react_agent</code> are <b>deprecated</b>. The current prebuilt entry point is <code>from langchain.agents import create_agent</code>, which runs on the LangGraph runtime.</li>
       <li><b>LangGraph is the runtime; LangChain is the layer on top</b> — "LangGraph vs LangChain" is a layering question, not a rivalry.</li>
-      <li>All LangChain packages require <b>Python 3.10+</b>.</li>
     </ul>
+    <p><b>Covered post-1.0 additions:</b> LangGraph 1.2's per-node <b>timeouts</b> and <b>error handlers</b> (Saga compensation), <code>set_node_defaults</code>, <code>DeltaChannel</code>, and the <b>v3 streaming API</b>; LangChain 1.1–1.3's <b>model profiles</b>, built-in <b>middleware</b> (summarization, model-retry, moderation), tool <code>extras</code>, and <code>ProviderStrategy</code>; plus LangSmith's <b>composite</b> and <b>thread/multi-turn evaluators</b>.</p>
     <p>Any tutorial from 2023–24 using <code>AgentExecutor</code> is teaching deprecated syntax. Always cross-check <code>docs.langchain.com</code>.</p>
   </div>
 

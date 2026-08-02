@@ -549,6 +549,12 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
             <details class="qa"><summary><span class="qtag">Trap ⭐</span>How do you ensure a resumed run doesn't send the same email twice?</summary>
               <div class="ans"><p>Idempotency keys. Derive a stable key from the thread + logical action (e.g. <code class="ic">thread-42:send:order-9</code>), check "already processed" before acting, and pass the key to providers that support idempotent requests. Better still, two-phase it: the node produces a <em>draft</em> (<code class="ic">status="pending"</code>) and a separate, idempotent commit step performs the send. Write nodes as near-pure functions of state so replay is safe by construction. <em>(§5.2)</em></p></div>
             </details>
+            <details class="qa"><summary><span class="qtag">Current ⭐</span>What did LangGraph 1.2 add for fault tolerance?</summary>
+              <div class="ans"><p>Three things, all per-node. <b>Timeouts:</b> <code class="ic">TimeoutPolicy(run_timeout=…, idle_timeout=…)</code> — a hard wall-clock cap per attempt, and an idle cap that resets on progress signals (catches stalled streams); either raises a retriable <code class="ic">NodeTimeoutError</code>. <b>Error handlers:</b> <code class="ic">error_handler=</code> runs <em>after</em> retries are exhausted with a <code class="ic">NodeError</code>, enabling graceful degradation and <b>Saga-style compensation</b> via <code class="ic">Command(goto="compensate")</code>. <b><code class="ic">set_node_defaults()</code>:</b> apply retry/timeout/cache/error-handler to every node at once — per-node values still win, defaults apply at <code class="ic">compile()</code>, and they are <em>not</em> inherited by subgraphs. <em>(§5.3)</em></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Current</span>What is <code>DeltaChannel</code> and when would you use it?</summary>
+              <div class="ans"><p>A LangGraph 1.2 (beta) channel type that stores <b>incremental deltas</b> instead of the full value on each checkpoint, cutting write overhead for long-running threads with growing state. Use <code class="ic">snapshot_frequency</code> to periodically write a full snapshot so replay doesn't fold an unbounded delta chain. Reach for it when checkpoint cost — not model latency — dominates a long thread. <em>(§5.1)</em></p></div>
+            </details>
             <details class="qa"><summary><span class="qtag">Production</span>What are durability modes and how would you choose one?</summary>
               <div class="ans"><p><code class="ic">"exit"</code> (persist at the end — fastest, least safe), <code class="ic">"async"</code> (background — balanced default), <code class="ic">"sync"</code> (before continuing — safest, slowest). Choose by how expensive the work is to redo and how costly it is to lose: short cheap runs can use exit; long agents with expensive steps or HITL pauses want sync. <em>(§5.1)</em></p></div>
             </details>
@@ -788,7 +794,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
       <div class="doc-foot">
         LangGraph &amp; Agentic AI — Part 6 of 6 · Interview Q&amp;A Bank<br>
-        API-current for <b>LangGraph v1</b> (Oct 2025 LTS): <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 

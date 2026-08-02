@@ -210,7 +210,7 @@ def build(pn):
 
     html = re.sub(r'<div class="doc-foot">.*?</div>',
       f'<div class="doc-foot">\n        LangGraph &amp; Agentic AI — Part {pn} of 6 · {cfg["title"]}<br>\n'
-      f'        API-current for <b>LangGraph v1</b> (Oct 2025 LTS): <code style="color:#8892a0">create_agent</code> replaces the deprecated '
+      f'        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated '
       f'<code style="color:#8892a0">create_react_agent</code>.<br>\n'
       f'        Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.\n      </div>',
       html, count=1, flags=re.DOTALL)

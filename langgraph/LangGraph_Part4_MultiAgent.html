@@ -725,6 +725,18 @@ evaluate(lambda x: agent.invoke(x), data="my-dataset", evaluators=[correctness])
 </code></pre>
         </figure>
         <p>Two modes worth naming: <b>online evaluation</b> (evaluators running against live production traffic) and <b>regression testing</b> (comparing experiments across prompt or model changes — the CI gate).</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">LangSmith in 2026 · what's new</span>
+          <ul style="margin:.4rem 0 0;padding-left:1.1rem">
+            <li><b>Composite evaluators</b> — the legacy feedback-formula endpoints are <em>deprecated</em>; a composite score is now a code evaluator plus a run rule. If you're carrying formula-based feedback, that's the migration.</li>
+            <li><b>Thread &amp; multi-turn evaluators</b> — evaluate whole conversations, not single runs; managed thread evaluators carry a locked "trace count ≥ 2" filter, and a <b>Test action</b> lets you dry-run an evaluator against a sample thread before saving the rule. This is the natural home for evaluating <em>agentic</em> sessions.</li>
+            <li><b>Evaluator robustness</b> — code evaluators accept PEP 604 union returns (<code class="ic">-&gt; dict | None</code>), and a timing-out custom evaluator now <b>records an error on the run</b> instead of silently leaving it unscored (previously a real source of misleading "passing" dashboards).</li>
+            <li><b>Datasets</b> — multi-row selection for bulk split assignment and cross-dataset copying; interactive split chips.</li>
+            <li><b>Tracing</b> — monthly trace limits enforced per project <em>and</em> user; oversized run payloads are preserved with placeholder fields rather than rejecting the whole batch.</li>
+          </ul>
+        </div>
       </article>
 
       <!-- ---------- 4.8 ---------- -->
@@ -807,7 +819,7 @@ evaluate(lambda x: agent.invoke(x), data="my-dataset", evaluators=[correctness])
 
       <div class="doc-foot">
         LangGraph &amp; Agentic AI — Part 4 of 6 · Multi-Agent &amp; Observability<br>
-        API-current for <b>LangGraph v1</b> (Oct 2025 LTS): <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 

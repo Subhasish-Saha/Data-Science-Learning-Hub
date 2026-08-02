@@ -97,8 +97,9 @@ for i, (fn, title, sub) in enumerate(PARTS, start=1):
 # ---- combined foot ----
 foot = ('\n      <div class="doc-foot">\n'
   '        LangGraph &amp; Agentic AI — <b>Complete edition</b> · all 6 parts · 210 tracked topics.<br>\n'
-  '        API-current for <b>LangGraph v1</b> (Oct 2025 LTS): <code style="color:#8892a0">create_agent</code> replaces the '
-  'deprecated <code style="color:#8892a0">create_react_agent</code>.<br>\n'
+  '        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. '
+  '<code style="color:#8892a0">create_agent</code> replaces the deprecated '
+  '<code style="color:#8892a0">create_react_agent</code>.<br>\n'
   '        Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code>, shared with every part file.<br>\n'
   '        Regenerate this file after editing any part with: '
   '<code style="color:#8892a0">python3 stitch_lg.py</code> · '

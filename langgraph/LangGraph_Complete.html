@@ -593,9 +593,10 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
       <div class="callout gotcha" style="margin-top:26px">
         <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#a5710a" stroke-width="1.8"/><path d="M12 8v5M12 16h.01" stroke="#a5710a" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span class="cl-lab">API currency · read this first</span>
-        <p>LangChain and LangGraph hit <b>1.0 LTS in October 2025</b>. The single biggest source of tutorial confusion right now:</p>
-        <p><code class="ic">AgentExecutor</code>, <code class="ic">initialize_agent</code>, and <code class="ic">langgraph.prebuilt.create_react_agent</code> are <b>all deprecated</b>. The current prebuilt entry point is <code class="ic">from langchain.agents import create_agent</code>, which runs <em>on</em> the LangGraph runtime. <b>LangGraph is the runtime; LangChain is the batteries-included layer on top</b> — "LangGraph vs LangChain" is a <em>layering</em> question, not a rivalry. All LangChain packages require <b>Python 3.10+</b>. Any tutorial from 2023–24 using <code class="ic">AgentExecutor</code> is teaching deprecated syntax.</p>
+        <span class="cl-lab">API currency · read this first · verified Aug 2026</span>
+        <p>Both libraries hit <b>1.0 on 22 Oct 2025</b> with a commitment to <b>no breaking changes until 2.0</b>. Current releases: <b>LangChain 1.3.14</b> (16 Jul 2026) · <b>LangGraph 1.2.9</b> (10 Jul 2026) · <b>Python 3.10–3.14</b>.</p>
+        <p><code class="ic">AgentExecutor</code>, <code class="ic">initialize_agent</code>, and <code class="ic">langgraph.prebuilt.create_react_agent</code> are <b>all deprecated</b>. The current prebuilt entry point is <code class="ic">from langchain.agents import create_agent</code>, which runs <em>on</em> the LangGraph runtime. <b>LangGraph is the runtime; LangChain is the batteries-included layer on top</b> — "LangGraph vs LangChain" is a <em>layering</em> question, not a rivalry. Any tutorial from 2023–24 using <code class="ic">AgentExecutor</code> is teaching deprecated syntax.</p>
+        <p><b>What shipped since 1.0</b> (all covered in this resource): LangGraph <b>1.2</b> added per-node <b>timeouts</b> and <b>error handlers</b> with Saga-style compensation, <code class="ic">set_node_defaults</code>, the <b><code class="ic">DeltaChannel</code></b> for cheap checkpoints on long threads, and a <b>v3 streaming API</b> (§5.3, §5.1, §5.5). LangChain <b>1.1–1.3</b> added <b>model profiles</b>, more built-in <b>middleware</b> (summarization, model-retry, moderation), tool <code class="ic">extras</code>, <code class="ic">ProviderStrategy</code>, and <code class="ic">version="v3"</code> event streaming (§3.3).</p>
       </div>
 
       <!-- ============================ LEVEL 0 + 1 ============================ -->
@@ -1921,6 +1922,49 @@ agent.invoke({"messages": [{"role": "user", "content": "How did AAPL close today
           </div>
           <figcaption><b>Prebuilt = fast; hand-built <code>StateGraph</code> = full control.</b> Interviewers ask when you'd drop down: custom control flow, multi-agent topologies, bespoke state beyond <code>messages</code>, or non-ReAct patterns like plan-and-execute.</figcaption>
         </figure>
+
+        <h4>What LangChain 1.1 → 1.3 added (Nov 2025 – May 2026)</h4>
+        <p>Most of the post-1.0 investment went into <code class="ic">create_agent</code>. Knowing these signals you're current:</p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Feature</th><th>What it does</th><th>Ver.</th></tr></thead>
+            <tbody>
+              <tr><td><b>Built-in middleware</b></td><td><b>Summarization</b> (flexible trigger points), <b>model retry</b> with exponential backoff, <b>OpenAI content moderation</b> — composable, no graph rewrite</td><td>1.1</td></tr>
+              <tr><td><b>Model profiles</b></td><td><code>model.profile</code> exposes capabilities (from models.dev) so you can branch on what a model actually supports instead of hard-coding</td><td>1.1</td></tr>
+              <tr><td><code>SystemMessage</code> in <code>system_prompt</code></td><td>Pass a full message object, not just a string</td><td>1.1</td></tr>
+              <tr><td><b>Tool <code>extras</code></b></td><td>An <code>extras</code> attribute on tools carries provider-specific parameters — replaces per-provider branching in your own code</td><td>1.2</td></tr>
+              <tr><td><b>Provider tool features</b></td><td>Anthropic programmatic tool calling &amp; tool search; built-in client-side tools for Anthropic and OpenAI</td><td>1.2</td></tr>
+              <tr><td><code>ProviderStrategy</code></td><td>Strict schema adherence in <code>response_format</code>, inferred from the model profile</td><td>1.1–1.2</td></tr>
+              <tr><td><b>v3 event streaming</b></td><td><code>version="v3"</code> in <code>stream_events</code>/<code>astream_events</code> — typed projections (Part 5 §5.5)</td><td>1.3</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="code">
+          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">middleware &amp; model profiles in practice</span><button class="copy">Copy</button></div>
+<pre><code class="language-python">from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware, ModelRetryMiddleware
+
+agent = create_agent(
+    model="openai:gpt-4o-mini",
+    tools=[search_policy_docs],
+    system_prompt="You are a support assistant.",
+    middleware=[
+        SummarizationMiddleware(max_tokens_before_summary=4000),  # context mgmt, no graph change
+        ModelRetryMiddleware(max_retries=3),                       # exponential backoff
+    ],
+)
+
+# model profiles: branch on real capabilities instead of hard-coding model names
+if model.profile.supports_structured_output:
+    model = model.with_structured_output(Schema)
+</code></pre>
+        </figure>
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="cl-lab">Interview tip · middleware is the "how do you add X without rewriting the graph" answer</span>
+          <p>When asked how you'd add summarization, guardrails, retries, or logging to an existing agent, the current answer is <b>middleware</b> — composable hooks around the model and tool calls — not "I'd restructure the graph." Naming the built-ins (summarization, model-retry, moderation) shows you're on 1.1+ rather than quoting 1.0 docs.</p>
+        </div>
       </article>
 
       <!-- ---------- 3.4 ---------- -->
@@ -2536,6 +2580,18 @@ evaluate(lambda x: agent.invoke(x), data="my-dataset", evaluators=[correctness])
 </code></pre>
         </figure>
         <p>Two modes worth naming: <b>online evaluation</b> (evaluators running against live production traffic) and <b>regression testing</b> (comparing experiments across prompt or model changes — the CI gate).</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">LangSmith in 2026 · what's new</span>
+          <ul style="margin:.4rem 0 0;padding-left:1.1rem">
+            <li><b>Composite evaluators</b> — the legacy feedback-formula endpoints are <em>deprecated</em>; a composite score is now a code evaluator plus a run rule. If you're carrying formula-based feedback, that's the migration.</li>
+            <li><b>Thread &amp; multi-turn evaluators</b> — evaluate whole conversations, not single runs; managed thread evaluators carry a locked "trace count ≥ 2" filter, and a <b>Test action</b> lets you dry-run an evaluator against a sample thread before saving the rule. This is the natural home for evaluating <em>agentic</em> sessions.</li>
+            <li><b>Evaluator robustness</b> — code evaluators accept PEP 604 union returns (<code class="ic">-&gt; dict | None</code>), and a timing-out custom evaluator now <b>records an error on the run</b> instead of silently leaving it unscored (previously a real source of misleading "passing" dashboards).</li>
+            <li><b>Datasets</b> — multi-row selection for bulk split assignment and cross-dataset copying; interactive split chips.</li>
+            <li><b>Tracing</b> — monthly trace limits enforced per project <em>and</em> user; oversized run payloads are preserved with placeholder fields rather than rejecting the whole batch.</li>
+          </ul>
+        </div>
       </article>
 
       <!-- ---------- 4.8 ---------- -->
@@ -2640,6 +2696,13 @@ evaluate(lambda x: agent.invoke(x), data="my-dataset", evaluators=[correctness])
           </table>
         </div>
         <p>The consequence you must internalise: <b>nodes re-execute on resume.</b> When a run recovers from a checkpoint, the interrupted node runs again from the start. So write nodes as <em>near-pure functions of state</em> — which leads directly to the next section.</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">New in LangGraph 1.2 · <code class="ic">DeltaChannel</code> and graceful shutdown</span>
+          <p><b><code class="ic">DeltaChannel</code></b> (beta) stores <em>incremental deltas</em> instead of re-serialising the full value on every checkpoint — a large win for long-running threads whose state grows (message history, accumulated findings). Pair it with <code class="ic">snapshot_frequency</code> to periodically write a full snapshot so replay doesn't have to fold thousands of deltas. Reach for it when checkpoint write cost, not model latency, starts dominating a long thread.</p>
+          <p><b>Graceful shutdown:</b> <code class="ic">RunControl.request_drain()</code> asks an in-flight run to stop at the next safe boundary and persist a <em>resumable</em> checkpoint — the clean way to handle deploys and autoscaling events without abandoning work mid-run.</p>
+        </div>
       </article>
 
       <!-- ---------- 5.2 ---------- -->
@@ -2702,21 +2765,114 @@ evaluate(lambda x: agent.invoke(x), data="my-dataset", evaluators=[correctness])
 
       <!-- ---------- 5.3 ---------- -->
       <article class="topic" id="g5-3">
-        <h3><span class="tn">5.3</span> Reliability primitives</h3>
-        <p class="lead">Retries, timeouts, error handlers, and recursion limits — applied per node or globally.</p>
+        <h3><span class="tn">5.3</span> Reliability primitives — retries, timeouts &amp; error handlers</h3>
+        <p class="lead">LangGraph <b>1.2</b> (May 2026) turned fault tolerance into first-class node configuration: retries, two kinds of timeout, and error handlers that enable Saga-style compensation. This is the most interview-relevant addition since 1.0.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="A node attempt lifecycle: attempts are retried with exponential backoff, each attempt bounded by run and idle timeouts, and after retries are exhausted an error handler runs for compensation.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">one node's failure lifecycle — retries first, error handler last</text>
+              <!-- attempts -->
+              <g font-size="8.5" text-anchor="middle" fill="#fff">
+                <rect x="24" y="66" width="82" height="32" rx="6" fill="#5560D8"/><text x="65" y="86">attempt 1</text>
+                <rect x="126" y="66" width="82" height="32" rx="6" fill="#5560D8"/><text x="167" y="86">attempt 2</text>
+                <rect x="228" y="66" width="82" height="32" rx="6" fill="#5560D8"/><text x="269" y="86">attempt 3</text>
+              </g>
+              <path d="M106 82 h16" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#ft)"/>
+              <path d="M208 82 h16" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#ft)"/>
+              <text x="165" y="58" fill="#f0c274" font-size="8">backoff + jitter</text>
+              <!-- timeout box over attempts -->
+              <rect x="18" y="54" width="298" height="56" rx="9" fill="none" stroke="#F0A81E" stroke-dasharray="4 3"/>
+              <text x="167" y="126" fill="#f0c274" font-size="8.5" text-anchor="middle">each attempt bounded by TimeoutPolicy → NodeTimeoutError (retriable)</text>
+              <!-- exhausted -->
+              <path d="M316 82 h30" stroke="#C0392B" stroke-width="1.6" marker-end="url(#ftr)"/>
+              <text x="331" y="74" fill="#e0a3a8" font-size="8">exhausted</text>
+              <rect x="348" y="60" width="120" height="44" rx="8" fill="#252D3A" stroke="#C0392B"/>
+              <text x="408" y="78" fill="#e0a3a8" font-size="9">error_handler</text>
+              <text x="408" y="92" fill="#8892a0" font-size="8">receives NodeError</text>
+              <path d="M468 82 h28" stroke="#2E9E5B" stroke-width="1.5" marker-end="url(#ftg)"/>
+              <rect x="498" y="60" width="180" height="44" rx="8" fill="#14181f" stroke="#2E9E5B"/>
+              <text x="588" y="78" fill="#7fd6a0" font-size="9" text-anchor="middle">compensate / degrade / route</text>
+              <text x="588" y="92" fill="#8892a0" font-size="8" text-anchor="middle">runs atomically, same cycle</text>
+              <!-- two timeouts -->
+              <rect x="24" y="156" width="316" height="76" rx="9" fill="#161b23" stroke="#2c3542"/>
+              <text x="38" y="176" fill="#c2cad6" font-size="10">two timeout kinds</text>
+              <text x="38" y="196" fill="#e6e9ef" font-size="8.5">run_timeout</text><text x="130" y="196" fill="#8892a0" font-size="8.5">hard wall-clock cap on one attempt</text>
+              <text x="38" y="214" fill="#e6e9ef" font-size="8.5">idle_timeout</text><text x="130" y="214" fill="#8892a0" font-size="8.5">resets on progress (writes, chunks,</text>
+              <text x="130" y="226" fill="#8892a0" font-size="8.5">child events) — catches a stalled stream</text>
+              <!-- saga -->
+              <rect x="356" y="156" width="322" height="76" rx="9" fill="#161b23" stroke="#2E9E5B"/>
+              <text x="370" y="176" fill="#7fd6a0" font-size="10">Saga pattern</text>
+              <text x="370" y="196" fill="#c2cad6" font-size="8.5">error_handler returns Command(goto="compensate")</text>
+              <text x="370" y="212" fill="#c2cad6" font-size="8.5">→ undo completed steps in REVERSE order</text>
+              <text x="370" y="226" fill="#8892a0" font-size="8.5">void ticket → refund payment → release seat</text>
+              <defs>
+                <marker id="ft" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#F0A81E"/></marker>
+                <marker id="ftr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#C0392B"/></marker>
+                <marker id="ftg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Order matters:</b> timeouts bound each <em>attempt</em>, retries repeat attempts with backoff, and the <b>error handler fires only once retries are exhausted</b> — which is what makes it the right place for compensation rather than retry logic.</figcaption>
+        </figure>
+
         <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">per-node and global reliability config</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.types import RetryPolicy
+          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">retries + timeouts + error handler (LangGraph ≥ 1.2)</span><button class="copy">Copy</button></div>
+<pre><code class="language-python">from langgraph.types import RetryPolicy, TimeoutPolicy
+from langgraph.errors import NodeError
 
-builder.add_node("flaky_api", fn, retry_policy=RetryPolicy(max_attempts=3))
+# --- timeouts: two different failure shapes ---
+TimeoutPolicy(
+    run_timeout=30.0,     # hard wall-clock cap on a single attempt
+    idle_timeout=5.0,     # max seconds WITHOUT progress (writes, chunks, child events)
+    refresh_on="auto",    # or "heartbeat"
+)
+# either firing raises NodeTimeoutError — and the attempt becomes retriable
 
-# langgraph >= 1.2: apply retry / timeout / cache / error-handler to EVERY node at once
-builder.set_node_defaults(retry_policy=RetryPolicy(max_attempts=2))
+# --- error handler: runs only AFTER retries are exhausted ---
+def on_call_llm_failed(state: State, error: NodeError) -> State:
+    log.error("call_llm failed after retries: %s", error.error)
+    return {"status": "llm_unavailable"}          # graceful degradation
 
-graph.invoke(inputs, {"recursion_limit": 50})   # bound runaway loops
+builder.add_node(
+    "call_llm", call_llm,
+    retry_policy=RetryPolicy(max_attempts=4),      # backoff + jitter + retryable predicate
+    timeout=TimeoutPolicy(run_timeout=30.0, idle_timeout=5.0),
+    error_handler=on_call_llm_failed,
+)
+
+# --- set once for EVERY node instead of repeating (langgraph >= 1.2) ---
+builder.set_node_defaults(retry_policy=RetryPolicy(max_attempts=2), timeout=20.0)
+# per-node values passed to add_node ALWAYS win; defaults apply at compile()
+# ⚠ NOT inherited by subgraphs
+# ⚠ cache_policy/error_handler defaults apply to regular nodes only —
+#    caching handler results is unsafe, and a handler must never catch itself
+
+graph.invoke(inputs, {"recursion_limit": 50})      # still bound runaway loops
 </code></pre>
         </figure>
-        <p>Also plan <b>graceful degradation</b>: when a tool is down, the agent should return a partial answer with a caveat rather than failing the whole run.</p>
+
+        <h4>The Saga pattern — compensating a multi-step workflow</h4>
+        <p>Error handlers unlock the classic distributed-systems answer: when step 3 of a booking fails, you don't just stop — you <em>undo</em> steps 1 and 2, in reverse order.</p>
+        <figure class="code">
+          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">Saga: route failures to compensation</span><button class="copy">Copy</button></div>
+<pre><code class="language-python">def to_compensate(state: BookingState, error: NodeError) -> Command:
+    """Any failed step routes here, tagging which node blew up."""
+    return Command(update={"completed": [f"FAILED:{error.node}"]}, goto="compensate")
+
+def compensate(state) -> Command:
+    # undo ONLY the steps that actually completed, in reverse order
+    if "issue_ticket"   in state["completed"]: void_ticket(state)
+    if "process_payment" in state["completed"]: refund_payment(state)
+    if "reserve_seat"   in state["completed"]: release_seat(state)
+    return Command(goto=END)
+
+for step in ("reserve_seat", "process_payment", "issue_ticket"):
+    builder.add_node(step, globals()[step], retry_policy=RetryPolicy(max_attempts=3),
+                     error_handler=to_compensate)
+</code></pre>
+        </figure>
+        <p>Also plan plain <b>graceful degradation</b>: when a tool is down, return a partial answer with a caveat rather than failing the whole run — that's what the <code class="ic">status="llm_unavailable"</code> handler above enables downstream.</p>
       </article>
 
       <!-- ---------- 5.4 ---------- -->
@@ -2770,6 +2926,30 @@ graph = builder.compile(cache=InMemoryCache())
                                  stream_mode=["updates", "messages"],
                                  subgraphs=True):
     ...
+</code></pre>
+        </figure>
+
+        <h4>The v3 streaming API (new in LangGraph 1.2 / LangChain 1.3, beta)</h4>
+        <p>The modes above are <em>channel</em>-centric. The <b>v3</b> protocol is <b>content-block-centric</b>: instead of one undifferentiated firehose you subscribe to <em>typed projections</em>, which is what makes rich agent UIs tractable.</p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Projection</th><th>Yields</th></tr></thead>
+            <tbody>
+              <tr><td><code>run.values</code></td><td>State values as they change</td></tr>
+              <tr><td><code>run.messages</code> ★</td><td>A typed <code>ChatModelStream</code> <em>per LLM call</em>, with sub-projections for text, <b>reasoning</b>, tool calls, and usage</td></tr>
+              <tr><td><code>run.lifecycle</code></td><td>Run/node lifecycle events</td></tr>
+              <tr><td><code>run.subgraphs</code></td><td>Events from nested graphs</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="code">
+          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">v3 event streaming</span><button class="copy">Copy</button></div>
+<pre><code class="language-python">async for event in agent.astream_events(inputs, config, version="v3"):
+    ...
+# Why it matters: separating reasoning tokens from answer tokens from tool calls
+# used to require hand-parsing the v2 event soup. v3 gives you typed streams —
+# so "show thinking in a collapsible panel, answer in the bubble" is a subscription,
+# not a parser.
 </code></pre>
         </figure>
       </article>
@@ -2875,6 +3055,17 @@ def workflow(topic: str):
           <li><b>Agent-to-agent protocols (A2A)</b> and authoring your own MCP servers</li>
           <li><b>Deep Agents</b> — planning + subagents + a filesystem, layered on LangGraph</li>
         </ul>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The <code class="ic">deepagents</code> package moved fast in 2026</span>
+          <p>Worth tracking as the reference implementation of a "deep" agent (planning + subagents + filesystem) on top of LangGraph — and as a source of patterns you can steal:</p>
+          <ul style="margin:.4rem 0 0;padding-left:1.1rem">
+            <li><b>v0.5</b> (Apr 2026) — async subagents for non-blocking background work; multi-modal <code class="ic">read_file</code> (PDF, audio, video).</li>
+            <li><b>v0.6</b> (May 2026) — <code class="ic">CodeInterpreterMiddleware</code> (experimental) running code in a scoped QuickJS sandbox; <b>harness profiles</b> that auto-configure per provider/model; <code class="ic">ContextHubBackend</code> storing agent files as Hub commits <em>with version history</em>.</li>
+            <li><b>v0.7</b> (Jul 2026) — <b>input tokens cut ~65%</b> on default turns via leaner prompts and tighter tool schemas (a concrete lesson in context engineering, §5.10); middleware can override built-in defaults by matching <code class="ic">.name</code>; prompt caching for Bedrock and Fireworks. <em>Breaking:</em> <code class="ic">TodoListMiddleware</code> is no longer included by default.</li>
+          </ul>
+        </div>
       </article>
 
       <!-- ---------- 5.12 ---------- -->
@@ -2894,6 +3085,15 @@ def workflow(topic: str):
             </details>
             <details class="qa"><summary><span class="qtag">Security</span>How do you secure an agent that can call tools?</summary>
               <div class="ans"><p>Assume the model can be hijacked and limit the blast radius. Treat <b>all tool output and retrieved documents as untrusted input</b> (that's where agentic prompt injection arrives), give tools <b>least-privilege credentials</b> so a compromised run can't do much, sandbox any code execution, redact PII before it reaches logs and traces, validate inputs/outputs with allow-lists, and put <b>HITL approval gates on destructive or irreversible actions</b>. Combine with hard spend caps and recursion limits so a runaway loop is bounded financially as well as logically.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Current ⭐</span>A node hangs on a slow API. What are your options in LangGraph 1.2?</summary>
+              <div class="ans"><p>Per-node <b>timeouts</b>, and pick the right kind. <code class="ic">run_timeout</code> is a hard wall-clock cap on one attempt — use it when you simply never want to wait more than N seconds. <code class="ic">idle_timeout</code> resets on every <em>progress</em> signal (channel writes, streamed chunks, child-task events, callbacks) — use it to catch a <em>stalled</em> stream that would pass a generous wall-clock check. Either raises <code class="ic">NodeTimeoutError</code>, and the attempt is <b>retriable</b>, so pair with a <code class="ic">RetryPolicy</code>. If retries are still exhausted, an <code class="ic">error_handler</code> runs for graceful degradation. Set them once for every node with <code class="ic">set_node_defaults(...)</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Current ⭐</span>How do you undo completed work when a later step fails? (Saga)</summary>
+              <div class="ans"><p>Attach an <code class="ic">error_handler</code> to each step; it fires only <em>after</em> retries are exhausted and receives a <code class="ic">NodeError</code> with failure context. Have it return <code class="ic">Command(goto="compensate")</code>, and let the compensate node undo <b>only the steps that actually completed, in reverse order</b> (void ticket → refund payment → release seat), driven by a <code class="ic">completed</code> list in state. That's the Saga pattern, and it's the correct answer to "there's no distributed transaction here — how do you stay consistent?" Note it composes with idempotency (§5.2): compensation must itself be replay-safe.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Current</span>Checkpoint writes are dominating latency on a long thread. What do you do?</summary>
+              <div class="ans"><p>Reach for <b><code class="ic">DeltaChannel</code></b> (LangGraph 1.2, beta): it persists <em>incremental deltas</em> rather than re-serialising the whole growing value each superstep, which is exactly the long-thread failure mode (message history, accumulated findings). Add <code class="ic">snapshot_frequency</code> so replay folds a bounded number of deltas rather than thousands. Also consider a looser durability mode (<code class="ic">"async"</code>) if some loss window is acceptable, and trim/summarize history (§2.10) so the state isn't growing unboundedly in the first place.</p></div>
             </details>
             <details class="qa"><summary><span class="qtag">Testing</span>How do you test a LangGraph agent?</summary>
               <div class="ans"><p>Three layers. <b>Unit:</b> nodes are plain functions — call them with a state dict and assert on the partial update, no framework needed. <b>Integration:</b> run full graph paths with a <b>stubbed LLM</b> (a fake chat model returning scripted messages/tool calls) so tests are deterministic, fast, and free — this is the key trick. <b>Regression:</b> LangSmith datasets with outcome and trajectory evaluators, run in CI to gate prompt/model changes. Add explicit tests for the failure paths too: tool errors, interrupts/resume, and recursion limits.</p></div>
@@ -3019,6 +3219,12 @@ def workflow(topic: str):
             </details>
             <details class="qa"><summary><span class="qtag">Trap ⭐</span>How do you ensure a resumed run doesn't send the same email twice?</summary>
               <div class="ans"><p>Idempotency keys. Derive a stable key from the thread + logical action (e.g. <code class="ic">thread-42:send:order-9</code>), check "already processed" before acting, and pass the key to providers that support idempotent requests. Better still, two-phase it: the node produces a <em>draft</em> (<code class="ic">status="pending"</code>) and a separate, idempotent commit step performs the send. Write nodes as near-pure functions of state so replay is safe by construction. <em>(§5.2)</em></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Current ⭐</span>What did LangGraph 1.2 add for fault tolerance?</summary>
+              <div class="ans"><p>Three things, all per-node. <b>Timeouts:</b> <code class="ic">TimeoutPolicy(run_timeout=…, idle_timeout=…)</code> — a hard wall-clock cap per attempt, and an idle cap that resets on progress signals (catches stalled streams); either raises a retriable <code class="ic">NodeTimeoutError</code>. <b>Error handlers:</b> <code class="ic">error_handler=</code> runs <em>after</em> retries are exhausted with a <code class="ic">NodeError</code>, enabling graceful degradation and <b>Saga-style compensation</b> via <code class="ic">Command(goto="compensate")</code>. <b><code class="ic">set_node_defaults()</code>:</b> apply retry/timeout/cache/error-handler to every node at once — per-node values still win, defaults apply at <code class="ic">compile()</code>, and they are <em>not</em> inherited by subgraphs. <em>(§5.3)</em></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Current</span>What is <code>DeltaChannel</code> and when would you use it?</summary>
+              <div class="ans"><p>A LangGraph 1.2 (beta) channel type that stores <b>incremental deltas</b> instead of the full value on each checkpoint, cutting write overhead for long-running threads with growing state. Use <code class="ic">snapshot_frequency</code> to periodically write a full snapshot so replay doesn't fold an unbounded delta chain. Reach for it when checkpoint cost — not model latency — dominates a long thread. <em>(§5.1)</em></p></div>
             </details>
             <details class="qa"><summary><span class="qtag">Production</span>What are durability modes and how would you choose one?</summary>
               <div class="ans"><p><code class="ic">"exit"</code> (persist at the end — fastest, least safe), <code class="ic">"async"</code> (background — balanced default), <code class="ic">"sync"</code> (before continuing — safest, slowest). Choose by how expensive the work is to redo and how costly it is to lose: short cheap runs can use exit; long agents with expensive steps or HITL pauses want sync. <em>(§5.1)</em></p></div>
@@ -3254,7 +3460,7 @@ def workflow(topic: str):
 
       <div class="doc-foot">
         LangGraph &amp; Agentic AI — <b>Complete edition</b> · all 6 parts · 210 tracked topics.<br>
-        API-current for <b>LangGraph v1</b> (Oct 2025 LTS): <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code>, shared with every part file.<br>
         Regenerate this file after editing any part with: <code style="color:#8892a0">python3 stitch_lg.py</code> · <a href="../index.html" style="color:#8892a0">← Learning Hub</a>
       </div>
