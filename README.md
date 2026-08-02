@@ -4,7 +4,7 @@ A growing set of deep, self-paced study resources for ML / AI-engineering interv
 Each subject is a **self-contained static mini-site** (styled HTML, inline SVG diagrams,
 runnable code, an interactive progress tracker, and an interview Q&A bank).
 
-**Live:** Retrieval-Augmented Generation (RAG). **Planned:** LangChain, LangGraph, Classical ML, NLP.
+**Live:** Retrieval-Augmented Generation (RAG) · LangGraph &amp; Agentic AI. **Planned:** LangChain, Classical ML, NLP.
 
 ## Structure
 
@@ -12,18 +12,22 @@ runnable code, an interactive progress tracker, and an interview Q&A bank).
 .
 ├── index.html                 # hub landing page — cards linking to each subject
 ├── README.md
-└── rag/                       # one folder per subject
-    ├── index.html             # the RAG subject landing page
-    ├── RAG_Interview_Prep_Part1_Foundations.html
-    ├── RAG_Interview_Prep_Part2_Retrieval.html
-    ├── RAG_Interview_Prep_Part3_Architectures.html
-    ├── RAG_Interview_Prep_Part4_Evaluation.html
-    ├── RAG_Interview_Prep_Part5_SystemDesign.html
-    ├── RAG_Interview_Prep_Part6_QABank.html
-    ├── RAG_Interview_Prep_Complete.html   # all 6 parts stitched into one (print/PDF-ready)
-    ├── stitch.py              # rebuilds the Complete file from the 6 parts (dev tool, not served)
-    └── build_shell.py         # regenerates a part's shell/scaffold (dev tool, not served)
+├── rag/                       # subject: Retrieval-Augmented Generation
+│   ├── index.html             # subject landing page
+│   ├── RAG_Interview_Prep_Part1_Foundations.html   … Part2 … Part6
+│   ├── RAG_Interview_Prep_Complete.html   # all 6 parts stitched (print/PDF-ready)
+│   ├── stitch.py              # rebuilds the Complete file (dev tool, not served)
+│   └── build_shell.py         # regenerates a part's shell (dev tool)
+└── langgraph/                 # subject: LangGraph & Agentic AI
+    ├── index.html
+    ├── LangGraph_Part1_Foundations.html  … Part2 … Part6
+    ├── LangGraph_Complete.html
+    ├── stitch_lg.py           # rebuilds the Complete file
+    └── build_lg.py            # regenerates shells + the tracker from the blueprint .md
 ```
+
+Each subject keeps its own progress-tracker localStorage key so they never collide:
+`ragPrepStatus_v1` and `lgPrepStatus_v1`.
 
 Everything is plain static HTML — no build step, no server. Fonts and code
 syntax-highlighting load from a CDN; pages still render offline with fallbacks.
@@ -38,12 +42,13 @@ syntax-highlighting load from a CDN; pages still render offline with fallbacks.
 That's it — no other wiring. Keeping each subject self-contained means they never
 interfere with each other.
 
-## Regenerating the RAG combined file
+## Regenerating a combined file
 
-After editing any RAG part, rebuild the stitched `Complete` file:
+After editing any part, rebuild that subject's stitched `Complete` file:
 
 ```bash
-cd rag && python3 stitch.py
+cd rag       && python3 stitch.py      # RAG
+cd langgraph && python3 stitch_lg.py   # LangGraph
 ```
 
 ## Hosting (free)
