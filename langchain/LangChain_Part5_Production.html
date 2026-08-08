@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangChain &amp; Prompt Engineering — Part 5: Memory &amp; Production</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 5 / 6</small>Memory &amp; Production</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">LangChain<small>+ Prompt Engineering</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 5 of 6</div>
+      <div class="v">Memory &amp; Production</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 313 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L10</span> Memory <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#c5-1">5.1 · The deprecation chain ⭐</a></li>
+          <li><a href="#c5-2">5.2 · Context window management</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L11–L13</span> Production <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#c5-3">5.3 · Streaming</a></li>
+          <li><a href="#c5-4">5.4 · Callbacks &amp; tracing</a></li>
+          <li><a href="#c5-5">5.5 · Caching</a></li>
+          <li><a href="#c5-6">5.6 · Reliability</a></li>
+          <li><a href="#c5-7">5.7 · Cost &amp; latency</a></li>
+          <li><a href="#c5-8">5.8 · Security &amp; CVEs</a></li>
+          <li><a href="#c5-9">5.9 · Testing &amp; deployment</a></li>
+          <li><a href="#c5-10">5.10 · Evaluation</a></li>
+          <li><a href="#c5-11">5.11 · Frontier</a></li>
+          <li><a href="#c5-12">5.12 · Interview focus</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← LangChain home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      LangChain &amp; Prompt Eng.<br>Part 5 — Memory &amp; Production<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 5 of 6 · Memory &amp; Production</div>
+        <h1 class="title">Shipping it, and keeping it shipped
+          <span class="sub">The three-generation memory deprecation chain, context management, streaming, caching, reliability, cost control, security (including CVEs), testing, and evaluation.</span>
+        </h1>
+        <p class="thesis">Two things separate a demo from a system you'd be on call for. First <strong>memory</strong>, which in LangChain is <em>three deprecations deep</em> — <code>ConversationBufferMemory</code> → <code>RunnableWithMessageHistory</code> → <strong>LangGraph persistence</strong> — and almost everyone answers with generation one. Then <strong>production</strong>: streaming and perceived latency, callbacks and trace redaction, caching (including the semantic-cache staleness trap), retries and fallbacks, where the money actually goes, <strong>dependency security</strong> (yes, CVEs are an interview topic now), and testing an LLM app deterministically in CI.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 10–13</b></span>
+          <span class="chip"><b>62</b> topics</span>
+          <span class="chip">⏱ <b>~7–8h</b></span>
+          <span class="chip">🚀 production</span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole LangChain subject — all 313 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">313</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 313 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <section class="phase-head" id="level10">
+        <div class="pk">Level 10 · Memory &amp; State</div>
+        <h2>Three deprecations deep</h2>
+        <p class="pd">"How do you do memory in LangChain?" is the single best trap question in the subject, because the obvious answer has been deprecated <em>twice</em>.</p>
+      </section>
+
+      <!-- 5.1 -->
+      <article class="topic" id="c5-1">
+        <h3><span class="tn">5.1</span> The memory deprecation chain ⭐</h3>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="Three generations of LangChain memory: ConversationBufferMemory deprecated and moved to classic, RunnableWithMessageHistory also deprecated, and LangGraph persistence as the current answer.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">what most candidates answer → what's actually current</text>
+              <g font-size="9">
+                <rect x="24" y="36" width="620" height="46" rx="8" fill="#252D3A" stroke="#C0392B"/>
+                <text x="38" y="55" fill="#e0a3a8" font-size="10">GEN 1 · ConversationBufferMemory · ConversationSummaryMemory · ConversationChain</text>
+                <text x="38" y="72" fill="#c2cad6">deprecated 0.3.1 → moved to <tspan font-family="monospace">langchain-classic</tspan>  ← what 90% of tutorials still teach</text>
+                <path d="M334 84 v14" stroke="#8892a0" stroke-width="1.4" marker-end="url(#mm1)"/>
+                <rect x="24" y="102" width="620" height="46" rx="8" fill="#252D3A" stroke="#C0392B"/>
+                <text x="38" y="121" fill="#e0a3a8" font-size="10">GEN 2 · RunnableWithMessageHistory</text>
+                <text x="38" y="138" fill="#c2cad6">was the official replacement… then <tspan fill="#e0a3a8">itself deprecated in 0.3</tspan> as "unintuitive"</text>
+                <path d="M334 150 v14" stroke="#8892a0" stroke-width="1.4" marker-end="url(#mm1)"/>
+                <rect x="24" y="168" width="620" height="56" rx="8" fill="#14181f" stroke="#2E9E5B" stroke-width="1.8"/>
+                <text x="38" y="188" fill="#7fd6a0" font-size="10">GEN 3 · ⭐ LangGraph persistence — the current answer</text>
+                <text x="38" y="205" fill="#c2cad6"><tspan fill="#e6e9ef">checkpointer</tspan> → thread-scoped memory (this conversation, keyed by thread_id)</text>
+                <text x="38" y="218" fill="#c2cad6"><tspan fill="#e6e9ef">Store</tspan> → cross-thread memory (this user, keyed by namespace) · + SummarizationMiddleware</text>
+              </g>
+              <defs><marker id="mm1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker></defs>
+            </svg>
+          </div>
+          <figcaption><b>The correct 2026 answer:</b> memory in LangChain <em>is</em> persistence in the LangGraph runtime — a checkpointer for the thread, a Store for the user — with <code>SummarizationMiddleware</code> handling context compaction. <code>InMemoryChatMessageHistory</code> / <code>BaseChatMessageHistory</code> still exist for simple history plumbing.</figcaption>
+        </figure>
+      </article>
+
+      <!-- 5.2 -->
+      <article class="topic" id="c5-2">
+        <h3><span class="tn">5.2</span> Context window management</h3>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Strategy</th><th>Efficiency</th><th>Context loss</th><th>Complexity</th></tr></thead>
+            <tbody>
+              <tr><td><b>Trimming</b> (<code>trim_messages</code>)</td><td>High</td><td><b>High</b> — drops old turns wholesale</td><td>Low</td></tr>
+              <tr><td><b>Deletion</b> (<code>RemoveMessage</code>)</td><td>Moderate</td><td>Targeted</td><td>Low–Med</td></tr>
+              <tr><td><b>Summarization</b></td><td>High</td><td><b>Low</b> — meaning preserved</td><td>Med–High</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure class="code">
+          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">trimming with correct boundaries</span><button class="copy">Copy</button></div>
+<pre><code class="language-python">from langchain.messages import trim_messages
+from langchain_core.messages.utils import count_tokens_approximately
+
+trimmed = trim_messages(
+    messages,
+    strategy="last",
+    token_counter=count_tokens_approximately,
+    max_tokens=4000,
+    start_on="human",              # ⚠ don't start mid tool-call pair
+    end_on=("human", "tool"),      # ⚠ don't orphan an AI tool_call from its ToolMessage
+)
+</code></pre>
+        </figure>
+        <p><b>Production answer:</b> summarize older history, keep recent turns verbatim, and push durable facts into the Store so they survive independently of the transcript. <code class="ic">ContextEditingMiddleware</code> clears stale tool outputs — often cheaper than summarising everything.</p>
+      </article>
+
+      <section class="phase-head" id="level11">
+        <div class="pk">Level 11–13 · Production, Evaluation &amp; Frontier</div>
+        <h2>From working to shippable</h2>
+        <p class="pd">Streaming, tracing, caching, reliability, cost, security, testing, evaluation — the concerns that only appear once real users arrive.</p>
+      </section>
+
+      <!-- 5.3 -->
+      <article class="topic" id="c5-3">
+        <h3><span class="tn">5.3</span> Streaming</h3>
+        <p class="lead">Perceived latency <em>is</em> latency. Time-to-first-token is what users feel; total time is what your dashboard shows.</p>
+        <ul>
+          <li><code class="ic">.stream()</code> / <code class="ic">.astream()</code> — token streaming through a whole chain</li>
+          <li><code class="ic">astream_events(version="v3")</code> — typed event streaming (LangChain 1.3+)</li>
+          <li>Streaming through parsers and structured output → partial JSON</li>
+          <li>⚠ <b>Filter to assistant text.</b> Piping raw tool-call JSON into a UI looks broken to users</li>
+        </ul>
+      </article>
+
+      <!-- 5.4 -->
+      <article class="topic" id="c5-4">
+        <h3><span class="tn">5.4</span> Callbacks &amp; tracing</h3>
+        <ul>
+          <li><code class="ic">BaseCallbackHandler</code> lifecycle hooks: <code class="ic">on_llm_start</code>, <code class="ic">on_llm_new_token</code>, <code class="ic">on_tool_error</code>, …</li>
+          <li>Constructor-time vs request-time callbacks; async variants</li>
+          <li>LangSmith tracing via env vars (<code class="ic">LANGSMITH_TRACING</code> / <code class="ic">LANGCHAIN_TRACING_V2</code>)</li>
+          <li>⭐ <b>Redaction and sampling</b> — PII must not land in your observability tool. Trace data is production data</li>
+        </ul>
+      </article>
+
+      <!-- 5.5 -->
+      <article class="topic" id="c5-5">
+        <h3><span class="tn">5.5</span> Caching</h3>
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 190" role="img" aria-label="Three caching layers: exact-match LLM cache, semantic cache keyed by embedding with a staleness warning, and provider prompt caching for a stable prefix.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">three layers, three different hit conditions</text>
+              <g font-size="9">
+                <rect x="24" y="36" width="200" height="60" rx="9" fill="#252D3A" stroke="#5560D8"/>
+                <text x="38" y="56" fill="#aab2f0" font-size="10">exact-match cache</text>
+                <text x="38" y="74" fill="#8892a0">InMemory · SQLite · Redis</text>
+                <text x="38" y="88" fill="#8892a0">hits only on identical prompts</text>
+                <rect x="240" y="36" width="212" height="60" rx="9" fill="#252D3A" stroke="#F0A81E"/>
+                <text x="254" y="56" fill="#f0c274" font-size="10">semantic cache</text>
+                <text x="254" y="74" fill="#8892a0">keyed by embedding — paraphrases hit</text>
+                <text x="254" y="88" fill="#e0a3a8">⚠ serves STALE answers after re-index</text>
+                <rect x="468" y="36" width="208" height="60" rx="9" fill="#252D3A" stroke="#2E9E5B"/>
+                <text x="482" y="56" fill="#7fd6a0" font-size="10">provider prompt caching</text>
+                <text x="482" y="74" fill="#8892a0">caches a stable PREFIX</text>
+                <text x="482" y="88" fill="#8892a0">big TTFT + cost win on long prompts</text>
+              </g>
+              <rect x="24" y="112" width="652" height="56" rx="9" fill="#14181f" stroke="#C0392B"/>
+              <text x="38" y="132" fill="#e0a3a8" font-size="10">⚠ the semantic-cache trap</text>
+              <text x="38" y="150" fill="#c2cad6" font-size="9">It matches by <tspan fill="#e6e9ef">meaning, not freshness</tspan> — so after you re-index your docs it happily serves yesterday's answer</text>
+              <text x="38" y="162" fill="#c2cad6" font-size="9">to a paraphrased question. Bound it with a TTL, a high similarity threshold, and explicit invalidation on re-index.</text>
+            </svg>
+          </div>
+          <figcaption><b>Cache hit-rate rises with traffic</b> — which is why caching is usually the highest-ROI cost lever at scale, and why its staleness failure mode is worth designing for up front.</figcaption>
+        </figure>
+      </article>
+
+      <!-- 5.6 -->
+      <article class="topic" id="c5-6">
+        <h3><span class="tn">5.6</span> Reliability</h3>
+        <ul>
+          <li><b>Chain level:</b> <code class="ic">.with_retry()</code> (exponential backoff), <code class="ic">.with_fallbacks()</code> (model/provider failover)</li>
+          <li><b>Agent level:</b> <code class="ic">ModelRetryMiddleware</code>, <code class="ic">ToolRetryMiddleware</code>, <code class="ic">ModelFallbackMiddleware</code></li>
+          <li>Timeouts, rate limiting, handling 429s</li>
+          <li><b>Graceful degradation</b> — a partial answer with a caveat beats a 500</li>
+        </ul>
+      </article>
+
+      <!-- 5.7 -->
+      <article class="topic" id="c5-7">
+        <h3><span class="tn">5.7</span> Cost &amp; latency</h3>
+        <p class="lead">Know where the money actually goes before optimising: <b>generation dominates</b>; retrieval is noise.</p>
+        <ul>
+          <li>Telemetry: <code class="ic">usage_metadata</code> on every response — log it from day one or you're flying blind</li>
+          <li>Levers, roughly by impact: <b>model routing</b> (cheap classifier + strong synthesiser) · <b>semantic caching</b> · <b>prompt caching</b> · shorter context (rerank + compress) · output-token caps · batching</li>
+          <li>Hard caps and per-tenant budgets; <code class="ic">ModelCallLimitMiddleware</code> to bound agent runs</li>
+        </ul>
+      </article>
+
+      <!-- 5.8 -->
+      <article class="topic" id="c5-8">
+        <h3><span class="tn">5.8</span> Security &amp; CVEs</h3>
+        <p class="lead">Two halves: the model-level risks from Part 2, and the boring-but-real supply-chain half that interviewers now ask about.</p>
+        <ul>
+          <li><b>Prompt injection</b> — especially <em>indirect</em>, via retrieved docs and tool output (Part 2 §2.12)</li>
+          <li><b>Least-privilege tool credentials</b>, sandboxed code execution, secrets handling</li>
+          <li><b>PII</b> — NER-based redaction (fast, auditable) vs LLM guardrails (slower, fuzzier); in-framework, <code class="ic">PIIMiddleware</code></li>
+          <li>Multi-tenant isolation — filter at retrieval, scope caches per tenant</li>
+          <li>⭐ <b>Dependency security is now an interview topic:</b> <b>CVE-2025-68664</b> (CVSS 9.3) — a deserialization flaw in <code class="ic">langchain-core</code>'s <code class="ic">dumps()</code>/<code class="ic">dumpd()</code> affecting message history and event streaming, <b>fixed in <code class="ic">langchain-core</code> ≥ 0.3.81</b>. Owning an LLM stack includes tracking advisories</li>
+        </ul>
+      </article>
+
+      <!-- 5.9 -->
+      <article class="topic" id="c5-9">
+        <h3><span class="tn">5.9</span> Testing &amp; deployment</h3>
+        <figure class="code">
+          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">deterministic CI: stub the model, emulate the tools</span><button class="copy">Copy</button></div>
+<pre><code class="language-python"># 1) chains are callables — unit-test them like any function
+def test_format_docs():
+    assert "[S1]" in format_docs([Document(page_content="hi")])
+
+# 2) stub the LLM so CI is fast, free and deterministic
+from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
+fake = GenericFakeChatModel(messages=iter([AIMessage(content="stubbed")]))
+
+# 3) ⭐ emulate TOOLS so agent tests don't hit real APIs
+from langchain.agents.middleware import LLMToolEmulator
+agent = create_agent(model=..., tools=tools,
+                     middleware=[LLMToolEmulator(tools=["charge_card"])])
+
+# 4) LangSmith datasets as the CI regression suite
+</code></pre>
+        </figure>
+        <p><b>Deployment:</b> FastAPI, LangGraph Platform / Agent Server, containers, autoscaling, connection pooling for any Postgres-backed persistence.</p>
+      </article>
+
+      <!-- 5.10 -->
+      <article class="topic" id="c5-10">
+        <h3><span class="tn">5.10</span> Evaluation &amp; observability</h3>
+        <ul>
+          <li><b>LangSmith:</b> runs/traces/spans, latency, tokens, cost, errors, tags &amp; metadata</li>
+          <li>Datasets built from <b>flagged production traces</b>, not invented in a vacuum</li>
+          <li>Evaluators: heuristic · <b>LLM-as-judge</b> · pairwise · human annotation queues</li>
+          <li>2026 additions: <b>composite evaluators</b> (legacy feedback-formula endpoints deprecated), <b>thread / multi-turn evaluators</b> with a Test action, and evaluator timeouts now <b>recorded as run errors</b> instead of silently unscored</li>
+          <li>App metrics: retrieval (recall@k, MRR, NDCG) and generation (<b>faithfulness</b>, answer relevance, context precision/recall) — RAGAS, TruLens, DeepEval</li>
+          <li>Statistical hygiene: paired tests, bootstrap CIs, per-segment breakdowns</li>
+          <li>Alternatives to name: Langfuse, Arize Phoenix, W&amp;B Weave, OpenTelemetry GenAI conventions</li>
+        </ul>
+      </article>
+
+      <!-- 5.11 -->
+      <article class="topic" id="c5-11">
+        <h3><span class="tn">5.11</span> Advanced &amp; frontier</h3>
+        <ul>
+          <li>Custom Runnables and custom components (<code class="ic">RunnableSerializable</code>); custom chat model / retriever / vector store integrations</li>
+          <li><b>DSPy-style automated prompt optimisation</b> alongside LangChain</li>
+          <li><code class="ic">deepagents</code> — planning + subagents + filesystem on LangGraph (<code class="ic">CodeInterpreterMiddleware</code>, harness profiles, <code class="ic">ContextHubBackend</code>)</li>
+          <li>MCP: consuming servers via <code class="ic">langchain-mcp-adapters</code>, and authoring your own</li>
+          <li>Multimodal pipelines; fine-tuning + prompting hybrids; distilling a prompt into a smaller model</li>
+          <li>Migration engineering — automated 0.x → 1.x codemods</li>
+        </ul>
+      </article>
+
+      <!-- 5.12 -->
+      <article class="topic" id="c5-12">
+        <h3><span class="tn">5.12</span> Interview focus</h3>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Trap ⭐</span>How do you implement conversational memory in LangChain in 2026?</summary>
+              <div class="ans"><p>Not with <code class="ic">ConversationBufferMemory</code> — that's deprecated and lives in <code class="ic">langchain-classic</code>. And not with <code class="ic">RunnableWithMessageHistory</code> either, which was its official replacement and was <em>itself</em> deprecated in 0.3 as unintuitive. The current answer is <b>persistence via the LangGraph runtime</b>: a <b>checkpointer</b> for thread-scoped history (keyed by <code class="ic">thread_id</code>) and a <b>Store</b> for cross-thread/user memory (keyed by namespace), plus <code class="ic">SummarizationMiddleware</code> for context compaction. Knowing all three generations — and why each was replaced — is what the question is really testing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Prod</span>Your agent hangs in production at 3am. How do you debug it?</summary>
+              <div class="ans"><p>Start from traces, not code. Check LangSmith for the stuck run: which node, how many model calls, what the last tool returned. Common causes: provider rate-limiting or an outage (429s/retries silently stacking), an unbounded loop, a tool call with no timeout, or context overflow. Immediate mitigations: <code class="ic">ModelCallLimitMiddleware</code> to cap runs, timeouts on every tool, <code class="ic">.with_fallbacks()</code> to a second provider, and graceful degradation returning a partial answer. Then add the regression case to your eval dataset so it can't recur silently.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Prod ⭐</span>How do you control LLM cost, and where does the money actually go?</summary>
+              <div class="ans"><p><b>Generation dominates</b> — retrieval and embedding are usually noise by comparison. So measure first (<code class="ic">usage_metadata</code> on every call, per-route dashboards), then pull levers in impact order: <b>model routing</b> (cheap model classifies/routes, strong model synthesises), <b>semantic caching</b> (hit-rate rises with traffic), <b>provider prompt caching</b> for stable prefixes, shorter context via reranking and compression, output-token caps, and batching. Bound agents with call limits, and set hard per-tenant budgets. Optimising retrieval to save cost is a classic misallocation of effort.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Prod</span>How do you test an LLM app deterministically in CI?</summary>
+              <div class="ans"><p>Three layers. <b>Unit:</b> chains and helpers are plain callables — test them directly, no LLM involved. <b>Integration:</b> <b>stub the model</b> with a fake chat model returning scripted messages/tool calls, and use <code class="ic">LLMToolEmulator</code> so agent tests never hit real APIs — that's what makes CI fast, free, and deterministic. <b>Regression:</b> LangSmith datasets with outcome evaluators run as a gate on prompt/model changes. And assert against a <b>schema</b>, not an exact string, since even <code class="ic">temperature=0</code> isn't byte-stable.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Security</span>Is dependency security part of your job here?</summary>
+              <div class="ans"><p>Yes. A concrete example: <b>CVE-2025-68664</b> (CVSS 9.3), a deserialization vulnerability in <code class="ic">langchain-core</code>'s <code class="ic">dumps()</code>/<code class="ic">dumpd()</code> that affected message history and event streaming — <b>fixed in ≥ 0.3.81</b>. Owning an LLM stack means pinning versions, tracking advisories, and having a patch path — alongside the model-level concerns (indirect prompt injection, least-privilege tool credentials, PII redaction before traces).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangChain_Part4_Agents.html">Part 4 · Tools, Agents &amp; RAG</a></div><ul><li>Middleware, retrieval</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 5 · Memory &amp; Production</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangChain_Part6_QABank.html">Part 6 · Interview Q&amp;A Bank</a></div><ul><li>36 questions + 12 traps</li><li>7 system designs + 10 coding</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        LangChain &amp; Prompt Engineering — Part 5 of 6 · Memory &amp; Production<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · langchain-core ≥ <b>0.3.81</b> · Python 3.10–3.14. Legacy 0.x APIs live in <code style="color:#8892a0">langchain-classic</code>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">lcPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 313 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · LLM Fundamentals", "l1": "Level 1 · Prompt Engineering", "l2": "Level 2 · Prompt Security &amp; Context", "l3": "Level 3 · Architecture &amp; Packages", "l4": "Level 4 · Models &amp; Messages", "l5": "Level 5 · Prompts &amp; Templates", "l6": "Level 6 · Structured Output", "l7": "Level 7 · Runnables &amp; LCEL", "l8": "Level 8 · Tools, Agents &amp; Middleware", "l9": "Level 9 · Retrieval &amp; RAG", "l10": "Level 10 · Memory &amp; State", "l11": "Level 11 · Production Engineering", "l12": "Level 12 · Evaluation &amp; Observability", "l13": "Level 13 · Advanced &amp; Frontier", "iv": "Interview Q&amp;A Bank", "sd": "System Design Scenarios", "cq": "Coding Questions", "pp": "Portfolio Projects"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "l12", "l13", "iv", "sd", "cq", "pp"];
+const TRACKER = [
+[1,"l0","Theory","Medium",0,"What a token is; subword tokenization (BPE / WordPiece / SentencePiece)"],
+[2,"l0","Theory","Medium",0,"The ~4 chars \u2248 1 token English heuristic \u2014 and why it collapses for code, JSON, numbers, and non-English text"],
+[3,"l0","Theory","Medium",0,"Why cost, context limits, and rate limits are all denominated in tokens"],
+[4,"l0","Theory","Medium",0,"Counting tokens with tiktoken and provider tokenizers; why the tokenizer must match the model"],
+[5,"l0","Theory","Medium",0,"Interview angle: \"why is your non-English app 2\u00d7 the cost?\" \u2192 token inflation"],
+[6,"l0","Theory","Medium",0,"What it holds: system prompt + history + retrieved docs + tool results + current input + reserved output space"],
+[7,"l0","Theory","Medium",0,"Why it's finite: quadratic attention compute, linear-but-large KV-cache memory, trained position range"],
+[8,"l0","Theory","Medium",0,"Lost in the middle \u2014 models use the start and end far more reliably than the middle"],
+[9,"l0","Theory","Medium",0,"Needle-in-a-haystack as the probe for this"],
+[10,"l0","Theory","Medium",0,"Silent truncation: what actually happens when you overflow, and why answers degrade without an error"],
+[11,"l0","Theory","Medium",0,"\u2b50 The senior point: a big context window is a budget, not a bucket \u2014 see Context Engineering"],
+[12,"l0","Theory","Medium",0,"Temperature \u2014 scales logits before softmax; 0\u20130.3 for extraction/classification/code, 0.7\u20131.0 for ideation"],
+[13,"l0","Theory","Medium",0,"Top-p (nucleus) \u2014 smallest token set whose cumulative probability \u2265 p; adapts to model confidence"],
+[14,"l0","Theory","Medium",0,"Top-k \u2014 fixed candidate count"],
+[15,"l0","Theory","Medium",0,"max_tokens, stop sequences, seed, frequency/presence penalties"],
+[16,"l0","Theory","Medium",0,"Why temperature=0 is near-deterministic, not guaranteed reproducible"],
+[17,"l0","Theory","Medium",0,"Interview angle: \"you set temperature=0 and still get different JSON \u2014 why?\""],
+[18,"l0","Theory","Medium",0,"Base vs instruction-tuned vs reasoning models \u2014 and how prompting differs for each (1.9)"],
+[19,"l0","Theory","Medium",0,"Proprietary (Claude, GPT, Gemini) vs open-weight (Llama, Qwen, Mistral, DeepSeek)"],
+[20,"l0","Theory","Medium",0,"Model routing: cheap model to classify/route, strong model to synthesise"],
+[21,"l0","Theory","Medium",0,"Reading a model card: context length, knowledge cutoff, tool-calling support, modality, pricing"],
+[22,"l0","Theory","Medium",0,"Latency vs quality vs cost as a three-way trade, plus TTFT (time to first token) vs total latency"],
+[23,"l0","Theory","Medium",0,"Function / tool calling at the API level \u2014 the model emits a structured call, your code executes it"],
+[24,"l0","Theory","Medium",0,"Structured output &amp; JSON mode; provider-native vs tool-based vs prompted"],
+[25,"l0","Theory","Medium",0,"Embeddings and cosine similarity (see the RAG guide for depth)"],
+[26,"l0","Theory","Medium",0,"Multimodality \u2014 images, audio, PDFs as first-class input"],
+[27,"l0","Theory","Medium",0,"Prompt caching \u2014 caching a static prefix to cut cost/latency"],
+[28,"l0","Theory","Medium",0,"Streaming and why perceived latency is latency"],
+[29,"l0","Theory","Medium",0,"Why it happens: next-token prediction over lossily-compressed parametric knowledge, no native abstention"],
+[30,"l0","Theory","Medium",0,"The four drivers: lossy memory, staleness, no \"I don't know\", long-tail/private gaps"],
+[31,"l0","Theory","Medium",0,"Mitigation ladder: grounding (RAG) \u2192 structured output \u2192 constrained generation \u2192 chain-of-verification \u2192 LLM-as-judge \u2192 abstention path"],
+[32,"l0","Theory","Medium",0,"\u2b50 Trap: \"lower the temperature\" is not a hallucination fix \u2014 it reduces variance, not fabrication"],
+[33,"l0","Theory","Medium",0,"Faithfulness vs answer-relevance as separate failure modes"],
+[34,"l0","Theory","Medium",0,"Fine-tune for behaviour (format, tone, a skill), retrieve for knowledge, prompt for everything you can"],
+[35,"l0","Theory","Medium",0,"LoRA / QLoRA / PEFT at a naming level; when full fine-tuning is justified"],
+[36,"l0","Theory","Medium",0,"Cost/latency/staleness comparison"],
+[37,"l0","Theory","Medium",0,"When none of them is right (a classifier, a SQL query, plain code)"],
+[38,"l1","Theory","High",0,"The components: role/persona, instruction, context, examples, input data, output format, constraints"],
+[39,"l1","Theory","High",0,"Message roles: system / user / assistant / tool \u2014 and what each is for"],
+[40,"l1","Theory","High",0,"Delimiters and structure \u2014 XML tags, markdown fences, numbered blocks; why XML-ish tags work well with Claude"],
+[41,"l1","Theory","High",0,"Instruction hierarchy: system outranks user outranks retrieved content"],
+[42,"l1","Theory","High",0,"Positive framing (\"do X\") beats negative (\"don't do Y\")"],
+[43,"l1","Theory","High",0,"Output priming and prefilling the assistant turn"],
+[44,"l1","Theory","High",0,"Specificity, and why \"be concise\" is weaker than \"\u2264 3 sentences\""],
+[45,"l1","Theory","High",0,"Role / persona prompting \u2014 and the honest caveat that its measured gains are smaller than folklore suggests"],
+[46,"l1","Theory","High",0,"Style &amp; tone prompting"],
+[47,"l1","Theory","High",0,"Emotion prompting (\"this is important to my career\") \u2014 real but marginal effects"],
+[48,"l1","Theory","High",0,"System 2 Attention (S2A) \u2014 have the model rewrite the prompt to strip irrelevant context first"],
+[49,"l1","Theory","High",0,"Rephrase and Respond (RaR) \u2014 model restates the question before answering"],
+[50,"l1","Theory","High",0,"Self-ask \u2014 model generates and answers its own sub-questions"],
+[51,"l1","Theory","High",0,"How ICL works mechanically (pattern completion, not weight updates)"],
+[52,"l1","Theory","High",0,"\u2b50 The six exemplar factors (the report's most actionable finding \u2014 small tweaks reported to shift accuracy dramatically):"],
+[53,"l1","Theory","High",0,"Exemplar selection: static set vs semantic similarity (KNN) selection vs Vote-K"],
+[54,"l1","Theory","High",0,"LangChain implementation: FewShotChatMessagePromptTemplate + SemanticSimilarityExampleSelector (5.3)"],
+[55,"l1","Theory","High",0,"When few-shot beats fine-tuning, and when the token cost flips that"],
+[56,"l1","Theory","High",0,"Chain-of-Thought (CoT) \u2014 intermediate steps; the single most-used technique"],
+[57,"l1","Theory","High",0,"Zero-shot CoT \u2014 \"Let's think step by step\" (Kojima et al.)"],
+[58,"l1","Theory","High",0,"Thread-of-Thought (ThoT), contrastive CoT (right and wrong examples), complexity-based prompting"],
+[59,"l1","Theory","High",0,"Step-back prompting \u2014 ask the general principle first, then the specific"],
+[60,"l1","Theory","High",0,"Analogical prompting \u2014 model generates its own relevant exemplars"],
+[61,"l1","Theory","High",0,"\u2b50 When CoT hurts: simple tasks, latency-critical paths, and reasoning models (1.9)"],
+[62,"l1","Theory","High",0,"Cost reality: CoT multiplies output tokens"],
+[63,"l1","Theory","High",0,"Least-to-most \u2014 solve easiest sub-problem first, build up"],
+[64,"l1","Theory","High",0,"Plan-and-solve \u2014 plan explicitly, then execute"],
+[65,"l1","Theory","High",0,"Tree-of-Thoughts (ToT) \u2014 search over branching thought trajectories with evaluation/backtracking"],
+[66,"l1","Theory","High",0,"PAL / Program-of-Thought \u2014 emit code and execute it for arithmetic and logic"],
+[67,"l1","Theory","High",0,"Skeleton-of-Thought \u2014 outline first, then expand branches in parallel (latency win)"],
+[68,"l1","Theory","High",0,"Prompt chaining \u2014 sequential prompts, each consuming the last's output (this is where LangChain/LCEL enters)"],
+[69,"l1","Theory","High",0,"Self-consistency \u2014 sample N CoT paths at temperature &gt; 0, take the majority answer"],
+[70,"l1","Theory","High",0,"Universal self-consistency \u2014 an LLM picks the most consistent answer when answers aren't directly comparable"],
+[71,"l1","Theory","High",0,"DiVeRSe, mixture-of-reasoning-experts, prompt paraphrase ensembling"],
+[72,"l1","Theory","High",0,"The economics: accuracy for N\u00d7 cost \u2014 know when that trade is worth it"],
+[73,"l1","Theory","High",0,"Self-refine \u2014 generate \u2192 critique \u2192 revise loop (bound it!)"],
+[74,"l1","Theory","High",0,"Chain-of-Verification (CoVe) \u2014 draft, generate verification questions, answer them independently, revise"],
+[75,"l1","Theory","High",0,"Self-verification, reversing CoT, cumulative reasoning"],
+[76,"l1","Theory","High",0,"\u2b50 The known limitation: models are unreliable judges of their own output; independent verification (a different model, a tool, retrieved evidence) beats pure self-critique"],
+[77,"l1","Theory","High",0,"Reasoning models do CoT internally \u2014 explicit \"think step by step\" is redundant and can hurt"],
+[78,"l1","Theory","High",0,"Prompt them with goals and constraints, not procedures"],
+[79,"l1","Theory","High",0,"Fewer few-shot examples often works better; over-specification constrains the search"],
+[80,"l1","Theory","High",0,"Reasoning effort / thinking-budget controls; reasoning tokens as a cost line"],
+[81,"l1","Theory","High",0,"Reasoning traces are surfaced as a distinct content-block type (4.3)"],
+[82,"l1","Theory","High",0,"Interview angle: \"how does your prompting change for a reasoning model?\""],
+[83,"l1","Theory","High",0,"APE (Automatic Prompt Engineer), Active-Prompt, meta-prompting (prompts that write prompts)"],
+[84,"l1","Theory","High",0,"DSPy \u2014 compile prompts against a metric instead of hand-tuning; reported to beat manual prompting in far less time"],
+[85,"l1","Theory","High",0,"The 2026 framing: prompts as artefacts you optimise and version, not strings you tweak"],
+[86,"l1","Theory","High",0,"Prompt management: versioning, A/B tests, decoupling prompts from code (LangSmith Prompt Hub)"],
+[87,"l1","Theory","High",0,"Build a small labelled set before iterating \u2014 otherwise you're tuning on vibes"],
+[88,"l1","Theory","High",0,"Metrics: exact match / regex / JSON-validity (cheap), LLM-as-judge (scalable), human (gold)"],
+[89,"l1","Theory","High",0,"Judge biases: position, verbosity, self-preference \u2014 and mitigations (swap order, rubric, different judge model)"],
+[90,"l1","Theory","High",0,"Paired comparison + bootstrap CI; is that +2% real or noise?"],
+[91,"l1","Theory","High",0,"Regression-test prompts in CI \u2014 a prompt change is a code change"],
+[92,"l2","Theory","Medium",0,"Direct injection \u2014 malicious instructions in the user turn"],
+[93,"l2","Theory","Medium",0,"\u2b50 Indirect injection \u2014 instructions hidden in retrieved documents, web pages, or tool output; the agent-specific risk"],
+[94,"l2","Theory","Medium",0,"Jailbreaking vs injection (bypassing policy vs hijacking instructions)"],
+[95,"l2","Theory","Medium",0,"Data exfiltration via crafted tool calls or markdown image URLs"],
+[96,"l2","Theory","Medium",0,"Defences (layered, none sufficient alone):"],
+[97,"l2","Theory","Medium",0,"Adversarial cases in your eval set \u2014 test injection like you test features"],
+[98,"l2","Theory","Medium",0,"Context as an allocated budget, not a bucket"],
+[99,"l2","Theory","Medium",0,"Levers: retrieval precision, reranking, compression, summarization, tool-output size caps, sub-agent isolation"],
+[100,"l2","Theory","Medium",0,"Ordering for attention (edges beat the middle)"],
+[101,"l2","Theory","Medium",0,"Prompt caching to make a stable prefix cheap"],
+[102,"l2","Theory","Medium",0,"Concrete lesson: deepagents v0.7 cut default-turn input tokens ~65% via leaner prompts and tighter tool schemas"],
+[103,"l3","Theory","High",0,"The value proposition: one interface across 1,000+ model providers, vector stores, and tools; batteries-included components; composition primitives"],
+[104,"l3","Theory","High",0,"What it costs you: an abstraction layer to debug through, version churn, opacity"],
+[105,"l3","Theory","High",0,"\u2b50 When to skip it: latency-critical single-step calls, a task that's one provider API call, when the abstraction obscures more than it saves. Cited production reports of teams cutting latency ~11\u00d7 and error rates sharply by dropping to plain SDK calls \u2014 be ready to discuss this honestly rather than defensively"],
+[106,"l3","Theory","High",0,"The mature answer: use LangChain for the plumbing you'd otherwise rewrite, drop to raw SDKs on hot paths"],
+[107,"l3","Theory","High",0,"langchain-core \u2014 base abstractions, messages, Runnable interface. Minimal deps"],
+[108,"l3","Theory","High",0,"langchain \u2014 the streamlined 1.x package: langchain.agents, langchain.messages, langchain.tools, langchain.chat_models, langchain.embeddings"],
+[109,"l3","Theory","High",0,"langchain-classic \u2014 legacy: LLMChain, ConversationChain, AgentExecutor, old memory classes, MultiQueryRetriever and the old langchain.retrievers, indexing API, hub module, CacheBackedEmbeddings"],
+[110,"l3","Theory","High",0,"langchain-community \u2014 third-party integrations"],
+[111,"l3","Theory","High",0,"langchain-&lt;provider&gt; \u2014 langchain-openai, langchain-anthropic, \u2026 (the preferred path)"],
+[112,"l3","Theory","High",0,"langgraph \u2014 the runtime LangChain agents execute on"],
+[113,"l3","Theory","High",0,"langsmith \u2014 tracing and evaluation"],
+[114,"l3","Theory","High",0,"The historical arc: monolith (0.0.x) \u2192 core/community split (0.1) \u2192 LCEL \u2192 LangGraph runtime \u2192 1.0 streamlining"],
+[115,"l3","Theory","High",0,"1.0 = stability commitment, no breaking changes until 2.0"],
+[116,"l3","Theory","High",0,"Python 3.10+ (3.9 dropped)"],
+[117,"l3","Theory","High",0,"How to read a deprecation warning and find the replacement"],
+[118,"l3","Theory","High",0,"Pinning versions; why \"latest tutorial\" \u2260 \"latest API\""],
+[119,"l4","Practical","Medium",0,"init_chat_model as the provider-agnostic factory"],
+[120,"l4","Practical","Medium",0,"Standard params: temperature, max_tokens, timeout, max_retries, api_key, base_url"],
+[121,"l4","Practical","Medium",0,"invoke / stream / batch / ainvoke / astream / abatch"],
+[122,"l4","Practical","Medium",0,"\u2b50 1.x change: chat model return type is AIMessage (was BaseMessage)"],
+[123,"l4","Practical","Medium",0,"Model profiles \u2014 model.profile exposes capabilities (from models.dev) so you branch on capability, not model name"],
+[124,"l4","Practical","Medium",0,"bind_tools(), .with_structured_output(), .with_retry(), .with_fallbacks(), .with_config()"],
+[125,"l4","Practical","Medium",0,"Provider gotcha: Anthropic max_tokens now defaults per-model (not 1024)"],
+[126,"l4","Practical","Medium",0,"SystemMessage, HumanMessage, AIMessage, ToolMessage, AIMessageChunk"],
+[127,"l4","Practical","Medium",0,"\u2b50 .text is now a property, not a method \u2014 response.text not response.text()"],
+[128,"l4","Practical","Medium",0,"response_metadata, usage_metadata (token counts \u2014 your cost telemetry), id, tool_calls"],
+[129,"l4","Practical","Medium",0,"AIMessageChunk.chunk_position ('last' on the final chunk)"],
+[130,"l4","Practical","Medium",0,"Removed: the example parameter on AIMessage \u2192 use additional_kwargs"],
+[131,"l4","Practical","Medium",0,"Message chunk merging (+) for streaming accumulation"],
+[132,"l4","Practical","Medium",0,"Provider-agnostic representation of text, reasoning, images, citations, tool calls"],
+[133,"l4","Practical","Medium",0,"Why: OpenAI's \"thinking\" vs Anthropic's \"reasoning\" used to break your UI on provider switch"],
+[134,"l4","Practical","Medium",0,"Multimodal input via HumanMessage(content_blocks=[...])"],
+[135,"l4","Practical","Medium",0,"Serialization opt-in: LC_OUTPUT_VERSION=v1 or output_version=\"v1\""],
+[136,"l4","Practical","Medium",0,"init_embeddings, the Embeddings interface, embed_query vs embed_documents"],
+[137,"l4","Practical","Medium",0,"Caching embeddings (CacheBackedEmbeddings \u2014 now in langchain-classic)"],
+[138,"l4","Practical","Medium",0,"Deep coverage lives in the RAG guide"],
+[139,"l5","Practical","Medium",0,"PromptTemplate (string completion) vs ChatPromptTemplate (message list \u2014 use this)"],
+[140,"l5","Practical","Medium",0,"from_messages([...]) with (\"system\", ...), (\"human\", ...) tuples"],
+[141,"l5","Practical","Medium",0,"MessagesPlaceholder for history and agent scratchpads"],
+[142,"l5","Practical","Medium",0,"partial() for pre-filling variables; .format_messages() / .invoke()"],
+[143,"l5","Practical","Medium",0,"Template formats: f-string vs mustache; escaping literal braces ({{ }}) \u2014 a classic silent bug with JSON in prompts"],
+[144,"l5","Practical","Medium",0,"Templates are Runnables \u2014 they pipe (|) into models and parsers"],
+[145,"l5","Practical","Medium",0,"Composing/concatenating templates; reusable prompt fragments"],
+[146,"l5","Practical","Medium",0,"FewShotPromptTemplate / FewShotChatMessagePromptTemplate"],
+[147,"l5","Practical","Medium",0,"Example selectors: SemanticSimilarityExampleSelector (embeds examples + input, retrieves the closest \u2014 the practical answer to \"I have 1,000 examples and a context limit\"), MaxMarginalRelevanceExampleSelector, LengthBasedExampleSelector"],
+[148,"l5","Practical","Medium",0,"Wiring the six exemplar factors into a real selector"],
+[149,"l5","Practical","Medium",0,"Dynamic prompts in agents via the @dynamic_prompt middleware decorator (1.x pattern)"],
+[150,"l5","Practical","Medium",0,"LangSmith Prompt Hub \u2014 versioned prompts decoupled from code (langchain-classic for the old programmatic hub module)"],
+[151,"l6","Practical","High",0,"Pydantic v2 schemas, TypedDict, or raw JSON schema"],
+[152,"l6","Practical","High",0,"include_raw=True to keep the raw message alongside the parsed object"],
+[153,"l6","Practical","High",0,"\u2b50 Strategies (1.x, and a great interview probe):"],
+[154,"l6","Practical","High",0,"1.0 win: structured output is generated inside the agent loop \u2014 no extra LLM call, lower latency and cost"],
+[155,"l6","Practical","High",0,"ProviderStrategy can be inferred from the model profile"],
+[156,"l6","Practical","High",0,"StrOutputParser \u2014 the everyday \"just give me text\" tail of a chain"],
+[157,"l6","Practical","High",0,"JsonOutputParser, PydanticOutputParser, CommaSeparatedListOutputParser, XMLOutputParser, DatetimeOutputParser"],
+[158,"l6","Practical","High",0,"get_format_instructions() \u2014 how a parser injects format rules into the prompt"],
+[159,"l6","Practical","High",0,"OutputFixingParser / RetryOutputParser \u2014 repair malformed output with a second LLM call"],
+[160,"l6","Practical","High",0,"\u2b50 When to use which: prefer with_structured_output when the provider supports it (validated, no parse step); reach for parsers when the model/provider lacks structured output, or when you want a cheap StrOutputParser tail"],
+[161,"l6","Practical","High",0,"Streaming structured output: partial JSON parsing"],
+[162,"l6","Practical","High",0,"Why high temperature breaks JSON"],
+[163,"l6","Practical","High",0,"Validation errors vs parse errors vs refusals"],
+[164,"l6","Practical","High",0,"Retry/repair loops and their cost; bounding them"],
+[165,"l7","Practical","High",0,"The uniform contract: invoke, batch, stream, plus ainvoke/abatch/astream, astream_events"],
+[166,"l7","Practical","High",0,"Why it exists: one interface means anything composes with anything"],
+[167,"l7","Practical","High",0,"Input/output types per component; .with_types()"],
+[168,"l7","Practical","High",0,"| = RunnableSequence; dict = RunnableParallel"],
+[169,"l7","Practical","High",0,"RunnablePassthrough, RunnablePassthrough.assign(), RunnableLambda, RunnableBranch (routing), RunnableConfig"],
+[170,"l7","Practical","High",0,"What LCEL buys you for free: streaming, batching, async, parallelism, retries, fallbacks, tracing"],
+[171,"l7","Practical","High",0,"with_retry(), .with_fallbacks(), .configurable_fields(), .configurable_alternatives()"],
+[172,"l7","Practical","High",0,"astream_events(version=\"v3\") \u2014 typed event streaming (1.3+)"],
+[173,"l7","Practical","High",0,"LCEL for linear/DAG, stateless composition: prompt \u2192 model \u2192 parse, RAG stuffing, parallel fan-out with a join"],
+[174,"l7","Practical","High",0,"LangGraph for stateful logic: cycles, retries with state, branching that revisits nodes, HITL, persistence, multi-agent"],
+[175,"l7","Practical","High",0,"The 2026 guidance: LangGraph nodes/edges replaced LCEL pipe chains for stateful workflows \u2014 LCEL is not deprecated, it's scoped"],
+[176,"l7","Practical","High",0,"Signal of seniority: \"I'd keep the retrieval chain in LCEL and put the agent loop in LangGraph\""],
+[177,"l8","Practical","High",0,"@tool decorator; the docstring is the prompt the model selects on"],
+[178,"l8","Practical","High",0,"args_schema with Pydantic for complex inputs; per-field descriptions"],
+[179,"l8","Practical","High",0,"Few, well-scoped, non-overlapping tools; say what a tool is not for"],
+[180,"l8","Practical","High",0,"Keep outputs small \u2014 every tool result re-enters the context"],
+[181,"l8","Practical","High",0,"InjectedState / InjectedStore \u2014 pass runtime data without exposing it to the model"],
+[182,"l8","Practical","High",0,"Tool extras (1.2+) for provider-specific parameters"],
+[183,"l8","Practical","High",0,"~15 tool calls per pass is a practical ceiling before selection degrades"],
+[184,"l8","Practical","High",0,"\u2b50 Too many tools? Don't just prune by hand \u2014 LLMToolSelectorMiddleware(max_tools=\u2026) narrows the toolset per call, and ProviderToolSearchMiddleware defers tools to provider-side search (\u00a78.3)"],
+[185,"l8","Practical","High",0,"Runs on the LangGraph runtime; returns a compiled graph"],
+[186,"l8","Practical","High",0,"system_prompt is a string (the old prompt param renamed; extract text from SystemMessage)"],
+[187,"l8","Practical","High",0,"Pre-bound models with tools are no longer supported"],
+[188,"l8","Practical","High",0,"Custom state via state_schema, which must inherit AgentState (a TypedDict \u2014 not Pydantic/dataclass)"],
+[189,"l8","Practical","High",0,"Runtime context via the context= parameter (replaces config[\"configurable\"])"],
+[190,"l8","Practical","High",0,"Streaming node name changed \"agent\" \u2192 \"model\""],
+[191,"l8","Practical","High",0,"Deprecated ancestors: AgentExecutor, initialize_agent, create_react_agent"],
+[192,"l8","Practical","High",0,"before_agent / after_agent \u2014 once per agent invocation"],
+[193,"l8","Practical","High",0,"before_model / after_model \u2014 around each model call (replaces pre_model_hook / post_model_hook)"],
+[194,"l8","Practical","High",0,"wrap_model_call \u2014 wrap the model call itself (retry, fallback, rewrite)"],
+[195,"l8","Practical","High",0,"wrap_tool_call \u2014 wrap tool execution (error handling, approval, emulation)"],
+[196,"l8","Practical","High",0,"dynamic_prompt \u2014 compute the system prompt at runtime"],
+[197,"l8","Practical","High",0,"hook_config \u2014 configure hook behaviour"],
+[198,"l8","Practical","High",0,"Decorator forms: @dynamic_prompt, @wrap_tool_call"],
+[199,"l8","Practical","High",0,"Middleware can override built-in defaults by matching .name; ordering/composition matters"],
+[200,"l8","Practical","High",0,"Provider-specific: Anthropic (prompt caching, bash, text editor, memory, file search), AWS Bedrock (prompt caching), OpenAI (content moderation)"],
+[201,"l8","Practical","High",0,"\u26a0\ufe0f Exact signature matters \u2014 SummarizationMiddleware(model=\u2026, trigger=\u2026, keep=\u2026), not a max_tokens_before_summary argument"],
+[202,"l8","Practical","High",0,"ReAct loop, and how create_agent implements it"],
+[203,"l8","Practical","High",0,"\u2b50 Chains vs agents: deterministic sequence vs model-chosen control flow \u2014 and why you should prefer a chain when the path is knowable"],
+[204,"l8","Practical","High",0,"\u2b50 Bounding loops: ModelCallLimitMiddleware(thread_limit=\u2026, run_limit=\u2026, exit_behavior=\u2026) and ToolCallLimitMiddleware are the 1.x-native answer, alongside LangGraph's recursion_limit and your own token budgets"],
+[205,"l8","Practical","High",0,"Tool errors \u2192 ToolMessage, never an unhandled crash (ToolErrorMiddleware, or @wrap_tool_call)"],
+[313,"l8","Practical","High",0,"MCP integration via langchain-mcp-adapters"],
+[207,"l8","Practical","High",0,"Multi-agent lives in the LangGraph guide"],
+[208,"l9","Practical","Medium",0,"Loaders: PyPDFLoader, WebBaseLoader, DirectoryLoader, UnstructuredLoader"],
+[209,"l9","Practical","Medium",0,"Splitters: RecursiveCharacterTextSplitter (default), token-based via from_tiktoken_encoder, MarkdownHeaderTextSplitter, SemanticChunker"],
+[210,"l9","Practical","Medium",0,"Vector stores: FAISS, Chroma, Qdrant, Weaviate, Milvus, pgvector, Pinecone"],
+[211,"l9","Practical","Medium",0,"vectorstore.as_retriever(search_type=..., search_kwargs={\"k\":..}); \"mmr\" for diversity"],
+[212,"l9","Practical","Medium",0,"EnsembleRetriever \u2014 hybrid dense + BM25 with weighted RRF"],
+[213,"l9","Practical","Medium",0,"ContextualCompressionRetriever + LLMChainExtractor / EmbeddingsFilter"],
+[214,"l9","Practical","Medium",0,"ParentDocumentRetriever (small-to-big), MultiVectorRetriever, SelfQueryRetriever (NL \u2192 metadata filter + query)"],
+[215,"l9","Practical","Medium",0,"\u2b50 MultiQueryRetriever and the old langchain.retrievers now live in langchain-classic"],
+[216,"l9","Practical","Medium",0,"Rerankers: CrossEncoderReranker, Cohere rerank"],
+[217,"l9","Practical","Medium",0,"LCEL RAG: {\"context\": retriever | format_docs, \"question\": RunnablePassthrough()} | prompt | model | StrOutputParser()"],
+[218,"l9","Practical","Medium",0,"Deprecated: RetrievalQA, ConversationalRetrievalChain \u2192 build with LCEL or create_agent"],
+[219,"l9","Practical","Medium",0,"Grounded prompting: answer-only-from-context, delimited sources, inline citations, abstention"],
+[220,"l9","Practical","Medium",0,"RAG as a tool (agentic RAG) vs RAG as a step"],
+[221,"l10","Theory","High",0,"Gen 1: ConversationBufferMemory / ConversationSummaryMemory / ConversationChain \u2014 deprecated (0.3.1), moved to langchain-classic"],
+[222,"l10","Theory","High",0,"Gen 2: RunnableWithMessageHistory \u2014 the recommended replacement\u2026 then itself deprecated in 0.3 as \"unintuitive\""],
+[223,"l10","Theory","High",0,"Gen 3 (current): LangGraph checkpointers for thread-scoped memory, LangGraph Store for cross-thread/user memory"],
+[224,"l10","Theory","High",0,"The correct 2026 answer to \"how do you do memory in LangChain?\": persistence via the LangGraph runtime, plus SummarizationMiddleware for context compaction"],
+[225,"l10","Theory","High",0,"InMemoryChatMessageHistory / BaseChatMessageHistory still exist for simple history plumbing"],
+[226,"l10","Theory","High",0,"trim_messages (now in langchain.messages) \u2014 strategy=\"last\", token counter, start_on/end_on so you never orphan a tool-call/ToolMessage pair"],
+[227,"l10","Theory","High",0,"RemoveMessage for targeted deletion (needs a real message id)"],
+[228,"l10","Theory","High",0,"Summarization: SummarizationMiddleware(model, trigger, keep) \u2014 trigger takes a ContextSize tuple, or a TriggerClause dict for multiple AND-ed thresholds; keep controls what survives; also token_counter, summary_prompt, trim_tokens_to_summarize"],
+[229,"l10","Theory","High",0,"ContextEditingMiddleware(edits, token_count_method) \u2014 clear stale tool outputs rather than summarising everything"],
+[230,"l10","Theory","High",0,"Trade-off table: trimming (cheap, lossy) \u00b7 deletion (targeted) \u00b7 summarization (best meaning/token, costs a call)"],
+[231,"l10","Theory","High",0,"Long-term memory: extract \u2192 store (namespaced) \u2192 retrieve \u2192 inject; semantic/episodic/procedural"],
+[232,"l10","Theory","High",0,"Hot-path vs background writes"],
+[233,"l11","Practical","Medium",0,"stream() / .astream(); token streaming vs step streaming"],
+[234,"l11","Practical","Medium",0,"astream_events(version=\"v3\") \u2014 typed projections; filter to AIMessage content or your UI shows raw tool JSON"],
+[235,"l11","Practical","Medium",0,"Streaming through parsers and structured output (partial JSON)"],
+[236,"l11","Practical","Medium",0,"TTFT as the metric users actually feel"],
+[237,"l11","Practical","Medium",0,"BaseCallbackHandler lifecycle hooks (on_llm_start, on_llm_new_token, on_tool_error, \u2026)"],
+[238,"l11","Practical","Medium",0,"Constructor vs request-time callbacks; async callbacks"],
+[239,"l11","Practical","Medium",0,"LangSmith tracing via LANGCHAIN_TRACING_V2 / LANGSMITH_TRACING"],
+[240,"l11","Practical","Medium",0,"Sampling and data redaction in traces (PII must not land in your observability tool)"],
+[241,"l11","Practical","Medium",0,"LLM response cache: InMemoryCache, SQLiteCache, Redis"],
+[242,"l11","Practical","Medium",0,"Semantic cache \u2014 embedding-keyed; huge hit rate on real traffic; \u26a0 staleness needs TTL + invalidation"],
+[243,"l11","Practical","Medium",0,"Provider prompt caching for a stable prefix"],
+[244,"l11","Practical","Medium",0,"Embedding caching"],
+[245,"l11","Practical","Medium",0,"Chain level: .with_retry() (exponential backoff), .with_fallbacks() (model or provider failover)"],
+[246,"l11","Practical","Medium",0,"\u2b50 Agent level: ModelRetryMiddleware, ToolRetryMiddleware (max_retries, backoff_factor, on_failure), ModelFallbackMiddleware(first_model, *additional_models)"],
+[247,"l11","Practical","Medium",0,"Timeouts, rate limiting, handling 429s"],
+[248,"l11","Practical","Medium",0,"Graceful degradation: partial answer with a caveat beats a 500"],
+[249,"l11","Practical","Medium",0,"Idempotency for side-effecting steps (see LangGraph guide \u00a75.2)"],
+[250,"l11","Practical","Medium",0,"Token accounting from usage_metadata; cost per request dashboards"],
+[251,"l11","Practical","Medium",0,"Levers: model routing, prompt caching, semantic caching, output-token caps, shorter context (rerank + compress), batching"],
+[252,"l11","Practical","Medium",0,"\u2b50 Where the money actually goes: generation dominates; retrieval is noise"],
+[253,"l11","Practical","Medium",0,"Budget caps and per-tenant quotas"],
+[254,"l11","Practical","Medium",0,"Prompt injection defence (Level 2)"],
+[255,"l11","Practical","Medium",0,"\u2b50 Dependency security is now an interview topic: CVE-2025-68664 (CVSS 9.3) \u2014 deserialization flaw in langchain-core's dumps()/dumpd(), affecting message history and event streaming; fixed in langchain-core \u2265 0.3.81. Know that supply-chain/CVE tracking is part of owning an LLM stack"],
+[256,"l11","Practical","Medium",0,"Secrets handling, least-privilege tool credentials, sandboxed code execution"],
+[257,"l11","Practical","Medium",0,"PII: NER-based redaction (fast, auditable, ~10ms) vs LLM guardrails (slower, fuzzier) \u2014 know the trade; in-framework, PIIMiddleware(pii_type=\u2026, strategy=\u2026, detector=\u2026)"],
+[258,"l11","Practical","Medium",0,"Moderation: OpenAI content-moderation middleware for output-side policy checks"],
+[259,"l11","Practical","Medium",0,"Multi-tenant isolation: filter at retrieval, scope caches per tenant"],
+[260,"l11","Practical","Medium",0,"Unit-test chains as plain callables; stub the LLM with a fake chat model so CI is fast, free, deterministic"],
+[261,"l11","Practical","Medium",0,"\u2b50 LLMToolEmulator(tools=\u2026, model=\u2026) \u2014 emulate tool execution with an LLM so agent tests don't hit real APIs"],
+[262,"l11","Practical","Medium",0,"Integration tests for full chains; snapshot/contract tests for structured output"],
+[263,"l11","Practical","Medium",0,"LangSmith datasets as the CI regression suite"],
+[264,"l11","Practical","Medium",0,"Serving: FastAPI, LangGraph Platform / Agent Server, containers, autoscaling (if you meet langserve in older material, check its current status before adopting)"],
+[265,"l12","Practical","Medium",0,"Runs / traces / spans; latency, tokens, cost, errors; tags &amp; metadata"],
+[266,"l12","Practical","Medium",0,"Datasets built from flagged production traces"],
+[267,"l12","Practical","Medium",0,"Evaluators: heuristic, LLM-as-judge, pairwise, human annotation queues"],
+[268,"l12","Practical","Medium",0,"2026 additions: composite evaluators (legacy feedback-formula endpoints deprecated), thread / multi-turn evaluators with a Test action, evaluator timeouts recorded as run errors"],
+[269,"l12","Practical","Medium",0,"Online evaluation on live traffic; regression gates in CI"],
+[270,"l12","Practical","Medium",0,"Alternatives to name: Langfuse, Arize Phoenix, W&amp;B Weave, OpenTelemetry GenAI conventions"],
+[271,"l12","Practical","Medium",0,"Retrieval: recall@k, precision@k, MRR, NDCG"],
+[272,"l12","Practical","Medium",0,"Generation: faithfulness/groundedness, answer relevance, context precision/recall"],
+[273,"l12","Practical","Medium",0,"RAGAS, TruLens, DeepEval \u2014 and when to pick which"],
+[274,"l12","Practical","Medium",0,"Statistical hygiene: paired tests, bootstrap CIs, per-segment breakdowns"],
+[275,"l13","Theory","Medium",0,"Custom Runnables and custom components (RunnableSerializable)"],
+[276,"l13","Theory","Medium",0,"Custom chat model / retriever / vector store integrations; the standard test suite"],
+[277,"l13","Theory","Medium",0,"DSPy-style automated prompt optimisation alongside LangChain"],
+[278,"l13","Theory","Medium",0,"deepagents \u2014 planning + subagents + filesystem on LangGraph (CodeInterpreterMiddleware, harness profiles, ContextHubBackend)"],
+[279,"l13","Theory","Medium",0,"Model Context Protocol: consuming and authoring servers"],
+[280,"l13","Theory","Medium",0,"Multimodal pipelines (vision, audio, PDF-native)"],
+[281,"l13","Theory","Medium",0,"Fine-tuning + prompting hybrids; distilling a prompt into a smaller model"],
+[282,"l13","Theory","Medium",0,"Migration engineering: automated 0.x \u2192 1.x codemods (e.g. OpenRewrite recipes)"],
+[283,"iv","Interview Prep","High",0,"High-frequency: LangChain conceptual (what it solves, when NOT to use it, 1.0 changes)"],
+[284,"iv","Interview Prep","High",0,"High-frequency: Runnables &amp; LCEL (interface, pipe, LCEL vs LangGraph)"],
+[285,"iv","Interview Prep","High",0,"High-frequency: Models, messages &amp; prompts (templates, few-shot at scale, content blocks)"],
+[286,"iv","Interview Prep","High",0,"High-frequency: Structured output (with_structured_output vs parsers, strategies)"],
+[287,"iv","Interview Prep","High",0,"High-frequency: Tools, agents &amp; middleware (tool choice, hooks, bounding cost)"],
+[288,"iv","Interview Prep","High",0,"High-frequency: Retrieval, memory &amp; production (RAG chain, memory in 2026, cost, testing)"],
+[289,"iv","Interview Prep","High",0,"The 12 trap questions (answered correctly, out loud)"],
+[290,"iv","Interview Prep","High",0,"Prompt engineering questions (18) \u2014 taxonomy, exemplars, reasoning models, injection"],
+[291,"sd","Interview Prep","High",0,"System design: Customer support assistant"],
+[292,"sd","Interview Prep","High",0,"System design: Document extraction pipeline (100k PDFs)"],
+[293,"sd","Interview Prep","High",0,"System design: Multi-provider abstraction"],
+[294,"sd","Interview Prep","High",0,"System design: Real-time streaming chat"],
+[295,"sd","Interview Prep","High",0,"System design: Internal knowledge assistant with RBAC"],
+[296,"sd","Interview Prep","High",0,"System design: Prompt-optimisation workflow for a team"],
+[297,"sd","Interview Prep","High",0,"System design: 70% cost-reduction mandate"],
+[298,"cq","Practical","High",0,"Code: RAG chain in LCEL with format_docs"],
+[299,"cq","Practical","High",0,"Code: with_structured_output over a Pydantic schema"],
+[300,"cq","Practical","High",0,"Code: @tool with args_schema + ToolMessage error handling"],
+[301,"cq","Practical","High",0,"Code: create_agent with middleware (summarization + call limit)"],
+[302,"cq","Practical","High",0,"Code: few-shot with SemanticSimilarityExampleSelector"],
+[303,"cq","Practical","High",0,"Code: trim_messages with correct boundaries"],
+[304,"cq","Practical","High",0,"Code: RunnableLambda + RunnableBranch router"],
+[305,"cq","Practical","High",0,"Code: .with_retry() and .with_fallbacks()"],
+[306,"cq","Practical","High",0,"Code: custom BaseCallbackHandler logging token cost"],
+[307,"cq","Practical","High",0,"Code: streaming tokens filtered to assistant text"],
+[308,"pp","Project","High",0,"Project 1: Prompt technique lab (8 techniques, measured)"],
+[309,"pp","Project","High",0,"Project 2: Structured extraction service"],
+[310,"pp","Project","High",0,"Project 3: Multi-provider chat app"],
+[311,"pp","Project","High",0,"Project 4: RAG assistant in pure LCEL"],
+[312,"pp","Project","High",0,"Project 5: Agent with middleware stack"],
+[313,"pp","Project","High",0,"Project 6: Instrumented + optimised app (LangSmith, CI gate)"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="lcPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 313 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+</body>
+</html>
