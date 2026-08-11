@@ -4,7 +4,7 @@ A growing set of deep, self-paced study resources for ML / AI-engineering interv
 Each subject is a **self-contained static mini-site** (styled HTML, inline SVG diagrams,
 runnable code, an interactive progress tracker, and an interview Q&A bank).
 
-**Live:** RAG · LangChain & Prompt Engineering · LangGraph & Agentic AI. **Planned:** Classical ML, NLP.
+**Live:** RAG · NLP · LangChain & Prompt Engineering · LangGraph & Agentic AI. **Planned:** Classical ML.
 
 ## Structure
 
@@ -24,16 +24,23 @@ runnable code, an interactive progress tracker, and an interview Q&A bank).
 │   ├── LangChain_Complete.html
 │   ├── stitch_lc.py           # rebuilds the Complete file
 │   └── build_lc.py            # regenerates shells + tracker from the blueprint .md
-└── langgraph/                 # subject: LangGraph & Agentic AI
+├── langgraph/                 # subject: LangGraph & Agentic AI
+│   ├── index.html
+│   ├── LangGraph_Part1_Foundations.html  … Part2 … Part6
+│   ├── LangGraph_Complete.html
+│   ├── stitch_lg.py           # rebuilds the Complete file
+│   └── build_lg.py            # regenerates shells + the tracker from the blueprint .md
+└── nlp/                       # subject: Natural Language Processing (7 parts)
     ├── index.html
-    ├── LangGraph_Part1_Foundations.html  … Part2 … Part6
-    ├── LangGraph_Complete.html
-    ├── stitch_lg.py           # rebuilds the Complete file
-    └── build_lg.py            # regenerates shells + the tracker from the blueprint .md
+    ├── NLP_Part1_Foundations.html  … Part2 … Part7
+    ├── NLP_Complete.html
+    ├── stitch_nlp.py          # rebuilds the Complete file
+    ├── build_nlp.py           # regenerates shells + the tracker from the blueprint .md
+    └── insert.py              # splices a content fragment into a shell + validates it
 ```
 
 Each subject keeps its own progress-tracker localStorage key so they never collide:
-`ragPrepStatus_v1`, `lcPrepStatus_v1` and `lgPrepStatus_v1`.
+`ragPrepStatus_v1`, `nlpPrepStatus_v1`, `lcPrepStatus_v1` and `lgPrepStatus_v1`.
 
 Everything is plain static HTML — no build step, no server. Fonts and code
 syntax-highlighting load from a CDN; pages still render offline with fallbacks.
@@ -53,9 +60,10 @@ interfere with each other.
 After editing any part, rebuild that subject's stitched `Complete` file:
 
 ```bash
-cd rag       && python3 stitch.py      # RAG
-cd langchain && python3 stitch_lc.py   # LangChain
-cd langgraph && python3 stitch_lg.py   # LangGraph
+cd rag       && python3 stitch.py      # RAG        (6 parts)
+cd nlp       && python3 stitch_nlp.py  # NLP        (7 parts)
+cd langchain && python3 stitch_lc.py   # LangChain  (6 parts)
+cd langgraph && python3 stitch_lg.py   # LangGraph  (6 parts)
 ```
 
 ## Hosting (free)
@@ -73,7 +81,20 @@ Both are free and rebuild automatically whenever you `git push`.
 ## Notes
 
 - **Progress is per-device.** The tracker stores status in each browser's local
-  storage (key `ragPrepStatus_v1`), so phone and laptop track separately — there is
+  storage (one key per subject), so phone and laptop track separately — there is
   no cross-device sync (that would need a backend).
 - The original tracker spreadsheet and helper scripts are kept out of the served site
   via `.gitignore`.
+
+## Subject sizes
+
+| Subject | Parts | Tracked topics | Diagrams | Q&A | Blueprint |
+|---|---|---|---|---|---|
+| RAG | 6 | 206 | 65 | 162 | `rag-learning-master-prompt.md` |
+| NLP | 7 | 520 | 73 | 171 | `nlp-study-guide.md` |
+| LangChain & Prompt Engineering | 6 | 313 | 16 | 69 | `langchain-llm-prompt-study-guide.md` |
+| LangGraph & Agentic AI | 6 | 210 | 26 | 78 | `langgraph-agentic-ai-study-guide.md` |
+
+Each subject is generated from a Markdown blueprint in `rag_learning/` (one level per
+`##` heading, one tracker row per `- [ ]` checkbox), so the tracker can always be
+regenerated from the blueprint with that subject's `build_*.py`.

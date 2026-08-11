@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natural Language Processing — Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14181F; --paper:#F1F3F6; --surface:#FFFFFF;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95; --green:#2E9E5B;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0; --line:#E2E5EB;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace; --sans:'IBM Plex Sans',system-ui,sans-serif; --disp:'Space Grotesk',var(--sans);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05); --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:var(--indigo);text-decoration:none}
+.wrap{max-width:1000px;margin:0 auto;padding:34px 22px 90px}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--faint);margin-bottom:18px}
+.crumb a{color:var(--muted)} .crumb a:hover{color:var(--indigo)}
+.hero{background:radial-gradient(120% 140% at 15% 0%,#1e2632 0%,#14181f 60%);color:#fff;border-radius:20px;padding:44px 40px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(2rem,5vw,2.9rem);line-height:1.05;letter-spacing:-1.2px;margin:0 0 14px}
+.hero p{color:#c2cad6;max-width:62ch;font-size:1.04rem;margin:0 0 24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:12px;color:#c2cad6;background:#1f2733;border:1px solid #2c3542;padding:6px 12px;border-radius:20px}
+.chip b{color:#fff}
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:26px;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#3a2a00;font-family:var(--disp);font-weight:700;padding:14px 24px;border-radius:12px;font-size:1.02rem;box-shadow:var(--shadow)}
+.cta:hover{filter:brightness(1.05);text-decoration:none}
+.mark{position:absolute;right:-24px;top:-18px;width:210px;height:210px;opacity:.13}
+h2.sec{font-family:var(--disp);font-weight:700;font-size:1.45rem;letter-spacing:-.4px;margin:50px 0 6px;color:var(--ink)}
+p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:22px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--indigo-line);text-decoration:none}
+.card .pk{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
+.card .t{font-family:var(--disp);font-weight:600;font-size:1.16rem;color:var(--ink);margin:6px 0 6px}
+.card .d{color:var(--muted);font-size:.92rem}
+.card .go{display:inline-block;margin-top:13px;font-family:var(--mono);font-size:11.5px;color:var(--indigo);font-weight:500}
+.card.combined{background:linear-gradient(135deg,#fff,#f3f4fb);border-color:var(--indigo-line)}
+.note{margin:44px 0 0;background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:14px;padding:20px 24px}
+.note h3{font-family:var(--disp);font-weight:600;font-size:1.04rem;margin:0 0 8px;color:#a5710a}
+.note p,.note ul{color:#3d3527;font-size:.95rem;margin:.4rem 0 0}
+.note ul{padding-left:1.2rem} .note li{margin:.35rem 0}
+.note code{font-family:var(--mono);font-size:.86em;background:#fff;border:1px solid var(--gold-line);padding:.1em .35em;border-radius:4px}
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--faint);line-height:1.8}
+@media (max-width:560px){.hero{padding:32px 22px} .wrap{padding:20px 14px 70px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="crumb"><a href="../index.html">← Learning Hub</a> &nbsp;/&nbsp; Natural Language Processing</div>
+
+  <header class="hero">
+    <svg class="mark" viewBox="0 0 40 40" fill="none"><path d="M8 12h24M8 20h24M8 28h16" stroke="#E0920C" stroke-width="2.4" stroke-linecap="round"/><circle cx="32" cy="28" r="3.4" fill="#2E9E5B"/><circle cx="6" cy="12" r="2.2" fill="#5560D8"/><circle cx="6" cy="20" r="2.2" fill="#5560D8"/></svg>
+    <div class="eyebrow">Interview Prep · Language &amp; Sequence Modelling</div>
+    <h1>Natural Language Processing</h1>
+    <p>Classical NLP to the transformer era, in one place: the linguistic pipeline and <b>TF-IDF</b>, <b>HMMs and CRFs</b>, n-gram language models and perplexity, <b>Word2Vec</b> through to sentence encoders, RNN → LSTM → attention, a full level on <b>subword tokenization</b>, the transformer component by component (including <b>RoPE and the KV cache</b>), <b>GQA/MLA, FlashAttention, Mamba hybrids, LoRA/QLoRA and DPO/GRPO</b>, then tasks, evaluation and production — with a 115-question interview bank.</p>
+    <div class="chips">
+      <span class="chip"><b>7</b> parts · 16 levels</span>
+      <span class="chip"><b>520</b> topics</span>
+      <span class="chip"><b>73</b> diagrams</span>
+      <span class="chip"><b>115</b> Q&amp;A</span>
+      <span class="chip">transformers <b>5.15</b></span>
+    </div>
+    <a class="cta" href="NLP_Complete.html">Open the full resource (all 7 parts) →</a>
+  </header>
+
+  <h2 class="sec">Read by part</h2>
+  <p class="seclead">Each part is self-contained; the progress tracker at the top of each is shared across all of them on this device.</p>
+  <div class="grid">
+    <a class="card" href="NLP_Part1_Foundations.html">
+      <div class="pk">Part 1 · Levels 0–2</div><div class="t">Foundations &amp; Classical NLP</div>
+      <div class="d">Why language is hard, the <b>task taxonomy</b> that picks your architecture, the linguistic pipeline (tokenize → POS → parse → NER), BoW, <b>TF-IDF</b>, LSA/NMF/LDA, the distributional hypothesis.</div><span class="go">18 sections · 12 diagrams · Open →</span></a>
+    <a class="card" href="NLP_Part2_ModelsAndEmbeddings.html">
+      <div class="pk">Part 2 · Levels 3–5</div><div class="t">Models, LMs &amp; Embeddings</div>
+      <div class="d">Naive Bayes, logistic regression, <b>HMM + Viterbi</b>, <b>CRF and label bias</b>, n-gram LMs and Kneser-Ney, <b>perplexity's three traps</b>, decoding strategies, Word2Vec/GloVe/FastText, static vs contextual.</div><span class="go">18 sections · 11 diagrams · Open →</span></a>
+    <a class="card" href="NLP_Part3_SequencesAndTokenization.html">
+      <div class="pk">Part 3 · Levels 6–7</div><div class="t">Sequences &amp; Tokenization</div>
+      <div class="d">RNN mechanics, vanishing vs exploding gradients, <b>LSTM gates and the constant error carousel</b>, GRU, seq2seq and attention — then <b>BPE, WordPiece, Unigram/SentencePiece</b>, vocab size, token premium, label alignment.</div><span class="go">16 sections · 12 diagrams · Open →</span></a>
+    <a class="card" href="NLP_Part4_Transformers.html">
+      <div class="pk">Part 4 · Levels 8–9</div><div class="t">Transformers &amp; Pretraining</div>
+      <div class="d">Scaled dot-product attention and <b>why √d_k</b>, multi-head, the full positional lineage to <b>RoPE and YaRN</b>, pre-LN vs post-LN, causal masking, the <b>KV cache</b>, MLM/CLM/denoising, the model zoo, sentence embeddings.</div><span class="go">13 sections · 12 diagrams · Open →</span></a>
+    <a class="card" href="NLP_Part5_EfficiencyAndFinetuning.html">
+      <div class="pk">Part 5 · Levels 10–11</div><div class="t">Efficiency &amp; Fine-Tuning</div>
+      <div class="d"><b>MHA → MQA → GQA → MLA</b>, FlashAttention, sparse attention, <b>Mamba hybrids</b>, MoE, quantization/distillation/speculative decoding — then the adaptation ladder, <b>LoRA/QLoRA</b>, and <b>SFT → DPO → GRPO</b>.</div><span class="go">12 sections · 11 diagrams · Open →</span></a>
+    <a class="card" href="NLP_Part6_TasksEvalProduction.html">
+      <div class="pk">Part 6 · Levels 12–15</div><div class="t">Tasks, Evaluation &amp; Production</div>
+      <div class="d">Classification, <b>NER in 2026 (GLiNER)</b>, ABSA, summarization faithfulness, MT, search &amp; clustering — then metrics, <b>LLM-as-judge with bias controls</b>, the <b>tiered cascade</b>, drift, PII, multimodal.</div><span class="go">22 sections · 13 diagrams · Open →</span></a>
+    <a class="card" href="NLP_Part7_QABank.html">
+      <div class="pk">Part 7 · Q&amp;A Bank</div><div class="t">Interview Q&amp;A Bank</div>
+      <div class="d"><b>115 questions</b> with model answers, the <b>15 trap questions</b>, <b>your own PDF set mapped section by section</b>, 10 derivations, 14 coding exercises, 10 system designs, and the formula + legacy→modern sheets.</div><span class="go">115 Q&amp;A · Open →</span></a>
+    <a class="card combined" href="NLP_Complete.html">
+      <div class="pk">All-in-one</div><div class="t">Complete edition ★</div>
+      <div class="d">Every part stitched into one page with the master tracker at the top — print- and PDF-ready.</div><span class="go">Open →</span></a>
+  </div>
+
+  <div class="note">
+    <h3>⚠ Library currency — verified August 2026</h3>
+    <p><b><code>transformers</code> 5.15.0</b> (10 Aug 2026) · <code>spaCy</code> <b>3.8.15</b> · <code>sentence-transformers</code> <b>5.7.0</b> · Python <b>3.10–3.14</b>.</p>
+    <ul>
+      <li><b>v5 was a breaking major.</b> PyTorch is the only backend — <b>TensorFlow and Flax support were removed</b>.</li>
+      <li>The <b>&ldquo;slow vs fast tokenizer&rdquo; distinction is gone</b>. Saying &ldquo;I'd load the slow tokenizer to inspect offsets&rdquo; describes a library that no longer exists — use <code>return_offsets_mapping</code> and <code>word_ids()</code>.</li>
+      <li>Image processors are fast/torchvision-only; attention is pluggable via <code>AttentionInterface</code>; quantization is a first-class loading concern; there is a built-in <code>transformers serve</code> plus continuous batching and paged attention.</li>
+      <li>Three answers in most 2024-era study material are now stale: <code>&lt;UNK&gt;</code> for OOV, sinusoidal positional encoding as <em>the</em> answer, and RLHF-as-PPO. The current versions are subword/byte-level tokenization, <b>RoPE + YaRN</b>, and <b>SFT → DPO → GRPO/RLVR</b>.</li>
+    </ul>
+    <p>Every part carries a provenance note distinguishing what was verified against primary sources from what is directional. Treat any <b>MTEB ranking or &ldquo;current best model&rdquo; claim as stale on sight</b> and re-benchmark on your own data.</p>
+  </div>
+
+  <div class="foot">
+    Natural Language Processing — 7 parts · 520 tracked topics · 73 diagrams · progress saved per device (<code>nlpPrepStatus_v1</code>)<br>
+    Related: <a href="../rag/index.html">RAG</a> (retrieval pipelines in depth) · <a href="../langchain/index.html">LangChain &amp; Prompt Engineering</a> (LLM applications) · <a href="../langgraph/index.html">LangGraph &amp; Agentic AI</a> (orchestration).
+  </div>
+
+</div>
+</body>
+</html>
