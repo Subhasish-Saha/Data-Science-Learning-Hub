@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classical ML Interview Prep — Part 5: Linear Models</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (Classical ML) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 5 / 17</small>Linear Models</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">Classical ML<small>Tabular · Metrics · Production</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 5 of 17</div>
+      <div class="v">Linear Models</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 439 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L4</span> Linear Models <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#c5-1">5.1 · The model &amp; how it's fitted ⭐</a></li>
+          <li><a href="#c5-2">5.2 · The assumptions, one by one ⭐⭐</a></li>
+          <li><a href="#c5-3">5.3 · Residual diagnostics ⭐</a></li>
+          <li><a href="#c5-4">5.4 · Multicollinearity &amp; VIF ⭐</a></li>
+          <li><a href="#c5-5">5.5 · R², adjusted R² &amp; friends</a></li>
+          <li><a href="#c5-6">5.6 · Ridge, Lasso &amp; Elastic Net ⭐</a></li>
+          <li><a href="#c5-7">5.7 · Logistic regression ⭐⭐</a></li>
+          <li><a href="#c5-8">5.8 · GLMs — links &amp; families ⭐</a></li>
+          <li><a href="#c5-9">5.9 · Quantile &amp; robust regression</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← Classical ML home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      Classical Machine Learning<br>Part 5 — Linear Models<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 5 of 17 · Linear Models</div>
+        <h1 class="title">The models you must be able to defend line by line
+          <span class="sub">Linear regression from the normal equation to why nobody computes it that way; <strong>every assumption, what breaks when it fails, how to detect it and how to fix it</strong>; the full residual-diagnostic toolkit; multicollinearity and VIF; R² and its traps; the regularized family; logistic regression and the odds ratio; GLMs for counts, claims and skew; and quantile regression.</span>
+        </h1>
+        <p class="thesis">This is the deepest part of the subject and the one interviewers use to separate people who have <em>used</em> a linear model from people who have <em>fitted</em> one. The centrepiece is <strong>§5.2</strong>: five assumptions, each with what it means, what breaks when it fails, how you detect it, and what you do about it — because &ldquo;state the assumptions of linear regression&rdquo; is asked constantly and answered badly. The two most common errors are believing <strong>normality of residuals is needed for prediction</strong> (it is not — only for inference) and believing <strong>multicollinearity hurts predictions</strong> (it usually hurts interpretation instead). Logistic regression gets the same treatment, because credit scoring runs on it for reasons you should be able to name.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 4</b></span>
+          <span class="chip"><b>9</b> topics</span>
+          <span class="chip">📐 <b>14</b> diagrams</span>
+          <span class="chip">🎛 <b>3</b> interactive</span>
+          <span class="chip">⏱ <b>~9h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole Classical ML subject — all 439 topics across all 17 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">439</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 439 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <!-- ===== 5.1 ===== -->
+      <article class="topic" id="c5-1">
+        <h3><span class="tn">5.1</span> The model, and how it is actually fitted <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Everyone can write <code class="ic">y = Xw + ε</code>. The interview is in the three follow-ups: how it's solved, why nobody solves it that way, and what &ldquo;linear&rdquo; actually constrains.</p>
+
+        <h4>From loss to normal equations</h4>
+        <p>Minimise <code class="ic">L(w) = (Xw − y)ᵀ(Xw − y)</code>. The gradient is <code class="ic">2Xᵀ(Xw − y)</code>; setting it to zero gives the <b>normal equations</b> <code class="ic">XᵀXw = Xᵀy</code>, hence <code class="ic">w = (XᵀX)⁻¹Xᵀy</code> when <code class="ic">XᵀX</code> is invertible. Geometrically, <code class="ic">Xŵ</code> is the <b>orthogonal projection of y onto the column space of X</b> — which is why the residual is perpendicular to every column, and therefore why residuals always sum to zero when you include an intercept.</p>
+
+        <h4>Why nobody computes the inverse</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Problem with <code class="ic">(XᵀX)⁻¹</code></th><th>Consequence</th><th>What's used instead</th></tr></thead>
+            <tbody>
+              <tr><td>Singular under perfect collinearity</td><td>No unique solution — the inverse doesn't exist</td><td>SVD / pseudo-inverse returns the minimum-norm solution</td></tr>
+              <tr><td>Cost is <code class="ic">O(p³)</code> plus <code class="ic">O(np²)</code> to form <code class="ic">XᵀX</code></td><td>Prohibitive for large <code class="ic">p</code></td><td>QR decomposition, or iterative methods for huge problems</td></tr>
+              <tr><td><b>Forming <code class="ic">XᵀX</code> squares the condition number</b></td><td>You lose roughly <em>half</em> your significant digits before you start</td><td><b>QR or SVD on X directly</b> — which is what <code class="ic">lstsq</code> does</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Scikit-learn's <code class="ic">LinearRegression</code> calls <code class="ic">scipy.linalg.lstsq</code>, which uses an SVD-based driver. So the closed form is the right thing to <em>derive</em> and the wrong thing to <em>implement</em> — and saying exactly that is the complete answer.</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">&ldquo;Linear&rdquo; means linear in the <em>parameters</em></span>
+          <p>A very common misunderstanding. <code class="ic">y = w₀ + w₁x + w₂x² + w₃log(x) + w₄(x₁·x₂)</code> is still a <b>linear model</b> — it is linear in <code class="ic">w</code>, which is all the maths requires. What is <em>not</em> linear is <code class="ic">y = w₀·x^w₁</code>. This matters practically: you can fit curves, interactions and splines with ordinary least squares simply by expanding the feature matrix, which is exactly what <code class="ic">PolynomialFeatures</code> and <code class="ic">SplineTransformer</code> do.</p>
+        </div>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">three ways to fit the same model, and why they differ</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">import numpy as np
+rng = np.random.default_rng(0)
+
+n, p = 500, 4
+X = np.c_[np.ones(n), rng.normal(size=(n, p))]
+X[:, 2] = X[:, 1] + 1e-6 * rng.normal(size=n)      # near-perfect collinearity
+w_true = np.array([1.0, 2.0, -1.0, 0.5, 3.0])
+y = X @ w_true + rng.normal(scale=0.5, size=n)
+
+# 1) Textbook closed form — mathematically correct, numerically fragile
+w_inv = np.linalg.inv(X.T @ X) @ X.T @ y
+
+# 2) Solve the normal equations without forming an explicit inverse — better
+w_solve = np.linalg.solve(X.T @ X, X.T @ y)
+
+# 3) SVD-based least squares on X directly — what sklearn actually does
+w_lstsq = np.linalg.lstsq(X, y, rcond=None)[0]
+
+print("cond(X)     =", f"{np.linalg.cond(X):.2e}")
+print("cond(X.T@X) =", f"{np.linalg.cond(X.T @ X):.2e}")   # ~ the SQUARE — digits lost here
+for name, w in [("inv", w_inv), ("solve", w_solve), ("lstsq", w_lstsq)]:
+    print(f"{name:6s} residual norm {np.linalg.norm(y - X @ w):.6f}")
+# All three fit similarly here, but the coefficients from `inv` are the least
+# trustworthy — and with worse conditioning it is the first to produce nonsense.
+</code></pre>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Derive the normal equation, and say why you'd avoid computing <code class="ic">(XᵀX)⁻¹</code>.</summary>
+              <div class="ans"><p>Minimise <code class="ic">(Xw−y)ᵀ(Xw−y)</code>; the gradient is <code class="ic">2Xᵀ(Xw−y)</code>; setting it to zero gives <code class="ic">XᵀXw = Xᵀy</code>, so <code class="ic">w = (XᵀX)⁻¹Xᵀy</code>. Three reasons not to compute it that way: it's <b>singular</b> under perfect collinearity; it costs <code class="ic">O(p³)</code>; and critically, <b>forming <code class="ic">XᵀX</code> squares the condition number</b>, so you lose roughly half your significant digits before solving. Use <b>QR or SVD on X directly</b> — which is what <code class="ic">lstsq</code>, and therefore sklearn, actually does.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Is a model with x² and log(x) terms still a linear model?</summary>
+              <div class="ans"><p><b>Yes.</b> "Linear" refers to linearity in the <b>parameters</b>, not the features — <code class="ic">y = w₀ + w₁x + w₂x² + w₃log(x)</code> is linear in <code class="ic">w</code>, which is all least squares needs. That's why you can fit arbitrary curves, interactions and splines by expanding the design matrix and still use OLS. A genuinely non-linear model would be something like <code class="ic">y = w₀·x^{w₁}</code>, where a parameter appears in an exponent.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What's the geometric interpretation of least squares?</summary>
+              <div class="ans"><p><code class="ic">Xŵ</code> is the <b>orthogonal projection of y onto the column space of X</b> — the closest point in the space your features can reach. The residual vector is therefore <b>perpendicular to every column of X</b>, which is exactly what the normal equations <code class="ic">Xᵀ(y − Xŵ) = 0</code> state. Two immediate consequences: residuals sum to zero whenever an intercept is included (since the intercept is a column of ones), and residuals are uncorrelated with every fitted feature — which is why a <em>pattern</em> in a residual plot always signals a missing structure rather than a fitting failure.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.2 ===== -->
+      <article class="topic" id="c5-2">
+        <h3><span class="tn">5.2</span> The assumptions, one by one <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">&ldquo;State the assumptions of linear regression&rdquo; is asked constantly and answered badly. Here is each one with <strong>what it means, what breaks when it fails, how you detect it, and what you do about it</strong> — which is the answer that finishes the question.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Break an assumption and watch the residual plot</div>
+          <div class="wbody">
+            <canvas id="asCanvas" width="720" height="310" aria-label="A scatter plot of data with a fitted line, alongside a residual-versus-fitted plot and a normal quantile-quantile plot, all updating as different linear regression assumptions are deliberately violated."></canvas>
+            <div class="wbtns" id="asBtns">
+              <button class="wbtn on" data-v="none">All assumptions hold</button>
+              <button class="wbtn" data-v="nonlin">Non-linearity</button>
+              <button class="wbtn" data-v="hetero">Heteroscedasticity</button>
+              <button class="wbtn" data-v="outlier">Influential outlier</button>
+              <button class="wbtn" data-v="autocorr">Correlated errors</button>
+              <button class="wbtn" data-v="skew">Non-normal errors</button>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="asSlope">—</span>fitted slope (true = 2.00)</div>
+              <div class="wcell"><span class="n" id="asSE">—</span>reported std. error</div>
+              <div class="wcell"><span class="n" id="asR2">—</span>R²</div>
+              <div class="wcell"><span class="n" id="asVerdict">—</span>what's damaged</div>
+            </div>
+            <div class="wout" id="asOut"></div>
+            <p class="wnote">Real OLS on real generated data. The point of the middle panel: <b>the residual-vs-fitted plot has a distinct signature for each violation</b>, which is why it is the first plot you draw. Note also what the numbers do — some violations bias the <em>coefficient</em>, others leave the coefficient fine and corrupt only the <em>standard error</em>. Knowing which is which is the substance of this section.</p>
+          </div>
+        </div>
+
+        <h4>The five assumptions</h4>
+
+        <div class="assump">
+          <div class="ah"><span class="an">A1</span> Linearity — the relationship really is linear in the parameters</div>
+          <div class="abody">
+            <div class="arow"><div class="al">Means</div><div class="av"><code class="ic">E[y|X] = Xw</code>. The conditional mean is a linear combination of your features (which may themselves be non-linear transforms).</div></div>
+            <div class="arow brk"><div class="al">What breaks</div><div class="av"><b>Biased predictions and biased coefficients.</b> This is the only violation that makes the model <em>wrong</em> rather than merely inefficient — you are estimating the best linear approximation to something that isn't linear, and it will be systematically off in whole regions of the feature space.</div></div>
+            <div class="arow"><div class="al">Detect</div><div class="av"><b>Residual vs fitted plot</b> showing curvature; partial-residual (component-plus-residual) plots per feature; a RESET test; or simply comparing against a GBM — if a tree model beats your linear one by a lot, you're missing structure.</div></div>
+            <div class="arow fix"><div class="al">Fix</div><div class="av">Add polynomial terms, <b>splines</b> (<code class="ic">SplineTransformer</code> — usually better behaved than high-degree polynomials), interactions, or transform the target. Or accept it and use a non-linear model.</div></div>
+          </div>
+        </div>
+
+        <div class="assump">
+          <div class="ah"><span class="an">A2</span> Independence of errors — no autocorrelation or clustering</div>
+          <div class="abody">
+            <div class="arow"><div class="al">Means</div><div class="av"><code class="ic">Cov(εᵢ, εⱼ) = 0</code> for <code class="ic">i ≠ j</code>. Each observation contributes independent information.</div></div>
+            <div class="arow brk"><div class="al">What breaks</div><div class="av">Coefficients stay <b>unbiased</b>, but <b>standard errors are badly wrong</b> — usually far too small, because your <em>effective</em> sample size is much less than <code class="ic">n</code>. Every p-value and confidence interval is then overconfident. In ML terms: your <b>cross-validation is optimistic</b> for exactly the same reason (§3.6).</div></div>
+            <div class="arow"><div class="al">Detect</div><div class="av">Residuals plotted <b>in time order</b> showing runs or waves; the Durbin-Watson statistic (≈2 is fine, &lt;1.5 or &gt;2.5 suspicious); an ACF plot of residuals; or knowing structurally that rows are nested (many rows per customer).</div></div>
+            <div class="arow fix"><div class="al">Fix</div><div class="av"><b>Cluster-robust standard errors</b>; add lag features or model the time structure explicitly; use a mixed-effects model for nesting; and for ML purposes, <b>GroupKFold or TimeSeriesSplit</b>.</div></div>
+          </div>
+        </div>
+
+        <div class="assump">
+          <div class="ah"><span class="an">A3</span> Homoscedasticity — constant error variance</div>
+          <div class="abody">
+            <div class="arow"><div class="al">Means</div><div class="av"><code class="ic">Var(ε|X) = σ²</code>, the same everywhere. Errors on large predictions are no bigger than errors on small ones.</div></div>
+            <div class="arow brk"><div class="al">What breaks</div><div class="av">Coefficients stay <b>unbiased but inefficient</b> (no longer minimum-variance), and <b>standard errors are wrong</b> — so inference is unreliable. Prediction <em>intervals</em> are also wrong, being too wide where variance is low and too narrow where it is high, which is often exactly where the expensive mistakes are.</div></div>
+            <div class="arow"><div class="al">Detect</div><div class="av">The classic <b>fan or cone shape</b> in the residual-vs-fitted plot; a scale-location plot (√|standardised residual| vs fitted) with a rising trend; Breusch-Pagan or White's test.</div></div>
+            <div class="arow fix"><div class="al">Fix</div><div class="av"><b>Robust (heteroscedasticity-consistent) standard errors</b> — HC3 — if you only need valid inference; a <b>log or Box-Cox transform</b> of the target; weighted least squares if you know the variance structure; or a <b>GLM with a variance function that matches</b> (Gamma or Tweedie, §5.8), which is usually the principled answer when variance grows with the mean.</div></div>
+          </div>
+        </div>
+
+        <div class="assump">
+          <div class="ah"><span class="an">A4</span> Normality of errors — <em>only needed for inference</em></div>
+          <div class="abody">
+            <div class="arow"><div class="al">Means</div><div class="av"><code class="ic">ε ~ N(0, σ²)</code>. Note this is about the <b>residuals</b>, not about <code class="ic">y</code> or the features — a very common confusion.</div></div>
+            <div class="arow brk"><div class="al">What breaks</div><div class="av"><b>Nothing, for prediction.</b> Gauss-Markov gives you BLUE (best linear unbiased estimator) without it. Normality is needed for <b>exact</b> t- and F-tests and confidence intervals in small samples — and by the CLT even that requirement fades as <code class="ic">n</code> grows. <b>This is the assumption most candidates over-weight.</b></div></div>
+            <div class="arow"><div class="al">Detect</div><div class="av"><b>Q-Q plot</b> of residuals (points off the diagonal in the tails), a histogram, Shapiro-Wilk — though with large <code class="ic">n</code> every normality test rejects, so read the plot rather than the p-value.</div></div>
+            <div class="arow fix"><div class="al">Fix</div><div class="av">Usually <b>do nothing</b> if you only care about prediction. If you need inference: transform the target, use <b>bootstrap</b> confidence intervals (assumption-free), or switch to a GLM with the right family. Heavy tails often really mean <em>outliers</em> (A5) or a <em>missing feature</em> (A1).</div></div>
+          </div>
+        </div>
+
+        <div class="assump">
+          <div class="ah"><span class="an">A5</span> No perfect multicollinearity — and no high leverage you haven't noticed</div>
+          <div class="abody">
+            <div class="arow"><div class="al">Means</div><div class="av">No feature is an exact linear combination of the others, so <code class="ic">XᵀX</code> is invertible and the coefficients are identified.</div></div>
+            <div class="arow brk"><div class="al">What breaks</div><div class="av"><b>Perfect</b> collinearity: no unique solution at all. <b>Near</b>-collinearity: coefficients remain unbiased but their <b>variance explodes</b> — signs flip between refits, magnitudes swing wildly, and individual t-tests become insignificant while the model as a whole is highly significant. <b>Predictions are usually fine; interpretation is destroyed.</b></div></div>
+            <div class="arow"><div class="al">Detect</div><div class="av"><b>VIF = 1/(1−R²ⱼ)</b> above ~5–10; correlation matrix; the condition number of X; the tell-tale pattern of a high overall F-statistic with no individually significant coefficients (§5.4).</div></div>
+            <div class="arow fix"><div class="al">Fix</div><div class="av">Drop one of the pair, combine them into a ratio or index, use PCA, or use <b>Ridge</b> — which re-conditions the problem directly by adding <code class="ic">αI</code>. Also check <b>leverage and Cook's distance</b> for single points with outsized influence (§5.3).</div></div>
+          </div>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The two facts that separate a strong answer</span>
+          <p><b>(1) Normality is for inference, not prediction.</b> If you're building a predictive model and someone asks whether your residuals are normal, the correct answer is that it doesn't affect the prediction — it affects the p-values you probably aren't using. <b>(2) Only violated linearity biases the coefficients.</b> Autocorrelation and heteroscedasticity leave the estimates unbiased and corrupt the <em>uncertainty</em>. Knowing which failures cost you accuracy and which cost you only inference is the substance of the question, and almost nobody separates them.</p>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The one nobody lists: exogeneity</span>
+          <p>Strictly, the assumption that makes OLS <b>unbiased</b> is <code class="ic">E[ε|X] = 0</code> — the errors are uncorrelated with the features. Omitted-variable bias, measurement error in a feature, and simultaneity all violate it, and no residual plot will reveal it because the residuals are orthogonal to X <em>by construction</em>. It is invisible to diagnostics and only addressable by design — which is precisely the gap that instrumental variables and the rest of §16.4 exist to fill. Mentioning it marks you out.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ State the assumptions of linear regression and what breaks when each fails.</summary>
+              <div class="ans"><p><b>Linearity</b> — fails ⇒ <b>biased predictions and coefficients</b>, visible as curvature in the residual plot; fix with splines, polynomials, interactions, or a non-linear model. <b>Independent errors</b> — fails with time or clustered data ⇒ coefficients unbiased but <b>standard errors far too small</b>; detect with residuals in time order or Durbin-Watson; fix with cluster-robust SEs, lag features, or GroupKFold/TimeSeriesSplit for ML. <b>Homoscedasticity</b> — fails ⇒ unbiased but <b>inefficient</b>, wrong SEs and wrong prediction intervals; detect via a fan shape or Breusch-Pagan; fix with robust SEs, a log transform, WLS, or a GLM with the right variance function. <b>Normality of residuals</b> — needed only for <b>exact inference in small samples</b>, not for prediction; detect with a Q-Q plot; usually do nothing, or bootstrap. <b>No perfect multicollinearity</b> — fails ⇒ no unique solution; near-failure inflates coefficient variance so signs flip; detect with VIF &gt; 5–10; fix by dropping, combining, or using Ridge. And the one people miss: <b>exogeneity</b>, <code class="ic">E[ε|X]=0</code>, which is what actually makes OLS unbiased and is invisible to every diagnostic.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Do the residuals need to be normally distributed?</summary>
+              <div class="ans"><p>Only if you need <b>exact inference</b> — t-tests, F-tests and confidence intervals in small samples. For <b>prediction</b> it doesn't matter at all: Gauss-Markov gives you the best linear unbiased estimator using only linearity, exogeneity, homoscedasticity and no perfect collinearity — normality is nowhere in it. And by the CLT, even the inference requirement fades as <code class="ic">n</code> grows. Two clarifications worth adding: the assumption is about the <b>residuals</b>, not <code class="ic">y</code> or the features; and heavy-tailed residuals usually signal an <b>outlier</b> or a <b>missing feature</b> rather than a genuine distributional problem.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debugging</span>Your residual plot shows a clear fan shape. What is it, and does it matter?</summary>
+              <div class="ans"><p><b>Heteroscedasticity</b> — error variance grows with the fitted value, which is extremely common for positive, right-skewed targets like spend or claim amounts. Consequences: coefficients stay <b>unbiased</b>, but they're no longer minimum-variance and the <b>standard errors are wrong</b>, so inference is unreliable — and prediction intervals are too narrow exactly where the values are largest. Fixes in order of preference: a <b>GLM with a matching variance function</b> (Gamma or Tweedie with a log link) since variance genuinely scales with the mean; a log transform of the target; robust HC3 standard errors if I only need valid inference; or weighted least squares if I know the variance structure.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debugging</span>Residuals show a clear wave pattern when plotted in time order. What's the problem?</summary>
+              <div class="ans"><p><b>Autocorrelation</b> — the errors aren't independent, so consecutive observations carry overlapping information. The coefficients remain unbiased, but the effective sample size is much smaller than <code class="ic">n</code>, so <b>standard errors are far too small</b> and everything looks more significant than it is. Confirm with Durbin-Watson (≈2 fine, &lt;1.5 suspicious) or an ACF plot of residuals. Fix by modelling the time structure (lags, seasonal terms), using cluster/HAC-robust standard errors, or — for the ML version of the same problem — switching from random CV to <b>TimeSeriesSplit with a gap</b>, because a random split is optimistic for exactly this reason.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Which assumption violations bias the coefficients, and which only affect inference?</summary>
+              <div class="ans"><p><b>Bias the coefficients:</b> violated <b>linearity</b> (you're fitting the wrong functional form) and violated <b>exogeneity</b> (<code class="ic">E[ε|X] ≠ 0</code> — omitted variables, measurement error, simultaneity). <b>Leave coefficients unbiased but corrupt inference:</b> <b>heteroscedasticity</b> and <b>autocorrelation</b>, both of which make standard errors wrong while the point estimates stay centred on the truth. <b>Neither, exactly:</b> non-normal residuals, which affect only small-sample exact tests. <b>Multicollinearity</b> is its own case — unbiased but enormously high variance, so individual coefficients become unreliable while predictions stay fine. Separating these four cases is what makes the answer sound like you've used the model rather than read about it.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.3 ===== -->
+      <article class="topic" id="c5-3">
+        <h3><span class="tn">5.3</span> Residual diagnostics <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Four plots, each with a distinct signature. Being able to name the plot <em>and</em> what a bad one looks like is the practical half of §5.2.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 300" role="img" aria-label="Four diagnostic plots: residuals versus fitted showing random scatter or curvature, a scale-location plot for heteroscedasticity, a normal quantile-quantile plot for tail behaviour, and a residuals versus leverage plot with Cook's distance contours.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the four-plot panel — draw these before you interpret a single coefficient</text>
+              <g font-size="10">
+                <g transform="translate(24,40)">
+                  <rect width="150" height="100" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <line x1="10" y1="50" x2="140" y2="50" stroke="#5A6472" stroke-dasharray="3 3"/>
+                  <g fill="#7fd6a0"><circle cx="24" cy="40" r="2.4"/><circle cx="38" cy="60" r="2.4"/><circle cx="52" cy="44" r="2.4"/><circle cx="66" cy="62" r="2.4"/><circle cx="80" cy="38" r="2.4"/><circle cx="94" cy="57" r="2.4"/><circle cx="108" cy="46" r="2.4"/><circle cx="122" cy="54" r="2.4"/><circle cx="46" cy="52" r="2.4"/><circle cx="100" cy="42" r="2.4"/></g>
+                  <text x="75" y="92" fill="#7fd6a0" text-anchor="middle">random scatter ✓</text>
+                </g>
+                <text x="24" y="158" fill="#fff" font-size="10.5">1 · Residuals vs Fitted</text>
+                <text x="24" y="174" fill="#c2cad6">Curvature ⇒ non-linearity.</text>
+                <text x="24" y="188" fill="#c2cad6">Fan ⇒ heteroscedasticity.</text>
+                <text x="24" y="202" fill="#8892a0">The first plot you draw.</text>
+
+                <g transform="translate(196,40)">
+                  <rect width="150" height="100" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <path d="M14 82 C 50 74, 90 56, 136 34" fill="none" stroke="#E0920C" stroke-width="1.6"/>
+                  <g fill="#f0c274"><circle cx="24" cy="80" r="2.2"/><circle cx="48" cy="72" r="2.2"/><circle cx="72" cy="64" r="2.2"/><circle cx="96" cy="50" r="2.2"/><circle cx="120" cy="40" r="2.2"/><circle cx="60" cy="76" r="2.2"/><circle cx="108" cy="52" r="2.2"/></g>
+                  <text x="75" y="92" fill="#f0c274" text-anchor="middle">rising ⇒ variance grows</text>
+                </g>
+                <text x="196" y="158" fill="#fff" font-size="10.5">2 · Scale-Location</text>
+                <text x="196" y="174" fill="#c2cad6">√|standardised resid| vs fitted.</text>
+                <text x="196" y="188" fill="#c2cad6">A rising trend is the cleanest</text>
+                <text x="196" y="202" fill="#8892a0">heteroscedasticity signal.</text>
+
+                <g transform="translate(368,40)">
+                  <rect width="150" height="100" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <line x1="14" y1="88" x2="136" y2="14" stroke="#5A6472" stroke-dasharray="3 3"/>
+                  <path d="M18 96 C 40 74, 70 52, 100 32 C 112 24, 124 8, 132 2" fill="none" stroke="#5560D8" stroke-width="1.8"/>
+                  <text x="75" y="92" fill="#98a0f0" text-anchor="middle">S-curve ⇒ heavy tails</text>
+                </g>
+                <text x="368" y="158" fill="#fff" font-size="10.5">3 · Normal Q-Q</text>
+                <text x="368" y="174" fill="#c2cad6">Points off the line in the tails</text>
+                <text x="368" y="188" fill="#c2cad6">⇒ non-normal residuals.</text>
+                <text x="368" y="202" fill="#8892a0">Matters for inference only.</text>
+
+                <g transform="translate(540,40)">
+                  <rect width="136" height="100" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <path d="M100 6 C 118 30, 124 60, 128 94" fill="none" stroke="#C0392B" stroke-width="1.4" stroke-dasharray="3 2"/>
+                  <g fill="#c2cad6"><circle cx="24" cy="52" r="2.2"/><circle cx="36" cy="44" r="2.2"/><circle cx="48" cy="58" r="2.2"/><circle cx="60" cy="48" r="2.2"/><circle cx="72" cy="56" r="2.2"/></g>
+                  <circle cx="116" cy="22" r="4.5" fill="#C0392B"/>
+                  <text x="68" y="92" fill="#e0a3a8" text-anchor="middle">one point past the contour</text>
+                </g>
+                <text x="540" y="158" fill="#fff" font-size="10.5">4 · Residuals vs Leverage</text>
+                <text x="540" y="174" fill="#c2cad6">Cook's distance contours.</text>
+                <text x="540" y="188" fill="#c2cad6">A point beyond them alone</text>
+                <text x="540" y="202" fill="#8892a0">moves the whole fit.</text>
+
+                <rect x="24" y="220" width="652" height="62" rx="8" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="242" fill="#98a0f0" font-size="10.5"><tspan font-weight="600">Leverage</tspan> = how unusual a point's <tspan font-style="italic">features</tspan> are (h_ii, the hat-matrix diagonal). <tspan font-weight="600">Influence</tspan> = how much removing it would move the fit.</text>
+                <text x="40" y="262" fill="#98a0f0" font-size="10.5">High leverage alone is harmless if the point follows the trend. <tspan font-weight="600" fill="#fff">Cook's distance combines both</tspan> — that's the number to check; &gt; 4/n or &gt; 1 deserves a look.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Leverage vs influence is the distinction people fumble.</b> A point far out in feature space has high <b>leverage</b> — it has the <em>potential</em> to move the fit. It only actually moves it if its residual is also large. <b>Cook's distance</b> multiplies the two, which is why it's the single number to look at rather than either component alone.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>Which diagnostic plots do you look at, and what does each tell you?</summary>
+              <div class="ans"><p><b>Residuals vs fitted</b> — the first one: curvature means non-linearity, a fan means heteroscedasticity, random scatter means you're fine. <b>Scale-location</b> (√|standardised residual| vs fitted) — the cleanest heteroscedasticity signal, because it removes the sign. <b>Normal Q-Q</b> — tails off the diagonal mean non-normal residuals, which matters for inference only. <b>Residuals vs leverage with Cook's distance</b> — finds single points that are moving the whole fit. For time-structured data I'd add residuals plotted <b>in time order</b>, which is the only way to see autocorrelation.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What's the difference between leverage, outlier and influence?</summary>
+              <div class="ans"><p>An <b>outlier</b> has a large <em>residual</em> — it's far from the fitted line in the y direction. <b>Leverage</b> measures how unusual a point's <em>features</em> are (the hat-matrix diagonal <code class="ic">h_ii</code>) — it's about x, not y, and it quantifies the <em>potential</em> to move the fit. <b>Influence</b> is the actual effect: how much the fit changes if you delete the point. A high-leverage point that follows the trend has little influence; a high-leverage point <em>with</em> a large residual has enormous influence. <b>Cook's distance</b> combines both, which is why it's the practical number — flag anything above roughly <code class="ic">4/n</code>, and investigate rather than automatically delete.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.4 ===== -->
+      <article class="topic" id="c5-4">
+        <h3><span class="tn">5.4</span> Multicollinearity &amp; VIF <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The assumption violation with the most counter-intuitive consequences: your predictions are fine, your coefficients are nonsense, and your F-test disagrees with all your t-tests.</p>
+
+        <h4>The tell-tale signature</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Symptom</th><th>Why it happens</th></tr></thead>
+            <tbody>
+              <tr><td>High overall F-statistic, <b>no individually significant coefficients</b></td><td>The features jointly explain a lot; individually none is identifiable, because another feature can substitute for it</td></tr>
+              <tr><td>Coefficient <b>signs flip</b> when you add or remove a feature</td><td>The loss surface is a flat valley — many coefficient combinations fit almost equally well (§2.1)</td></tr>
+              <tr><td>Enormous standard errors</td><td><code class="ic">Var(β̂ⱼ) = σ²/((1−R²ⱼ)·Σ(xⱼ−x̄ⱼ)²)</code> — the <code class="ic">(1−R²ⱼ)</code> in the denominator <em>is</em> the VIF</td></tr>
+              <tr><td>Coefficients change wildly between CV folds</td><td>Same cause; and it's a good practical detector even without computing VIF</td></tr>
+              <tr><td>A coefficient with an economically <b>implausible sign</b></td><td>Classic with correlated pairs: one absorbs the effect and pushes the other negative</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><b>VIF</b> for feature <em>j</em> is <code class="ic">1/(1 − R²ⱼ)</code>, where <code class="ic">R²ⱼ</code> comes from regressing <code class="ic">xⱼ</code> on all the <em>other</em> features. It is literally the factor by which that coefficient's variance is inflated relative to an uncorrelated world. VIF = 10 means <code class="ic">R²ⱼ = 0.9</code> and the standard error is <code class="ic">√10 ≈ 3.2×</code> larger. Rules of thumb: &gt; 5 worth a look, &gt; 10 a problem — but these are conventions, not thresholds.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Does it matter? Ask what the model is <em>for</em></span>
+          <p>For <b>prediction</b>, multicollinearity is usually a non-issue: the fitted values are stable even when the individual coefficients aren't, because the correlated features move together in new data too. For <b>inference or explanation</b> it's fatal — you cannot say &ldquo;a one-unit increase in X raises y by β&rdquo; when X never moves alone in your data. So the correct answer to &ldquo;does multicollinearity hurt?&rdquo; is <em>&ldquo;it depends what you're using the model for&rdquo;</em>, and then give both halves. One caveat for prediction: if the correlation structure <b>changes</b> in production, unstable coefficients become unstable predictions.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is multicollinearity, how do you detect it, and does it hurt predictions or interpretation?</summary>
+              <div class="ans"><p>Two or more features carrying near-identical information, so <code class="ic">XᵀX</code> becomes ill-conditioned and the loss surface has a long flat valley. <b>Detect:</b> correlation matrix, condition number, and <b>VIF = 1/(1−R²ⱼ)</b> above ~5–10 — plus the signature of a high overall F-statistic with no individually significant coefficients, and signs that flip between refits. <b>Does it hurt?</b> It inflates coefficient <b>variance</b>, so it destroys <b>interpretation and stability</b> while usually leaving <b>predictions fine</b> — the correlated features move together in new data too. Caveat: if the correlation structure changes in production, the predictions become unstable as well. <b>Fixes:</b> drop one, combine into a ratio, PCA, or Ridge, which re-conditions the problem by adding <code class="ic">αI</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your F-test is highly significant but no coefficient is. What's going on?</summary>
+              <div class="ans"><p>The classic multicollinearity signature. The F-test asks whether the features <b>jointly</b> explain variance — they do. Each t-test asks whether a feature adds anything <b>given all the others</b> — and when two features are near-duplicates, neither adds anything the other doesn't already provide, so both look insignificant. The information is there; it just can't be attributed. Check VIFs, and note this is a good example of why you should never do feature selection by dropping individually-insignificant coefficients one at a time.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Would you use VIF on a gradient boosting model?</summary>
+              <div class="ans"><p>Not for the same reason. Trees don't solve a linear system, so there's no coefficient variance to inflate and no numerical instability — a GBM handles correlated features without complaint. But correlation still matters for <b>interpretation</b>: permutation importance and SHAP both split credit unpredictably between correlated features, so two genuinely important features can each look unimportant (§14.3). So I'd compute correlations to <em>inform how I read the explanations</em>, and potentially drop redundant features for latency and stability reasons — not because the model needs it.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.5 ===== -->
+      <article class="topic" id="c5-5">
+        <h3><span class="tn">5.5</span> R², adjusted R² and friends</h3>
+        <p class="lead">A metric everybody quotes and few can criticise. Three facts about it are commonly asked and commonly missed.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Fact</th><th>Why</th><th>What to do instead</th></tr></thead>
+            <tbody>
+              <tr><td><b>R² never decreases when you add a feature</b></td><td>Adding a column can only enlarge the space the fit is chosen from, so RSS can't rise — and least squares will exploit chance correlation to do slightly better even with pure noise</td><td><b>Adjusted R²</b>, which penalises <code class="ic">p</code>: <code class="ic">1 − (1−R²)(n−1)/(n−p−1)</code>, or a held-out score</td></tr>
+              <tr><td><b>Test-set R² can be negative</b></td><td>It's <code class="ic">1 − SS_res/SS_tot</code> using the <em>training</em> mean as the baseline; a model worse than predicting that mean scores below zero</td><td>Report it anyway — a negative test R² is a useful, loud signal</td></tr>
+              <tr><td><b>R² is not comparable across datasets</b></td><td>It depends on the variance of <code class="ic">y</code> in that sample. A high-noise target caps R² regardless of model quality</td><td>Compare models on the <em>same</em> data; use RMSE in target units for communication</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Anscombe's quartet, in one sentence</span>
+          <p>Four datasets with <b>identical</b> means, variances, correlations, regression lines and R² — and radically different shapes, one of which is entirely driven by a single outlier. It is the canonical argument for <em>plotting your data</em> before trusting any summary statistic, and it's a nice thing to name if a discussion of R² starts going in circles.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why does R² always increase when you add a feature? What do you use instead?</summary>
+              <div class="ans"><p>An extra column can only enlarge the space the fit is chosen from, so the residual sum of squares cannot increase — and with a column of pure noise, least squares will still exploit chance correlation to reduce RSS slightly. Use <b>adjusted R²</b>, which penalises the parameter count, or better, a <b>held-out score</b>. Two follow-on facts worth volunteering: <b>test R² can be negative</b> (a model worse than predicting the training mean), and R² is <b>not comparable across datasets</b> because it depends on the variance of <code class="ic">y</code> in that particular sample.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Model A has R² = 0.85 on dataset 1, model B has R² = 0.45 on dataset 2. Which is better?</summary>
+              <div class="ans"><p>Unanswerable as posed. R² measures the fraction of that dataset's variance explained, so it's bounded by how much of the target is predictable in the first place — a noisy target caps R² no matter how good the model is. Dataset 2 might simply be harder. To compare, I'd need both models on the <b>same data</b>, or a scale-free comparison against a shared baseline — which is exactly what <b>MASE</b> does for forecasting (§10.6) and what "lift over baseline" does generally.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.6 ===== -->
+      <article class="topic" id="c5-6">
+        <h3><span class="tn">5.6</span> Ridge, Lasso and Elastic Net in practice <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The theory is in §4.4. This is what the coefficient paths look like, how you choose α, and the practicalities that come up.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="Coefficient paths as the regularization strength increases. For Ridge all coefficients shrink smoothly toward zero but never reach it. For Lasso coefficients hit exactly zero one by one, so the number of selected features falls in steps.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">coefficient paths — the picture that explains &ldquo;L1 selects, L2 shrinks&rdquo;</text>
+              <g>
+                <text x="176" y="44" fill="#98a0f0" font-size="11.5" text-anchor="middle">Ridge — smooth shrinkage</text>
+                <line x1="60" y1="240" x2="320" y2="240" stroke="#3a4453"/><line x1="60" y1="56" x2="60" y2="240" stroke="#3a4453"/>
+                <line x1="60" y1="160" x2="320" y2="160" stroke="#2c3542" stroke-dasharray="3 3"/>
+                <path d="M64 72 C 130 96, 220 138, 316 156" fill="none" stroke="#5560D8" stroke-width="2.2"/>
+                <path d="M64 100 C 140 118, 230 146, 316 158" fill="none" stroke="#8A5CD8" stroke-width="2.2"/>
+                <path d="M64 226 C 140 208, 230 176, 316 162" fill="none" stroke="#2E9E5B" stroke-width="2.2"/>
+                <path d="M64 196 C 140 188, 230 170, 316 161" fill="none" stroke="#E0920C" stroke-width="2.2"/>
+                <text x="324" y="156" fill="#8892a0" font-size="9.5">→ 0</text>
+                <text x="190" y="262" fill="#8892a0" font-size="10" text-anchor="middle">log α →   ·   nothing ever reaches exactly zero</text>
+                <text x="46" y="164" fill="#8892a0" font-size="9.5" text-anchor="end">0</text>
+              </g>
+              <g transform="translate(360,0)">
+                <text x="176" y="44" fill="#7fd6a0" font-size="11.5" text-anchor="middle">Lasso — features drop out</text>
+                <line x1="60" y1="240" x2="320" y2="240" stroke="#3a4453"/><line x1="60" y1="56" x2="60" y2="240" stroke="#3a4453"/>
+                <line x1="60" y1="160" x2="320" y2="160" stroke="#2c3542" stroke-dasharray="3 3"/>
+                <path d="M64 72 C 130 92, 220 128, 300 160 L316 160" fill="none" stroke="#5560D8" stroke-width="2.2"/>
+                <path d="M64 100 C 120 122, 180 152, 205 160 L316 160" fill="none" stroke="#8A5CD8" stroke-width="2.2"/>
+                <path d="M64 226 C 100 216, 130 172, 148 160 L316 160" fill="none" stroke="#2E9E5B" stroke-width="2.2"/>
+                <path d="M64 196 C 90 190, 108 168, 118 160 L316 160" fill="none" stroke="#E0920C" stroke-width="2.2"/>
+                <g fill="#F0A81E"><circle cx="118" cy="160" r="4"/><circle cx="148" cy="160" r="4"/><circle cx="205" cy="160" r="4"/><circle cx="300" cy="160" r="4"/></g>
+                <text x="118" y="182" fill="#f0c274" font-size="9" text-anchor="middle">↓4</text>
+                <text x="148" y="196" fill="#f0c274" font-size="9" text-anchor="middle">↓3</text>
+                <text x="205" y="182" fill="#f0c274" font-size="9" text-anchor="middle">↓2</text>
+                <text x="300" y="196" fill="#f0c274" font-size="9" text-anchor="middle">↓1</text>
+                <text x="190" y="262" fill="#8892a0" font-size="10" text-anchor="middle">log α →   ·   each dot is a feature hitting exactly zero</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Choosing α:</b> <code class="ic">RidgeCV</code> / <code class="ic">LassoCV</code> / <code class="ic">ElasticNetCV</code> over a log-spaced grid, then the <b>one-standard-error rule</b> — pick the <em>most regularized</em> model whose CV error is within one standard error of the best. It costs almost nothing in accuracy and buys a simpler, more stable model, and mentioning it is a cheap credibility win.</figcaption>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Practicality</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr><td><b>Standardise first</b></td><td>Non-negotiable — otherwise the penalty is applied in arbitrary units (§4.4). The intercept is not penalised.</td></tr>
+              <tr><td>sklearn's <code class="ic">alpha</code></td><td>Larger = more regularization for <code class="ic">Ridge</code>/<code class="ic">Lasso</code>. But <code class="ic">LogisticRegression</code> uses <code class="ic">C = 1/alpha</code>, so <b>smaller C = more regularization</b> — an inverted convention that catches people out.</td></tr>
+              <tr><td>Lasso path</td><td>Fitted by coordinate descent; <code class="ic">lars_path</code> gives the exact piecewise-linear path if you want to see where each feature enters.</td></tr>
+              <tr><td>Ridge with <code class="ic">p &gt; n</code></td><td>Works fine — the penalty makes the problem well-posed even when <code class="ic">XᵀX</code> is rank-deficient. Lasso caps out at <code class="ic">n</code> selected features.</td></tr>
+              <tr><td>Group Lasso</td><td>Zeroes whole <em>groups</em> of coefficients together — the right tool when one categorical's dummies should enter or leave as a unit.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>How do you choose α?</summary>
+              <div class="ans"><p>Cross-validation over a <b>log-spaced</b> grid — <code class="ic">RidgeCV</code>, <code class="ic">LassoCV</code>, <code class="ic">ElasticNetCV</code> do this efficiently, and Lasso's path algorithms make it nearly free. Then apply the <b>one-standard-error rule</b>: pick the most regularized model whose CV error is within one SE of the minimum, which costs almost nothing in accuracy and buys a simpler, more stable model. Two cautions: the CV must be inside a pipeline with the scaler, and if you tune α and then report that same CV score, it's optimistically biased (§11.3).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>In sklearn, does a larger C mean more or less regularization?</summary>
+              <div class="ans"><p><b>Less.</b> <code class="ic">LogisticRegression</code> and <code class="ic">SVC</code> use <code class="ic">C</code> as the <em>inverse</em> regularization strength, so small <code class="ic">C</code> means a strong penalty — the opposite convention to <code class="ic">alpha</code> in <code class="ic">Ridge</code> and <code class="ic">Lasso</code>, where larger means more. It's a genuine API inconsistency inherited from libsvm, and getting it backwards in a tuning grid is a common and embarrassing bug that produces a search over exactly the wrong region.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>You have 5,000 features and 300 rows. Which regularizer?</summary>
+              <div class="ans"><p><code class="ic">p ≫ n</code>, so unregularized OLS has no unique solution at all and something must constrain it. If I believe <b>few features matter</b>, Lasso — but note it can select at most <code class="ic">n</code> = 300 features by construction, and it will pick unstably among correlated ones. If I believe <b>many small effects</b>, Ridge, which handles <code class="ic">p &gt; n</code> gracefully and keeps everything. In practice I'd start with <b>Elastic Net</b>, which spans both and keeps correlated groups together, and I'd cross-validate <code class="ic">l1_ratio</code> alongside α. I'd also be honest that with 300 rows the CV estimate itself will be noisy, so I'd use repeated CV and report the spread.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.7 ===== -->
+      <article class="topic" id="c5-7">
+        <h3><span class="tn">5.7</span> Logistic regression <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The interpretability and calibration baseline. Credit scoring runs on it for reasons you should be able to state — and the coefficient interpretation is the thing people most often fumble.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Log-odds → odds ratio → probability</div>
+          <div class="wbody">
+            <canvas id="lgCanvas" width="720" height="250" aria-label="A sigmoid curve showing predicted probability against the linear predictor, with a marker at the current value and a tangent showing the local rate of change of probability."></canvas>
+            <div class="wctl">
+              <label>coefficient β for &ldquo;+1 year of account age&rdquo; · <b id="lgBVal">0.40</b>
+                <input type="range" id="lgB" min="-150" max="150" value="40" step="1">
+              </label>
+              <label>baseline log-odds (intercept) · <b id="lgAVal">-1.50</b>
+                <input type="range" id="lgA" min="-400" max="200" value="-150" step="1">
+              </label>
+              <label>feature value x · <b id="lgXVal">2.0</b>
+                <input type="range" id="lgX" min="-50" max="80" value="20" step="1">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="lgOdds">—</span>odds ratio exp(β)</div>
+              <div class="wcell"><span class="n" id="lgZ">—</span>log-odds z</div>
+              <div class="wcell"><span class="n" id="lgP">—</span>probability σ(z)</div>
+              <div class="wcell"><span class="n" id="lgSlope">—</span>dp/dx at this point</div>
+            </div>
+            <div class="wout" id="lgOut"></div>
+            <p class="wnote">The point this makes better than any sentence: <b>a logistic coefficient is constant in log-odds and wildly non-constant in probability</b>. Drag <code class="ic">x</code> to the tails and watch <code class="ic">dp/dx</code> collapse toward zero while the odds ratio never moves. That is why &ldquo;a one-unit increase raises the probability by β&rdquo; is wrong and &ldquo;multiplies the odds by exp(β)&rdquo; is right.</p>
+          </div>
+        </div>
+
+        <h4>The pipeline, and where each term attaches</h4>
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="The logistic pipeline: features combine linearly into a log-odds score, the logit link maps it to a probability through the sigmoid, and a threshold turns the probability into a decision, with class weights shown as shifting the effective threshold.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">where each piece of vocabulary attaches</text>
+              <g font-size="10.5">
+                <rect x="24" y="52" width="128" height="52" rx="8" fill="#252D3A" stroke="#3a4453"/>
+                <text x="88" y="74" fill="#fff" text-anchor="middle">features x</text>
+                <text x="88" y="92" fill="#8892a0" text-anchor="middle">standardised</text>
+                <path d="M152 78 L186 78" stroke="#3a4453" stroke-width="1.5" marker-end="url(#p5a)"/>
+                <rect x="188" y="52" width="150" height="52" rx="8" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="263" y="74" fill="#98a0f0" text-anchor="middle">z = β₀ + βᵀx</text>
+                <text x="263" y="92" fill="#8892a0" text-anchor="middle"><tspan font-weight="600">log-odds</tspan> · unbounded</text>
+                <path d="M338 78 L372 78" stroke="#3a4453" stroke-width="1.5" marker-end="url(#p5a)"/>
+                <rect x="374" y="52" width="150" height="52" rx="8" fill="#3a2418" stroke="#E0920C"/>
+                <text x="449" y="74" fill="#f0c274" text-anchor="middle">p = σ(z) = 1/(1+e⁻ᶻ)</text>
+                <text x="449" y="92" fill="#8892a0" text-anchor="middle">probability · (0,1)</text>
+                <path d="M524 78 L558 78" stroke="#3a4453" stroke-width="1.5" marker-end="url(#p5a)"/>
+                <rect x="560" y="52" width="116" height="52" rx="8" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="618" y="74" fill="#7fd6a0" text-anchor="middle">p &gt; t ⇒ act</text>
+                <text x="618" y="92" fill="#8892a0" text-anchor="middle">decision (§12.7)</text>
+
+                <rect x="24" y="130" width="314" height="98" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="152" fill="#fff">Interpreting β</text>
+                <text x="40" y="174" fill="#c2cad6">+1 unit of x ⇒ <tspan font-weight="600" fill="#F0A81E">z increases by β</tspan></text>
+                <text x="40" y="192" fill="#c2cad6">⇒ odds are <tspan font-weight="600" fill="#F0A81E">multiplied by exp(β)</tspan></text>
+                <text x="40" y="212" fill="#8892a0">β = 0.4 ⇒ odds ×1.49, i.e. +49% odds</text>
+
+                <rect x="360" y="130" width="316" height="98" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="376" y="152" fill="#fff">class_weight / threshold</text>
+                <text x="376" y="174" fill="#c2cad6">Up-weighting the positive class shifts the</text>
+                <text x="376" y="192" fill="#c2cad6">fitted intercept — the <tspan font-weight="600" fill="#7fd6a0">same</tspan> effect as</text>
+                <text x="376" y="210" fill="#c2cad6">lowering the threshold, but it also</text>
+                <text x="376" y="224" fill="#8892a0">decalibrates p. Prefer tuning t (§12.7).</text>
+              </g>
+              <defs><marker id="p5a" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#5A6472"/></marker></defs>
+            </svg>
+          </div>
+          <figcaption><b>Why not MSE as the loss?</b> Two reasons, and give both: with a sigmoid inside it, squared error is <b>non-convex</b> in the parameters so optimisation has no global guarantee; and log loss <em>is</em> the negative log-likelihood of the Bernoulli model, i.e. the MLE, so it has a principled justification MSE lacks. It also punishes confident wrong answers far harder, which is what you want from a probability.</figcaption>
+        </figure>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Why it survives in regulated industries</span>
+          <p>Three concrete reasons, worth having ready. <b>(1)</b> Each coefficient is a defensible, monotone, sign-interpretable contribution you can put in an <b>adverse-action notice</b>. <b>(2)</b> It is <b>nearly calibrated out of the box</b> when well-regularized, because log loss is a proper scoring rule and it optimises exactly that — so <code class="ic">predict_proba</code> can be used in an expected-value calculation with far less anxiety than a GBM's (§12.8). <b>(3)</b> It is trivial to monitor: coefficient drift is directly inspectable, and the model has no capacity to encode exotic interactions you haven't sanctioned.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Interpret a logistic regression coefficient. What is an odds ratio?</summary>
+              <div class="ans"><p>A one-unit increase in <code class="ic">x</code> raises the <b>log-odds</b> by β, equivalently <b>multiplies the odds by <code class="ic">exp(β)</code></b> — the odds ratio. β = 0.4 ⇒ odds ×1.49, a 49% increase in odds. The effect on the <b>probability</b> is <em>not</em> constant: it's <code class="ic">β·p(1−p)</code>, maximal near p = 0.5 and vanishing in the tails. That's the distinction people fumble — "raises the probability by 0.4" is simply wrong. Standardise features first if you want to compare coefficient magnitudes, and remember sklearn's <code class="ic">C</code> is the <em>inverse</em> penalty strength.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Why can't you use MSE as the loss for logistic regression?</summary>
+              <div class="ans"><p>Two reasons. Composed with a sigmoid, squared error is <b>non-convex</b> in the parameters, so gradient descent has no guarantee of reaching the global optimum. And log loss <em>is</em> the negative log-likelihood of the Bernoulli model — the MLE, and a proper scoring rule — so it produces well-behaved probabilities and has a principled derivation rather than being an arbitrary choice. There's a practical third: MSE barely penalises a confidently wrong prediction (the gradient vanishes as the sigmoid saturates), which is exactly the error you most want punished.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How is logistic regression fitted, given there's no closed form?</summary>
+              <div class="ans"><p>Iteratively. The classic statistical method is <b>IRLS</b> (iteratively reweighted least squares) — a Newton method, since the log-likelihood's Hessian is available in closed form. Modern libraries use quasi-Newton solvers (<code class="ic">lbfgs</code>, the sklearn default) or coordinate descent (<code class="ic">liblinear</code>, and <code class="ic">saga</code> for L1/elastic-net at scale). Because the loss is <b>convex</b>, all of them reach the same optimum — so different solvers changing your coefficients materially means a convergence failure or an under-tuned <code class="ic">max_iter</code>, not a modelling choice.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Multi-class: one-vs-rest or multinomial?</summary>
+              <div class="ans"><p><b>Multinomial</b> (softmax) by default. It optimises a single joint likelihood so the probabilities are normalised across classes and are usually <b>better calibrated</b>; OvR fits <code class="ic">k</code> independent binary models whose outputs must then be normalised post hoc, which distorts them. OvR is worth considering when you want independent per-class thresholds — for instance, when each class feeds a separate downstream decision with its own cost — or when classes are genuinely not mutually exclusive, in which case you actually want <b>multi-label</b> (§10.2) rather than either.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your logistic regression fails to converge and one coefficient is enormous. Why?</summary>
+              <div class="ans"><p>Almost certainly <b>perfect (or quasi-perfect) separation</b> — some feature or combination separates the classes exactly. The MLE then doesn't exist: the likelihood keeps improving as the coefficient goes to infinity, so the optimiser marches off and never converges. Causes: a leaked feature (§3.7), a categorical level that appears with only one class, or simply very few rows. Fixes: add <b>regularization</b> (any L2 penalty makes the solution finite and is why sklearn regularizes by default), use Firth's penalised likelihood, or merge/drop the offending level. Worth flagging that a perfectly separating feature is itself a leakage alarm.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.8 ===== -->
+      <article class="topic" id="c5-8">
+        <h3><span class="tn">5.8</span> GLMs — link functions and families <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A GLM is a linear model plus two choices: a <strong>distribution</strong> for the target and a <strong>link function</strong>. Knowing which pair to reach for is one of the clearest practical signals available.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Target looks like</th><th>Family</th><th>Link</th><th>Variance function</th><th>Real example</th></tr></thead>
+            <tbody>
+              <tr><td>Continuous, symmetric</td><td>Gaussian</td><td>identity</td><td><code class="ic">σ²</code> (constant)</td><td>Ordinary linear regression</td></tr>
+              <tr><td>Binary</td><td>Bernoulli</td><td>logit</td><td><code class="ic">μ(1−μ)</code></td><td>Default, churn, click</td></tr>
+              <tr><td><b>Counts</b></td><td><b>Poisson</b></td><td>log</td><td><code class="ic">μ</code></td><td>Claims per policy-year, visits per month</td></tr>
+              <tr><td>Counts, over-dispersed</td><td><b>Negative binomial</b></td><td>log</td><td><code class="ic">μ + μ²/k</code></td><td>The realistic version of the above (variance &gt; mean)</td></tr>
+              <tr><td>Positive, right-skewed</td><td><b>Gamma</b></td><td>log</td><td><code class="ic">μ²</code></td><td>Claim severity, time-to-repair, spend</td></tr>
+              <tr><td><b>Zero-inflated positive</b></td><td><b>Tweedie</b> (1&lt;p&lt;2)</td><td>log</td><td><code class="ic">μᵖ</code></td><td>Insurance pure premium — most policies claim £0, a few claim a lot</td></tr>
+              <tr><td>Proportions in (0,1)</td><td>Beta</td><td>logit</td><td><code class="ic">μ(1−μ)/(1+φ)</code></td><td>Rates and shares that aren't counts</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="A histogram of insurance claim amounts showing a large spike at zero and a long right tail, with a normal distribution overlaid to show why a Gaussian model is a bad fit and Tweedie is the right family.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">why &ldquo;just use linear regression&rdquo; fails on a claims target</text>
+              <line x1="60" y1="200" x2="660" y2="200" stroke="#3a4453" stroke-width="1.2"/>
+              <line x1="60" y1="46" x2="60" y2="200" stroke="#3a4453" stroke-width="1.2"/>
+              <rect x="62" y="56" width="26" height="144" fill="#E0920C" opacity="0.85"/>
+              <text x="75" y="46" fill="#f0c274" font-size="10" text-anchor="middle">88%</text>
+              <g fill="#3B45B5" opacity="0.55">
+                <rect x="120" y="160" width="22" height="40"/><rect x="146" y="150" width="22" height="50"/><rect x="172" y="162" width="22" height="38"/><rect x="198" y="172" width="22" height="28"/><rect x="224" y="178" width="22" height="22"/><rect x="250" y="184" width="22" height="16"/><rect x="276" y="187" width="22" height="13"/><rect x="302" y="190" width="22" height="10"/><rect x="328" y="192" width="22" height="8"/><rect x="354" y="193" width="22" height="7"/><rect x="380" y="194" width="22" height="6"/><rect x="406" y="195" width="22" height="5"/><rect x="432" y="196" width="22" height="4"/><rect x="470" y="196" width="22" height="4"/><rect x="520" y="197" width="22" height="3"/><rect x="590" y="197" width="22" height="3"/>
+              </g>
+              <path d="M150 200 C 230 200, 250 96, 330 96 C 410 96, 430 200, 510 200" fill="none" stroke="#e0a3a8" stroke-width="2" stroke-dasharray="5 4"/>
+              <text x="330" y="86" fill="#e0a3a8" font-size="10.5" text-anchor="middle">what a Gaussian model assumes</text>
+              <text x="98" y="130" fill="#f0c274" font-size="10.5">a point mass at zero</text>
+              <text x="470" y="176" fill="#98a0f0" font-size="10.5">a long, heavy right tail</text>
+              <text x="360" y="224" fill="#8892a0" font-size="10.5" text-anchor="middle">claim amount →</text>
+              <g font-size="10">
+                <rect x="440" y="52" width="230" height="66" rx="7" fill="#161b23" stroke="#2c3542"/>
+                <text x="452" y="72" fill="#7fd6a0">Tweedie (1 &lt; p &lt; 2) models exactly this:</text>
+                <text x="452" y="88" fill="#c2cad6">a Poisson number of Gamma-sized claims.</text>
+                <text x="452" y="106" fill="#8892a0">Or split it: frequency × severity.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The link does two jobs.</b> It maps the linear predictor onto the target's valid range (a log link guarantees positive predictions; a logit link guarantees (0,1)), <em>and</em> it makes the effects <b>multiplicative</b> rather than additive — which is usually the right structure for rates and amounts. A Gaussian model on claims predicts negative claim amounts, which is not a rounding problem but a modelling error.</figcaption>
+        </figure>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">You don't have to give up trees to keep the right loss</span>
+          <p><code class="ic">XGBoost</code> and <code class="ic">LightGBM</code> both ship <b>Poisson, Gamma and Tweedie objectives</b>, and sklearn has <code class="ic">PoissonRegressor</code>, <code class="ic">GammaRegressor</code> and <code class="ic">TweedieRegressor</code> plus <code class="ic">HistGradientBoostingRegressor(loss="poisson")</code>. So the choice of <em>distributional family</em> is genuinely independent of the choice between a linear model and a GBM — and using a GBM with a squared-error loss on a claims target is leaving accuracy on the table for no reason.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>When would you reach for a GLM — Poisson or Tweedie — instead of linear regression?</summary>
+              <div class="ans"><p>When you know the target's <b>distribution</b> and it isn't Gaussian. <b>Poisson</b> (log link) for counts; <b>negative binomial</b> when counts are over-dispersed (variance &gt; mean, which is the usual real case); <b>Gamma</b> for positive right-skewed amounts like claim severity; <b>Tweedie</b> for zero-inflated positive targets like insurance pure premium. You get non-negative predictions, a correct variance function (so heteroscedasticity is handled by design rather than patched), multiplicative effects, and coefficients a regulator will accept. And you don't have to give up trees — XGBoost, LightGBM and sklearn's HistGB all support these objectives.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Why does insurance pricing use Tweedie rather than modelling claims directly?</summary>
+              <div class="ans"><p>Because pure premium — expected cost per policy — has a <b>point mass at zero</b> (most policies never claim) and a heavy right tail (a few claim a lot). A Gaussian model predicts negative premiums and fits the tail terribly. <b>Tweedie with 1 &lt; p &lt; 2</b> is exactly a compound Poisson-Gamma: a Poisson number of Gamma-distributed claims, which is the actual data-generating process. The alternative — and it's a good answer too — is to <b>decompose into frequency × severity</b>: a Poisson model for claim count and a Gamma model for size, multiplied. That's more interpretable and lets you diagnose which component is driving a change.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What does the link function actually do?</summary>
+              <div class="ans"><p>Two things. It maps the unbounded linear predictor <code class="ic">Xw</code> onto the target's <b>valid range</b> — a log link forces positive predictions, a logit link forces (0,1) — so the model can't produce impossible values. And it determines whether effects are <b>additive or multiplicative</b>: with a log link, a coefficient means "multiplies the expected value by <code class="ic">exp(β)</code>", which is usually the right structure for rates, counts and amounts. The <b>canonical</b> link for each family (logit for Bernoulli, log for Poisson) also gives nicer mathematical properties, though you're not obliged to use it.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 5.9 ===== -->
+      <article class="topic" id="c5-9">
+        <h3><span class="tn">5.9</span> Quantile &amp; robust regression</h3>
+        <p class="lead">Two more members of the linear family that solve problems the standard version cannot: asymmetric costs, and contaminated data.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Method</th><th>Loss</th><th>Estimates</th><th>Use when</th></tr></thead>
+            <tbody>
+              <tr><td><b>Quantile regression</b></td><td>Pinball at τ</td><td>The conditional <b>τ-quantile</b></td><td>Prediction intervals; asymmetric costs; you need the tail, not the average</td></tr>
+              <tr><td><b>Huber regression</b></td><td>Huber</td><td>A robust conditional mean</td><td>Outliers you can't clean but shouldn't ignore</td></tr>
+              <tr><td>RANSAC</td><td>Consensus on inliers</td><td>Fit on the inlier subset</td><td>Heavy contamination (&gt;20% bad points) with a clear inlier structure</td></tr>
+              <tr><td>Theil-Sen</td><td>Median of pairwise slopes</td><td>Very robust slope</td><td>Small data, high contamination; expensive above a few thousand rows</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Quantile regression gives you intervals for free</span>
+          <p>Fit at <code class="ic">τ = 0.05</code> and <code class="ic">τ = 0.95</code> and you have a 90% prediction interval that <b>adapts to the input</b> — wider where the data is noisy, narrower where it isn't. That's something a constant <code class="ic">±1.96σ</code> band cannot do. Two cautions: quantiles fitted independently can <b>cross</b> (the 95th below the 5th somewhere), so check monotonicity or use a method that enforces it; and the coverage is only as good as the model, which is exactly the gap <b>conformal prediction</b> closes with a distribution-free guarantee (§16.3).</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What is quantile regression and when would you use it?</summary>
+              <div class="ans"><p>It minimises the <b>pinball loss</b> at level τ, which recovers the conditional <b>τ-quantile</b> rather than the mean. Three uses: <b>prediction intervals</b> that adapt to the input (fit at 0.05 and 0.95); <b>asymmetric costs</b>, where over- and under-prediction aren't equally bad — the optimal τ is <code class="ic">c_under/(c_under+c_over)</code>; and <b>robustness</b>, since the median (τ=0.5) is insensitive to outliers. Cautions: independently fitted quantiles can cross, and the coverage is only as reliable as the model — conformal prediction gives you a distribution-free guarantee instead.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>You need prediction intervals. Quantile regression, bootstrap, or conformal?</summary>
+              <div class="ans"><p>Depends what guarantee you need. <b>Quantile regression</b> is cheap and gives adaptive, heteroscedasticity-aware intervals, but coverage relies on the model being right. <b>Bootstrap</b> captures uncertainty in the <em>parameters</em> but not the irreducible noise, so it typically under-covers for a new observation unless you add the residual distribution back. <b>Conformal prediction</b> gives a <b>finite-sample, distribution-free coverage guarantee</b> under exchangeability and wraps any model — which is why it's my default when the interval carries a real commitment (§16.3). The strongest practical answer is usually <b>conformalised quantile regression</b>: adaptive width from the quantile model, guaranteed coverage from the conformal wrapper.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 5 widgets ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function gauss(r){ var u=1-r(), v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+
+  /* ---------- 5.2 assumption violator ---------- */
+  var asCv=document.getElementById("asCanvas");
+  if(asCv){
+    var mode="none";
+    function build(v){
+      var r=rng(2024), n=120, xs=[], ys=[];
+      var prev=0;
+      for(var i=0;i<n;i++){
+        var x=-2+4*i/(n-1);
+        var mu=1+2*x, e;
+        if(v==="nonlin") mu = 1 + 2*x + 1.5*x*x - 2.0;
+        if(v==="hetero") e = (0.15+0.75*Math.abs(x))*gauss(r);
+        else if(v==="autocorr"){ prev = 0.92*prev + 0.45*gauss(r); e = prev; }
+        else if(v==="skew") e = 0.5*(Math.exp(0.7*Math.abs(gauss(r)))-1.3)*(r()<0.5?-0.35:1);
+        else e = 0.55*gauss(r);
+        xs.push(x); ys.push(mu+e);
+      }
+      if(v==="outlier"){ xs.push(3.6); ys.push(-6.5); }
+      return {xs:xs, ys:ys};
+    }
+    function ols(xs,ys){
+      var n=xs.length, sx=0, sy=0;
+      for(var i=0;i<n;i++){ sx+=xs[i]; sy+=ys[i]; }
+      var mx=sx/n, my=sy/n, sxy=0, sxx=0;
+      for(var i=0;i<n;i++){ sxy+=(xs[i]-mx)*(ys[i]-my); sxx+=(xs[i]-mx)*(xs[i]-mx); }
+      var b=sxy/sxx, a=my-b*mx;
+      var rss=0, tss=0;
+      for(var i=0;i<n;i++){ var e=ys[i]-(a+b*xs[i]); rss+=e*e; tss+=(ys[i]-my)*(ys[i]-my); }
+      var s2=rss/(n-2), se=Math.sqrt(s2/sxx);
+      return {a:a,b:b,se:se,r2:1-rss/tss,rss:rss};
+    }
+    function drawAS(){
+      var D=build(mode), F=ols(D.xs,D.ys);
+      var ctx=dpr(asCv), W=720, H=310; ctx.clearRect(0,0,W,H);
+      // panel 1: scatter + fit
+      var L=40,R=250,T=48,B=210;
+      var ymin=-8, ymax=8;
+      function px(x){ return L+(x+2.2)/6/1.05*(R-L); }
+      function py(y){ return B-(y-ymin)/(ymax-ymin)*(B-T); }
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace"; ctx.fillText("data + OLS fit", L, 34);
+      ctx.fillStyle="rgba(85,96,216,0.7)";
+      for(var i=0;i<D.xs.length;i++){ ctx.beginPath(); ctx.arc(px(D.xs[i]),py(D.ys[i]),2.6,0,6.3); ctx.fill(); }
+      ctx.strokeStyle="#F0A81E"; ctx.lineWidth=2.2; ctx.beginPath();
+      ctx.moveTo(px(-2.2), py(F.a+F.b*(-2.2))); ctx.lineTo(px(3.7), py(F.a+F.b*3.7)); ctx.stroke();
+      // panel 2: residuals vs fitted
+      var L2=286,R2=496,T2=48,B2=210, MID=(T2+B2)/2;
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L2,B2); ctx.lineTo(R2,B2); ctx.moveTo(L2,T2); ctx.lineTo(L2,B2); ctx.stroke();
+      ctx.strokeStyle="#5A6472"; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(L2,MID); ctx.lineTo(R2,MID); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle="#8892a0"; ctx.fillText("residuals vs fitted", L2, 34);
+      var fits=[], res=[];
+      for(var i=0;i<D.xs.length;i++){ var f=F.a+F.b*D.xs[i]; fits.push(f); res.push(D.ys[i]-f); }
+      var fmin=Math.min.apply(null,fits), fmax=Math.max.apply(null,fits);
+      var rmax=Math.max.apply(null,res.map(Math.abs));
+      for(var i=0;i<fits.length;i++){
+        var X=L2+(fits[i]-fmin)/(fmax-fmin+1e-9)*(R2-L2);
+        var Y=MID-(res[i]/(rmax*1.15))*((B2-T2)/2);
+        ctx.fillStyle= Math.abs(res[i])>rmax*0.8? "#C0392B" : "rgba(46,158,91,0.75)";
+        ctx.beginPath(); ctx.arc(X,Y,2.6,0,6.3); ctx.fill();
+      }
+      // panel 3: Q-Q
+      var L3=532,R3=690,T3=48,B3=210;
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L3,B3); ctx.lineTo(R3,B3); ctx.moveTo(L3,T3); ctx.lineTo(L3,B3); ctx.stroke();
+      ctx.fillStyle="#8892a0"; ctx.fillText("normal Q-Q", L3, 34);
+      var sr=res.slice().sort(function(a,b){return a-b;});
+      var m=0; sr.forEach(function(v){m+=v;}); m/=sr.length;
+      var sd=0; sr.forEach(function(v){sd+=(v-m)*(v-m);}); sd=Math.sqrt(sd/sr.length);
+      function invnorm(p){
+        var a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+        var b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+        var c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+        var d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+        var pl=0.02425, q, r2;
+        if(p<pl){ q=Math.sqrt(-2*Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+        if(p>1-pl){ q=Math.sqrt(-2*Math.log(1-p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+        q=p-0.5; r2=q*q;
+        return (((((a[0]*r2+a[1])*r2+a[2])*r2+a[3])*r2+a[4])*r2+a[5])*q/(((((b[0]*r2+b[1])*r2+b[2])*r2+b[3])*r2+b[4])*r2+1);
+      }
+      ctx.strokeStyle="#5A6472"; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(L3+6,B3-6); ctx.lineTo(R3-6,T3+6); ctx.stroke(); ctx.setLineDash([]);
+      for(var i=0;i<sr.length;i++){
+        var q=invnorm((i+0.5)/sr.length);
+        var X=L3+6+(q+3)/6*((R3-6)-(L3+6));
+        var Y=B3-6-((sr[i]-m)/sd+3)/6*((B3-6)-(T3+6));
+        X=Math.max(L3,Math.min(R3,X)); Y=Math.max(T3,Math.min(B3,Y));
+        ctx.fillStyle="rgba(85,96,216,0.8)"; ctx.beginPath(); ctx.arc(X,Y,2.2,0,6.3); ctx.fill();
+      }
+      ctx.fillStyle="#6b7482"; ctx.font="10px ui-monospace,Menlo,monospace";
+      ctx.fillText("theoretical quantile →", L3, B3+18);
+      ctx.fillText("fitted →", L2, B2+18);
+      ctx.fillText("x →", L, B+18);
+      document.getElementById("asSlope").textContent=F.b.toFixed(3);
+      document.getElementById("asSE").textContent=F.se.toFixed(4);
+      document.getElementById("asR2").textContent=F.r2.toFixed(3);
+      var verdicts={none:"nothing", nonlin:"coefficients", hetero:"std. errors", outlier:"coefficients", autocorr:"std. errors", skew:"small-sample inference"};
+      document.getElementById("asVerdict").textContent=verdicts[mode];
+      var msgs={
+        none: "<span class='good'>All assumptions hold.</span> Residuals scatter randomly around zero with no pattern, the Q-Q plot follows the diagonal, and the fitted slope <span class='v'>"+F.b.toFixed(3)+"</span> is close to the true 2.00 with an honest standard error. This is the baseline every other panel should be compared against.",
+        nonlin: "<span class='warn'>Non-linearity (A1 violated).</span> The residual plot shows clear <b>curvature</b> — the model is systematically wrong in whole regions, over-predicting in the middle and under-predicting at the ends. The fitted slope <span class='v'>"+F.b.toFixed(3)+"</span> is now the best <em>linear</em> approximation to a curve, i.e. <b>biased</b>. This is the only violation here that makes the coefficients themselves wrong. Fix: splines, polynomial terms, or a non-linear model.",
+        hetero: "<span class='warn'>Heteroscedasticity (A3 violated).</span> Look at the <b>fan shape</b> in the residual plot — variance grows with the fitted value. The slope <span class='v'>"+F.b.toFixed(3)+"</span> is still roughly unbiased, but it's no longer minimum-variance and the reported standard error <span class='v'>"+F.se.toFixed(4)+"</span> is <b>wrong</b>, so every p-value and interval built from it is unreliable. Fix: robust HC3 standard errors, a log transform, or a GLM whose variance function matches.",
+        outlier: "<span class='warn'>One influential point (A5 territory).</span> A single observation at high leverage with a large residual has dragged the slope to <span class='v'>"+F.b.toFixed(3)+"</span> — compare with the true 2.00. R² has also collapsed to <span class='v'>"+F.r2.toFixed(3)+"</span>. That one point would show a large <b>Cook's distance</b>, which is exactly why the residuals-vs-leverage plot exists. Investigate before deleting: is it an error, a rare real event, or the thing you're trying to predict?",
+        autocorr: "<span class='warn'>Correlated errors (A2 violated).</span> The residuals drift in slow <b>waves</b> rather than scattering — consecutive observations carry overlapping information, so the effective sample size is far below n. The coefficient stays unbiased but the standard error <span class='v'>"+F.se.toFixed(4)+"</span> is <b>far too small</b>, making everything look more significant than it is. Detect with Durbin-Watson or an ACF plot; fix with cluster/HAC-robust SEs, lag features, or TimeSeriesSplit for the ML version.",
+        skew: "<span class='warn'>Non-normal errors (A4 violated).</span> The <b>Q-Q plot bends away from the diagonal in the tails</b> — but notice the residual-vs-fitted plot still looks structurally fine, and the slope <span class='v'>"+F.b.toFixed(3)+"</span> is close to the truth. <b>This violation costs you almost nothing for prediction.</b> It affects exact small-sample t-tests and intervals only, and even that fades as n grows. This is the assumption candidates over-weight most."
+      };
+      document.getElementById("asOut").innerHTML=msgs[mode];
+    }
+    document.getElementById("asBtns").addEventListener("click", function(e){
+      var b=e.target.closest(".wbtn"); if(!b) return;
+      this.querySelectorAll(".wbtn").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on"); mode=b.dataset.v; drawAS();
+    });
+    drawAS();
+  }
+
+  /* ---------- 5.7 logistic ---------- */
+  var lgCv=document.getElementById("lgCanvas");
+  if(lgCv){
+    var lgB=document.getElementById("lgB"), lgA=document.getElementById("lgA"), lgX=document.getElementById("lgX");
+    function sig(z){ return 1/(1+Math.exp(-z)); }
+    function drawLG(){
+      var b=(+lgB.value)/100, a=(+lgA.value)/100, x=(+lgX.value)/10;
+      document.getElementById("lgBVal").textContent=b.toFixed(2);
+      document.getElementById("lgAVal").textContent=a.toFixed(2);
+      document.getElementById("lgXVal").textContent=x.toFixed(1);
+      var z=a+b*x, p=sig(z), slope=b*p*(1-p);
+      var ctx=dpr(lgCv), W=720, H=250; ctx.clearRect(0,0,W,H);
+      var L=60,R=660,T=40,B=210;
+      function px(v){ return L+(v+8)/16*(R-L); }
+      function py(v){ return B-v*(B-T); }
+      ctx.strokeStyle="#2c3542"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+      ctx.setLineDash([4,4]); ctx.strokeStyle="#3a4453";
+      ctx.beginPath(); ctx.moveTo(L,py(0.5)); ctx.lineTo(R,py(0.5)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle="#F0A81E"; ctx.lineWidth=2.6; ctx.beginPath();
+      for(var i=0;i<=320;i++){ var zz=-8+16*i/320; var X=px(zz), Y=py(sig(zz)); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+      ctx.stroke();
+      var cx=px(Math.max(-8,Math.min(8,z))), cy=py(p);
+      ctx.strokeStyle="#5560D8"; ctx.setLineDash([3,3]); ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(cx,B); ctx.lineTo(cx,cy); ctx.lineTo(L,cy); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle="#5560D8"; ctx.beginPath(); ctx.arc(cx,cy,6,0,6.3); ctx.fill();
+      ctx.strokeStyle="#2E9E5B"; ctx.lineWidth=2;
+      var dz=1.6, s=p*(1-p);
+      ctx.beginPath(); ctx.moveTo(px(z-dz), py(Math.max(0,Math.min(1,p-s*dz)))); ctx.lineTo(px(z+dz), py(Math.max(0,Math.min(1,p+s*dz)))); ctx.stroke();
+      ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+      ctx.fillText("z = β₀ + βx  (log-odds)", L+8, B+26);
+      ctx.fillText("p", L-30, T+8); ctx.fillText("0.5", L-34, py(0.5)+4); ctx.fillText("1.0", L-34, py(1)+4); ctx.fillText("0.0", L-34, py(0)+4);
+      ctx.fillStyle="#7fd6a0"; ctx.fillText("green = local slope dp/dz = p(1−p)", L+250, B+26);
+      document.getElementById("lgOdds").textContent=Math.exp(b).toFixed(2)+"×";
+      document.getElementById("lgZ").textContent=z.toFixed(2);
+      document.getElementById("lgP").textContent=p.toFixed(3);
+      document.getElementById("lgSlope").textContent=slope.toFixed(4);
+      var msg="<span class='k'>β =</span> <span class='v'>"+b.toFixed(2)+"</span> ⇒ each extra year multiplies the odds by <span class='v'>"+Math.exp(b).toFixed(2)+"</span> ("+((Math.exp(b)-1)*100).toFixed(0)+"% change in odds) — <b>the same multiplier everywhere</b>. ";
+      if(p>0.93||p<0.07) msg+="But here p = "+p.toFixed(3)+" is deep in the tail, so the same β moves the <em>probability</em> by only <span class='v'>"+slope.toFixed(4)+"</span> per unit. <span class='warn'>Saturation.</span> This is why quoting β as a probability change is wrong.";
+      else if(Math.abs(p-0.5)<0.1) msg+="Near p = 0.5 the sigmoid is at its steepest, so the probability moves by <span class='v'>"+slope.toFixed(4)+"</span> per unit — the maximum possible effect of this β.";
+      else msg+="At p = "+p.toFixed(3)+" the probability moves by <span class='v'>"+slope.toFixed(4)+"</span> per unit of x.";
+      document.getElementById("lgOut").innerHTML=msg;
+    }
+    [lgB,lgA,lgX].forEach(function(e){ e.addEventListener("input", drawLG); });
+    drawLG();
+  }
+})();
+</script>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="CML_Part04_LearningProblem.html">Part 4 · The Learning Problem</a></div><ul><li>Loss, bias-variance, regularization</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 5 · Linear Models</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="CML_Part06_DistanceProbability.html">Part 6 · Distance &amp; Probability Models</a></div><ul><li>kNN, Naive Bayes, LDA/QDA</li><li>SVM margins and the kernel trick</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        Classical Machine Learning — Part 5 of 17 · Linear Models<br>
+        Library-current as of <b>Aug 2026</b> — scikit-learn <b>1.9.0</b> · XGBoost <b>3.4.1</b> · LightGBM <b>4.7.0</b> · CatBoost <b>1.2.10</b>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">cmlPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 439 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · What ML Is", "l1": "Level 1 · Math Toolkit", "l2": "Level 2 · Data Before Models", "l3": "Level 3 · The Learning Problem", "l4": "Level 4 · Linear Models", "l5": "Level 5 · Distance &amp; Probability", "l6": "Level 6 · Decision Trees", "l7": "Level 7 · Ensembles &amp; Boosting", "l8": "Level 8 · Unsupervised", "l9": "Level 9 · Beyond Supervised", "l10": "Level 10 · Validation", "l11": "Level 11 · Metrics", "l12": "Level 12 · Feature Engineering", "l13": "Level 13 · Interpretability", "l14": "Level 14 · Production", "l15": "Level 15 · Frontier", "iv": "Interview Q&amp;A Bank", "mq": "Math &amp; Derivations", "cq": "Coding Questions", "sd": "Case &amp; System Design", "pp": "Portfolio Projects"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "l12", "l13", "l14", "l15", "iv", "mq", "cq", "sd", "pp"];
+const TRACKER = [
+[1,"l0","Theory","Medium",0,"ML learns a function from data instead of having it specified \u2014 you trade explicit rules for examples plus a loss function"],
+[2,"l0","Theory","Medium",0,"Supervised (labels) / unsupervised (structure) / semi-supervised / self-supervised / reinforcement \u2014 and which real problems fall where"],
+[3,"l0","Theory","Medium",0,"Prediction vs inference vs decision: predicting churn, understanding why people churn, and deciding who to call are three different projects with three different methods"],
+[4,"l0","Theory","Medium",0,"Online vs batch learning; transductive vs inductive"],
+[5,"l0","Theory","Medium",0,"\u2b50 When NOT to use ML: the rule is stable and writable; you have no labels and no way to get them; errors are unacceptable and unexplainable; the data is tiny; a lookup table or a business rule solves it. Saying this unprompted is a strong senior signal"],
+[6,"l0","Theory","Medium",0,"Problem framing \u2192 data collection \u2192 EDA \u2192 feature engineering \u2192 baseline \u2192 model \u2192 validation \u2192 deployment \u2192 monitoring \u2192 retraining"],
+[7,"l0","Theory","Medium",0,"The loop is not linear; most time is spent in data and validation, not in modelling"],
+[8,"l0","Theory","Medium",0,"Offline metric \u2194 online metric gap: your AUC is a proxy for a business outcome, and the mapping is an assumption you must test"],
+[9,"l0","Theory","Medium",0,"Defining success before modelling: the target metric, the baseline to beat, and the decision the model feeds"],
+[10,"l0","Theory","Medium",0,"Choosing the target variable \u2014 the single highest-leverage decision, and the one most often made carelessly"],
+[11,"l0","Theory","Medium",0,"Classification vs regression vs ranking vs anomaly detection for the same business problem, and the consequences of each choice"],
+[12,"l0","Theory","Medium",0,"The prediction horizon and the decision window (predict churn within 30 days so the retention team has time to act)"],
+[13,"l0","Theory","Medium",0,"Unit of prediction (customer? session? transaction? customer-month?) \u2014 this determines your splitting strategy later"],
+[14,"l0","Theory","Medium",0,"Cost asymmetry: what does a false positive cost versus a false negative, in the units the business uses?"],
+[15,"l0","Theory","Medium",0,"Majority class / mean prediction; the previous value (for time series); the existing business rule; a random-but-calibrated predictor"],
+[16,"l0","Theory","Medium",0,"A strong simple baseline: logistic regression or a small gradient boosting model on obvious features"],
+[17,"l0","Theory","Medium",0,"\u2b50 If a complex model doesn't beat these by a margin that justifies its cost and risk, that is the finding \u2014 report it"],
+[18,"l1","Theory","Medium",0,"Vectors, matrices, dot products, matrix multiplication as a linear map"],
+[19,"l1","Theory","Medium",0,"Norms: L1, L2, L\u221e \u2014 and their direct connection to Lasso, Ridge and robustness"],
+[20,"l1","Theory","Medium",0,"Rank, linear independence, and what multicollinearity does to a linear model's coefficients"],
+[21,"l1","Theory","Medium",0,"Eigenvalues/eigenvectors and the SVD \u2014 the mathematical content of PCA"],
+[22,"l1","Theory","Medium",0,"Positive semi-definiteness (covariance matrices, kernel matrices)"],
+[23,"l1","Theory","Medium",0,"Matrix calculus at the level of \u2202(Xw \u2212 y)\u1d40(Xw \u2212 y)/\u2202w = 2X\u1d40(Xw \u2212 y)"],
+[24,"l1","Theory","Medium",0,"Derivatives, partial derivatives, gradients, the chain rule"],
+[25,"l1","Theory","Medium",0,"Convexity \u2014 why it matters (a unique global minimum) and which of your models are convex (linear/logistic regression, linear SVM) and which are not (trees, k-means, neural nets)"],
+[26,"l1","Theory","Medium",0,"Gradient descent and its variants: batch, stochastic, mini-batch; learning rate; momentum; Adam"],
+[27,"l1","Theory","Medium",0,"Second-order intuition: the Hessian, Newton's method, and why XGBoost uses second-order gradients"],
+[28,"l1","Theory","Medium",0,"Constrained optimization and Lagrange multipliers at the level needed to explain the SVM dual"],
+[29,"l1","Theory","Medium",0,"Coordinate descent (how Lasso is actually fitted)"],
+[30,"l1","Theory","Medium",0,"Random variables, PMF/PDF/CDF; expectation and variance; the key distributions (Bernoulli, Binomial, Poisson, Normal, Exponential, Beta)"],
+[31,"l1","Theory","Medium",0,"Joint, marginal, conditional probability; independence vs conditional independence"],
+[32,"l1","Theory","Medium",0,"Bayes' theorem \u2014 state it, apply it to the classic disease-test question, and explain the base-rate fallacy"],
+[33,"l1","Theory","Medium",0,"Maximum likelihood estimation, and the fact that MLE for Gaussian noise = least squares, MLE for Bernoulli = log loss"],
+[34,"l1","Theory","Medium",0,"MAP estimation, and that Ridge = MAP with a Gaussian prior, Lasso = MAP with a Laplace prior \u2014 a genuinely impressive connection to volunteer"],
+[35,"l1","Theory","Medium",0,"Law of large numbers; central limit theorem; why the bootstrap works"],
+[36,"l1","Theory","Medium",0,"Sampling, sampling distributions, standard error, confidence intervals"],
+[37,"l1","Theory","Medium",0,"Hypothesis testing, p-values (and what a p-value is not), type I/II errors, power, multiple-testing correction"],
+[38,"l1","Theory","Medium",0,"Correlation (Pearson/Spearman/Kendall) vs causation vs association"],
+[39,"l1","Theory","Medium",0,"Simpson's paradox and confounding"],
+[40,"l1","Theory","Medium",0,"Bootstrap and permutation tests \u2014 the two resampling tools you'll actually use to compare models"],
+[41,"l1","Theory","Medium",0,"A/B testing: randomization, sample-size calculation, sequential-testing pitfalls, novelty effect"],
+[42,"l1","Theory","Medium",0,"Euclidean, Manhattan, Minkowski, Mahalanobis (and when covariance matters), cosine, Jaccard, Hamming, Gower (mixed types)"],
+[43,"l1","Theory","Medium",0,"Why scaling changes distance-based models (kNN, k-means, SVM with RBF) and does nothing to trees"],
+[44,"l1","Theory","Medium",0,"The curse of dimensionality: distances concentrate, neighbourhoods stop being local, volume explodes"],
+[45,"l2","Practical","High",0,"Univariate: distributions, skew, kurtosis, log/Box-Cox candidates"],
+[46,"l2","Practical","High",0,"Bivariate: target vs feature, correlation matrix, mutual information for non-linear association"],
+[47,"l2","Practical","High",0,"Group structure: is a row independent, or are rows nested within customers, sessions, hospitals, days?"],
+[48,"l2","Practical","High",0,"Temporal structure: is there a time index, and does the distribution move over it?"],
+[49,"l2","Practical","High",0,"Duplicates and near-duplicates; ID columns masquerading as features"],
+[50,"l2","Practical","High",0,"\u2b50 EDA's real job is to answer three questions: what is a row, what is the target, and how will I split?"],
+[51,"l2","Practical","High",0,"MCAR / MAR / MNAR \u2014 the taxonomy, and why MNAR is the dangerous one"],
+[52,"l2","Practical","High",0,"Deletion (listwise, pairwise) and when it biases you"],
+[53,"l2","Practical","High",0,"Simple imputation (mean/median/mode/constant) and why it shrinks variance and distorts correlations"],
+[54,"l2","Practical","High",0,"Model-based imputation: kNN, MICE / iterative imputation"],
+[55,"l2","Practical","High",0,"Missingness as a feature \u2014 an indicator column, because the fact that a value is missing is often predictive"],
+[56,"l2","Practical","High",0,"Native handling: XGBoost/LightGBM learn a default direction for missing values; sklearn's HistGradientBoosting* supports NaN natively"],
+[57,"l2","Practical","High",0,"\u26a0\ufe0f Imputation must be fitted inside the pipeline on the training fold only"],
+[58,"l2","Practical","High",0,"Detection: z-score, IQR, Mahalanobis distance, Isolation Forest, LOF"],
+[59,"l2","Practical","High",0,"The judgement call: is this an error, a rare-but-real event, or the exact thing you're trying to predict?"],
+[60,"l2","Practical","High",0,"Handling: remove, clip/winsorize, transform, or use a robust model (trees, Huber loss, quantile regression)"],
+[61,"l2","Practical","High",0,"Robust scaling and robust statistics (median/MAD)"],
+[62,"l2","Practical","High",0,"StandardScaler, MinMaxScaler, RobustScaler, MaxAbsScaler (sparse-safe), Normalizer (per-row)"],
+[63,"l2","Practical","High",0,"QuantileTransformer and PowerTransformer (Yeo-Johnson/Box-Cox) for skew"],
+[64,"l2","Practical","High",0,"\u2b50 Who needs scaling: distance- and gradient-based models (kNN, k-means, SVM, PCA, linear models with regularization, neural nets). Who doesn't: trees and tree ensembles \u2014 a monotone transform doesn't change a split"],
+[65,"l2","Practical","High",0,"Log transform for right-skewed targets \u2014 and remember to invert it, and that you're now optimising a different loss"],
+[66,"l2","Practical","High",0,"One-hot (and the dummy-variable trap for linear models), ordinal, binary/base-N, hashing"],
+[67,"l2","Practical","High",0,"Target/mean encoding \u2014 powerful and the single most common source of subtle leakage; must be fitted with out-of-fold or smoothed/cross-fitted schemes"],
+[68,"l2","Practical","High",0,"Frequency/count encoding; rare-category grouping; an explicit unknown bucket for serve-time categories not seen in training"],
+[69,"l2","Practical","High",0,"Native categorical support: CatBoost's ordered target statistics, LightGBM's categorical splits, sklearn's HistGradientBoosting* with categorical_features"],
+[70,"l2","Practical","High",0,"High-cardinality strategies: hashing, target encoding with regularization, embeddings, or grouping by a business hierarchy"],
+[71,"l2","Practical","High",0,"Train / validation / test, and the discipline of touching the test set once"],
+[72,"l2","Practical","High",0,"Stratified splits for imbalanced classification"],
+[73,"l2","Practical","High",0,"Grouped splits when rows are nested (GroupKFold, StratifiedGroupKFold) \u2014 the same customer must never be in both sides"],
+[74,"l2","Practical","High",0,"Time-based splits when there is a temporal order; TimeSeriesSplit, plus gap/purging and embargo when features have latency"],
+[75,"l2","Practical","High",0,"Random splits are the default and are wrong more often than people think"],
+[76,"l2","Practical","High",0,"\u2b50 The rule: your split must simulate how the model will actually be used"],
+[77,"l2","Practical","High",0,"Target leakage: a feature that is a consequence of the target, or recorded after it (account_closed_date predicting churn)"],
+[78,"l2","Practical","High",0,"Train-test contamination: scaling, imputing, encoding, feature-selecting or SMOTE-ing before the split"],
+[79,"l2","Practical","High",0,"Temporal leakage: any feature computed from the future; aggregate statistics over the full period"],
+[80,"l2","Practical","High",0,"Group leakage: near-duplicate rows or the same entity on both sides"],
+[81,"l2","Practical","High",0,"Symptom: suspiciously good validation scores and a production collapse"],
+[82,"l2","Practical","High",0,"Detection: absurdly high AUC, one feature dominating importance, a metric that degrades sharply when you split by time"],
+[83,"l2","Practical","High",0,"\u2b50 The structural fix: everything learned from data goes inside a Pipeline, and the pipeline is fitted inside the cross-validation loop"],
+[84,"l3","Theory","High",0,"Regression: MSE (sensitive to outliers, optimises the mean), MAE (robust, optimises the median), Huber (both), quantile/pinball (optimises a quantile \u2014 the basis of prediction intervals), log-cosh"],
+[85,"l3","Theory","High",0,"Classification: log loss / cross-entropy, hinge (SVM), exponential (AdaBoost), focal loss"],
+[86,"l3","Theory","High",0,"\u2b50 The loss defines what \"best\" means. Choosing MSE when the business cares about the median, or accuracy when it cares about recall, is a framing error, not a tuning error"],
+[87,"l3","Theory","High",0,"Surrogate losses: why we optimise log loss rather than accuracy (differentiable, convex, proper scoring rule)"],
+[88,"l3","Theory","High",0,"Proper scoring rules (log loss, Brier) \u2014 they're minimised by the true probability, which is why they're the right thing to optimise when you need probabilities"],
+[89,"l3","Theory","High",0,"Training error vs generalization error; the i.i.d. assumption and where it breaks"],
+[90,"l3","Theory","High",0,"Capacity, VC dimension at an intuitive level, and structural risk minimization"],
+[91,"l3","Theory","High",0,"Double descent \u2014 modern models can improve again past the interpolation threshold; know it exists so the classic U-curve isn't the only story you can tell"],
+[92,"l3","Theory","High",0,"No free lunch \u2014 no algorithm dominates across all problems, which is why you benchmark"],
+[93,"l3","Theory","High",0,"E[(y \u2212 f\u0302)\u00b2] = Bias\u00b2 + Variance + Irreducible noise \u2014 be able to write it"],
+[94,"l3","Theory","High",0,"High bias = underfitting: train and validation error both high and close. High variance = overfitting: train error low, validation error much higher"],
+[95,"l3","Theory","High",0,"The diagnostic: learning curves (error vs training-set size) tell you whether more data will help"],
+[96,"l3","Theory","High",0,"What moves each: model complexity, regularization strength, feature count, tree depth, k in kNN, ensemble size"],
+[97,"l3","Theory","High",0,"\u2b50 Bagging reduces variance; boosting reduces bias. One sentence, asked constantly"],
+[98,"l3","Theory","High",0,"The subtlety worth adding: the decomposition is exact for squared loss and only heuristic for others"],
+[99,"l3","Theory","High",0,"L2 / Ridge \u2014 shrinks coefficients smoothly toward zero, handles multicollinearity, never exactly zero; MAP with a Gaussian prior"],
+[100,"l3","Theory","High",0,"L1 / Lasso \u2014 drives coefficients to exactly zero, so it does feature selection; MAP with a Laplace prior; the geometric explanation (the diamond's corners touch the loss contours on the axes)"],
+[101,"l3","Theory","High",0,"Elastic Net \u2014 the mixture, and why it beats Lasso with correlated feature groups"],
+[102,"l3","Theory","High",0,"\u2b50 You must standardise features before regularizing \u2014 otherwise the penalty is applied in arbitrary units"],
+[103,"l3","Theory","High",0,"Structural regularization: tree depth/min_samples_leaf, early stopping, subsampling, dropout (NN), max features"],
+[104,"l3","Theory","High",0,"Implicit regularization: early stopping in boosting \u2248 shrinkage; small learning rate + more trees"],
+[105,"l3","Theory","High",0,"Symptoms and fixes for each, with the diagnostic that distinguishes them"],
+[106,"l3","Theory","High",0,"Why more data fixes variance, not bias"],
+[107,"l3","Theory","High",0,"Curse of dimensionality: more features \u2192 more capacity to memorise \u2192 more variance"],
+[108,"l3","Theory","High",0,"Noise in labels sets a ceiling; a model that beats the label noise rate is memorising"],
+[109,"l3","Theory","High",0,"Discriminative models P(y|x) (logistic regression, SVM, trees) vs generative P(x,y) (Naive Bayes, LDA, GMM)"],
+[110,"l3","Theory","High",0,"Trade-off: generative models need less data and can generate/handle missing values; discriminative models usually win on accuracy with enough data"],
+[111,"l3","Theory","High",0,"This is the same axis as HMM-vs-CRF in the NLP guide, and interviewers like to see you connect them"],
+[112,"l4","Theory","High",0,"The model, the normal equation w = (X\u1d40X)\u207b\u00b9X\u1d40y, and why you'd use gradient descent or QR/SVD instead (invertibility, O(p\u00b3) cost, numerical stability)"],
+[113,"l4","Theory","High",0,"The assumptions, and what breaks when each fails: linearity, independence of errors, homoscedasticity, normality of residuals (only needed for inference, not prediction), no perfect multicollinearity"],
+[114,"l4","Theory","High",0,"Diagnostics: residual plots, Q-Q plot, VIF for multicollinearity, Cook's distance for influence"],
+[115,"l4","Theory","High",0,"R\u00b2, adjusted R\u00b2, and why R\u00b2 always increases when you add features"],
+[116,"l4","Theory","High",0,"Polynomial and spline features; interaction terms"],
+[117,"l4","Theory","High",0,"Ridge, Lasso, Elastic Net \u2014 the objective functions, alpha/l1_ratio, and the coefficient paths"],
+[118,"l4","Theory","High",0,"Why Lasso is unstable with correlated features (it picks one arbitrarily) and Elastic Net fixes it"],
+[119,"l4","Theory","High",0,"RidgeCV / LassoCV / ElasticNetCV; the one-standard-error rule for choosing alpha"],
+[120,"l4","Theory","High",0,"The sigmoid, the log-odds/logit link, and interpreting a coefficient as a change in log-odds (and exp(\u03b2) as an odds ratio)"],
+[121,"l4","Theory","High",0,"Why we minimise log loss rather than MSE (non-convexity of MSE with a sigmoid; log loss is the MLE)"],
+[122,"l4","Theory","High",0,"No closed form \u2192 IRLS or gradient methods; C as inverse regularization strength in sklearn"],
+[123,"l4","Theory","High",0,"Multi-class: one-vs-rest vs multinomial/softmax"],
+[124,"l4","Theory","High",0,"Class weights and the effect on the decision threshold"],
+[125,"l4","Theory","High",0,"\u2b50 It is the interpretability and calibration baseline in regulated industries \u2014 credit scoring runs on it for a reason"],
+[126,"l4","Theory","High",0,"Generalized linear models: link function + exponential-family distribution"],
+[127,"l4","Theory","High",0,"Poisson / negative binomial for counts, Gamma / Tweedie for insurance claims and other positive skewed targets"],
+[128,"l4","Theory","High",0,"Quantile regression for prediction intervals and for robustness"],
+[129,"l4","Theory","High",0,"Why a GLM with the right link often beats a fancier model on small tabular data \u2014 and is far easier to defend"],
+[130,"l5","Theory","Medium",0,"Lazy learning: no training cost, expensive inference; the k bias-variance dial"],
+[131,"l5","Theory","Medium",0,"Distance choice; scaling is mandatory; weighting by distance"],
+[132,"l5","Theory","Medium",0,"Curse of dimensionality hits kNN hardest; KD-trees/ball-trees help only in low dimensions"],
+[133,"l5","Theory","Medium",0,"Still useful for: small data, recommendation neighbourhoods, and as an interview vehicle for distance and scaling questions"],
+[134,"l5","Theory","Medium",0,"Bayes' rule plus conditional independence; Gaussian / Multinomial / Bernoulli / Complement variants"],
+[135,"l5","Theory","Medium",0,"Laplace smoothing; log-space computation"],
+[136,"l5","Theory","Medium",0,"Why it works despite a false assumption: you only need the argmax to be right, not calibrated probabilities \u2014 and NB probabilities are famously overconfident"],
+[137,"l5","Theory","Medium",0,"Excellent with tiny data; a legitimate fast baseline"],
+[138,"l5","Theory","Medium",0,"LDA: Gaussian classes with a shared covariance \u2192 linear boundary; also a supervised dimensionality reduction method"],
+[139,"l5","Theory","Medium",0,"QDA: per-class covariance \u2192 quadratic boundary, more parameters, needs more data"],
+[140,"l5","Theory","Medium",0,"LDA vs PCA: supervised vs unsupervised \u2014 PCA maximises variance, LDA maximises class separability"],
+[141,"l5","Theory","Medium",0,"Maximum margin classifier; support vectors; the hinge loss formulation"],
+[142,"l5","Theory","Medium",0,"Soft margin and C \u2014 the regularization/violation trade-off"],
+[143,"l5","Theory","Medium",0,"The kernel trick: implicit high-dimensional mapping via K(x,x'); linear, polynomial, RBF (and gamma), sigmoid"],
+[144,"l5","Theory","Medium",0,"Why the dual formulation exists and where the kernel enters"],
+[145,"l5","Theory","Medium",0,"Scaling mandatory; O(n\u00b2)\u2013O(n\u00b3) training so it doesn't scale to large n; SVR for regression"],
+[146,"l5","Theory","Medium",0,"Honest 2026 positioning: mostly displaced by gradient boosting on tabular data, but still a favourite interview topic because it tests optimization and kernels"],
+[147,"l6","Theory","High",0,"Recursive binary splitting; greedy, locally-optimal choice at each node"],
+[148,"l6","Theory","High",0,"Split criteria: Gini impurity 1 \u2212 \u03a3p\u00b2, entropy \u2212\u03a3p log p, information gain; for regression, variance/MSE reduction"],
+[149,"l6","Theory","High",0,"Gini vs entropy: nearly identical results, Gini is cheaper (no logarithm) \u2014 the honest answer"],
+[150,"l6","Theory","High",0,"Handling numeric and categorical splits; missing-value strategies (surrogate splits, learned default direction)"],
+[151,"l6","Theory","High",0,"max_depth, min_samples_split, min_samples_leaf, max_leaf_nodes, min_impurity_decrease"],
+[152,"l6","Theory","High",0,"Pre-pruning vs post-pruning; cost-complexity pruning (ccp_alpha) and the ccp_alpha path"],
+[153,"l6","Theory","High",0,"A fully-grown tree has near-zero training error and enormous variance \u2014 this is the setup for ensembles"],
+[154,"l6","Theory","High",0,"\u2705 No scaling needed; handles mixed types; captures interactions automatically; fully interpretable at small depth"],
+[155,"l6","Theory","High",0,"\u274c High variance (a small data change flips the structure); axis-aligned splits struggle with diagonal boundaries; cannot extrapolate beyond the training range; biased toward high-cardinality features"],
+[156,"l6","Theory","High",0,"\u2b50 Feature importance pitfall: the default impurity-based importance (feature_importances_) is biased toward high-cardinality and continuous features and is computed on training data. Prefer permutation importance on a held-out set, and know that it too is misleading with correlated features"],
+[157,"l7","Theory","High",0,"Combining models reduces error when the models are individually good and mutually decorrelated"],
+[158,"l7","Theory","High",0,"Bias-variance framing: bagging attacks variance, boosting attacks bias"],
+[159,"l7","Theory","High",0,"Wisdom-of-crowds intuition and its condition (independence)"],
+[160,"l7","Theory","High",0,"Bootstrap aggregating: sample with replacement, train in parallel, average/vote"],
+[161,"l7","Theory","High",0,"Random Forest = bagging + random feature subsetting at each split (max_features), which is what decorrelates the trees"],
+[162,"l7","Theory","High",0,"Out-of-bag (OOB) error as free validation (~37% of rows are out of each bootstrap: (1\u22121/n)\u207f \u2192 1/e)"],
+[163,"l7","Theory","High",0,"Key hyperparameters: n_estimators (more is never worse, just slower), max_features, max_depth, min_samples_leaf"],
+[164,"l7","Theory","High",0,"Extra Trees: random split thresholds too \u2014 more variance reduction, slightly more bias, faster"],
+[165,"l7","Theory","High",0,"RF properties: hard to overfit by adding trees, parallelizable, good defaults, weaker than boosting on most tabular benchmarks"],
+[166,"l7","Theory","High",0,"Sequential fitting: each learner corrects the previous ensemble's errors"],
+[167,"l7","Theory","High",0,"AdaBoost: re-weight misclassified examples; exponential loss; weighted vote"],
+[168,"l7","Theory","High",0,"Gradient boosting: fit each new learner to the negative gradient (pseudo-residuals) of the loss \u2014 this generalises boosting to any differentiable loss"],
+[169,"l7","Theory","High",0,"Learning rate (shrinkage) \u00d7 number of trees is the central trade-off; subsampling (stochastic gradient boosting)"],
+[170,"l7","Theory","High",0,"Boosting can overfit with too many rounds \u2192 early stopping on a validation set"],
+[171,"l7","Theory","High",0,"XGBoost: second-order (Newton) approximation using gradients and Hessians; explicit regularization in the objective (lambda, alpha, gamma); sparsity-aware learned default direction for missing values; level-wise growth by default; hist tree method"],
+[172,"l7","Theory","High",0,"LightGBM: leaf-wise growth (grow the leaf with the largest loss reduction) \u2192 faster and often more accurate, but more prone to overfitting on small data (control with num_leaves, min_data_in_leaf); GOSS (gradient-based one-side sampling) and EFB (exclusive feature bundling); native categorical splits"],
+[173,"l7","Theory","High",0,"CatBoost: ordered boosting to avoid the target leakage inherent in naive target statistics; ordered target encoding for categoricals with no manual preprocessing; symmetric (oblivious) trees \u2192 very fast inference; strong defaults"],
+[174,"l7","Theory","High",0,"\u2b50 The selection answer: many high-cardinality categoricals and limited tuning time \u2192 CatBoost. Very large data, tight training budget \u2192 LightGBM. Maximum ecosystem/control and a well-understood tuning recipe \u2192 XGBoost. In accuracy they are usually within noise of each other once tuned \u2014 say that"],
+[175,"l7","Theory","High",0,"Tuning order that actually works: learning rate + n_estimators (with early stopping) \u2192 tree complexity (max_depth/num_leaves, min_child_weight/min_data_in_leaf) \u2192 sampling (subsample, colsample_bytree) \u2192 regularization (lambda, alpha) \u2192 re-lower the learning rate and re-fit"],
+[176,"l7","Theory","High",0,"Monotonic constraints and interaction constraints \u2014 how you inject business rules into a boosted model (essential in credit and insurance)"],
+[177,"l7","Theory","High",0,"Native categorical support vs one-hot: one-hot on high-cardinality features creates sparse, weak splits"],
+[178,"l7","Theory","High",0,"Voting (hard/soft) \u2014 the trivial ensemble"],
+[179,"l7","Theory","High",0,"Stacking: a meta-learner trained on base models' out-of-fold predictions; the OOF requirement is the whole trick, and getting it wrong is a leakage bug"],
+[180,"l7","Theory","High",0,"Blending (a holdout instead of OOF) \u2014 simpler, weaker, less data-efficient"],
+[181,"l7","Theory","High",0,"Diversity matters more than individual strength; a simple meta-learner (regularized linear) is usually best"],
+[182,"l7","Theory","High",0,"Honest positioning: stacking wins Kaggle competitions and rarely survives a production review \u2014 say why (latency, complexity, maintenance)"],
+[183,"l7","Theory","High",0,"sample_weight / class_weight / scale_pos_weight; how weights change the fitted probabilities"],
+[184,"l7","Theory","High",0,"Cost matrices and shifting the decision threshold instead of resampling"],
+[185,"l7","Theory","High",0,"Metadata routing in modern scikit-learn so sample_weight travels correctly through a Pipeline and cross-validation"],
+[186,"l8","Theory","Medium",0,"k-means: Lloyd's algorithm, inertia, k-means++ initialisation, sensitivity to scale and outliers, assumption of spherical equal-variance clusters"],
+[187,"l8","Theory","Medium",0,"Choosing k: elbow, silhouette, gap statistic, Davies-Bouldin, Calinski-Harabasz \u2014 and the honest fact that k is usually a business decision"],
+[188,"l8","Theory","Medium",0,"Hierarchical/agglomerative: linkage criteria (single/complete/average/Ward), dendrograms, O(n\u00b2)+ cost"],
+[189,"l8","Theory","Medium",0,"DBSCAN: density-based, finds arbitrary shapes, labels noise, no k needed; eps and min_samples; struggles with varying density"],
+[190,"l8","Theory","Medium",0,"HDBSCAN: the varying-density fix and the modern default for exploratory clustering"],
+[191,"l8","Theory","Medium",0,"GMM / EM: soft assignments, elliptical clusters, covariance types, BIC/AIC for model selection"],
+[192,"l8","Theory","Medium",0,"Evaluation without labels (internal indices) vs with labels (ARI, NMI, homogeneity/completeness)"],
+[193,"l8","Theory","Medium",0,"PCA: covariance eigen-decomposition or SVD, explained variance ratio, choosing components, must scale first, components are linear combinations (so interpretability is limited)"],
+[194,"l8","Theory","Medium",0,"Kernel PCA; Truncated SVD/LSA for sparse data; NMF for non-negative parts-based factors"],
+[195,"l8","Theory","Medium",0,"t-SNE: local structure only \u2014 distances between clusters and cluster sizes are not meaningful; perplexity; stochastic"],
+[196,"l8","Theory","Medium",0,"UMAP: better global structure, faster, still stochastic; and the caveat that both are for visualisation, not as a preprocessing step you feed into a classifier without care"],
+[197,"l8","Theory","Medium",0,"Feature extraction vs feature selection \u2014 a distinction interviewers probe"],
+[198,"l8","Theory","Medium",0,"Statistical (z-score, Mahalanobis), Isolation Forest (anomalies are easier to isolate), LOF (local density), One-Class SVM, autoencoder reconstruction error"],
+[199,"l8","Theory","Medium",0,"Contamination parameter and the fact that you usually have no labels \u2014 so evaluation is the hard part"],
+[200,"l8","Theory","Medium",0,"Novelty vs outlier detection; anomaly detection vs highly-imbalanced classification (if you have labels, use the classifier)"],
+[201,"l8","Theory","Medium",0,"Association rules (Apriori, FP-Growth): support, confidence, lift \u2014 still asked in retail interviews"],
+[202,"l8","Theory","Medium",0,"Matrix factorization for collaborative filtering (SVD, ALS, implicit feedback)"],
+[203,"l8","Theory","Medium",0,"Self-supervised pretext tasks on tabular data (a frontier topic \u2014 see 15.1)"],
+[204,"l9","Practical","Medium",0,"Semi-supervised: self-training/pseudo-labelling, label propagation, co-training \u2014 and the confirmation-bias failure mode"],
+[205,"l9","Practical","Medium",0,"Active learning: uncertainty, margin, entropy, query-by-committee, core-set/diversity; the practical loop when labelling is the expensive resource"],
+[439,"l9","Practical","Medium",0,"Weak supervision: labelling functions + a label model (Snorkel-style)"],
+[207,"l9","Practical","Medium",0,"Transfer learning on tabular data: usually just \"reuse the features and the encoders\""],
+[208,"l9","Practical","Medium",0,"Multi-label (per-label sigmoid, classifier chains) vs multi-class vs multi-output regression"],
+[209,"l9","Practical","Medium",0,"Ordinal targets \u2014 why treating \"poor/fair/good\" as multi-class throws away information"],
+[210,"l9","Practical","Medium",0,"Survival analysis: censoring, Kaplan-Meier, Cox proportional hazards, and its ML cousins (random survival forests, XGBoost's survival:cox) \u2014 the right tool for \"when will this happen\", not \"will it happen\""],
+[211,"l9","Practical","Medium",0,"Zero-inflated and heavy-tailed targets: two-part/hurdle models, Tweedie"],
+[212,"l9","Practical","Medium",0,"Learning to rank: pointwise / pairwise / listwise; LambdaMART as the classical workhorse; nDCG, MAP, MRR"],
+[213,"l9","Practical","Medium",0,"Collaborative filtering (user/item), matrix factorization, implicit feedback, the cold-start problem"],
+[214,"l9","Practical","Medium",0,"Content-based and hybrid approaches; candidate generation \u2192 ranking \u2192 re-ranking as the standard architecture"],
+[215,"l9","Practical","Medium",0,"Classical baselines you must beat: naive/seasonal-naive, ETS, ARIMA/SARIMA, Prophet"],
+[216,"l9","Practical","Medium",0,"Framing forecasting as supervised learning: lag features, rolling statistics, calendar and holiday features, Fourier terms for seasonality"],
+[217,"l9","Practical","Medium",0,"Direct vs recursive multi-step forecasting"],
+[218,"l9","Practical","Medium",0,"Stationarity, differencing, autocorrelation (ACF/PACF)"],
+[219,"l9","Practical","Medium",0,"Global vs local models (one model over many series vs one per series) \u2014 the modern default is global"],
+[220,"l9","Practical","Medium",0,"Validation: walk-forward / rolling-origin, with gap/purging and embargo when features arrive with latency"],
+[221,"l9","Practical","Medium",0,"Metrics: MAE, RMSE, MAPE's failure at near-zero values, sMAPE, MASE (scale-free, comparable across series), pinball loss for quantile forecasts"],
+[222,"l9","Practical","Medium",0,"\u2b50 The honest answer to \"ML or ARIMA?\": for many series with shared structure and exogenous features, gradient boosting on lag features wins; for a single short series, classical methods are hard to beat"],
+[223,"l10","Practical","High",0,"Hold-out vs k-fold vs repeated k-fold vs leave-one-out (high variance, expensive)"],
+[224,"l10","Practical","High",0,"Stratified k-fold for classification, especially imbalanced"],
+[225,"l10","Practical","High",0,"GroupKFold / StratifiedGroupKFold when rows are nested"],
+[226,"l10","Practical","High",0,"TimeSeriesSplit for temporal data, plus purging and embargo"],
+[227,"l10","Practical","High",0,"Choosing k: 5 or 10; the bias-variance trade-off of k itself"],
+[228,"l10","Practical","High",0,"Reporting mean \u00b1 standard deviation across folds, not a single number"],
+[229,"l10","Practical","High",0,"The problem: tuning hyperparameters on the same CV you report gives an optimistically biased estimate"],
+[230,"l10","Practical","High",0,"Inner loop selects hyperparameters, outer loop estimates generalization"],
+[231,"l10","Practical","High",0,"Cost: k_outer \u00d7 k_inner fits \u2014 and the pragmatic alternative (a single held-out test set touched once)"],
+[232,"l10","Practical","High",0,"\u2b50 A favourite senior question because most candidates have never actually done it"],
+[233,"l10","Practical","High",0,"Grid search (exhaustive, exponential), random search (better per unit compute when few hyperparameters matter \u2014 the Bergstra &amp; Bengio result)"],
+[234,"l10","Practical","High",0,"Bayesian optimization / TPE (Optuna); surrogate model + acquisition function; note it behaves like random search until its model warms up"],
+[235,"l10","Practical","High",0,"Successive halving / Hyperband (HalvingGridSearchCV, HalvingRandomSearchCV) \u2014 allocate budget adaptively"],
+[236,"l10","Practical","High",0,"Early stopping with a validation set for boosting and NNs"],
+[237,"l10","Practical","High",0,"Defining sensible search spaces (log-uniform for learning rates and regularization strengths) \u2014 usually more important than the search algorithm"],
+[238,"l10","Practical","High",0,"Pruning unpromising trials; parallelisation; reproducibility (seed the sampler)"],
+[239,"l10","Practical","High",0,"\u26a0\ufe0f Tune inside the CV loop, not before it, and don't tune on the test set"],
+[240,"l10","Practical","High",0,"Learning curves (error vs training-set size): the tool that tells you whether to collect more data or change the model"],
+[241,"l10","Practical","High",0,"Validation curves (error vs a hyperparameter)"],
+[242,"l10","Practical","High",0,"Residual analysis for regression; error analysis by slice for classification"],
+[243,"l10","Practical","High",0,"Confusion-matrix analysis and per-class breakdown"],
+[244,"l10","Practical","High",0,"Calibration curves (11.5)"],
+[245,"l10","Practical","High",0,"Paired comparison across the same folds; bootstrap confidence intervals; paired permutation tests; corrected resampled t-test"],
+[246,"l10","Practical","High",0,"The multiple-comparisons problem when you evaluate 40 models"],
+[247,"l10","Practical","High",0,"Practical significance vs statistical significance: a 0.002 AUC gain that costs 10\u00d7 the latency is not an improvement"],
+[248,"l10","Practical","High",0,"Reporting variance across seeds as well as folds"],
+[249,"l11","Practical","High",0,"Confusion matrix; accuracy and why it lies under imbalance"],
+[250,"l11","Practical","High",0,"Precision, recall, specificity, F1, F-\u03b2; the precision-recall trade-off"],
+[251,"l11","Practical","High",0,"Micro vs macro vs weighted averaging \u2014 micro is dominated by the majority class; macro treats classes equally; and in single-label multi-class micro-F1 equals accuracy"],
+[252,"l11","Practical","High",0,"ROC-AUC: threshold-free, interpretable as \"probability a random positive ranks above a random negative\"; insensitive to class imbalance in a way that flatters you"],
+[253,"l11","Practical","High",0,"PR-AUC / average precision: the right choice when positives are rare"],
+[254,"l11","Practical","High",0,"Log loss and Brier score \u2014 proper scoring rules that punish overconfidence"],
+[255,"l11","Practical","High",0,"Matthews correlation coefficient, Cohen's kappa, balanced accuracy"],
+[256,"l11","Practical","High",0,"Multi-label metrics: subset accuracy, Hamming loss, per-label F1"],
+[257,"l11","Practical","High",0,"MSE / RMSE (units of the target, penalises large errors), MAE (robust, optimises the median), RMSLE (relative error, penalises under-prediction more)"],
+[258,"l11","Practical","High",0,"MAPE's two failures: undefined/exploding near zero, and asymmetric penalties. sMAPE and MASE as fixes"],
+[259,"l11","Practical","High",0,"R\u00b2 and adjusted R\u00b2; R\u00b2 can be negative; R\u00b2 on a test set is not the same statistic as on training"],
+[260,"l11","Practical","High",0,"Pinball loss for quantile predictions; coverage for prediction intervals"],
+[261,"l11","Practical","High",0,"Choosing between them from the decision: is a 10-unit error twice as bad as a 5-unit error, or four times?"],
+[262,"l11","Practical","High",0,"Precision@k, Recall@k, MAP, MRR, nDCG (position discounting and why it matters)"],
+[263,"l11","Practical","High",0,"Offline ranking metrics vs online engagement \u2014 state the gap explicitly"],
+[264,"l11","Practical","High",0,"\u2b50 0.5 is a default, not a decision. Choose the operating point from the cost matrix or a business constraint (e.g. \"review capacity is 200 cases/day\")"],
+[265,"l11","Practical","High",0,"Tuning the threshold on a validation set (scikit-learn's TunedThresholdClassifierCV automates this)"],
+[266,"l11","Practical","High",0,"Precision-recall curves, cost curves, coverage-vs-accuracy curves for abstention"],
+[267,"l11","Practical","High",0,"Per-segment thresholds and their fairness implications"],
+[268,"l11","Practical","High",0,"What it means: among cases predicted at 0.7, roughly 70% should be positive"],
+[269,"l11","Practical","High",0,"Diagnosis: reliability diagram, ECE, Brier score decomposition"],
+[270,"l11","Practical","High",0,"Who is miscalibrated: SVMs (no probabilities at all natively), Naive Bayes (overconfident), Random Forests (under-confident at the extremes), boosted trees (typically over-confident); well-regularized logistic regression is often nearly calibrated"],
+[271,"l11","Practical","High",0,"Fixes: Platt scaling (sigmoid), isotonic regression (non-parametric, needs more data, can overfit), beta calibration"],
+[272,"l11","Practical","High",0,"\u2b50 The 2026 nuance: a benchmark across many calibrators and classifiers on TabArena-style binary tasks found Platt scaling weak and inconsistent, that Platt and isotonic can actually degrade proper-scoring performance for strong modern tabular models, and that Venn-Abers predictors gave the largest average log-loss reductions. Calibrate on held-out data, and measure whether it helped rather than assuming"],
+[273,"l11","Practical","High",0,"Why it matters: any time the probability itself is used \u2014 expected value, pricing, ranking by risk, thresholding for cost"],
+[274,"l11","Practical","High",0,"Understand the imbalance first: is it 1:10 or 1:10,000? Is the minority class well-separated or overlapping?"],
+[275,"l11","Practical","High",0,"\u2b50 The modern order of operations: (1) tune the decision threshold on a strong baseline \u2014 the cheapest experiment and often sufficient; (2) class weights / scale_pos_weight \u2014 no synthetic rows, no leakage risk; (3) only then resampling or specialised ensembles"],
+[276,"l11","Practical","High",0,"SMOTE and its critique: the most common SMOTE mistake is applying it before the train/test split, which leaks and produces beautiful validation scores and a production collapse. It also manufactures ambiguous points when classes overlap or the data is noisy, inflating false positives. On clean tabular data, inverse-frequency weighting and oversampling give nearly identical results \u2014 and weights are simpler and leak-proof"],
+[277,"l11","Practical","High",0,"Under-sampling, RandomUnderSampler, NearMiss, Tomek links, EasyEnsemble/BalancedRandomForest"],
+[278,"l11","Practical","High",0,"Metrics: PR-AUC, per-class recall, F-\u03b2 aligned to costs \u2014 never accuracy, and be wary of ROC-AUC's optimism"],
+[279,"l11","Practical","High",0,"Anomaly-detection framing when the minority class is extremely rare and heterogeneous"],
+[280,"l12","Practical","High",0,"On tabular data, feature engineering routinely beats model choice \u2014 the model can only use structure you expose"],
+[281,"l12","Practical","High",0,"Domain knowledge is the highest-leverage input, and interviewers test whether you can generate features from a business description"],
+[282,"l12","Practical","High",0,"Transformations (log, sqrt, Box-Cox/Yeo-Johnson), clipping/winsorizing, binning (uniform, quantile, supervised)"],
+[283,"l12","Practical","High",0,"Ratios and differences (often more predictive than raw values \u2014 debt/income beats both)"],
+[284,"l12","Practical","High",0,"Polynomial and interaction terms; splines for smooth non-linearity in linear models"],
+[285,"l12","Practical","High",0,"Aggregations by group: mean/max/std/count per customer, per merchant, per day"],
+[286,"l12","Practical","High",0,"Encoding recap (2.5) with the leakage warning on target encoding"],
+[287,"l12","Practical","High",0,"Datetime: components (hour, dow, month), cyclical encoding (sin/cos) so 23:00 and 00:00 are adjacent, holidays, time-since-event, business-day counts"],
+[288,"l12","Practical","High",0,"Text on a tabular row: length, counts, TF-IDF, or an embedding \u2014 cross-link to the NLP guide"],
+[289,"l12","Practical","High",0,"Geospatial: distance to points of interest, geohash, clustering coordinates"],
+[290,"l12","Practical","High",0,"Filter: correlation, chi\u00b2, ANOVA F, mutual information, variance threshold \u2014 fast, model-agnostic, ignores interactions"],
+[291,"l12","Practical","High",0,"Wrapper: forward/backward selection, RFE/RFECV \u2014 expensive, model-specific, risk of overfitting the selection"],
+[292,"l12","Practical","High",0,"Embedded: L1, tree importances, boosting's gain \u2014 the practical default"],
+[293,"l12","Practical","High",0,"Permutation importance on held-out data; Boruta for all-relevant selection"],
+[294,"l12","Practical","High",0,"\u26a0\ufe0f Feature selection is part of the model and must be fitted inside the CV loop, or you have leaked"],
+[295,"l12","Practical","High",0,"Why you'd select at all: latency, cost of data acquisition, interpretability, stability \u2014 often not accuracy"],
+[296,"l12","Practical","High",0,"ColumnTransformer + Pipeline as the unit of everything learned from data"],
+[297,"l12","Practical","High",0,"Custom transformers (BaseEstimator + TransformerMixin), FunctionTransformer, set_output(transform=\"pandas\")"],
+[298,"l12","Practical","High",0,"Training/serving skew: the same code path must compute features in both places"],
+[299,"l12","Practical","High",0,"Feature stores and point-in-time correctness: reconstructing what a feature's value was at prediction time, not what it is now \u2014 the single most valuable idea in this level"],
+[300,"l12","Practical","High",0,"Feature versioning, backfills, and the latency budget of each feature (what can be computed inline vs precomputed)"],
+[301,"l13","Practical","High",0,"Intrinsic vs post-hoc; global vs local; model-specific vs model-agnostic"],
+[302,"l13","Practical","High",0,"Interpretability vs explainability vs justifiability to a regulator"],
+[303,"l13","Practical","High",0,"When you legally need it: credit (adverse-action notices), insurance, hiring, healthcare"],
+[304,"l13","Practical","High",0,"Linear/logistic coefficients (standardise first, and beware multicollinearity making signs flip)"],
+[305,"l13","Practical","High",0,"Tree structure and decision paths; rule extraction"],
+[306,"l13","Practical","High",0,"\u2b50 Three different \"feature importances\": impurity/gain-based (fast, biased toward high-cardinality and continuous features, computed on training data), permutation (model-agnostic, on held-out data, but misleading with correlated features), and SHAP (consistent, expensive). Knowing they answer different questions is the point"],
+[307,"l13","Practical","High",0,"PDP (average marginal effect \u2014 misleading under correlation), ICE (per-instance curves that reveal heterogeneity PDPs hide), ALE (accumulated local effects \u2014 the correlation-robust alternative)"],
+[308,"l13","Practical","High",0,"LIME: local surrogate; unstable across runs, sensitive to the perturbation scheme"],
+[309,"l13","Practical","High",0,"SHAP: Shapley values from cooperative game theory; local + globally aggregable; additive"],
+[310,"l13","Practical","High",0,"TreeSHAP for tree ensembles (fast, exact for trees), KernelSHAP (model-agnostic, slow)"],
+[311,"l13","Practical","High",0,"\u26a0\ufe0f SHAP pitfalls to name: KernelSHAP assumes feature independence and puts weight on unrealistic data points when features are correlated; path-dependent TreeSHAP changes the value function to avoid that, which can assign non-zero attribution to features that don't affect the prediction \u2014 violating the Shapley axiom that irrelevant features get zero. With correlated features, credit is split in unintuitive ways. Use SHAP with correlation analysis and other importance diagnostics, not as an oracle"],
+[312,"l13","Practical","High",0,"Global surrogate models; counterfactual explanations (\"what would need to change for approval?\") \u2014 often the most useful explanation for an end user"],
+[313,"l13","Practical","High",0,"Anchors, rule lists (RuleFit), and GAMs / EBMs as glass-box models that are competitive on tabular data"],
+[314,"l13","Practical","High",0,"Protected attributes; proxy variables (a postcode encodes far more than geography)"],
+[315,"l13","Practical","High",0,"Metrics: demographic parity, equalised odds, equal opportunity, predictive parity, calibration within groups"],
+[316,"l13","Practical","High",0,"\u2b50 The impossibility result: several of these fairness criteria are mutually incompatible except in degenerate cases \u2014 so \"make it fair\" requires choosing which fairness"],
+[317,"l13","Practical","High",0,"Mitigation: pre-processing (reweighting, resampling), in-processing (constraints), post-processing (per-group thresholds \u2014 with the legal caveats that attach)"],
+[318,"l13","Practical","High",0,"Evaluate per subgroup on the deployed decision, using counterfactual pairs; document with model cards and datasheets for datasets"],
+[319,"l14","Practical","High",0,"Training pipeline vs inference pipeline; the same feature code must serve both"],
+[320,"l14","Practical","High",0,"Batch prediction (scheduled, precomputed to a key-value store for O(1) lookup) vs real-time (features that only exist at request time) vs streaming"],
+[321,"l14","Practical","High",0,"Model registry, versioning, and lineage from a prediction back to a model, a dataset snapshot and a commit"],
+[322,"l14","Practical","High",0,"Reproducibility: pinned dependencies, seeds, data snapshots, environment capture"],
+[323,"l14","Practical","High",0,"Latency budget decomposition (feature fetch, transform, predict, post-process); p95/p99, not p50"],
+[324,"l14","Practical","High",0,"Model formats: pickle/joblib and its pitfalls (version coupling, security), ONNX, PMML, native boosters"],
+[325,"l14","Practical","High",0,"Batching, caching, and precomputation; horizontal scaling; cold starts"],
+[326,"l14","Practical","High",0,"\u2b50 Fraud-style budgets: a real-time fraud model often has a ~150 ms end-to-end budget, which forces the conversation about what is computed inline versus read from a feature store, and where staleness is acceptable"],
+[327,"l14","Practical","High",0,"Data/covariate drift (inputs move), concept drift (the input\u2192output relationship moves), label/prior drift, and performance drift (what you actually care about, and what arrives late)"],
+[328,"l14","Practical","High",0,"Detection: PSI (rule of thumb: &lt;0.1 stable, 0.1\u20130.2 moderate, &gt;0.2 significant), KS and chi-square tests, Jensen-Shannon and Wasserstein as smoother alternatives to KL on noisy production distributions"],
+[329,"l14","Practical","High",0,"Tooling pattern: an open-source drift-report library (e.g. Evidently's drift presets) for metrics plus Prometheus/Grafana for storage, dashboards and alerts"],
+[330,"l14","Practical","High",0,"Cadence: daily for revenue-critical models, weekly otherwise; never rely on a single metric \u2014 show PSI, KS and the distribution overlay together"],
+[331,"l14","Practical","High",0,"\u26a0\ufe0f Not every drift signal requires action. Confirm the distribution change actually degrades the metric before retraining \u2014 alert fatigue kills monitoring programmes"],
+[332,"l14","Practical","High",0,"Proxy signals when labels are delayed: prediction distribution shift, confidence shift, abstention/override rate, downstream user behaviour"],
+[333,"l14","Practical","High",0,"Data-quality monitoring (schema, nulls, ranges, cardinality) \u2014 usually catches more incidents than model monitoring does"],
+[334,"l14","Practical","High",0,"Triggers: scheduled, drift-triggered, performance-triggered; the trade-off between staleness and churn"],
+[335,"l14","Practical","High",0,"Shadow deployment \u2192 canary \u2192 A/B test \u2192 full rollout, with a rollback path"],
+[336,"l14","Practical","High",0,"Champion/challenger; guardrail metrics; a golden-set regression suite in CI"],
+[337,"l14","Practical","High",0,"The feedback loop problem: your model's decisions change the data you collect (a fraud model never sees the transactions it blocked) \u2014 selection bias, and how to fight it (holdout/exploration traffic)"],
+[338,"l14","Practical","High",0,"Cost accounting: training cost, serving cost, and the labelling cost of the retraining loop"],
+[339,"l14","Practical","High",0,"Randomisation unit; sample-size calculation; guardrail vs primary metrics"],
+[340,"l14","Practical","High",0,"Novelty and primacy effects; network effects breaking independence"],
+[341,"l14","Practical","High",0,"Peeking / sequential testing; CUPED for variance reduction"],
+[342,"l14","Practical","High",0,"Offline-to-online metric gap: state it explicitly and confirm the offline metric moves the online objective"],
+[343,"l14","Practical","High",0,"Tests: data-schema tests, pipeline invariants, \"does fit then transform equal fit_transform\", golden-prediction tests, no-network unit tests"],
+[344,"l14","Practical","High",0,"Config over code; experiment tracking; DVC/lakeFS-style data versioning"],
+[345,"l14","Practical","High",0,"Documentation: model card, assumptions, known limitations, retraining runbook, on-call playbook"],
+[346,"l15","Theory","Medium",0,"The long-standing consensus: gradient-boosted trees beat deep learning on tabular data \u2014 faster to train, less tuning, native missing-value handling, better on &lt;~1M rows"],
+[347,"l15","Theory","Medium",0,"\u2b50 What changed (2025\u201326): tabular foundation models. TabPFN v2 crossed from proof-of-concept to serious contender; TabPFN-2.5 reported a 100% win rate against default XGBoost on small/medium classification (\u226410k rows, \u2264500 features) and ~87% on datasets up to 100k rows; TabPFN-3 (May 2026) scales to 1M training rows and reports that a single forward pass beats 8-hour-tuned GBDT baselines on datasets up to 1M rows and 200 features on TabArena, and outperforms AutoGluon 1.5 \"extreme\" while being ~10\u00d7 faster"],
+[348,"l15","Theory","Medium",0,"The caveats that make you sound careful rather than credulous: these models are pretrained exclusively on synthetic data; benchmark suites have their own selection effects; feature-count and modality limits apply; deployment, licensing, latency and interpretability stories are less mature than for GBDTs; and the strongest results are on the benchmark's data distribution"],
+[349,"l15","Theory","Medium",0,"\u2b50 The 2026 answer to \"GBDT or deep learning for tabular?\": \"Historically GBDTs, decisively. As of 2026 that's genuinely contested for small-to-medium data by tabular foundation models like TabPFN \u2014 I'd benchmark both, and I'd still default to a GBDT where I need interpretability, monotonic constraints, cheap retraining and a well-understood ops story.\""],
+[350,"l15","Theory","Medium",0,"Also know: TabNet, FT-Transformer, SAINT, TabR (deep tabular architectures), and AutoGluon as the strong AutoML baseline"],
+[351,"l15","Theory","Medium",0,"Why a point prediction is often not enough: pricing, triage, safety, human-in-the-loop routing"],
+[352,"l15","Theory","Medium",0,"Sources of uncertainty: aleatoric (irreducible noise) vs epistemic (model ignorance)"],
+[353,"l15","Theory","Medium",0,"Quantile regression and prediction intervals; NGBoost; bootstrap/ensemble variance"],
+[354,"l15","Theory","Medium",0,"\u2b50 Conformal prediction: distribution-free, model-agnostic prediction sets/intervals with a finite-sample coverage guarantee under exchangeability. Split/inductive conformal is a few lines of code on top of any model. Know the assumptions it needs (exchangeability \u2014 which breaks under drift and for time series, hence adaptive/weighted variants) and the practical uses: selective prediction, deferral to a human, safe deployment"],
+[355,"l15","Theory","Medium",0,"Venn-Abers predictors as the calibration-with-guarantees cousin (11.5)"],
+[356,"l15","Theory","Medium",0,"\u2b50 The framing that lands: most ML answers \"what will happen?\"; most business questions are \"what should we do?\" \u2014 those are different, and correlation-trained models answer the wrong one under intervention"],
+[357,"l15","Theory","Medium",0,"Potential outcomes, ATE / ATT / CATE, confounding, colliders, selection bias"],
+[358,"l15","Theory","Medium",0,"Randomised experiments as the gold standard; when you can't run one: propensity-score matching/weighting, IPW, difference-in-differences, regression discontinuity, instrumental variables, synthetic control"],
+[359,"l15","Theory","Medium",0,"Double/debiased machine learning (DML) \u2014 use ML for the nuisance functions with cross-fitting, keep valid inference on the effect"],
+[360,"l15","Theory","Medium",0,"Uplift modelling / CATE estimation: T-learner, S-learner, X-learner, causal forests; metrics \u2014 Qini and uplift curves, not AUC"],
+[361,"l15","Theory","Medium",0,"The libraries to name: EconML, CausalML (Uber), DoWhy (whose four-step framing \u2014 model, identify, estimate, refute \u2014 is worth quoting)"],
+[362,"l15","Theory","Medium",0,"Where it pays: targeting incentives at the persuadables rather than the sure-things, pricing, churn intervention"],
+[363,"l15","Theory","Medium",0,"Label noise: its ceiling effect on achievable metrics; confident learning / Cleanlab-style auditing"],
+[364,"l15","Theory","Medium",0,"Systematic error analysis by slice; the \"audit 200 random errors before touching the model\" habit"],
+[365,"l15","Theory","Medium",0,"Synthetic data: when it helps (rare classes, privacy) and when it fabricates structure"],
+[366,"l15","Theory","Medium",0,"Active learning loops; annotation guidelines and inter-annotator agreement as a ceiling"],
+[367,"l15","Theory","Medium",0,"\u2b50 The senior sentence: most of the remaining accuracy is in the data, not the model"],
+[368,"l15","Theory","Medium",0,"Covariate shift, label shift, concept shift; importance weighting; domain adaptation"],
+[369,"l15","Theory","Medium",0,"Adversarial and gaming behaviour (credit-score gaming, fraud adaptation) \u2014 strategic classification"],
+[370,"l15","Theory","Medium",0,"Spurious correlations and shortcut learning on tabular data; stress-testing with counterfactual slices"],
+[371,"l15","Theory","Medium",0,"Privacy: differential privacy, k-anonymity, federated learning at a glance"],
+[372,"l15","Theory","Medium",0,"\u2b50 \"Is classical ML dead?\" No \u2014 most of the world's high-value prediction problems are still tabular, latency-bound, regulated, and small-data. What changed is that the baseline moved (strong AutoML, tabular foundation models), so the job is increasingly framing, data, evaluation and deployment rather than model selection"],
+[373,"iv","Interview Prep","High",0,"High-frequency: foundations &amp; framing (7 questions)"],
+[374,"iv","Interview Prep","High",0,"High-frequency: bias, variance &amp; generalization (6 questions)"],
+[375,"iv","Interview Prep","High",0,"High-frequency: regularization (5 questions)"],
+[376,"iv","Interview Prep","High",0,"High-frequency: linear models &amp; GLMs (6 questions)"],
+[377,"iv","Interview Prep","High",0,"High-frequency: trees &amp; ensembles (13 questions)"],
+[378,"iv","Interview Prep","High",0,"High-frequency: kNN, Naive Bayes, SVM, LDA (5 questions)"],
+[379,"iv","Interview Prep","High",0,"High-frequency: unsupervised \u2014 clustering, PCA, anomalies (6 questions)"],
+[380,"iv","Interview Prep","High",0,"High-frequency: validation &amp; cross-validation (7 questions)"],
+[381,"iv","Interview Prep","High",0,"High-frequency: metrics, thresholds &amp; calibration (10 questions)"],
+[382,"iv","Interview Prep","High",0,"High-frequency: imbalance &amp; leakage (6 questions)"],
+[383,"iv","Interview Prep","High",0,"High-frequency: feature engineering &amp; selection (6 questions)"],
+[384,"iv","Interview Prep","High",0,"High-frequency: missing data &amp; preprocessing (4 questions)"],
+[385,"iv","Interview Prep","High",0,"High-frequency: interpretability &amp; fairness (5 questions)"],
+[386,"iv","Interview Prep","High",0,"High-frequency: production ML (10 questions)"],
+[387,"iv","Interview Prep","High",0,"High-frequency: frontier &amp; senior signal (9 questions)"],
+[388,"iv","Interview Prep","High",0,"The 15 trap questions (answered correctly, out loud)"],
+[389,"iv","Interview Prep","High",0,"Your own PDF question set, mapped \u2014 and the gap it reveals"],
+[390,"iv","Interview Prep","High",0,"Behavioural / context questions (12 stories prepared)"],
+[391,"mq","Theory","High",0,"Derivation: the normal equation, and why not to invert X\u1d40X"],
+[392,"mq","Theory","High",0,"Derivation: the logistic log-loss gradient (same form as OLS)"],
+[393,"mq","Theory","High",0,"Derivation: the bias-variance decomposition for squared loss"],
+[394,"mq","Theory","High",0,"Derivation: Ridge = MAP with a Gaussian prior; Lasso = Laplace"],
+[395,"mq","Theory","High",0,"Geometry: why the L1 diamond produces exact zeros"],
+[396,"mq","Theory","High",0,"Derivation: entropy, Gini and information gain"],
+[397,"mq","Theory","High",0,"Derivation: the 63.2% bootstrap result and OOB error"],
+[398,"mq","Theory","High",0,"Derivation: why the new boosting learner fits the negative gradient"],
+[399,"mq","Theory","High",0,"Derivation: XGBoost's optimal leaf weight and split gain"],
+[400,"mq","Theory","High",0,"Derivation: the SVM max-margin objective and where the kernel enters"],
+[401,"mq","Theory","High",0,"Derivation: PCA as the SVD of the centred data matrix"],
+[402,"mq","Theory","High",0,"Proof: micro-F1 = accuracy in single-label multi-class"],
+[403,"mq","Theory","High",0,"Proof: ROC-AUC = P(random positive ranks above random negative)"],
+[404,"mq","Theory","High",0,"Derivation: the EM update for a Gaussian mixture"],
+[405,"mq","Theory","High",0,"Derivation: the pinball loss recovers the \u03c4-th quantile"],
+[406,"cq","Practical","High",0,"Code: linear regression by normal equation and by gradient descent"],
+[407,"cq","Practical","High",0,"Code: logistic regression with L2 from scratch"],
+[408,"cq","Practical","High",0,"Code: k-means with k-means++, elbow and silhouette"],
+[409,"cq","Practical","High",0,"Code: a decision tree with Gini and recursive splitting"],
+[410,"cq","Practical","High",0,"Code: gradient boosting from scratch with stumps"],
+[411,"cq","Practical","High",0,"Code: k-fold and StratifiedGroupKFold by hand"],
+[412,"cq","Practical","High",0,"Code: a time-series split with a purge/embargo gap"],
+[413,"cq","Practical","High",0,"Code: precision, recall, F1, ROC curve and AUC from raw scores"],
+[414,"cq","Practical","High",0,"Code: PR curve and average precision under imbalance"],
+[415,"cq","Practical","High",0,"Code: reliability diagram + ECE, then Platt vs isotonic"],
+[416,"cq","Practical","High",0,"Code: out-of-fold target encoding that provably does not leak"],
+[417,"cq","Practical","High",0,"Code: ColumnTransformer + Pipeline with a custom transformer"],
+[418,"cq","Practical","High",0,"Code: permutation importance, and its instability under correlation"],
+[419,"cq","Practical","High",0,"Code: split conformal prediction + empirical coverage check"],
+[420,"cq","Practical","High",0,"Code: PSI and a KS test to flag drifted features"],
+[421,"cq","Practical","High",0,"Code: a bootstrap CI for the difference between two models"],
+[422,"sd","Interview Prep","High",0,"Case: credit default scoring \u2014 explainable, monotonic, audited"],
+[423,"sd","Interview Prep","High",0,"Case: real-time payment fraud at a ~150 ms budget"],
+[424,"sd","Interview Prep","High",0,"Case: churn + retention offers (the uplift trap)"],
+[425,"sd","Interview Prep","High",0,"Case: demand forecasting for 10,000 SKUs"],
+[426,"sd","Interview Prep","High",0,"Case: dynamic pricing / price elasticity (causal, not predictive)"],
+[427,"sd","Interview Prep","High",0,"Case: predictive maintenance with censoring and cost asymmetry"],
+[428,"sd","Interview Prep","High",0,"Case: lead scoring under a fixed sales capacity"],
+[429,"sd","Interview Prep","High",0,"Case: insurance claim severity \u2014 Tweedie GLM vs GBM"],
+[430,"sd","Interview Prep","High",0,"Case: marketing budget allocation and incrementality"],
+[431,"sd","Interview Prep","High",0,"Case: great offline, failing in production \u2014 debug it systematically"],
+[432,"pp","Project","High",0,"Project 1: the leakage post-mortem (build it, break it, fix it)"],
+[433,"pp","Project","High",0,"Project 2: the baseline ladder with an honest cost table"],
+[434,"pp","Project","High",0,"Project 3: the metric that changed the decision"],
+[435,"pp","Project","High",0,"Project 4: calibration study \u2014 including a case where it hurt"],
+[436,"pp","Project","High",0,"Project 5: time series done properly (walk-forward + MASE)"],
+[437,"pp","Project","High",0,"Project 6: uplift vs propensity, with a Qini curve"],
+[438,"pp","Project","High",0,"Project 7: conformal intervals, and coverage under drift"],
+[439,"pp","Project","High",0,"Project 8: a drift monitor that does not cry wolf"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="cmlPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 439 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+</body>
+</html>
