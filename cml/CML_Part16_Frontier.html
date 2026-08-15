@@ -438,7 +438,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <div class="meta-chips">
           <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 15</b></span>
           <span class="chip"><b>8</b> topics</span>
-          <span class="chip">📐 <b>12</b> diagrams</span>
+          <span class="chip">📐 <b>5</b> diagrams</span>
+          <span class="chip">💬 <b>19</b> Q&amp;A</span>
           <span class="chip">🎛 <b>2</b> interactive</span>
           <span class="chip">⏱ <b>~7h</b></span>
         </div>
@@ -486,7 +487,637 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 16.1 ===== -->
+      <article class="topic" id="c16-1">
+        <h3><span class="tn">16.1</span> Tabular foundation models <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">&ldquo;GBDTs beat deep learning on tabular data&rdquo; was a safe answer for years. As of 2026 it is <em>genuinely contested</em>, and knowing that — with the caveats — is the clearest currency signal in this subject.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 290" role="img" aria-label="A timeline of the tabular state of the art from gradient boosted trees dominating, through deep tabular architectures failing to displace them, to tabular foundation models in 2025 and 2026 that scale to a million rows and beat tuned gradient boosting baselines on benchmark suites.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">how the consensus moved — and the caveats that keep you honest</text>
+              <line x1="46" y1="112" x2="660" y2="112" stroke="#3a4453" stroke-width="1.4"/>
+              <g font-size="10">
+                <circle cx="100" cy="112" r="6" fill="#5560D8"/>
+                <text x="100" y="88" fill="#98a0f0" text-anchor="middle">2016–22</text>
+                <text x="100" y="140" fill="#c2cad6" text-anchor="middle">XGBoost / LGBM /</text>
+                <text x="100" y="154" fill="#c2cad6" text-anchor="middle">CatBoost dominate</text>
+
+                <circle cx="250" cy="112" r="6" fill="#5560D8"/>
+                <text x="250" y="88" fill="#98a0f0" text-anchor="middle">2021–23</text>
+                <text x="250" y="140" fill="#c2cad6" text-anchor="middle">TabNet, FT-Transformer,</text>
+                <text x="250" y="154" fill="#c2cad6" text-anchor="middle">SAINT, TabR try…</text>
+                <text x="250" y="170" fill="#e0a3a8" text-anchor="middle">…and don't displace GBDTs</text>
+
+                <circle cx="410" cy="112" r="7" fill="#E0920C"/>
+                <text x="410" y="88" fill="#f0c274" text-anchor="middle">2025 · TabPFN v2</text>
+                <text x="410" y="140" fill="#c2cad6" text-anchor="middle">in-context learning on</text>
+                <text x="410" y="154" fill="#c2cad6" text-anchor="middle">small tabular data;</text>
+                <text x="410" y="168" fill="#c2cad6" text-anchor="middle">proof-of-concept → contender</text>
+
+                <circle cx="590" cy="112" r="8" fill="#2E9E5B"/>
+                <text x="590" y="88" fill="#7fd6a0" text-anchor="middle">2026 · TabPFN-3</text>
+                <text x="590" y="140" fill="#7fd6a0" text-anchor="middle">scales to <tspan font-weight="600">1M rows</tspan>; a single</text>
+                <text x="590" y="154" fill="#7fd6a0" text-anchor="middle">forward pass beats 8-hour-</text>
+                <text x="590" y="168" fill="#7fd6a0" text-anchor="middle">tuned GBDT baselines on TabArena</text>
+
+                <rect x="24" y="192" width="322" height="88" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="40" y="214" fill="#7fd6a0" font-size="11">What the reports claim</text>
+                <text x="40" y="234" fill="#c2cad6">· TabPFN-2.5: <tspan font-weight="600">100% win rate vs default XGBoost</tspan></text>
+                <text x="52" y="248" fill="#c2cad6">  on ≤10k rows / ≤500 features; ~87% to 100k rows</text>
+                <text x="40" y="266" fill="#c2cad6">· TabPFN-3: outperforms AutoGluon 1.5 &ldquo;extreme&rdquo;</text>
+                <text x="52" y="276" fill="#c2cad6">  while being roughly <tspan font-weight="600">10× faster</tspan></text>
+
+                <rect x="356" y="192" width="320" height="88" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="372" y="214" fill="#f0c274" font-size="11">The caveats that make you sound careful</text>
+                <text x="372" y="234" fill="#c2cad6">· pretrained <tspan font-weight="600">exclusively on synthetic data</tspan></text>
+                <text x="372" y="248" fill="#c2cad6">· benchmark suites have their own selection effects</text>
+                <text x="372" y="262" fill="#c2cad6">· feature-count and modality limits still apply</text>
+                <text x="372" y="276" fill="#c2cad6">· deployment, licensing, latency and interpretability</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Why in-context learning is a genuinely different mechanism.</b> TabPFN doesn't <em>train</em> on your data — it was pretrained on millions of synthetic tabular tasks to perform Bayesian inference in a forward pass, and your dataset is fed in as <b>context</b>. There is no fitting loop, no hyperparameter search, and no per-dataset tuning; the &ldquo;training&rdquo; happened once, offline, on synthetic priors. That is why a single forward pass can compete with an 8-hour tuning run.</figcaption>
+        </figure>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The answer to give, near-verbatim</span>
+          <p><em>&ldquo;Historically GBDTs, decisively. As of 2026 that's genuinely contested for small-to-medium data by tabular foundation models like TabPFN — I'd benchmark both on my own data, and I'd still default to a GBDT where I need interpretability, monotonic constraints, cheap retraining and a well-understood ops story.&rdquo;</em> That sentence shows currency, judgement and appropriate scepticism in one breath. Also be able to name the deep tabular architectures — <b>TabNet, FT-Transformer, SAINT, TabR</b> — and <b>AutoGluon</b> as the strong AutoML baseline worth beating.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>⭐ GBDT or deep learning for tabular data? Has that changed?</summary>
+              <div class="ans"><p>&ldquo;Historically GBDTs, decisively — faster to train, less tuning, native missing-value and categorical handling. As of 2026 it's <b>genuinely contested</b> for small-to-medium data by <b>tabular foundation models</b>: TabPFN-2.5 reported a 100% win rate against default XGBoost on ≤10k rows / ≤500 features, and <b>TabPFN-3</b> (May 2026) scales to <b>1M training rows</b>, reporting that a single forward pass beats 8-hour-tuned GBDT baselines up to 1M rows / 200 features on TabArena and outperforms AutoGluon 1.5 'extreme' while roughly 10× faster. The caveats matter: pretrained <b>exclusively on synthetic data</b>, benchmarks have selection effects, and the deployment, licensing and interpretability stories are less mature. So I'd <b>benchmark both</b> on my own data and still default to a GBDT where I need monotonic constraints, interpretability, cheap retraining and a known ops story.&rdquo;</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>How does TabPFN actually work? It doesn't train on your data?</summary>
+              <div class="ans"><p>Correct — it does <b>in-context learning</b>. A transformer was pretrained once, offline, on millions of <b>synthetic</b> tabular datasets generated from structural-causal-model priors, learning to approximate Bayesian inference over that prior. At use time your dataset is fed in as <b>context</b> alongside the rows you want predictions for, and the answer comes out of a single forward pass — no fitting loop, no hyperparameter search, no per-dataset optimisation. That's why it can compete with a long tuning run: the "training" already happened. The consequences to name: its inductive bias is whatever the synthetic prior encoded, and its limits (row count, feature count) are architectural rather than statistical.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Would you put TabPFN in production?</summary>
+              <div class="ans"><p>Cautiously, and I'd benchmark it first because the reported results are strong enough to be worth the test. Reasons for hesitation: the model is pretrained on <b>synthetic</b> data, so its inductive bias is inherited rather than learned from your domain; the <b>interpretability</b> story is thinner than a GBM with SHAP or monotonic constraints; <b>latency</b> is different in kind (a forward pass carrying context, not a tree traversal); and licensing and operational maturity lag. Where I'd reach for it readily: <b>small-data</b> problems where a GBM is starved and tuning is unstable, and as a <b>strong baseline</b> to check whether my heavily-tuned model is actually earning its complexity.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 16.2 ===== -->
+      <article class="topic" id="c16-2">
+        <h3><span class="tn">16.2</span> Aleatoric vs epistemic uncertainty</h3>
+        <p class="lead">Two kinds of &ldquo;I don't know&rdquo;, and they call for opposite responses.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Aleatoric uncertainty is irreducible noise in the data that more data cannot remove, while epistemic uncertainty is model ignorance that shrinks as data is added, illustrated by a region with dense data and narrow model uncertainty and a sparse region with wide uncertainty.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">two kinds of &ldquo;I don't know&rdquo; — and they need opposite responses</text>
+              <g>
+                <line x1="60" y1="196" x2="380" y2="196" stroke="#3a4453"/>
+                <path d="M66 150 C 120 120, 180 108, 240 116 C 300 124, 340 150, 374 172" fill="none" stroke="#F0A81E" stroke-width="2.2"/>
+                <path d="M66 132 C 120 102, 180 90, 240 98 C 300 106, 340 120, 374 118" fill="none" stroke="#2E9E5B" stroke-width="1.2" opacity="0.7"/>
+                <path d="M66 168 C 120 138, 180 126, 240 134 C 300 142, 340 180, 374 226" fill="none" stroke="#2E9E5B" stroke-width="1.2" opacity="0.7"/>
+                <g fill="#5560D8">
+                  <circle cx="90" cy="146" r="3"/><circle cx="112" cy="138" r="3"/><circle cx="134" cy="128" r="3"/><circle cx="156" cy="122" r="3"/><circle cx="178" cy="112" r="3"/><circle cx="200" cy="118" r="3"/><circle cx="222" cy="110" r="3"/><circle cx="244" cy="122" r="3"/><circle cx="100" cy="158" r="3"/><circle cx="146" cy="140" r="3"/><circle cx="190" cy="126" r="3"/><circle cx="234" cy="130" r="3"/>
+                </g>
+                <rect x="300" y="60" width="80" height="146" fill="#C0392B" opacity="0.12"/>
+                <text x="340" y="80" fill="#e0a3a8" font-size="10" text-anchor="middle">no data here</text>
+                <text x="340" y="216" fill="#e0a3a8" font-size="10" text-anchor="middle">band widens</text>
+                <text x="150" y="216" fill="#7fd6a0" font-size="10" text-anchor="middle">dense data · narrow band</text>
+              </g>
+              <g transform="translate(410,0)" font-size="10.5">
+                <rect x="0" y="44" width="266" height="80" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="14" y="66" fill="#98a0f0">Aleatoric</text>
+                <text x="14" y="86" fill="#c2cad6">irreducible noise in the process</text>
+                <text x="14" y="104" fill="#8892a0">More data will not help. Model it —</text>
+                <text x="14" y="118" fill="#8892a0">quantile regression, a predictive distribution.</text>
+                <rect x="0" y="136" width="266" height="86" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="14" y="158" fill="#7fd6a0">Epistemic</text>
+                <text x="14" y="178" fill="#c2cad6">model ignorance where data is sparse</text>
+                <text x="14" y="196" fill="#8892a0">More data <tspan font-style="italic">does</tspan> help — and this is what</text>
+                <text x="14" y="210" fill="#8892a0">active learning targets (§10.1). Estimate it</text>
+                <text x="14" y="222" fill="#8892a0">with ensemble variance or bootstrap spread.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The practical payoff:</b> epistemic uncertainty tells you <em>where to collect data</em>; aleatoric uncertainty tells you <em>where to widen the interval and stop trying</em>. Confusing them means either buying data that cannot help, or giving up on a region where a hundred more labels would fix it.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Aleatoric vs epistemic uncertainty.</summary>
+              <div class="ans"><p><b>Aleatoric</b> is irreducible noise in the process — two identical applicants can have different outcomes. More data will not reduce it; you <em>model</em> it, with quantile regression or a predictive distribution. <b>Epistemic</b> is model ignorance where data is sparse — it <em>does</em> shrink with more data, which is exactly what active learning targets (§10.1), and you estimate it with ensemble variance or bootstrap spread. The practical payoff: epistemic uncertainty tells you <b>where to collect data</b>; aleatoric tells you <b>where to widen the interval and stop trying</b>. Confusing them wastes either data budget or modelling effort.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 16.3 ===== -->
+      <article class="topic" id="c16-3">
+        <h3><span class="tn">16.3</span> Conformal prediction <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The cheapest way to attach a real, distribution-free guarantee to any model — and it fits on a slide.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Split conformal — set α, get coverage</div>
+          <div class="wbody">
+            <canvas id="cfCanvas" width="720" height="300" aria-label="A regression fit with a conformal prediction band around it over test points, showing which points fall inside the band, with a coverage readout, and an option to introduce distribution drift that breaks the exchangeability assumption."></canvas>
+            <div class="wctl">
+              <label>miscoverage α · <b id="cfAVal">0.10</b>
+                <input type="range" id="cfA" min="1" max="40" value="10" step="1">
+              </label>
+              <label>calibration set size · <b id="cfNVal">200</b>
+                <input type="range" id="cfN" min="20" max="600" value="200" step="10">
+              </label>
+              <label>distribution drift at test time · <b id="cfDVal">none</b>
+                <input type="range" id="cfD" min="0" max="100" value="0" step="2">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="cfTarget">—</span>target coverage</div>
+              <div class="wcell"><span class="n" id="cfEmp">—</span>empirical coverage</div>
+              <div class="wcell"><span class="n" id="cfWidth">—</span>interval width</div>
+              <div class="wcell"><span class="n" id="cfQ">—</span>conformal quantile q̂</div>
+            </div>
+            <div class="wout" id="cfOut"></div>
+            <p class="wnote">This is the complete algorithm, implemented: fit any model on a training split, compute absolute residuals on a disjoint <b>calibration</b> split, take the <code class="ic">⌈(n+1)(1−α)⌉/n</code> empirical quantile of those residuals as <code class="ic">q̂</code>, and emit <code class="ic">[ŷ − q̂, ŷ + q̂]</code>. Coverage lands on target <b>with no distributional assumption</b>. Then push the drift slider and watch it break: exchangeability is the one assumption it needs.</p>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Property</th><th>What it means</th></tr></thead>
+            <tbody>
+              <tr><td><b>Distribution-free</b></td><td>No assumption about the noise distribution or the model's correctness</td></tr>
+              <tr><td><b>Model-agnostic</b></td><td>Wraps <em>any</em> predictor — a GBM, a neural net, a lookup table</td></tr>
+              <tr><td><b>Finite-sample</b></td><td>The guarantee holds at your actual <code class="ic">n</code>, not asymptotically</td></tr>
+              <tr><td><b>Marginal</b>, not conditional</td><td>Coverage holds <em>on average</em> over the test distribution — <b>not</b> for every subgroup. Easy cases get intervals that are too wide, hard cases too narrow, unless you use a normalised score</td></tr>
+              <tr><td>Assumes <b>exchangeability</b></td><td>Calibration and test data must be exchangeable — which <b>breaks under drift and for time series</b>, hence adaptive and weighted variants</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Conformalised quantile regression is the practical best of both</span>
+          <p>Plain split conformal gives a <b>constant-width</b> band, which is wrong wherever the noise varies. Fit a <b>quantile regression</b> at α/2 and 1−α/2 first (adaptive width, §5.9), then conformalise <em>its</em> residuals — you get an interval that is both <b>adaptive</b> and carries the <b>finite-sample guarantee</b>. That combination is the answer when someone asks how you'd produce prediction intervals you can actually commit to.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>⭐ What is conformal prediction and what guarantee does it give?</summary>
+              <div class="ans"><p>A distribution-free, model-agnostic wrapper turning point predictions into <b>sets or intervals with finite-sample coverage</b>. Split conformal: fit on a training split, compute a nonconformity score (e.g. absolute residual) on a disjoint <b>calibration</b> split, take the <code class="ic">⌈(n+1)(1−α)⌉/n</code> empirical quantile as <code class="ic">q̂</code>, emit <code class="ic">ŷ ± q̂</code>. The guarantee is <b>marginal coverage ≥ 1−α</b> under <b>exchangeability</b> of calibration and test data — which breaks under drift and for time series, hence adaptive and weighted variants. Two caveats worth volunteering: coverage is <b>marginal, not conditional</b> (too wide for easy cases, too narrow for hard ones unless you normalise the score), and the interval is constant-width unless you conformalise a quantile model.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>You need prediction intervals. Quantile regression, bootstrap, or conformal?</summary>
+              <div class="ans"><p>Depends on the guarantee you need. <b>Quantile regression</b> is cheap and gives adaptive, heteroscedasticity-aware intervals, but coverage relies on the model being right. <b>Bootstrap</b> captures parameter uncertainty but not irreducible noise, so it typically <b>under-covers</b> for a new observation unless you add the residual distribution back. <b>Conformal</b> gives a finite-sample, distribution-free coverage guarantee and wraps any model — my default when the interval carries a real commitment. The strongest practical answer is <b>conformalised quantile regression</b>: adaptive width from the quantile model, guaranteed coverage from the conformal wrapper.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Does conformal prediction work for time series?</summary>
+              <div class="ans"><p><b>Not out of the box</b>, because it assumes <b>exchangeability</b> — that calibration and test points are drawn from the same distribution in a way that's invariant to ordering. Time series violates that by construction: there's a temporal trend, autocorrelation, and drift, so residuals from last month don't calibrate next month. The fixes are named variants: <b>adaptive conformal inference</b> (ACI), which updates α online based on realised coverage, and <b>weighted conformal</b>, which down-weights older calibration points. Knowing that exchangeability is the assumption — and that it's the <em>only</em> one — is what the question is testing.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 16.4 ===== -->
+      <article class="topic" id="c16-4">
+        <h3><span class="tn">16.4</span> Causal inference <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Most ML answers &ldquo;what will happen?&rdquo;. Most business questions are &ldquo;what should we <em>do</em>?&rdquo;. Those are different, and a correlation-trained model answers the wrong one.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Concept</th><th>What it is</th><th>Why it bites</th></tr></thead>
+            <tbody>
+              <tr><td><b>Potential outcomes</b></td><td>Each unit has <code class="ic">Y(1)</code> and <code class="ic">Y(0)</code>; you observe only one</td><td>The <b>fundamental problem of causal inference</b> — there is no per-row label to be right about (§16.5)</td></tr>
+              <tr><td>ATE / ATT / <b>CATE</b></td><td>Average effect / effect on the treated / effect <em>conditional on x</em></td><td>CATE is what targeting needs; ATE is what an experiment reports</td></tr>
+              <tr><td><b>Confounder</b></td><td>Causes both treatment and outcome</td><td>Must be controlled for, or the estimate is biased</td></tr>
+              <tr><td><b>Collider</b></td><td>Caused by both treatment and outcome</td><td><b>Controlling for it creates bias that wasn't there</b> — the opposite of a confounder, and the reason "control for everything" is wrong</td></tr>
+              <tr><td>Mediator</td><td>On the causal path between treatment and outcome</td><td>Controlling for it removes part of the effect you're trying to measure</td></tr>
+              <tr><td>Selection bias</td><td>Who ends up in your data depends on the outcome</td><td>The reject-inference and feedback-loop problems (§15.7)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Methods available when you cannot run a randomised experiment, and the DoWhy four-step framing of model, identify, estimate and refute.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the ladder — randomise if you can, and name the assumption if you can't</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="205" height="88" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="40" y="62" fill="#7fd6a0">Gold standard</text>
+                <text x="40" y="84" fill="#c2cad6"><tspan font-weight="600">Randomised experiment</tspan></text>
+                <text x="40" y="102" fill="#8892a0">Randomisation makes treatment</text>
+                <text x="40" y="116" fill="#8892a0">independent of confounders — by design.</text>
+
+                <rect x="247" y="40" width="429" height="88" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="263" y="62" fill="#f0c274">When you can't randomise — each needs a stated assumption</text>
+                <text x="263" y="84" fill="#c2cad6">propensity matching / IPW <tspan fill="#8892a0">(no unmeasured confounders)</tspan> · difference-in-differences <tspan fill="#8892a0">(parallel trends)</tspan></text>
+                <text x="263" y="100" fill="#c2cad6">regression discontinuity <tspan fill="#8892a0">(continuity at the cutoff)</tspan> · instrumental variables <tspan fill="#8892a0">(relevance + exclusion)</tspan></text>
+                <text x="263" y="116" fill="#c2cad6">synthetic control · <tspan font-weight="600">double/debiased ML</tspan> <tspan fill="#8892a0">(cross-fitting + orthogonality)</tspan></text>
+
+                <rect x="24" y="144" width="652" height="82" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="166" fill="#98a0f0" font-size="11.5">DoWhy's four-step framing — worth quoting</text>
+                <text x="40" y="188" fill="#c2cad6"><tspan font-weight="600" fill="#fff">model</tspan> the problem as a causal graph → <tspan font-weight="600" fill="#fff">identify</tspan> whether the effect is estimable from the data you have →</text>
+                <text x="40" y="206" fill="#c2cad6"><tspan font-weight="600" fill="#fff">estimate</tspan> it → <tspan font-weight="600" fill="#7fd6a0">refute</tspan> it with placebo tests, random common causes, and subset validation.</text>
+                <text x="40" y="220" fill="#8892a0">The <tspan font-style="italic">refute</tspan> step is the one that impresses, because it is the one everybody skips.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Libraries to name:</b> <b>DoWhy</b> for the identify-then-refute workflow, <b>EconML</b> for CATE estimators and DML, <b>CausalML</b> (Uber) for uplift. Naming the <em>assumption</em> each method requires — parallel trends for DiD, exclusion restriction for IV — is what separates someone who has used them from someone who has listed them.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Your model predicts churn accurately. The business asks who to give a discount to. What's wrong?</summary>
+              <div class="ans"><p>The churn model answers "who will leave?", but the decision needs "who will <b>stay because we acted</b>?" — different quantities. The highest churn scores are dominated by <b>lost causes</b> who leave regardless; budget also leaks to <b>sure things</b> who'd have stayed; and some customers are <b>sleeping dogs</b> for whom the offer is a reminder to cancel, so the treatment effect is <em>negative</em>. You need <b>uplift / CATE</b>, ideally from a randomised holdout, evaluated with <b>Qini and uplift curves rather than AUC</b>. The general principle: <b>a predictive model is invalid under intervention.</b></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What's a collider, and why does controlling for it hurt?</summary>
+              <div class="ans"><p>A <b>collider</b> is a variable <em>caused by</em> both the treatment and the outcome (or by two otherwise-independent causes). Confounders must be controlled for; colliders must <b>not</b> be — conditioning on one <b>creates</b> a spurious association between its causes that didn't exist in the population. The classic illustration: among hospitalised patients, two unrelated diseases appear negatively correlated, because being admitted (the collider) means you probably have at least one. This is why "control for everything you have" is wrong: adding a covariate can introduce bias as easily as remove it, and only a causal <b>graph</b> tells you which is which.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>You can't run an experiment. What do you do?</summary>
+              <div class="ans"><p>Pick a method and <b>state its assumption explicitly</b>, because that's what makes the estimate reviewable. <b>Propensity matching/IPW</b> assumes no unmeasured confounders — strong and usually unverifiable. <b>Difference-in-differences</b> assumes parallel trends, which you can partially check on pre-period data. <b>Regression discontinuity</b> assumes continuity at the cutoff and is very credible where a real threshold exists. <b>Instrumental variables</b> needs relevance and the exclusion restriction. <b>DML</b> lets you use ML for the nuisance functions while keeping valid inference. Then run <b>refutation tests</b> — placebo treatments, random common causes, subset stability — because an estimate nobody tried to break isn't evidence.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 16.5 ===== -->
+      <article class="topic" id="c16-5">
+        <h3><span class="tn">16.5</span> Uplift modelling <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The concrete form of the causal argument — and the widget makes the cost of getting it wrong visible in pounds.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Churn score vs uplift — who actually gets the discount?</div>
+          <div class="wbody">
+            <canvas id="upCanvas" width="720" height="300" aria-label="Customers plotted by churn risk and treatment effect, divided into persuadables, sure things, lost causes and sleeping dogs, with the customers selected by a churn-score strategy and by an uplift strategy highlighted for a fixed budget."></canvas>
+            <div class="wctl">
+              <label>campaign budget (customers contacted) · <b id="upBVal">200</b>
+                <input type="range" id="upB" min="40" max="600" value="200" step="10">
+              </label>
+              <label>targeting rule
+                <span class="wbtns" style="margin-top:2px">
+                  <button class="wbtn on" id="upChurn">by churn score</button><button class="wbtn" id="upUplift">by uplift</button>
+                </span>
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="upSaved">—</span>customers actually retained</div>
+              <div class="wcell"><span class="n" id="upWasted">—</span>discounts to sure-things</div>
+              <div class="wcell"><span class="n" id="upHarm">—</span>sleeping dogs woken</div>
+              <div class="wcell"><span class="n" id="upRoi">—</span>net effect per 100 contacts</div>
+            </div>
+            <div class="wout" id="upOut"></div>
+            <p class="wnote">2,000 simulated customers, each with a true churn probability and a true treatment effect that are <b>only weakly related</b> — the realistic case. Switch rules at a fixed budget and read the retained count. Targeting the highest churn scores spends most of the budget on <b>lost causes</b> and <b>sure things</b>; targeting uplift spends it on <b>persuadables</b>. Same data, same budget, very different outcome.</p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="The four-quadrant uplift taxonomy of persuadables, sure things, lost causes and sleeping dogs, alongside the CATE estimators and the note that AUC is the wrong metric.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the four types of customer — and why only one is worth a discount</text>
+              <g font-size="10">
+                <rect x="40" y="42" width="130" height="86" rx="8" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="105" y="66" fill="#7fd6a0" text-anchor="middle" font-size="11">Persuadables</text>
+                <text x="105" y="86" fill="#c2cad6" text-anchor="middle">stay only if treated</text>
+                <text x="105" y="106" fill="#7fd6a0" text-anchor="middle" font-weight="600">the entire ROI</text>
+                <text x="105" y="120" fill="#8892a0" text-anchor="middle">lives here</text>
+
+                <rect x="176" y="42" width="130" height="86" rx="8" fill="#3a2418" stroke="#E0920C"/>
+                <text x="241" y="66" fill="#f0c274" text-anchor="middle" font-size="11">Sure things</text>
+                <text x="241" y="86" fill="#c2cad6" text-anchor="middle">stay either way</text>
+                <text x="241" y="106" fill="#f0c274" text-anchor="middle">wasted margin</text>
+
+                <rect x="40" y="136" width="130" height="86" rx="8" fill="#252D3A" stroke="#3a4453"/>
+                <text x="105" y="160" fill="#c2cad6" text-anchor="middle" font-size="11">Lost causes</text>
+                <text x="105" y="180" fill="#8892a0" text-anchor="middle">leave either way</text>
+                <text x="105" y="200" fill="#8892a0" text-anchor="middle">wasted contact</text>
+                <text x="105" y="214" fill="#e0a3a8" text-anchor="middle">— and they score highest</text>
+
+                <rect x="176" y="136" width="130" height="86" rx="8" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="241" y="160" fill="#e0a3a8" text-anchor="middle" font-size="11">Sleeping dogs</text>
+                <text x="241" y="180" fill="#c2cad6" text-anchor="middle">the offer <tspan font-style="italic">reminds</tspan> them</text>
+                <text x="241" y="196" fill="#c2cad6" text-anchor="middle">to cancel</text>
+                <text x="241" y="214" fill="#e0a3a8" text-anchor="middle">actively harmful</text>
+
+                <text x="105" y="240" fill="#8892a0" text-anchor="middle">high churn risk ↓</text>
+                <text x="330" y="132" fill="#8892a0" text-anchor="middle">treatment effect →</text>
+
+                <rect x="360" y="42" width="316" height="88" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="376" y="64" fill="#98a0f0" font-size="11">Estimating CATE</text>
+                <text x="376" y="86" fill="#c2cad6"><tspan font-weight="600">T-learner</tspan> — separate models per arm</text>
+                <text x="376" y="102" fill="#c2cad6"><tspan font-weight="600">S-learner</tspan> — one model, treatment as a feature</text>
+                <text x="376" y="118" fill="#c2cad6"><tspan font-weight="600">X-learner</tspan> — better with imbalanced arms · <tspan font-weight="600">causal forests</tspan></text>
+
+                <rect x="360" y="142" width="316" height="80" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="376" y="164" fill="#7fd6a0" font-size="11">Measuring it</text>
+                <text x="376" y="186" fill="#e0a3a8" font-weight="600">Qini and uplift curves — not AUC</text>
+                <text x="376" y="204" fill="#8892a0">You never observe the counterfactual for an individual,</text>
+                <text x="376" y="216" fill="#8892a0">so evaluation must be <tspan font-style="italic">aggregate</tspan>, by score decile.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Why AUC is the wrong metric:</b> you never observe both potential outcomes for the same person, so there is no per-row label to be right or wrong about. Uplift is evaluated <em>in aggregate</em> by ranking on predicted uplift and comparing treated-vs-control outcomes <b>within score deciles</b> — which is exactly what the <b>Qini curve</b> plots.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>⭐ Explain uplift modelling. Why is AUC the wrong metric for it?</summary>
+              <div class="ans"><p>Uplift estimates the <b>conditional average treatment effect</b> <code class="ic">E[y|x,treat] − E[y|x,control]</code> — the <em>change</em> caused by the action, not the outcome level. Estimators: <b>T-learner</b> (separate models per arm), <b>S-learner</b> (one model with treatment as a feature), <b>X-learner</b> (better when arms are imbalanced), <b>causal forests</b>. <b>AUC is wrong</b> because there's no per-row label to be right about — you never observe both potential outcomes for the same person. Evaluation must be aggregate: rank by predicted uplift and compare treated vs control outcomes <b>within score deciles</b>, which is what the <b>Qini curve</b> plots.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you get the data to train an uplift model?</summary>
+              <div class="ans"><p>Ideally from a <b>randomised experiment</b>: treat a random subset, hold out a random control, and you have unbiased treated and untreated outcomes across the whole feature space. That's why mature retention programmes keep a permanent <b>randomised holdout</b> — it costs a little margin and it's the only thing that makes uplift estimable and measurable over time. Without randomisation you're doing observational causal inference (§16.4) with propensity weighting or DML, and you must state the no-unmeasured-confounders assumption — which is usually violated when past campaigns targeted people <em>because</em> they looked like churners. Recommending the holdout <em>before</em> the modelling is the senior move.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What are sleeping dogs and why do they matter so much?</summary>
+              <div class="ans"><p>Customers whose treatment effect is <b>negative</b> — the retention offer reminds them the subscription exists, or the marketing email prompts an unsubscribe. They matter disproportionately because they're the one group where the campaign is <em>worse than doing nothing</em>, so every contact is a double loss: the cost of the offer plus a customer you'd otherwise have kept. A churn-score-ranked campaign can't distinguish them from persuadables (both may score high on risk), which is the sharpest single argument for uplift over propensity — and it's the kind of effect that only shows up if you kept a randomised control to measure against.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 16.6 ===== -->
+      <article class="topic" id="c16-6">
+        <h3><span class="tn">16.6</span> Double machine learning <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">How to use a GBM for the messy parts of a causal estimate without destroying your inference.</p>
+
+        <p>You want the effect of a treatment <code class="ic">D</code> on an outcome <code class="ic">Y</code>, with high-dimensional confounders <code class="ic">X</code>. DML fits two <b>nuisance</b> models with any ML method — <code class="ic">E[Y|X]</code> and <code class="ic">E[D|X]</code> — takes the residuals of each, and regresses one residual on the other. That is the Frisch-Waugh-Lovell theorem, made robust.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Ingredient</th><th>What it prevents</th></tr></thead>
+            <tbody>
+              <tr><td><b>Neyman orthogonality</b></td><td>The effect estimate is <b>insensitive to first-order errors</b> in the nuisance models — so a slightly wrong GBM doesn't bias the effect</td></tr>
+              <tr><td><b>Cross-fitting</b></td><td>A row's nuisance predictions come from a model that <b>never saw it</b> — without this, regularization bias and overfitting contaminate the residuals</td></tr>
+              <tr><td>Result</td><td>A <b>√n-consistent</b> effect estimate with <b>valid confidence intervals</b>, while using flexible ML for the nuisances</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Cross-fitting is the same idea as out-of-fold everything else</span>
+          <p>Notice the pattern: <b>out-of-fold target encoding</b> (§3.5), <b>ordered boosting</b> (§8.6), <b>stacking's OOF meta-features</b> (§8.8), and now <b>cross-fitting in DML</b> — all four are the same insight, that a row's derived value must come from a model that never saw that row. Spotting that as one principle rather than four tricks is exactly the kind of connection that makes an interview go well.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is double machine learning for?</summary>
+              <div class="ans"><p>Estimating a causal effect with high-dimensional confounders while still using flexible ML. Fit two <b>nuisance</b> models with any learner — outcome given confounders, and treatment given confounders — take the residuals of each, and regress one on the other (Frisch-Waugh-Lovell). Two ingredients make it valid: <b>Neyman orthogonality</b>, so small nuisance errors don't bias the effect to first order, and <b>cross-fitting</b>, so a row's nuisance predictions come from a model that never saw it — otherwise regularization bias contaminates the estimate. The payoff is a <b>√n-consistent effect with valid confidence intervals</b> while using gradient boosting for the messy parts. <code class="ic">EconML</code> implements it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why can't you just put the treatment in a regression with all the confounders?</summary>
+              <div class="ans"><p>You can, and with a correctly-specified linear model it's fine. The problem is when you use a <b>flexible</b> model to handle high-dimensional or non-linear confounding: the regularization that makes the ML model work also <b>biases the treatment coefficient</b> (it shrinks it along with everything else), and the model's own overfitting to the confounders contaminates the estimate. Standard inference then gives confidence intervals that are simply wrong. DML fixes both — orthogonalisation removes the first-order sensitivity to nuisance error, cross-fitting removes the overfitting contamination — which is why it exists as a separate procedure rather than "just add the controls".</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 16.7 ===== -->
+      <article class="topic" id="c16-7">
+        <h3><span class="tn">16.7</span> Data-centric ML <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">One sentence carries this section: <strong>most of the remaining accuracy is in the data, not the model.</strong></p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 230" role="img" aria-label="Label noise sets a ceiling on achievable accuracy: as the label error rate rises, the maximum achievable accuracy falls proportionally, and a model that appears to exceed the ceiling is memorising the noise.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">label noise is a ceiling, not a nuisance</text>
+              <line x1="70" y1="180" x2="420" y2="180" stroke="#3a4453"/>
+              <line x1="70" y1="46" x2="70" y2="180" stroke="#3a4453"/>
+              <path d="M74 54 L414 156" fill="none" stroke="#2E9E5B" stroke-width="2.6"/>
+              <path d="M74 62 C 160 84, 260 116, 414 168" fill="none" stroke="#5560D8" stroke-width="2" stroke-dasharray="4 3"/>
+              <g fill="#8892a0" font-size="10">
+                <text x="245" y="200" text-anchor="middle">label error rate →</text>
+                <text x="46" y="116" transform="rotate(-90 46 116)" text-anchor="middle">achievable accuracy</text>
+                <text x="76" y="196">0%</text><text x="392" y="196">30%</text>
+              </g>
+              <text x="300" y="102" fill="#7fd6a0" font-size="10">theoretical ceiling</text>
+              <text x="200" y="146" fill="#98a0f0" font-size="10">what your model gets</text>
+              <g font-size="10.5">
+                <rect x="452" y="44" width="224" height="176" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="468" y="66" fill="#fff" font-size="11">The data-centric toolkit</text>
+                <text x="468" y="90" fill="#c2cad6">· <tspan font-weight="600">Audit 200 random errors</tspan> before</text>
+                <text x="480" y="104" fill="#c2cad6">touching the model — the highest-</text>
+                <text x="480" y="118" fill="#c2cad6">yield hour in most projects</text>
+                <text x="468" y="140" fill="#c2cad6">· Confident learning / Cleanlab-style</text>
+                <text x="480" y="154" fill="#c2cad6">automated label auditing</text>
+                <text x="468" y="176" fill="#c2cad6">· Systematic error analysis <tspan font-weight="600">by slice</tspan></text>
+                <text x="468" y="198" fill="#c2cad6">· Inter-annotator agreement as a</text>
+                <text x="480" y="212" fill="#c2cad6"><tspan font-weight="600">ceiling</tspan>, not a formality</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Synthetic data</b> belongs here too, with its trade-off stated: it genuinely helps for <b>rare classes</b> and for <b>privacy-constrained</b> sharing, and it actively hurts when it <b>fabricates structure</b> the model then learns as real — the SMOTE critique (§12.9) generalised. If you generate it, validate that a model trained on synthetic data still performs on <em>real</em> held-out data.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>Your model is stuck at 84% and the business wants 90%. What do you do?</summary>
+              <div class="ans"><p>Before touching the model: <b>audit 200 random errors</b>. That single hour usually tells you whether the remaining gap is label noise, a missing feature, a broken slice, or genuine difficulty — and those have completely different fixes. Then check the <b>ceiling</b>: what's inter-annotator agreement? If humans agree 88% of the time, 90% is not achievable and the honest answer is to say so. Then <b>slice analysis</b> (§11.6) to see whether the deficit is concentrated. Only after those would I look at features, and only after <em>that</em> at the model — because the ordering of that list is the answer.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>When does synthetic data help and when does it hurt?</summary>
+              <div class="ans"><p><b>Helps</b> for genuinely rare classes where you need more coverage of a known pattern, and for <b>privacy-constrained</b> sharing where the alternative is no data at all. <b>Hurts</b> when it <b>fabricates structure</b> — the generator imposes its own assumptions, the model learns them as real, and performance on genuine data doesn't improve or degrades. That's the SMOTE critique (§12.9) generalised. The non-negotiable check: train on synthetic (or augmented) data and evaluate on <b>real held-out data</b>. If that number doesn't improve, the synthetic data isn't helping regardless of how good it looks.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 16.8 ===== -->
+      <article class="topic" id="c16-8">
+        <h3><span class="tn">16.8</span> Shift, robustness &amp; the big question <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The closing section, and the one that gives you a <em>position</em> rather than a fact.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Shift</th><th>What moves</th><th>Response</th></tr></thead>
+            <tbody>
+              <tr><td>Covariate shift</td><td><code class="ic">P(x)</code>, with <code class="ic">P(y|x)</code> stable</td><td>Importance weighting; domain adaptation; often just retrain on recent data</td></tr>
+              <tr><td>Label / prior shift</td><td><code class="ic">P(y)</code></td><td>Re-threshold; prior correction on the probabilities (§2.3)</td></tr>
+              <tr><td>Concept shift</td><td><code class="ic">P(y|x)</code></td><td>Retrain — nothing else helps</td></tr>
+              <tr><td><b>Strategic / adversarial</b></td><td>The <em>subjects</em> adapt to the model</td><td>Fraudsters and credit-score gamers respond to your rules — <b>strategic classification</b>. Prefer features that are costly to fake, and expect to retrain on a cycle</td></tr>
+              <tr><td>Shortcut learning</td><td>Nothing — you learned the wrong thing</td><td>Spurious correlations that hold in training and not in deployment; stress-test with counterfactual slices</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">⭐ &ldquo;Is classical ML dead?&rdquo;</span>
+          <p><b>No</b> — and the reason is worth saying carefully. Most of the world's high-value prediction problems are still <b>tabular, latency-bound, regulated and small-data</b>: credit, insurance, fraud, demand, pricing, clinical risk. What changed is that the <b>baseline moved</b>. Strong AutoML and tabular foundation models mean that getting a competent model is no longer where the difficulty is — so the job has shifted toward <b>framing the problem, owning the data, designing the evaluation and running the deployment</b>. That is a better answer than either &ldquo;no, GBDTs still win&rdquo; or &ldquo;yes, LLMs do everything now&rdquo;, because it is the one that is actually true.</p>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Privacy, at a glance</span>
+          <p><b>Differential privacy</b> — a formal guarantee bounded by ε, with a real accuracy cost; <b>k-anonymity</b> and its successors, which are weaker and defeatable by linkage; <b>federated learning</b>, which keeps raw data on-device but does <em>not</em> by itself provide privacy (gradients leak; combine it with DP). Enough to have an opinion, not enough to claim expertise — which is the right calibration for a classical ML interview.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>⭐ Is classical ML dead?</summary>
+              <div class="ans"><p>No. Most of the world's high-value prediction problems are still <b>tabular, latency-bound, regulated and small-data</b> — credit, insurance, fraud, demand, pricing, clinical risk — and none of that is going to an LLM. What <em>changed</em> is that the <b>baseline moved</b>: strong AutoML and tabular foundation models mean getting a competent model is no longer the hard part. So the job has shifted toward <b>framing the problem, owning the data, designing the evaluation, and running the deployment</b> — which is exactly where this whole subject spends its time. That's a more honest answer than either "GBDTs still win" or "LLMs do everything now".</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is strategic classification, and where have you seen it?</summary>
+              <div class="ans"><p>When the <b>subjects of the model adapt to it</b>, the data distribution changes <em>because</em> you deployed. Credit-score gaming (opening accounts to manipulate utilisation), fraudsters probing which transaction sizes clear, SEO against a ranking model, applicants tailoring CVs to a screener. It's distinct from ordinary drift because the shift is <b>adversarial and responsive</b> — fixing the model provokes the next adaptation. Practical responses: prefer features that are <b>costly to fake</b> or causally related to the outcome rather than merely correlated; keep the exact rules non-public; expect a retraining <b>cycle</b> rather than a stable model; and monitor for sudden distribution changes concentrated in gameable features.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 16 widgets ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function gauss(r){ var u=1-r(), v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+
+  /* ---------- 16.3 conformal ---------- */
+  var cfCv=document.getElementById("cfCanvas");
+  if(cfCv){
+    var cfA=document.getElementById("cfA"), cfN=document.getElementById("cfN"), cfD=document.getElementById("cfD");
+    function f(x){ return 1.6*Math.sin(1.9*x) + 0.6*x; }
+    function drawCF(){
+      var alpha=(+cfA.value)/100, ncal=+cfN.value, drift=(+cfD.value)/100;
+      document.getElementById("cfAVal").textContent=alpha.toFixed(2);
+      document.getElementById("cfNVal").textContent=ncal;
+      document.getElementById("cfDVal").textContent= drift<0.05? "none" : (drift<0.5? "mild":"severe");
+      var r=rng(88);
+      function noise(){ return 0.55*gauss(r); }
+      var cal=[];
+      for(var i=0;i<ncal;i++){ cal.push(Math.abs(noise())); }
+      cal.sort(function(a,b){ return a-b; });
+      var k=Math.ceil((ncal+1)*(1-alpha));
+      var q = cal[Math.min(ncal-1, k-1)];
+      var test=[], inside=0;
+      for(var i=0;i<400;i++){
+        var x=-3+6*r();
+        var y=f(x)+noise()*(1+2.2*drift)+drift*1.4;
+        test.push({x:x,y:y});
+        if(Math.abs(y-f(x))<=q) inside++;
+      }
+      var cov=inside/test.length;
+      var ctx=dpr(cfCv), W=720, H=300; ctx.clearRect(0,0,W,H);
+      var L=50,R=690,T=40,B=260;
+      function px(x){ return L+(x+3)/6*(R-L); }
+      function py(y){ return B-(y+5)/10*(B-T); }
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+      ctx.fillStyle="rgba(46,158,91,0.18)";
+      ctx.beginPath();
+      for(var i=0;i<=120;i++){ var x=-3+6*i/120; var X=px(x), Y=py(f(x)+q); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+      for(var i=120;i>=0;i--){ var x=-3+6*i/120; ctx.lineTo(px(x), py(f(x)-q)); }
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle="#F0A81E"; ctx.lineWidth=2.4; ctx.beginPath();
+      for(var i=0;i<=120;i++){ var x=-3+6*i/120; var X=px(x), Y=py(f(x)); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+      ctx.stroke();
+      test.forEach(function(p){
+        var ok=Math.abs(p.y-f(p.x))<=q;
+        ctx.fillStyle= ok? "rgba(85,96,216,0.55)" : "#C0392B";
+        ctx.beginPath(); ctx.arc(px(p.x), py(p.y), ok?2.4:3.4, 0, 6.3); ctx.fill();
+      });
+      ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+      ctx.fillText("prediction ± q̂  ·  red points fall outside the interval", L, 26);
+      document.getElementById("cfTarget").textContent=((1-alpha)*100).toFixed(0)+"%";
+      document.getElementById("cfEmp").textContent=(cov*100).toFixed(1)+"%";
+      document.getElementById("cfWidth").textContent=(2*q).toFixed(2);
+      document.getElementById("cfQ").textContent=q.toFixed(3);
+      var msg;
+      if(drift>0.1) msg="<span class='warn'>Exchangeability is broken.</span> Target coverage <span class='v'>"+((1-alpha)*100).toFixed(0)+"%</span>, empirical coverage <span class='v'>"+(cov*100).toFixed(1)+"%</span>. The calibration residuals came from the old distribution, so the guarantee no longer applies — exactly the failure mode you must name when asked about conformal for time series or under drift, and why adaptive/weighted conformal exists.";
+      else if(ncal<60) msg="Coverage <span class='v'>"+(cov*100).toFixed(1)+"%</span> against a target of <span class='v'>"+((1-alpha)*100).toFixed(0)+"%</span>. <span class='warn'>With only "+ncal+" calibration points the quantile is noisy</span> — the guarantee is still valid in expectation, but any single run can be off. Rule of thumb: you need at least ~1/α points to estimate the quantile at all.";
+      else msg="<span class='good'>Coverage lands on target:</span> <span class='v'>"+(cov*100).toFixed(1)+"%</span> against <span class='v'>"+((1-alpha)*100).toFixed(0)+"%</span>, with an interval width of <span class='v'>"+(2*q).toFixed(2)+"</span>. No distributional assumption was made about the model or the noise — only that calibration and test data are <b>exchangeable</b>. Tighten α and watch the band widen: coverage and width are the trade-off.";
+      document.getElementById("cfOut").innerHTML=msg;
+    }
+    [cfA,cfN,cfD].forEach(function(e){ e.addEventListener("input", drawCF); });
+    drawCF();
+  }
+
+  /* ---------- 16.5 uplift ---------- */
+  var upCv=document.getElementById("upCanvas");
+  if(upCv){
+    var mode="churn";
+    var r0=rng(2077), CUST=[];
+    for(var i=0;i<2000;i++){
+      var risk=Math.min(0.97,Math.max(0.02, 0.35+0.24*gauss(r0)));
+      var eff = 0.18*Math.exp(-Math.pow((risk-0.5)/0.16,2)) + 0.05*gauss(r0);
+      CUST.push({risk:risk, eff:eff});
+    }
+    var upB=document.getElementById("upB");
+    function drawUP(){
+      var budget=+upB.value;
+      document.getElementById("upBVal").textContent=budget;
+      var order=CUST.map(function(c,i){return i;}).sort(function(a,b){
+        return mode==="churn" ? CUST[b].risk-CUST[a].risk : CUST[b].eff-CUST[a].eff;
+      });
+      var chosen={};
+      for(var i=0;i<Math.min(budget,order.length);i++) chosen[order[i]]=1;
+      var saved=0, wasted=0, harm=0;
+      Object.keys(chosen).forEach(function(k){
+        var c=CUST[k];
+        saved += c.eff;
+        if(c.risk<0.30) wasted++;
+        if(c.eff<0) harm++;
+      });
+      var ctx=dpr(upCv), W=720, H=300; ctx.clearRect(0,0,W,H);
+      var L=60,R=470,T=40,B=260;
+      function px(e){ return L+(e+0.14)/0.40*(R-L); }
+      function py(rk){ return B-rk*(B-T); }
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+      var zx=px(0);
+      ctx.strokeStyle="#5A6472"; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(zx,T); ctx.lineTo(zx,B); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(L,py(0.5)); ctx.lineTo(R,py(0.5)); ctx.stroke(); ctx.setLineDash([]);
+      CUST.forEach(function(c,i){
+        var sel=chosen[i];
+        ctx.fillStyle = sel? (c.eff>0.02? "#2E9E5B" : (c.eff<0? "#C0392B":"#E0920C")) : "rgba(90,100,114,0.25)";
+        ctx.beginPath(); ctx.arc(px(c.eff), py(c.risk), sel?2.9:1.7, 0, 6.3); ctx.fill();
+      });
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("treatment effect (uplift) →", (L+R)/2-70, B+22);
+      ctx.save(); ctx.translate(L-24,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.fillText("churn risk", -28, 0); ctx.restore();
+      ctx.fillStyle="#6b7482"; ctx.font="10px ui-monospace,Menlo,monospace";
+      ctx.fillText("sleeping dogs", L+8, T+16);
+      ctx.fillText("persuadables", R-96, T+16);
+      ctx.fillText("(low risk)", L+8, B-8);
+      var BL=520, BT=70;
+      ctx.fillStyle="#c2cad6"; ctx.font="12px ui-monospace,Menlo,monospace";
+      ctx.fillText("expected retained", BL, 44);
+      var churnSaved=0, upliftSaved=0;
+      var oc=CUST.map(function(c,i){return i;}).sort(function(a,b){ return CUST[b].risk-CUST[a].risk; });
+      var ou=CUST.map(function(c,i){return i;}).sort(function(a,b){ return CUST[b].eff-CUST[a].eff; });
+      for(var i=0;i<Math.min(budget,2000);i++){ churnSaved+=CUST[oc[i]].eff; upliftSaved+=CUST[ou[i]].eff; }
+      var mxv=Math.max(churnSaved,upliftSaved,1);
+      [["by churn score",churnSaved,"#5560D8"],["by uplift",upliftSaved,"#2E9E5B"]].forEach(function(d,i){
+        var y=BT+i*70, w=(d[1]/mxv)*150;
+        ctx.fillStyle="#252D3A"; ctx.fillRect(BL, y, 150, 30);
+        ctx.fillStyle=d[2]; ctx.fillRect(BL, y, Math.max(2,w), 30);
+        ctx.fillStyle="#fff"; ctx.font="600 14px ui-monospace,Menlo,monospace";
+        ctx.fillText(d[1].toFixed(1), BL+6, y+21);
+        ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+        ctx.fillText(d[0], BL, y+46);
+      });
+      document.getElementById("upSaved").textContent=saved.toFixed(1);
+      document.getElementById("upWasted").textContent=wasted;
+      document.getElementById("upHarm").textContent=harm;
+      document.getElementById("upRoi").textContent=(saved/Math.max(1,budget)*100).toFixed(1);
+      var gain=upliftSaved-churnSaved;
+      var msg="Budget <span class='v'>"+budget+"</span> contacts. Targeting <b>"+(mode==="churn"?"by churn score":"by uplift")+"</b> retains <span class='v'>"+saved.toFixed(1)+"</span> customers in expectation. ";
+      if(mode==="churn") msg+="Of those contacted, <span class='warn'>"+harm+" are sleeping dogs</span> whom the offer makes <em>more</em> likely to leave, and the highest-risk customers are largely <b>lost causes</b> who leave regardless. Switching to uplift targeting would retain <span class='good'>"+upliftSaved.toFixed(1)+"</span> — <span class='v'>+"+gain.toFixed(1)+"</span> for the same spend.";
+      else msg+="<span class='good'>This is the persuadable band</span> — moderate risk and high responsiveness. Note that these are <em>not</em> the highest-risk customers, which is exactly why the churn score is the wrong ranking. Same data, same budget, <span class='v'>+"+gain.toFixed(1)+"</span> customers retained.";
+      document.getElementById("upOut").innerHTML=msg;
+    }
+    upB.addEventListener("input", drawUP);
+    document.getElementById("upChurn").addEventListener("click", function(){ mode="churn"; this.classList.add("on"); document.getElementById("upUplift").classList.remove("on"); drawUP(); });
+    document.getElementById("upUplift").addEventListener("click", function(){ mode="uplift"; this.classList.add("on"); document.getElementById("upChurn").classList.remove("on"); drawUP(); });
+    drawUP();
+  }
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

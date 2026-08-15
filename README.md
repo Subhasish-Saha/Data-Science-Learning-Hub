@@ -37,9 +37,9 @@ runnable code, an interactive progress tracker, and an interview Q&A bank).
 │   ├── stitch_nlp.py          # rebuilds the Complete file
 │   ├── build_nlp.py           # regenerates shells + the tracker from the blueprint .md
 │   └── insert.py              # splices a content fragment into a shell + validates it
-└── cml/                       # subject: Classical Machine Learning (7 parts)
+└── cml/                       # subject: Classical Machine Learning (17 parts, one per level)
     ├── index.html
-    ├── CML_Part1_Foundations.html  … Part2 … Part7
+    ├── CML_Part01_WhatMLIs.html  … Part02 … Part17
     ├── CML_Complete.html
     ├── stitch_cml.py          # rebuilds the Complete file
     ├── build_cml.py           # regenerates shells + tracker + the widget CSS layer
@@ -69,7 +69,7 @@ After editing any part, rebuild that subject's stitched `Complete` file:
 
 ```bash
 cd rag       && python3 stitch.py      # RAG          (6 parts)
-cd cml       && python3 stitch_cml.py  # Classical ML (7 parts)
+cd cml       && python3 stitch_cml.py  # Classical ML (17 parts)
 cd nlp       && python3 stitch_nlp.py  # NLP          (7 parts)
 cd langchain && python3 stitch_lc.py   # LangChain    (6 parts)
 cd langgraph && python3 stitch_lg.py   # LangGraph    (6 parts)
@@ -100,10 +100,12 @@ Both are free and rebuild automatically whenever you `git push`.
 | Subject | Parts | Tracked topics | Diagrams | Interactive | Q&A | Blueprint |
 |---|---|---|---|---|---|---|
 | RAG | 6 | 206 | 65 | — | 162 | `rag-learning-master-prompt.md` |
-| Classical ML | 7 | 439 | 66 | **24** | 186 | `classical-ml-study-guide.md` |
+| Classical ML | **17** | 439 | 69 | **28** | **438** | `classical-ml-study-guide.md` |
 | NLP | 7 | 520 | 73 | — | 171 | `nlp-study-guide.md` |
 | LangChain & Prompt Engineering | 6 | 313 | 16 | — | 69 | `langchain-llm-prompt-study-guide.md` |
 | LangGraph & Agentic AI | 6 | 210 | 26 | — | 78 | `langgraph-agentic-ai-study-guide.md` |
+
+**Classical ML is structured differently** from the other subjects: **one part per level (17 parts)**, and — following the RAG pattern — **every one of its 147 topic sections ends with its own interview Q&A box**, tagged by question type (`Conceptual`, `Gotcha`, `Debugging`, `System design`, `Deep dive`). That is why its Q&A count is an order of magnitude above the others: the questions live *with* the concept rather than only in a bank at the end. Part 17 is still a consolidated, shuffled drill.
 
 **Interactive widgets** (Classical ML only, so far) are self-contained `<canvas>` + vanilla-JS
 components defined inside each content fragment, styled by the `.wdg` CSS block that

@@ -437,7 +437,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <div class="meta-chips">
           <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 12</b></span>
           <span class="chip"><b>7</b> topics</span>
-          <span class="chip">📐 <b>11</b> diagrams</span>
+          <span class="chip">📐 <b>4</b> diagrams</span>
+          <span class="chip">💬 <b>17</b> Q&amp;A</span>
           <span class="chip">🎛 <b>1</b> interactive</span>
           <span class="chip">⏱ <b>~6h</b></span>
         </div>
@@ -485,7 +486,469 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 13.1 ===== -->
+      <article class="topic" id="c13-1">
+        <h3><span class="tn">13.1</span> Why feature engineering still matters <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A model can only use structure you expose. On tabular data that single sentence explains why feature work routinely beats model choice — even in 2026.</p>
+
+        <p>The counter-argument you'll hear is &ldquo;deep learning does automatic feature extraction&rdquo;, and it's true for images, audio and text — modalities with strong local structure that a convolution or attention layer can exploit. Tabular data has <em>no such structure</em>: columns have no spatial or sequential relationship, so there's nothing for an architecture to discover generically. The structure is <b>semantic</b> — that <code class="ic">debt</code> and <code class="ic">income</code> should be divided, that a timestamp implies a business calendar — and semantics come from you.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="A comparison of effort against gain: switching from logistic regression to a tuned gradient boosting model gives a modest lift, while adding a small number of well-chosen domain features gives a larger one, and both together give the best result.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">where the lift actually comes from on a typical tabular problem</text>
+              <line x1="150" y1="212" x2="660" y2="212" stroke="#3a4453"/>
+              <g font-size="10.5">
+                <text x="140" y="60" fill="#c2cad6" text-anchor="end">logistic, raw features</text>
+                <rect x="150" y="46" width="150" height="20" rx="4" fill="#5A6472" opacity="0.7"/><text x="312" y="61" fill="#8892a0">baseline</text>
+                <text x="140" y="98" fill="#c2cad6" text-anchor="end">tuned LightGBM, raw features</text>
+                <rect x="150" y="84" width="228" height="20" rx="4" fill="#5560D8" opacity="0.8"/><text x="390" y="99" fill="#98a0f0">+ model</text>
+                <text x="140" y="136" fill="#c2cad6" text-anchor="end">logistic + 8 domain features</text>
+                <rect x="150" y="122" width="330" height="20" rx="4" fill="#E0920C" opacity="0.85"/><text x="492" y="137" fill="#f0c274">+ features</text>
+                <text x="140" y="174" fill="#c2cad6" text-anchor="end">LightGBM + 8 domain features</text>
+                <rect x="150" y="160" width="406" height="20" rx="4" fill="#2E9E5B" opacity="0.85"/><text x="568" y="175" fill="#7fd6a0">+ both</text>
+                <text x="150" y="232" fill="#8892a0">Illustrative shape, not a measurement — but the ordering is the common one, and it is the ordering interviewers are testing for.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>What gets tested is generative, not recall.</b> &ldquo;Walk me through features for a transaction fraud model&rdquo; asks you to <em>produce</em> features from a business description on the spot, and the good answer is organised by <b>entity and time window</b> rather than being an unstructured list of column names.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Doesn't deep learning make feature engineering obsolete?</summary>
+              <div class="ans"><p>For images, audio and text — largely yes, because those modalities have <b>strong local structure</b> (spatial, spectral, sequential) that convolutions and attention exploit generically. Tabular data has <b>no such structure</b>: columns have no inherent adjacency, so there's nothing for an architecture to discover from the geometry. The structure that matters is <b>semantic</b> — that debt should be divided by income, that a timestamp implies a business calendar — and that comes from domain knowledge. Even tabular foundation models (§16.1) benefit from well-constructed features; they change the modelling baseline, not the value of exposing real structure.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 13.2 ===== -->
+      <article class="topic" id="c13-2">
+        <h3><span class="tn">13.2</span> Numeric features <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Ratios, differences and group aggregates carry most of the value. Transformations matter mainly for linear models.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Technique</th><th>Example</th><th>Why it helps</th></tr></thead>
+            <tbody>
+              <tr><td><b>Ratios</b></td><td><code class="ic">debt/income</code>, <code class="ic">amount/avg_amount_30d</code></td><td>Often more predictive than either input — it encodes a comparison the model would otherwise have to learn from a 2-D interaction</td></tr>
+              <tr><td><b>Differences</b></td><td><code class="ic">now − last_login</code>, <code class="ic">price − category_median</code></td><td><b>Recency</b> and <b>deviation-from-normal</b> are the two most reusable signals in tabular ML</td></tr>
+              <tr><td><b>Group aggregates</b></td><td>mean / max / std / count per customer, merchant, day</td><td>Gives a row context it doesn't have alone — <em>and is the most common source of temporal leakage</em> (§3.7)</td></tr>
+              <tr><td>Transformations</td><td>log, sqrt, Box-Cox / Yeo-Johnson</td><td>Tames skew for linear models; <b>does nothing for trees</b></td></tr>
+              <tr><td>Binning</td><td>Uniform, quantile, supervised (tree-based)</td><td>Injects non-linearity into a linear model; usually <b>loses</b> information for a GBM</td></tr>
+              <tr><td>Clipping / winsorizing</td><td>Cap at the 1st/99th percentile</td><td>Bounds the influence of extremes without deleting rows</td></tr>
+              <tr><td><b>Interactions &amp; splines</b></td><td><code class="ic">PolynomialFeatures</code>, <code class="ic">SplineTransformer</code></td><td>How a linear model gets what a tree gets for free</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The fraud-features answer, organised</span>
+          <p>Structure it as <b>entity × window × statistic</b>. <b>Transaction-level:</b> amount, currency, hour (cyclically encoded), channel, merchant category, is-the-country-new. <b>Card/customer aggregates</b> over 1h / 24h / 7d / 30d: count, sum, max, std, distinct merchants, distinct countries, <b>velocity</b> (count this hour ÷ average hourly count). <b>Deviation features:</b> amount ÷ customer's 30-day median, geo-distance since last transaction ÷ elapsed time. <b>Merchant-side:</b> cross-fitted chargeback rate, relationship age. <b>Graph-ish:</b> cards seen on this device. Then close with the constraint that makes it real: <em>every one of these must be computable inside the ~150 ms budget and must be point-in-time correct.</em></p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Walk me through feature engineering for a transaction fraud model.</summary>
+              <div class="ans"><p>Organise by <b>entity × window × statistic</b>. <b>Transaction:</b> amount, hour (cyclically encoded), channel, merchant category, is-new-country. <b>Card/customer aggregates</b> over 1h/24h/7d/30d: count, sum, max, std, distinct merchants, distinct countries, velocity ratios. <b>Deviation:</b> amount ÷ 30-day median, geo-distance ÷ elapsed time. <b>Merchant:</b> cross-fitted chargeback rate, relationship age. <b>Device/graph:</b> cards per device. Then the constraints that make it a real answer: every feature must fit the <b>~150 ms budget</b> and be <b>point-in-time correct</b>, and aggregates must never be computed over the full history at training time.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why does a ratio like debt/income beat giving the model both columns?</summary>
+              <div class="ans"><p>Because a ratio is a <b>multiplicative interaction</b>, and neither a linear model nor a shallow tree gets there cheaply. A linear model literally cannot represent a ratio without you constructing it. A tree can approximate it, but only with a staircase of axis-aligned splits — it needs many splits and therefore many rows to learn what one column states directly (§7.6). Providing it is pure inductive bias: you're telling the model something true about the domain that it would otherwise have to discover from data it may not have enough of.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>When does binning a continuous feature help, and when does it hurt?</summary>
+              <div class="ans"><p><b>Helps</b> for linear models, where it's a cheap way to capture non-linearity without specifying its shape — and in regulated settings, where binned "scorecard" features are easier to explain and to constrain. <b>Hurts</b> for trees and GBMs, which already choose their own thresholds optimally: pre-binning throws away resolution and can only lose information. It also creates <b>discontinuities</b> at bin edges that are hard to defend ("£49,999 and £50,001 get different treatment"). If I want non-linearity in a linear model, I'd usually prefer <b>splines</b>, which are smooth and don't have edge artefacts.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 13.3 ===== -->
+      <article class="topic" id="c13-3">
+        <h3><span class="tn">13.3</span> Datetime features <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The one people get wrong most often, and the fix is a single line of trigonometry.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Why cyclical encoding — 23:00 and 00:00 are one hour apart</div>
+          <div class="wbody">
+            <canvas id="cyCanvas" width="720" height="280" aria-label="Left: hours laid out on a straight line, showing that hour 23 and hour 0 are the maximum distance apart. Right: the same hours mapped onto a circle by sine and cosine, where hour 23 and hour 0 are adjacent."></canvas>
+            <div class="wctl">
+              <label>hour A · <b id="cyAVal">23</b>
+                <input type="range" id="cyA" min="0" max="23" value="23" step="1">
+              </label>
+              <label>hour B · <b id="cyBVal">0</b>
+                <input type="range" id="cyB" min="0" max="23" value="0" step="1">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="cyRaw">—</span>distance, raw integer</div>
+              <div class="wcell"><span class="n" id="cyCyc">—</span>distance, sin/cos</div>
+              <div class="wcell"><span class="n" id="cyTrue">—</span>true clock distance (h)</div>
+            </div>
+            <div class="wout" id="cyOut"></div>
+            <p class="wnote">Both distances computed exactly. The raw integer encoding says 23:00 and 00:00 are the <em>furthest apart</em> pair on the clock; the sin/cos encoding says they're adjacent, which is the truth. This matters for every distance- and linear-based model — and even for trees, which would otherwise need two separate splits to express &ldquo;late night&rdquo;.</p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="Datetime features beyond the timestamp: calendar components, cyclical encodings, holiday and business-day flags, time since an event, and the warning that timezone and daylight saving handling must be explicit.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">one timestamp column, a dozen features — and two traps</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="205" height="120" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="62" fill="#fff">Components</text>
+                <text x="40" y="84" fill="#c2cad6">hour · day-of-week · day-of-month</text>
+                <text x="40" y="100" fill="#c2cad6">month · quarter · week-of-year</text>
+                <text x="40" y="122" fill="#8892a0">Cheap, and often enough for a</text>
+                <text x="40" y="136" fill="#8892a0">tree if you also give it the</text>
+                <text x="40" y="150" fill="#8892a0">cyclical pair.</text>
+
+                <rect x="247" y="40" width="205" height="120" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="263" y="62" fill="#7fd6a0">Cyclical</text>
+                <text x="263" y="84" fill="#c2cad6" font-family="var(--mono)">sin(2πh/24), cos(2πh/24)</text>
+                <text x="263" y="106" fill="#7fd6a0">Two columns that make the</text>
+                <text x="263" y="120" fill="#7fd6a0">wrap-around real. Same trick for</text>
+                <text x="263" y="134" fill="#7fd6a0">day-of-week, month, wind angle.</text>
+                <text x="263" y="152" fill="#8892a0">Or <tspan font-family="var(--mono)">SplineTransformer</tspan> with periodic knots.</text>
+
+                <rect x="470" y="40" width="206" height="120" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="486" y="62" fill="#98a0f0">Domain-aware</text>
+                <text x="486" y="84" fill="#c2cad6">is_holiday · is_business_day</text>
+                <text x="486" y="100" fill="#c2cad6">days_to_next_holiday</text>
+                <text x="486" y="116" fill="#c2cad6">time_since_last_event</text>
+                <text x="486" y="138" fill="#8892a0">Recency features are among the</text>
+                <text x="486" y="152" fill="#8892a0">strongest in churn and fraud.</text>
+
+                <rect x="24" y="174" width="652" height="60" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="40" y="196" fill="#e0a3a8" font-size="11">Two traps</text>
+                <text x="40" y="216" fill="#c2cad6">· <tspan font-weight="600">Timezones and DST.</tspan> &ldquo;3 a.m.&rdquo; in UTC is a different behaviour in Mumbai and in São Paulo. Decide explicitly whether hour means local or UTC.</text>
+                <text x="40" y="230" fill="#c2cad6">· <tspan font-weight="600">Absolute time as a feature.</tspan> A raw timestamp lets a tree memorise &ldquo;everything after March is positive&rdquo; — which will not generalise forward one day.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Recency is the underrated one.</b> <code class="ic">time_since_last_login</code>, <code class="ic">days_since_last_purchase</code>, <code class="ic">time_since_last_failed_payment</code> — these are consistently among the strongest features in churn and fraud, and they're trivially cheap. They also degrade gracefully: a customer with no history gets a large value rather than a null.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you encode a datetime? Why cyclical encoding?</summary>
+              <div class="ans"><p>Extract components (hour, day-of-week, day-of-month, month, week-of-year), add domain flags (holiday, business day, days-to-next-holiday), and add <b>time-since-last-event</b> recency features, which are consistently among the strongest in churn and fraud. Use <b>cyclical encoding</b> — <code class="ic">sin(2πh/24)</code> and <code class="ic">cos(2πh/24)</code> — because on a raw integer scale 23 and 0 are the <em>furthest apart</em> values when they're actually one hour apart. Two traps: be explicit about <b>timezone/DST</b>, and never feed the <b>raw absolute timestamp</b>, or the model memorises a period rather than a pattern.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Do trees need cyclical encoding?</summary>
+              <div class="ans"><p>Less than linear or distance-based models, but it still helps. A tree <em>can</em> express "hour ≥ 22 or hour ≤ 5" — but only with <b>two separate splits on different branches</b>, so it needs more depth and more data to learn what one sin/cos pair states directly. Giving it both the raw integer and the cyclical pair costs two columns and lets it choose. The models where cyclical encoding is <b>essential</b> rather than helpful are anything using a distance (kNN, k-means, RBF-SVM) or a linear coefficient, where hour 23 and hour 0 would otherwise be maximally far apart.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debugging</span>Your model works in backtest and degrades every month after deployment. What datetime mistake might explain it?</summary>
+              <div class="ans"><p>Most likely you fed <b>absolute time</b> — a raw timestamp, an epoch integer, or a monotonically increasing ID that proxies for it. The model then learns "recent rows behave like X", which is true within the training window and meaningless beyond it: every prediction after deployment is an extrapolation past the largest value the tree ever saw, so it just returns the last leaf (§7.3). The fix is to use <b>relative</b> time features (time-since-event, day-of-week, seasonality) and never the absolute index, and to validate with a <b>time-based split</b> which would have caught it before launch.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 13.4 ===== -->
+      <article class="topic" id="c13-4">
+        <h3><span class="tn">13.4</span> Text &amp; geospatial on a tabular row</h3>
+        <p class="lead">Two modalities that show up as columns in an otherwise-tabular problem, each with a standard ladder of options.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Modality</th><th>Cheap</th><th>Middle</th><th>Expensive</th></tr></thead>
+            <tbody>
+              <tr><td><b>Text</b></td><td>Length, word count, has-keyword flags, punctuation ratio, is-all-caps</td><td><b>TF-IDF</b> + TruncatedSVD to a few dozen dims</td><td>Sentence embeddings — but a 384-dim block among 20 tabular columns usually needs reduction to be useful to a GBM. See the NLP guide</td></tr>
+              <tr><td><b>Geospatial</b></td><td>Country, region, postcode prefix</td><td><b>Distance to points of interest</b>; geohash prefixes at several precisions</td><td>Cluster the coordinates and use cluster ID + distance-to-centroid; spatial joins to demographic data</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Raw latitude and longitude are bad features</span>
+          <p>A tree splitting on latitude carves the world into horizontal bands, which almost never matches anything real, and it cannot express &ldquo;near this city&rdquo; without many splits. Better: <b>distance to relevant points</b> (city centre, nearest branch, nearest competitor), <b>geohash prefixes</b> at a few precisions (which give hierarchical categorical regions), or <b>cluster IDs</b> from k-means on coordinates. And note that postcode is a <b>proxy for protected attributes</b> in many jurisdictions (§14.8), so its use needs a fairness review rather than just a performance check.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>You have a free-text description column in an otherwise tabular problem. What do you do?</summary>
+              <div class="ans"><p>Ladder up only as far as the value justifies. <b>Start cheap</b>: length, word count, keyword flags, punctuation/caps ratios — these often capture most of the signal in short operational text and cost nothing. <b>Then TF-IDF plus TruncatedSVD</b> down to 20–50 dimensions, which plays well with a GBM. <b>Only then embeddings</b>, and if I use them I'd reduce dimensionality first, because a 384-dim dense block alongside 20 tabular columns will dominate the split search and dilute the tabular signal. Whatever I choose gets fitted <b>inside the pipeline</b> — a TF-IDF vocabulary is learned from data, so fitting it before the split is contamination (§3.7).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why are raw latitude and longitude poor features?</summary>
+              <div class="ans"><p>Because axis-aligned splits on lat/long carve the map into rectangles that almost never correspond to anything meaningful, and expressing "within 5km of this city" needs many splits. Better representations: <b>distance to relevant points of interest</b> (which encodes the actual mechanism), <b>geohash prefixes</b> at several precisions (hierarchical categorical regions the model can use directly), or <b>cluster IDs</b> from clustering the coordinates plus distance to the centroid. And a governance point: postcode and fine-grained location are strong <b>proxies for protected attributes</b>, so their use needs a fairness review, not just a performance check.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 13.5 ===== -->
+      <article class="topic" id="c13-5">
+        <h3><span class="tn">13.5</span> Feature selection <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The interesting question is not <em>how</em> to select but <em>why</em> — and the honest answer is usually not accuracy.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="Three families of feature selection: filter methods that score features independently of any model, wrapper methods that repeatedly refit a model on feature subsets, and embedded methods where selection happens as part of model fitting.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">filter · wrapper · embedded — cost rises left to right, so does fidelity</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="205" height="180" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="62" fill="#98a0f0" font-size="12">Filter</text>
+                <text x="40" y="84" fill="#c2cad6">correlation · chi² · ANOVA F</text>
+                <text x="40" y="100" fill="#c2cad6"><tspan font-weight="600">mutual information</tspan> · variance threshold</text>
+                <text x="40" y="124" fill="#7fd6a0">+ fast, model-agnostic</text>
+                <text x="40" y="140" fill="#7fd6a0">+ scales to thousands of columns</text>
+                <text x="40" y="164" fill="#e0a3a8">− scores features <tspan font-style="italic">one at a time</tspan>, so</text>
+                <text x="40" y="178" fill="#e0a3a8">  it misses interactions entirely</text>
+                <text x="40" y="202" fill="#8892a0">Use as a cheap pre-filter, not as</text>
+                <text x="40" y="214" fill="#8892a0">the final word.</text>
+
+                <rect x="247" y="40" width="205" height="180" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="263" y="62" fill="#f0c274" font-size="12">Wrapper</text>
+                <text x="263" y="84" fill="#c2cad6">forward / backward selection</text>
+                <text x="263" y="100" fill="#c2cad6"><tspan font-family="var(--mono)">RFE</tspan> · <tspan font-family="var(--mono)">RFECV</tspan></text>
+                <text x="263" y="124" fill="#7fd6a0">+ accounts for the actual model</text>
+                <text x="263" y="140" fill="#7fd6a0">+ captures interactions</text>
+                <text x="263" y="164" fill="#e0a3a8">− expensive: many refits</text>
+                <text x="263" y="178" fill="#e0a3a8">− can overfit the <tspan font-style="italic">selection</tspan> itself</text>
+                <text x="263" y="202" fill="#8892a0">Needs its own cross-validation,</text>
+                <text x="263" y="214" fill="#8892a0">which is where RFECV comes in.</text>
+
+                <rect x="470" y="40" width="206" height="180" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="486" y="62" fill="#7fd6a0" font-size="12">Embedded</text>
+                <text x="486" y="84" fill="#c2cad6">L1 / Lasso · tree importances</text>
+                <text x="486" y="100" fill="#c2cad6">boosting gain · <tspan font-family="var(--mono)">SelectFromModel</tspan></text>
+                <text x="486" y="124" fill="#7fd6a0">+ selection is part of fitting</text>
+                <text x="486" y="140" fill="#7fd6a0">+ practically free</text>
+                <text x="486" y="164" fill="#e0a3a8">− inherits the model's biases</text>
+                <text x="486" y="178" fill="#e0a3a8">  (§7.7)</text>
+                <text x="486" y="202" fill="#8892a0">The practical default. Add</text>
+                <text x="486" y="214" fill="#8892a0"><tspan font-weight="600">Boruta</tspan> for all-relevant selection.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Why select at all?</b> Rarely for accuracy — a GBM is quite good at ignoring useless columns. Select for <b>serving latency</b> (each feature has a fetch cost), <b>data-acquisition cost</b> (that bureau call is £0.30 per request), <b>drift surface</b> (fewer features, fewer things to monitor), <b>interpretability</b>, and <b>maintenance</b>. Being able to say &ldquo;I dropped features that <em>improved</em> accuracy because they cost more than they were worth&rdquo; is a genuinely senior answer.</figcaption>
+        </figure>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.4" stroke="#C0392B" stroke-width="1.7"/><path d="M12 7v6M12 15.8v.6" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Selection is part of the model</span>
+          <p>Choosing features by looking at the whole dataset — including validation rows — and <em>then</em> cross-validating is textbook train-test contamination. The selection has already seen the labels it will be scored against, so the CV score is optimistic, sometimes dramatically so when <code class="ic">p ≫ n</code>. <b>Feature selection must be fitted inside the CV loop</b>, exactly like a scaler or an imputer, which in practice means it lives in the <code class="ic">Pipeline</code>.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Filter vs wrapper vs embedded feature selection.</summary>
+              <div class="ans"><p><b>Filter</b> scores each feature independently of any model (correlation, chi², ANOVA F, mutual information) — fast and scalable, but blind to interactions, so a feature useless alone but valuable in combination gets dropped. <b>Wrapper</b> repeatedly refits a model on subsets (forward/backward, RFE/RFECV) — accounts for the actual model and interactions, but is expensive and can overfit the selection itself. <b>Embedded</b> gets selection as a by-product of fitting (L1, tree importances, boosting gain) — the practical default, but it inherits the model's biases (§7.7). Whichever I use: it's fitted <b>inside the CV loop</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Why would you drop features that improve accuracy?</summary>
+              <div class="ans"><p>Because accuracy isn't the only cost. Each feature carries serving <b>latency</b> (a fetch, a join), <b>acquisition cost</b> (a paid third-party call), <b>drift and monitoring surface</b>, <b>leakage risk</b>, <b>maintenance burden</b>, and sometimes <b>regulatory exposure</b> as a proxy for a protected attribute. A feature worth 0.002 AUC and £0.30 per prediction is a bad trade at any volume. Being able to make that argument explicitly — and to have actually done it — is one of the clearest signals of production experience.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is Boruta and when would you use it?</summary>
+              <div class="ans"><p>Boruta is an <b>all-relevant</b> selection method rather than a minimal-optimal one. It creates <b>shadow features</b> — random shuffles of each real column — trains a Random Forest, and keeps any feature whose importance significantly exceeds the best shadow feature's, repeating with statistical tests. The distinction matters: most methods find a <em>minimal</em> set sufficient for prediction, which arbitrarily drops one of every correlated pair. Boruta finds <b>every</b> feature carrying signal, which is what you want for <b>understanding</b> the problem or for downstream causal work — not necessarily for building the leanest production model.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 13.6 ===== -->
+      <article class="topic" id="c13-6">
+        <h3><span class="tn">13.6</span> Pipelines in production <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The <code class="ic">Pipeline</code> is not a convenience — it is the unit that makes leakage structurally impossible and makes training and serving the same code.</p>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">the unit of everything learned from data</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, FunctionTransformer
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.model_selection import StratifiedGroupKFold, cross_val_score
+import numpy as np
+
+def cyclical_hour(X):                      # 23:00 and 00:00 must be neighbours
+    h = X[:, [0]]
+    return np.hstack([np.sin(2 * np.pi * h / 24), np.cos(2 * np.pi * h / 24)])
+
+pre = ColumnTransformer([
+    ("num",  Pipeline([("imp", SimpleImputer(strategy="median", add_indicator=True)),
+                       ("sc",  StandardScaler())]),                       num_cols),
+    ("cat",  OneHotEncoder(handle_unknown="infrequent_if_exist",
+                           min_frequency=20),                             cat_cols),
+    ("hour", FunctionTransformer(cyclical_hour, feature_names_out="one-to-one"), ["hour"]),
+], remainder="drop", verbose_feature_names_out=False).set_output(transform="pandas")
+
+pipe = Pipeline([("pre", pre),
+                 ("clf", HistGradientBoostingClassifier(categorical_features="from_dtype",
+                                                        early_stopping=True))])
+
+# the WHOLE pipeline is refitted inside every fold — imputer, scaler, encoder and all
+cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=0)
+scores = cross_val_score(pipe, X, y, groups=customer_id, cv=cv, scoring="average_precision")
+print(f"AP {scores.mean():.3f} ± {scores.std():.3f}")     # never a single number
+</code></pre>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Practice</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">ColumnTransformer</code> + <code class="ic">Pipeline</code></td><td>The unit of everything learned from data — refitted per fold, serialised as one object</td></tr>
+              <tr><td>Custom transformers</td><td><code class="ic">BaseEstimator</code> + <code class="ic">TransformerMixin</code>; implement <code class="ic">get_feature_names_out</code> so downstream explanations stay readable</td></tr>
+              <tr><td><code class="ic">set_output(transform="pandas")</code></td><td>Keeps column names through the pipeline — essential for SHAP and for debugging</td></tr>
+              <tr><td><code class="ic">handle_unknown</code></td><td>Serve-time categories <em>will</em> include levels not seen in training. Decide the behaviour explicitly rather than crashing</td></tr>
+              <tr><td>Feature <b>versioning</b></td><td>Changing a feature's definition silently invalidates every model trained on the old one — version the definition, not just the code</td></tr>
+              <tr><td>Latency budget <b>per feature</b></td><td>What can be computed inline at request time versus precomputed and looked up (§15.3)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>Why put everything in a Pipeline rather than transforming the data first?</summary>
+              <div class="ans"><p>Three reasons. <b>Correctness</b>: cross-validation refits the whole pipeline per fold, so scalers, imputers, encoders and selectors are fitted on training data only — leakage becomes structurally impossible rather than a discipline you have to remember (§3.7). <b>Deployment</b>: the pipeline serialises as <em>one</em> object, so serving applies exactly the transforms that training used — no second implementation to drift (§15.4). <b>Tuning</b>: preprocessing hyperparameters (imputation strategy, encoder settings, <code class="ic">n_components</code>) become searchable alongside model hyperparameters, which is often where the real gains are.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What happens when a categorical level appears at serve time that wasn't in training?</summary>
+              <div class="ans"><p>Whatever you decided in advance — and if you didn't decide, it throws and takes down the endpoint. Options: <code class="ic">handle_unknown='ignore'</code> (all-zeros one-hot, i.e. treated as the baseline), <code class="ic">'infrequent_if_exist'</code> (mapped to the rare-category bucket, which is usually the most sensible), or an explicit <code class="ic">unknown</code> level created at training time by grouping rare categories. I'd also <b>monitor the unknown rate</b> as a data-quality signal — a spike means an upstream vocabulary changed, which is one of the most common production incidents (§15.5).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 13.7 ===== -->
+      <article class="topic" id="c13-7">
+        <h3><span class="tn">13.7</span> Feature stores &amp; point-in-time correctness <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The deepest form of the leakage question: reconstructing what a feature's value <em>was</em> at prediction time, rather than what it is now.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 300" role="img" aria-label="Point-in-time correctness: a customer's lifetime spend changes over time, and joining today's value onto a historical training row leaks the future, whereas an as-of join reconstructs the value the feature had at the moment of prediction.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">point-in-time correctness — the deepest form of the leakage question</text>
+              <g font-size="10">
+                <line x1="60" y1="112" x2="640" y2="112" stroke="#3a4453" stroke-width="1.2"/>
+                <text x="60" y="52" fill="#c2cad6">customer_lifetime_spend, as it evolved:</text>
+                <g fill="#5560D8">
+                  <circle cx="120" cy="112" r="5"/><circle cx="240" cy="112" r="5"/><circle cx="360" cy="112" r="5"/><circle cx="480" cy="112" r="5"/><circle cx="600" cy="112" r="5"/>
+                </g>
+                <g fill="#98a0f0" font-size="10" text-anchor="middle">
+                  <text x="120" y="98">£300</text><text x="240" y="98">£820</text><text x="360" y="98">£1,450</text><text x="480" y="98">£2,900</text><text x="600" y="98">£4,100</text>
+                </g>
+                <g fill="#8892a0" font-size="9.5" text-anchor="middle">
+                  <text x="120" y="132">Jan</text><text x="240" y="132">Mar</text><text x="360" y="132">Jun</text><text x="480" y="132">Sep</text><text x="600" y="132">today</text>
+                </g>
+                <line x1="240" y1="70" x2="240" y2="150" stroke="#F0A81E" stroke-width="1.6" stroke-dasharray="4 3"/>
+                <text x="248" y="150" fill="#f0c274">training row: &ldquo;did this customer churn in March?&rdquo;</text>
+
+                <rect x="24" y="170" width="322" height="112" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="40" y="192" fill="#e0a3a8" font-size="11">✗ naive join</text>
+                <text x="40" y="214" fill="#c2cad6">SELECT lifetime_spend FROM customers</text>
+                <text x="40" y="228" fill="#c2cad6">→ returns <tspan font-weight="600" fill="#e0a3a8">£4,100</tspan>, today's value</text>
+                <text x="40" y="252" fill="#e0a3a8">The March training row now carries information</text>
+                <text x="40" y="266" fill="#e0a3a8">from September. Excellent CV. Useless model.</text>
+
+                <rect x="356" y="170" width="320" height="112" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="372" y="192" fill="#7fd6a0" font-size="11">✓ as-of / point-in-time join</text>
+                <text x="372" y="214" fill="#c2cad6">SELECT lifetime_spend AS OF '2026-03-01'</text>
+                <text x="372" y="228" fill="#c2cad6">→ returns <tspan font-weight="600" fill="#7fd6a0">£820</tspan>, the value it <tspan font-style="italic">had</tspan></text>
+                <text x="372" y="252" fill="#7fd6a0">This is the single most valuable thing a feature</text>
+                <text x="372" y="266" fill="#7fd6a0">store does — and why people build them at all.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Training/serving skew</b> is the same problem from the other side: if training computes <code class="ic">avg_spend_30d</code> in SQL and serving recomputes it in Python with a slightly different window, the model receives a feature distribution it was never trained on — and nothing will alert you. The fix is architectural: <b>one code path, used by both</b> (§15.4).</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ What is a feature store and what problem does point-in-time correctness solve?</summary>
+              <div class="ans"><p>A feature store is a shared, versioned system for computing, storing and serving features so that <b>training and inference use the same definitions</b>. <b>Point-in-time correctness</b> is the hard part it exists for: when you build a training row for March, the feature values must be the values that <em>existed in March</em>, not today's. Joining today's <code class="ic">lifetime_spend</code> onto a March label leaks six months of the future into the row — CV looks great, production doesn't. The mechanism is an <b>as-of join</b> against a time-versioned feature history. The sibling problem it solves is <b>training/serving skew</b>: one code path instead of two implementations that silently diverge.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Do you always need a feature store?</summary>
+              <div class="ans"><p>No — it's infrastructure, and infrastructure has a cost. You need one when: multiple models share features, features are computed from streams, you have genuine <b>real-time</b> serving with precomputed aggregates, or point-in-time correctness is hard to get right by hand. You <b>don't</b> need one for a single batch-scored model whose features come from one warehouse query — there, a well-tested shared transformation module and a disciplined as-of join do the same job for a fraction of the complexity. The <b>principles</b> (one definition, point-in-time joins, versioning) are non-negotiable; the <b>product</b> is optional.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>How would you implement a point-in-time join yourself?</summary>
+              <div class="ans"><p>Keep feature values in an <b>event-sourced</b> table with a validity timestamp: <code class="ic">(entity_id, feature_name, value, valid_from)</code>, appending rather than updating. Then the training join is an <b>as-of</b> join — for each label row with timestamp <code class="ic">t</code>, take the most recent feature row with <code class="ic">valid_from ≤ t − latency</code>, where <code class="ic">latency</code> accounts for how long the value takes to become <em>observable</em> (a value stamped at <code class="ic">t</code> but only landing in the warehouse at <code class="ic">t+2h</code> is not available at <code class="ic">t</code>). Pandas has <code class="ic">merge_asof</code>; in SQL it's a lateral join or a window function. The subtle part is that <b>latency</b>, not just the timestamp — which is exactly what the purge/embargo gap encodes in validation (§10.6).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 13 widget ============ */
+(function(){
+  "use strict";
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+  var cyCv=document.getElementById("cyCanvas");
+  if(!cyCv) return;
+  var cyA=document.getElementById("cyA"), cyB=document.getElementById("cyB");
+  function drawCY(){
+    var a=+cyA.value, b=+cyB.value;
+    document.getElementById("cyAVal").textContent=a;
+    document.getElementById("cyBVal").textContent=b;
+    var ctx=dpr(cyCv), W=720, H=280; ctx.clearRect(0,0,W,H);
+    var L=40,R=330,Y=140;
+    ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+    ctx.fillText("raw integer hour", L, 30);
+    ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,Y); ctx.lineTo(R,Y); ctx.stroke();
+    for(var h=0;h<24;h++){
+      var X=L+h/23*(R-L);
+      ctx.fillStyle= (h===a||h===b)? "#F0A81E" : "#3a4453";
+      ctx.beginPath(); ctx.arc(X,Y,(h===a||h===b)?6:3,0,6.3); ctx.fill();
+      if(h%6===0){ ctx.fillStyle="#6b7482"; ctx.font="9.5px ui-monospace,Menlo,monospace"; ctx.fillText(h, X-4, Y+22); }
+    }
+    var XA=L+a/23*(R-L), XB=L+b/23*(R-L);
+    ctx.strokeStyle="#C0392B"; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(XA,Y-26); ctx.lineTo(XB,Y-26); ctx.stroke();
+    ctx.fillStyle="#e0a3a8"; ctx.font="11px ui-monospace,Menlo,monospace";
+    ctx.fillText("|"+a+" − "+b+"| = "+Math.abs(a-b), (XA+XB)/2-24, Y-34);
+    var CX=530, CY=140, RAD=88;
+    ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+    ctx.fillText("sin/cos encoding", 440, 30);
+    ctx.strokeStyle="#2c3542"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(CX,CY,RAD,0,6.3); ctx.stroke();
+    function pt(h){ var t=2*Math.PI*h/24; return [CX+RAD*Math.sin(t), CY-RAD*Math.cos(t)]; }
+    for(var h=0;h<24;h++){
+      var p=pt(h);
+      ctx.fillStyle= (h===a||h===b)? "#F0A81E" : "#3a4453";
+      ctx.beginPath(); ctx.arc(p[0],p[1],(h===a||h===b)?6:3,0,6.3); ctx.fill();
+      if(h%6===0){ var q=pt(h); ctx.fillStyle="#6b7482"; ctx.font="9.5px ui-monospace,Menlo,monospace"; ctx.fillText(h, q[0]+(q[0]>CX?10:-16), q[1]+4); }
+    }
+    var pa=pt(a), pb=pt(b);
+    ctx.strokeStyle="#2E9E5B"; ctx.lineWidth=2.4;
+    ctx.beginPath(); ctx.moveTo(pa[0],pa[1]); ctx.lineTo(pb[0],pb[1]); ctx.stroke();
+    var sa=[Math.sin(2*Math.PI*a/24), Math.cos(2*Math.PI*a/24)];
+    var sb=[Math.sin(2*Math.PI*b/24), Math.cos(2*Math.PI*b/24)];
+    var dc=Math.sqrt(Math.pow(sa[0]-sb[0],2)+Math.pow(sa[1]-sb[1],2));
+    var raw=Math.abs(a-b), tru=Math.min(raw, 24-raw);
+    document.getElementById("cyRaw").textContent=raw;
+    document.getElementById("cyCyc").textContent=dc.toFixed(3);
+    document.getElementById("cyTrue").textContent=tru;
+    ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+    ctx.fillText("Euclidean distance in (sin,cos) space = "+dc.toFixed(3), 420, 262);
+    ctx.fillText("range 0 (same hour) to 2 (12 hours apart)", 420, 276);
+    var msg;
+    if(raw>12) msg="<span class='warn'>The raw encoding says these hours are "+raw+" apart</span> — but on a clock they are only <span class='v'>"+tru+"</span> hour"+(tru===1?"":"s")+" apart. The cyclical encoding gives <span class='v'>"+dc.toFixed(3)+"</span>, i.e. adjacent. <b>This is the failure cyclical encoding exists to fix.</b>";
+    else if(raw===tru) msg="Here the raw and true distances agree (<span class='v'>"+raw+"</span> hours), so the integer encoding happens to be fine — it only breaks across the midnight boundary. That intermittency is what makes the bug hard to notice.";
+    else msg="Raw distance <span class='v'>"+raw+"</span>, true clock distance <span class='v'>"+tru+"</span>, cyclical distance <span class='v'>"+dc.toFixed(3)+"</span>.";
+    document.getElementById("cyOut").innerHTML=msg;
+  }
+  [cyA,cyB].forEach(function(e){ e.addEventListener("input", drawCY); });
+  drawCY();
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
-"""Stitch all 7 Classical ML part files into one print/PDF-ready CML_Complete.html.
+"""Stitch all 17 Classical ML part files into one print/PDF-ready CML_Complete.html.
 Reuses Part 1's head/CSS/tracker/script; concatenates each part's content with a
 part divider; builds a combined sidebar nav. Re-run after editing any part."""
 import re, pathlib
 
 OUT = pathlib.Path(__file__).resolve().parent      # run from the cml/ folder
-NP  = 7
+NP  = 17
 PARTS = [
-    ("CML_Part1_Foundations.html", "Foundations",
-     "What ML is, the maths, data before models, leakage, bias-variance, regularization"),
-    ("CML_Part2_LinearDistanceTrees.html", "Linear, Distance &amp; Trees",
-     "Linear/logistic/GLM, kNN, Naive Bayes, LDA, SVM, and the decision tree"),
-    ("CML_Part3_EnsemblesUnsupervised.html", "Ensembles &amp; Unsupervised",
-     "Bagging, boosting, XGB/LGBM/CatBoost, clustering, PCA, ranking, time series"),
-    ("CML_Part4_ValidationMetrics.html", "Validation &amp; Metrics",
-     "CV, nested CV, HPO, ROC vs PR, thresholds, calibration, imbalance"),
-    ("CML_Part5_FeaturesInterpretability.html", "Features &amp; Interpretability",
-     "Feature engineering, selection, feature stores, SHAP/PDP/ALE, fairness"),
-    ("CML_Part6_ProductionFrontier.html", "Production &amp; Frontier",
-     "Serving, drift, retraining, A/B — then TabPFN, conformal, causal, data-centric"),
-    ("CML_Part7_QABank.html", "Interview Q&amp;A Bank",
-     "105 questions, 15 traps, your PDF map, 15 derivations, 16 coding, 10 cases"),
+    ("CML_Part01_WhatMLIs.html", "What ML Actually Is", "Rules vs examples, paradigms, framing, baselines, when not to use ML"),
+    ("CML_Part02_MathToolkit.html", "The Mathematical Toolkit", "Linear algebra, optimization, Bayes, MLE/MAP, distance, the curse of dimensionality"),
+    ("CML_Part03_DataBeforeModels.html", "Data Before Models", "EDA, missingness, scaling, encoding, splitting, and the four kinds of leakage"),
+    ("CML_Part04_LearningProblem.html", "The Learning Problem", "Loss functions, ERM, bias-variance, L1 vs L2, over- and underfitting"),
+    ("CML_Part05_LinearModels.html", "Linear Models", "Every assumption and what breaks, diagnostics, VIF, logistic, GLMs, quantile regression"),
+    ("CML_Part06_DistanceProbability.html", "Distance &amp; Probability Models", "kNN, Naive Bayes, LDA/QDA, SVM margins and the kernel trick"),
+    ("CML_Part07_DecisionTrees.html", "Decision Trees", "Splits, impurity, regression trees, pruning, failure modes, the importance trap"),
+    ("CML_Part08_Ensembles.html", "Ensembles &amp; Gradient Boosting", "Bagging, Random Forest, AdaBoost, gradient boosting, XGB/LGBM/CatBoost, stacking"),
+    ("CML_Part09_Unsupervised.html", "Unsupervised Learning", "k-means, hierarchical, DBSCAN/HDBSCAN, GMM, PCA, t-SNE/UMAP, anomalies"),
+    ("CML_Part10_BeyondSupervised.html", "Beyond Plain Supervised Learning", "Few labels, multi-label, ordinal, survival, ranking, time series"),
+    ("CML_Part11_Validation.html", "Model Selection &amp; Validation", "The CV family, nested CV, hyperparameter search, curves, slices, honest comparison"),
+    ("CML_Part12_Metrics.html", "Metrics, Thresholds &amp; Imbalance", "Confusion matrix, ROC vs PR, averaging, thresholds, calibration, imbalance"),
+    ("CML_Part13_FeatureEngineering.html", "Feature Engineering &amp; Selection", "Numeric, datetime, text and geo features, selection, pipelines, feature stores"),
+    ("CML_Part14_Interpretability.html", "Interpretability &amp; Fairness", "Glass-box models, three importances, PDP/ICE/ALE, LIME, SHAP, counterfactuals, fairness"),
+    ("CML_Part15_Production.html", "Production ML Engineering", "Architecture, serving, skew, drift, retraining, deployment, A/B testing, hygiene"),
+    ("CML_Part16_Frontier.html", "Frontier &amp; Senior Signal", "TabPFN, uncertainty, conformal, causal inference, uplift, DML, data-centric ML"),
+    ("CML_Part17_QABank.html", "Interview Q&amp;A Bank", "105 questions, 15 traps, your PDF map, 15 derivations, 16 coding, 10 cases"),
 ]
 
 def read(fn): return (OUT / fn).read_text()
@@ -44,32 +47,32 @@ top = p1[: p1.index("</section>", p1.index('id="tracker"')) + len("</section>")]
 bottom = p1[p1.index('<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js'):]
 
 # ---- swap chrome for the combined doc ----
-top = top.replace("<title>Classical ML Interview Prep — Part 1: Foundations</title>",
-                  "<title>Classical ML Interview Prep — Complete (All 7 Parts)</title>")
-top = top.replace('<div class="tt"><small>Part 1 / 7</small>Foundations</div>',
-                  '<div class="tt"><small>Complete</small>All 7 Parts</div>')
-top = top.replace('<div class="k">Part 1 of 7</div>\n      <div class="v">Foundations</div>',
-                  '<div class="k">Complete edition</div>\n      <div class="v">All 7 Parts</div>')
+top = top.replace("<title>Classical ML Interview Prep — Part 1: What ML Actually Is</title>",
+                  "<title>Classical ML Interview Prep — Complete (All 17 Parts)</title>")
+top = top.replace('<div class="tt"><small>Part 1 / 17</small>What ML Actually Is</div>',
+                  '<div class="tt"><small>Complete</small>All 17 Parts</div>')
+top = top.replace('<div class="k">Part 1 of 17</div>\n      <div class="v">What ML Actually Is</div>',
+                  '<div class="k">Complete edition</div>\n      <div class="v">All 17 Parts</div>')
 
 new_hero = ('<header class="hero">\n'
-  '        <div class="eyebrow">Complete Resource · All 7 Parts</div>\n'
+  '        <div class="eyebrow">Complete Resource · All 17 Parts</div>\n'
   '        <h1 class="title">Classical machine learning, end to end\n'
   '          <span class="sub">The full curriculum in one document — foundations and leakage, the model zoo, ensembles and '
   'unsupervised learning, validation and metrics, feature engineering and interpretability, production and the 2026 frontier, '
-  'and a 105-question interview bank.</span>\n'
+  'and a consolidated 105-question interview bank.</span>\n'
   '        </h1>\n'
-  '        <p class="thesis">This is the stitched edition of all seven parts, print- and PDF-ready. The master tracker below '
-  'covers every one of the 439 topics; your progress is shared with the individual part files (same browser). '
+  '        <p class="thesis">This is the stitched edition of all seventeen parts, print- and PDF-ready. The master tracker below '
+  'covers every one of the 439 topics across 147 sections; your progress is shared with the individual part files (same browser). '
   'Library-current as of <b>Aug 2026</b> — scikit-learn <b>1.9.0</b> (Python ≥ 3.11; free-threaded CPython support since 1.8), '
   'XGBoost <b>3.4.1</b>, LightGBM <b>4.7.0</b>, CatBoost <b>1.2.10</b>. '
-  'The <b>24 interactive widgets</b> compute live in your browser — they work in this combined file too. '
+  'The <b>28 interactive widgets</b> compute live in your browser — they work in this combined file too. '
   'Use the sidebar to jump to any part or section.</p>\n'
   '        <div class="meta-chips">\n'
-  '          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>7 parts</b> · 16 levels</span>\n'
+  '          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>17 parts</b> · 16 levels</span>\n'
   '          <span class="chip"><b>439</b> tracked topics</span>\n'
-  '          <span class="chip">📐 <b>66</b> diagrams</span>\n'
-  '          <span class="chip">🎛 <b>24</b> interactive</span>\n'
-  '          <span class="chip"><b>105</b> Q&amp;A + 15 traps</span>\n'
+  '          <span class="chip">📐 <b>69</b> diagrams</span>\n'
+  '          <span class="chip">🎛 <b>28</b> interactive</span>\n'
+  '          <span class="chip"><b>438</b> Q&amp;A + 15 traps</span>\n'
   '        </div>\n'
   '      </header>')
 top = re.sub(r'<header class="hero">.*?</header>', lambda m: new_hero, top, count=1, flags=re.DOTALL)
@@ -106,8 +109,8 @@ for i, (fn, title, sub) in enumerate(PARTS, start=1):
 
 # ---- combined foot ----
 foot = ('\n      <div class="doc-foot">\n'
-  '        Classical Machine Learning — <b>Complete edition</b> · all 7 parts · 439 tracked topics · 66 diagrams · '
-  '24 interactive widgets · 105 Q&amp;A.<br>\n'
+  '        Classical Machine Learning — <b>Complete edition</b> · all 17 parts · 439 tracked topics · 147 sections · 69 diagrams · '
+  '28 interactive widgets · 438 Q&amp;A.<br>\n'
   '        Library-current as of <b>Aug 2026</b> — scikit-learn <b>1.9.0</b> · XGBoost <b>3.4.1</b> · '
   'LightGBM <b>4.7.0</b> · CatBoost <b>1.2.10</b>.<br>\n'
   '        Progress is stored locally under key <code style="color:#8892a0">cmlPrepStatus_v1</code>, shared with every part file; '

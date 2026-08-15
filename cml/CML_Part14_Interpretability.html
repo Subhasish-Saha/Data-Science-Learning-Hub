@@ -438,7 +438,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <div class="meta-chips">
           <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 13</b></span>
           <span class="chip"><b>8</b> topics</span>
-          <span class="chip">📐 <b>12</b> diagrams</span>
+          <span class="chip">📐 <b>3</b> diagrams</span>
+          <span class="chip">💬 <b>16</b> Q&amp;A</span>
           <span class="chip">🎛 <b>2</b> interactive</span>
           <span class="chip">⏱ <b>~7h</b></span>
         </div>
@@ -486,7 +487,583 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 14.1 ===== -->
+      <article class="topic" id="c14-1">
+        <h3><span class="tn">14.1</span> The interpretability taxonomy</h3>
+        <p class="lead">Three axes. Knowing which box a technique sits in is most of the vocabulary you need — and it makes the rest of this part navigable.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Axis</th><th>Option A</th><th>Option B</th></tr></thead>
+            <tbody>
+              <tr><td><b>When</b></td><td><b>Intrinsic</b> — the model is readable by construction (linear coefficients, a shallow tree, a GAM/EBM)</td><td><b>Post-hoc</b> — explain a fitted black box afterwards (SHAP, LIME, PDP)</td></tr>
+              <tr><td><b>Scope</b></td><td><b>Global</b> — how does the model behave overall?</td><td><b>Local</b> — why <em>this</em> prediction?</td></tr>
+              <tr><td><b>Coupling</b></td><td><b>Model-specific</b> — TreeSHAP, coefficients, decision paths</td><td><b>Model-agnostic</b> — permutation importance, PDP/ALE, LIME, KernelSHAP</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Interpretability vs explainability vs justifiability</span>
+          <p>Three different words for three different requirements. <b>Interpretability</b>: a human can follow the mechanism (a shallow tree). <b>Explainability</b>: a post-hoc account of a decision that is <em>approximately</em> faithful (SHAP). <b>Justifiability to a regulator</b>: a documented, reproducible, auditable reason that satisfies a legal standard — which is a process requirement, not a plot. Knowing you legally need the third in <b>credit, insurance, hiring and healthcare</b> is what turns this from an academic topic into a design constraint.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Global vs local interpretability — when do you need each?</summary>
+              <div class="ans"><p><b>Global</b> answers "how does this model behave overall?" — needed for model validation, governance sign-off, checking it hasn't learned something absurd, and communicating with stakeholders. <b>Local</b> answers "why <em>this</em> prediction?" — needed for adverse-action notices, customer disputes, analyst triage, and debugging individual failures. They need different tools (PDP/ALE and global importance vs SHAP/LIME/counterfactuals), and a common mistake is presenting a global summary when someone asked a local question, or vice versa.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 14.2 ===== -->
+      <article class="topic" id="c14-2">
+        <h3><span class="tn">14.2</span> Intrinsically interpretable models <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The option people forget: instead of explaining a black box, use a model that doesn't need explaining. On tabular data this costs less accuracy than you'd expect.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Model</th><th>What you can read off it</th><th>Caveat</th></tr></thead>
+            <tbody>
+              <tr><td>Linear / logistic regression</td><td>A coefficient per feature — sign, magnitude, odds ratio</td><td><b>Standardise first</b>, and beware multicollinearity flipping signs (§5.4)</td></tr>
+              <tr><td>Shallow decision tree</td><td>A literal rule path for every prediction</td><td>Only readable to ~depth 4; unstable across refits (§7.6)</td></tr>
+              <tr><td>GLM with splines</td><td>A smooth per-feature curve</td><td>Genuinely underrated — non-linear <em>and</em> readable</td></tr>
+              <tr><td><b>GAM / EBM</b></td><td>One shape function per feature (plus chosen pairwise terms), all plottable</td><td><b>Competitive with GBMs on tabular data</b>, and interpretable by construction. <code class="ic">ExplainableBoostingMachine</code></td></tr>
+              <tr><td>RuleFit</td><td>A sparse set of if-then rules with weights</td><td>Readable, but rule sets get long quickly</td></tr>
+              <tr><td>Scorecard (binned + linear)</td><td>Points per attribute band — the credit-industry standard</td><td>Deliberately coarse; the trade-off is accepted for defensibility</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">EBMs deserve to be named</span>
+          <p>An <b>Explainable Boosting Machine</b> is a GAM fitted by cyclic gradient boosting: it learns a separate shape function per feature (plus a small number of chosen pairwise interactions), so the model is <em>exactly</em> the sum of curves you can plot — no approximation, no post-hoc explanation. On many tabular benchmarks it lands within a point or two of an unrestricted GBM. Mentioning it when someone asks &ldquo;how do you get interpretability?&rdquo; is a genuinely strong answer because it sidesteps the SHAP-caveat conversation entirely.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>You need an interpretable model for a regulated use case. What do you build?</summary>
+              <div class="ans"><p>I'd try <b>intrinsic interpretability</b> before post-hoc explanation, because explaining a black box is an approximation and a regulator can challenge the approximation. In order: a <b>regularized logistic regression</b> or GLM with splines and <b>monotonic constraints</b>, which gives coefficients you can put in an adverse-action notice; or an <b>EBM/GAM</b>, which is exactly a sum of per-feature shape functions you can plot and is usually within a point or two of a GBM on tabular data. If accuracy genuinely demands a GBM, I'd add <b>monotonic constraints</b> (which are both a regularizer and a compliance artefact) and pair it with SHAP <em>plus</em> the caveats — but I'd quantify the accuracy gap first, because it's often smaller than assumed.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>What is an EBM and why is it interesting?</summary>
+              <div class="ans"><p>An <b>Explainable Boosting Machine</b> is a GAM fitted by cyclic gradient boosting: it boosts on <b>one feature at a time</b>, producing a separate shape function per feature plus a small number of automatically-selected pairwise interactions. Because the model <em>is</em> the sum of those curves, the explanation is exact rather than approximate — you plot the function and that's the model. It's interesting because it lands close to unrestricted GBMs on many tabular benchmarks, so it largely dissolves the accuracy-vs-interpretability trade-off that the SHAP conversation exists to manage.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 14.3 ===== -->
+      <article class="topic" id="c14-3">
+        <h3><span class="tn">14.3</span> The three feature importances <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">They are not three implementations of one idea. They answer three <em>different questions</em>, and the point of the question is whether you know that.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Correlated features break every importance method</div>
+          <div class="wbody">
+            <canvas id="piCanvas" width="720" height="280" aria-label="Bar charts of permutation importance for five features, two of which are correlated with each other with adjustable correlation, showing their importance collapsing toward zero as correlation rises even though the pair is jointly essential."></canvas>
+            <div class="wctl">
+              <label>correlation between x₁ and x₂ · <b id="piRVal">0.00</b>
+                <input type="range" id="piR" min="0" max="99" value="0" step="1">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="piX1">—</span>x₁ importance</div>
+              <div class="wcell"><span class="n" id="piX2">—</span>x₂ importance</div>
+              <div class="wcell"><span class="n" id="piJoint">—</span>drop both together</div>
+              <div class="wcell"><span class="n" id="piX0">—</span>x₀ (uncorrelated)</div>
+            </div>
+            <div class="wout" id="piOut"></div>
+            <p class="wnote">Real permutation importance: a ridge model is fitted, then each column is shuffled on held-out data and the increase in MSE is measured. Slide the correlation to 0.98 and watch <b>both</b> correlated features drop toward zero individually — while removing them <em>together</em> still destroys the model. Neither is redundant; the method just cannot see joint contribution. <b>SHAP has a version of the same problem.</b></p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 270" role="img" aria-label="Three feature importance methods compared: mean decrease in impurity computed on training data and biased toward high-cardinality features, permutation importance computed on held-out data and measuring metric loss, and SHAP giving consistent additive attributions at higher computational cost.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">three methods, three questions — say which one you mean</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="205" height="212" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="40" y="62" fill="#e0a3a8" font-size="11.5">Impurity / gain (MDI)</text>
+                <text x="40" y="82" fill="#8892a0" font-size="9.5">the default <tspan font-family="var(--mono)">feature_importances_</tspan></text>
+                <text x="40" y="106" fill="#c2cad6">Q: how much did this feature</text>
+                <text x="40" y="120" fill="#c2cad6">reduce impurity while <tspan font-style="italic">building</tspan>?</text>
+                <text x="40" y="144" fill="#7fd6a0">+ free — already computed</text>
+                <text x="40" y="168" fill="#e0a3a8">− biased toward high-cardinality</text>
+                <text x="40" y="182" fill="#e0a3a8">  and continuous features</text>
+                <text x="40" y="198" fill="#e0a3a8">− computed on <tspan font-weight="600">training</tspan> data, so</text>
+                <text x="40" y="212" fill="#e0a3a8">  it rewards overfitting</text>
+                <text x="40" y="236" fill="#8892a0">A random ID-like column ranks</text>
+                <text x="40" y="248" fill="#8892a0">high. Demo it once (§7.7).</text>
+
+                <rect x="247" y="40" width="205" height="212" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="263" y="62" fill="#7fd6a0" font-size="11.5">Permutation</text>
+                <text x="263" y="82" fill="#8892a0" font-size="9.5">model-agnostic, on held-out data</text>
+                <text x="263" y="106" fill="#c2cad6">Q: how much does the <tspan font-style="italic">metric</tspan></text>
+                <text x="263" y="120" fill="#c2cad6">degrade if I shuffle it?</text>
+                <text x="263" y="144" fill="#7fd6a0">+ measures what you care about</text>
+                <text x="263" y="158" fill="#7fd6a0">+ works for any model</text>
+                <text x="263" y="182" fill="#e0a3a8">− <tspan font-weight="600">correlated features</tspan> hide each</text>
+                <text x="263" y="196" fill="#e0a3a8">  other (see the widget above)</text>
+                <text x="263" y="212" fill="#e0a3a8">− shuffling creates unrealistic rows</text>
+                <text x="263" y="236" fill="#8892a0">The default recommendation —</text>
+                <text x="263" y="248" fill="#8892a0">with the caveat stated.</text>
+
+                <rect x="470" y="40" width="206" height="212" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="486" y="62" fill="#98a0f0" font-size="11.5">SHAP</text>
+                <text x="486" y="82" fill="#8892a0" font-size="9.5">Shapley values from game theory</text>
+                <text x="486" y="106" fill="#c2cad6">Q: how is <tspan font-style="italic">this prediction</tspan> divided</text>
+                <text x="486" y="120" fill="#c2cad6">among the features?</text>
+                <text x="486" y="144" fill="#7fd6a0">+ local <tspan font-style="italic">and</tspan> globally aggregable</text>
+                <text x="486" y="158" fill="#7fd6a0">+ additive: contributions sum to</text>
+                <text x="486" y="172" fill="#7fd6a0">  the prediction minus the base</text>
+                <text x="486" y="196" fill="#e0a3a8">− expensive (TreeSHAP is fast and</text>
+                <text x="486" y="210" fill="#e0a3a8">  exact for trees; KernelSHAP isn't)</text>
+                <text x="486" y="226" fill="#e0a3a8">− correlation problems of its own</text>
+                <text x="486" y="248" fill="#8892a0">Not an oracle — see §14.6.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The one-sentence version:</b> MDI asks <em>how the model was built</em>, permutation asks <em>what the model needs</em>, and SHAP asks <em>how this prediction was composed</em>. They can rank features completely differently and all be correct, because they are answering different questions — and the correct response to &ldquo;which is right?&rdquo; is &ldquo;which question are you asking?&rdquo;</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Three kinds of feature importance — how do they differ?</summary>
+              <div class="ans"><p><b>Impurity/gain (MDI):</b> how much this feature reduced impurity while the tree was <em>built</em> — free, but biased toward high-cardinality and continuous features and computed on training data. <b>Permutation:</b> how much the held-out <em>metric</em> degrades when the column is shuffled — measures what you actually care about and works for any model, but correlated features mask each other and shuffling creates unrealistic rows. <b>SHAP:</b> how <em>this prediction</em> is divided among features — local and globally aggregable, additive, expensive, with correlation problems of its own. They answer <b>three different questions</b> and can rank features differently while all being correct.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debugging</span>Two features you know matter both show near-zero permutation importance. What's happening?</summary>
+              <div class="ans"><p>They're almost certainly <b>correlated</b> with each other. Permutation shuffles one column at a time, so when you scramble x₁ the model simply reads the same information from x₂ and the metric barely moves — and vice versa. Both look unimportant while <em>jointly</em> being essential, which the widget above demonstrates directly. Diagnostics: compute a correlation matrix alongside any importance ranking; try <b>grouped</b> permutation (shuffle correlated features together); or use <b>conditional</b> permutation, which respects the correlation structure. And note SHAP is not immune — it splits credit between correlated features in ways that are equally hard to interpret causally.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 14.4 ===== -->
+      <article class="topic" id="c14-4">
+        <h3><span class="tn">14.4</span> PDP, ICE and ALE <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Three ways to plot &ldquo;what does the model do as this feature changes?&rdquo; — and one of them can be actively misleading on its own.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> PDP hides what ICE reveals</div>
+          <div class="wbody">
+            <canvas id="pdCanvas" width="720" height="290" aria-label="Individual conditional expectation curves for many instances showing two opposite trends, with the partial dependence plot drawn as their average, which is nearly flat and therefore conceals the heterogeneity."></canvas>
+            <div class="wctl">
+              <label>strength of the interaction · <b id="pdIVal">1.00</b>
+                <input type="range" id="pdI" min="0" max="100" value="100" step="1">
+              </label>
+              <label>show
+                <span class="wbtns" style="margin-top:2px">
+                  <button class="wbtn on" id="pdBoth">ICE + PDP</button><button class="wbtn" id="pdPdp">PDP only</button>
+                </span>
+              </label>
+            </div>
+            <div class="wout" id="pdOut"></div>
+            <p class="wnote">The underlying model is <code class="ic">y = β·x·(segment) + …</code>: raising <code class="ic">x</code> helps one segment and hurts the other by the same amount. The <b>PDP is their average and is essentially flat</b> — read alone, it says &ldquo;this feature does nothing.&rdquo; The <b>ICE curves</b> show two opposite fans. Set the interaction to zero and the two views agree, which is exactly when a PDP is safe to trust on its own.</p>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Plot</th><th>Shows</th><th>Fails when</th></tr></thead>
+            <tbody>
+              <tr><td><b>PDP</b></td><td>The <em>average</em> marginal effect: vary the feature, hold others at their observed values, average the predictions</td><td><b>Interactions</b> (opposite effects cancel) and <b>correlation</b> (it evaluates the model on combinations that don't exist — 25 years of tenure at age 19)</td></tr>
+              <tr><td><b>ICE</b></td><td>One curve <em>per instance</em> — the same computation without averaging</td><td>Cluttered with many rows; use a sample plus the centred variant (c-ICE)</td></tr>
+              <tr><td><b>ALE</b></td><td>Accumulated <em>local</em> effects: computes differences within small windows of the feature and accumulates them</td><td>Harder to explain; less familiar. But it is the <b>correlation-robust</b> answer</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The rule: look at ICE before trusting a PDP</span>
+          <p>A flat PDP means one of two very different things — the feature genuinely doesn't matter, or it matters enormously in opposite directions for different subgroups. Only the ICE plot distinguishes them, and the second case is often the more important finding. Modern <code class="ic">PartialDependenceDisplay</code> can draw both together (<code class="ic">kind="both"</code>), so there is no reason not to.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ PDP vs ICE vs ALE — what does each show?</summary>
+              <div class="ans"><p><b>PDP</b> shows the <em>average</em> marginal effect of a feature — but it averages over instances, so it hides heterogeneity, and it evaluates the model on unrealistic combinations when features are correlated. <b>ICE</b> plots one curve per instance, revealing exactly that hidden heterogeneity: if half your population responds positively and half negatively, the PDP is flat and the ICE plot shows two fans. <b>ALE</b> computes effects within small <em>local</em> windows of the feature and accumulates them, so it never leaves the data manifold — the <b>correlation-robust</b> alternative. Rule: <b>look at ICE before trusting a PDP</b>, and prefer ALE when features are correlated.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Why does correlation break a PDP specifically?</summary>
+              <div class="ans"><p>Because the PDP algorithm fixes the feature of interest at a grid value and keeps <b>every other feature at its observed value</b>, then averages. With correlated features that generates rows the data-generating process would never produce — age 19 with 25 years at the employer — and the model's prediction there is an <b>extrapolation</b> with no meaning. The averaged curve then reflects model behaviour in regions with no data. <b>ALE</b> fixes this by only ever comparing predictions for points already <em>inside</em> a small window of the feature, so it never queries impossible combinations.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 14.5 ===== -->
+      <article class="topic" id="c14-5">
+        <h3><span class="tn">14.5</span> LIME</h3>
+        <p class="lead">A local surrogate: fit a simple interpretable model in the neighbourhood of one prediction, and read that. Intuitive, fast — and unstable in a way you should be able to name.</p>
+
+        <p>LIME perturbs the instance you want to explain, gets the black box's predictions for those perturbations, weights them by proximity to the original, and fits a <b>sparse linear model</b> to that weighted local dataset. The coefficients are the explanation.</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">LIME's three weaknesses, in order of importance</span>
+          <p><b>(1) Instability.</b> Run it twice on the same instance and you can get materially different explanations, because the perturbations are random. That is disqualifying for any use where the explanation is a <em>record</em> (an adverse-action notice). <b>(2) The neighbourhood is a free parameter</b> — the kernel width silently determines what "local" means and therefore the answer, with no principled way to choose it. <b>(3) The perturbation scheme is arbitrary</b> for tabular data, and typically samples features independently, so it evaluates the model off the data manifold — the same flaw as KernelSHAP (§14.6). In practice SHAP has largely displaced it for tabular work.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How does LIME work, and why would you not use it?</summary>
+              <div class="ans"><p>It perturbs the instance, gets black-box predictions for the perturbations, weights them by proximity, and fits a <b>sparse linear surrogate</b> to that local dataset — the coefficients are the explanation. Reasons not to use it on tabular data: it's <b>unstable</b> (random perturbations mean two runs can disagree, which is disqualifying when the explanation is a record); the <b>kernel width</b> silently defines "local" with no principled way to choose it; and the perturbation scheme samples features independently, so it queries the model off the data manifold. SHAP gives a more principled decomposition with consistency guarantees, and TreeSHAP is fast and exact for tree models — so for tabular work SHAP has largely displaced it.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 14.6 ===== -->
+      <article class="topic" id="c14-6">
+        <h3><span class="tn">14.6</span> SHAP <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The most valuable thing you can say about SHAP is what it gets <strong>wrong</strong>. Everyone can describe what it does; very few can name its failure modes.</p>
+
+        <h4>What it is</h4>
+        <p>SHAP assigns each feature the <b>Shapley value</b> of its contribution to a single prediction — the average marginal contribution across all possible orderings in which features could be added to the model. That construction is the unique attribution satisfying four axioms: <b>efficiency</b> (contributions sum to the prediction minus a base value), <b>symmetry</b> (equal contributors get equal credit), <b>dummy</b> (a feature with no effect gets zero), and <b>additivity</b>. Being additive and local means it aggregates cleanly into a global view.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="SHAP failure modes explained: KernelSHAP assumes feature independence and evaluates the model on unrealistic combinations, while path-dependent TreeSHAP changes the value function so that a feature which does not affect the prediction can still receive non-zero attribution when correlated with one that does.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the SHAP caveats that make you sound careful rather than credulous</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="322" height="110" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="40" y="62" fill="#f0c274" font-size="11.5">KernelSHAP — the independence assumption</text>
+                <text x="40" y="84" fill="#c2cad6">To value a coalition it marginalises features by sampling</text>
+                <text x="40" y="98" fill="#c2cad6">them independently — producing rows like</text>
+                <text x="40" y="118" fill="#e0a3a8" font-family="var(--mono)">age = 19, years_at_employer = 25</text>
+                <text x="40" y="138" fill="#8892a0">The model is then queried far off the data manifold, and</text>
+                <text x="40" y="150" fill="#8892a0">weight is placed on predictions that mean nothing.</text>
+
+                <rect x="356" y="40" width="320" height="110" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="372" y="62" fill="#e0a3a8" font-size="11.5">Path-dependent TreeSHAP — the axiom it breaks</text>
+                <text x="372" y="84" fill="#c2cad6">It avoids that by following the tree's own splits and</text>
+                <text x="372" y="98" fill="#c2cad6">using the training distribution — but that changes the</text>
+                <text x="372" y="112" fill="#c2cad6">value function, and the consequence is that a feature</text>
+                <text x="372" y="126" fill="#e0a3a8"><tspan font-weight="600">which does not affect the prediction at all</tspan> can receive</text>
+                <text x="372" y="140" fill="#e0a3a8">non-zero attribution — violating the dummy axiom.</text>
+
+                <rect x="24" y="164" width="652" height="102" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="186" fill="#fff" font-size="11.5">What to actually say</text>
+                <text x="40" y="208" fill="#c2cad6">&ldquo;SHAP gives consistent, additive, locally-faithful attributions and is my default for explaining an individual prediction. But it is</text>
+                <text x="40" y="224" fill="#c2cad6">not an oracle: with correlated features credit is split in ways that don't map onto causal importance, KernelSHAP assumes</text>
+                <text x="40" y="240" fill="#c2cad6">independence, and path-dependent TreeSHAP can attribute to features that don't contribute. I use it <tspan font-weight="600" fill="#7fd6a0">alongside correlation</tspan></text>
+                <text x="40" y="256" fill="#7fd6a0" font-weight="600">analysis and permutation importance, and I never present a SHAP value as a causal effect.&rdquo;</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The two TreeSHAP modes matter.</b> <code class="ic">interventional</code> (with a background dataset) breaks feature dependence deliberately and satisfies the dummy axiom, but queries off-manifold points. <code class="ic">tree_path_dependent</code> follows the training distribution so stays on-manifold, but can assign non-zero credit to features with no effect. <b>There is no mode that gets both</b> — and knowing that trade-off exists is the answer.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Explain SHAP. What are its assumptions and failure modes?</summary>
+              <div class="ans"><p>SHAP gives each feature the <b>Shapley value</b> of its contribution to a single prediction — its average marginal contribution across all orderings in which features could be added — which is the unique attribution satisfying efficiency, symmetry, dummy and additivity. Contributions sum to the prediction minus a base value, and being local and additive it aggregates into a global view. <b>Failure modes:</b> <b>(1)</b> KernelSHAP assumes <b>feature independence</b> when marginalising, so it queries the model on unrealistic rows off the data manifold. <b>(2)</b> <b>Path-dependent TreeSHAP</b> avoids that by using the tree's own paths, but changes the value function such that a feature with <em>no</em> effect can get non-zero attribution — breaking the dummy axiom. <b>(3)</b> With correlated features credit is split unintuitively. <b>(4)</b> A SHAP value is <b>not a causal effect</b>. Use it with correlation analysis and other diagnostics.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What's the difference between TreeSHAP's interventional and path-dependent modes?</summary>
+              <div class="ans"><p><b>Interventional</b> uses an explicit background dataset and breaks feature dependence deliberately — it satisfies the <b>dummy axiom</b> (irrelevant features get exactly zero) but evaluates the model on off-manifold combinations, so the attributions describe a hypothetical intervention rather than observed behaviour. <b>Path-dependent</b> follows the tree's own split structure using the training distribution, so it stays on-manifold and is faster, but the changed value function means a feature that never affects the prediction can receive <b>non-zero</b> credit if it's correlated with one that does. There is <b>no mode that achieves both</b>, and knowing that trade-off exists is more valuable than picking a side.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Can you use SHAP values to decide what to change?</summary>
+              <div class="ans"><p>No — that's the most consequential misuse. SHAP explains <b>how the model composed a prediction</b>, which reflects predictive association including through proxies, confounders and consequences of the target. High SHAP for <code class="ic">num_collection_calls</code> in a default model doesn't mean reducing collection calls reduces default. To decide what to <b>change</b> you need a causal quantity — an experiment, or an identification strategy (§16.4). What SHAP <em>is</em> good for: debugging, sanity-checking, leakage detection, per-case explanation of a decision as it was made, and generating hypotheses worth testing causally.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 14.7 ===== -->
+      <article class="topic" id="c14-7">
+        <h3><span class="tn">14.7</span> Counterfactuals &amp; adverse-action notices <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The most <em>useful</em> explanation for an end user is not an attribution — it is &ldquo;what would need to change?&rdquo;</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Audience</th><th>Wants</th><th>Give them</th></tr></thead>
+            <tbody>
+              <tr><td>A <b>data scientist</b> debugging</td><td>Mechanism</td><td>SHAP, ALE, ICE, slice analysis</td></tr>
+              <tr><td>A <b>stakeholder</b></td><td>Confidence and a mental model</td><td>Global drivers in their language, plus one worked example</td></tr>
+              <tr><td>An <b>end user</b> who was declined</td><td>What to do next</td><td><b>A counterfactual</b>: &ldquo;had utilisation been below 40%, this would have been approved&rdquo;</td></tr>
+              <tr><td>A <b>regulator</b></td><td>A defensible, reproducible record</td><td><b>Adverse-action notice</b>: standardised reason codes, model version, input snapshot, and the fairness evidence</td></tr>
+              <tr><td>An <b>analyst</b> triaging alerts</td><td>Speed and prioritisation</td><td>Top-3 contributing features plus similar historical cases</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">What makes a counterfactual <em>good</em></span>
+          <p>Four properties, and they conflict. <b>Validity</b> — it genuinely flips the prediction. <b>Proximity</b> — it changes as little as possible. <b>Sparsity</b> — it changes as <em>few features</em> as possible, because "change these seven things" is useless advice. <b>Actionability</b> — it only changes things the person can actually change: &ldquo;be five years younger&rdquo; is a valid counterfactual and an unacceptable one. That last constraint is why counterfactual generation needs a per-feature <b>mutability</b> specification, not just an optimiser.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ A regulator asks why an application was declined. What do you give them?</summary>
+              <div class="ans"><p>Not a SHAP beeswarm. An <b>adverse-action notice</b>: a small number of specific, plain-language, <em>actionable</em> reasons, derived reproducibly, tied to a recorded model version and input snapshot. In practice that means a locally faithful attribution method ranked into <b>standardised reason codes</b>, ideally paired with a <b>counterfactual</b> ("had utilisation been below 40%, this would have been approved"), plus the audit trail — model version, feature values at decision time, policy thresholds applied — and the fairness evidence. Worth adding: this requirement is often <em>why</em> the production model is a logistic regression or a monotonically-constrained GBM in the first place.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What makes a counterfactual explanation good?</summary>
+              <div class="ans"><p>Four properties that trade off against each other. <b>Validity</b> — it actually flips the prediction. <b>Proximity</b> — minimal change from the original. <b>Sparsity</b> — few features changed, because "alter these seven things" is useless advice. And <b>actionability</b> — only mutable features: "be five years younger" is mathematically valid and practically insulting. That last one means counterfactual generation needs a per-feature <b>mutability and direction</b> specification (age immutable, income increase-only, utilisation freely changeable) rather than just an optimiser over the feature space.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 14.8 ===== -->
+      <article class="topic" id="c14-8">
+        <h3><span class="tn">14.8</span> Fairness <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The question is never &ldquo;is the model fair?&rdquo; It is &ldquo;<em>which</em> fairness, and what are you giving up to get it?&rdquo; — because several definitions are provably incompatible.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="Four fairness criteria defined side by side — demographic parity, equal opportunity, equalised odds and predictive parity — with a note that when base rates differ between groups, calibration and equalised odds cannot both hold except in degenerate cases.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">four criteria — and the impossibility result that connects them</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="158" height="112" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="62" fill="#98a0f0">Demographic parity</text>
+                <text x="40" y="84" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">P(ŷ=1 | A) equal</text>
+                <text x="40" y="106" fill="#8892a0">Same approval rate</text>
+                <text x="40" y="120" fill="#8892a0">across groups.</text>
+                <text x="40" y="140" fill="#e0a3a8">Ignores real base-rate</text>
+                <text x="40" y="150" fill="#e0a3a8">differences.</text>
+
+                <rect x="190" y="40" width="158" height="112" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="206" y="62" fill="#7fd6a0">Equal opportunity</text>
+                <text x="206" y="84" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">TPR equal given y=1</text>
+                <text x="206" y="106" fill="#8892a0">Qualified applicants</text>
+                <text x="206" y="120" fill="#8892a0">approved at equal rates.</text>
+                <text x="206" y="140" fill="#7fd6a0">Often the most</text>
+                <text x="206" y="150" fill="#7fd6a0">defensible starting point.</text>
+
+                <rect x="356" y="40" width="158" height="112" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="372" y="62" fill="#f0c274">Equalised odds</text>
+                <text x="372" y="84" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">TPR and FPR both equal</text>
+                <text x="372" y="106" fill="#8892a0">Stricter: errors of both</text>
+                <text x="372" y="120" fill="#8892a0">kinds match.</text>
+                <text x="372" y="140" fill="#f0c274">Usually costs accuracy</text>
+                <text x="372" y="150" fill="#f0c274">to achieve.</text>
+
+                <rect x="522" y="40" width="154" height="112" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="538" y="62" fill="#e0a3a8">Predictive parity</text>
+                <text x="538" y="84" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">precision equal</text>
+                <text x="538" y="106" fill="#8892a0">A score of 0.7 means</text>
+                <text x="538" y="120" fill="#8892a0">the same thing for</text>
+                <text x="538" y="134" fill="#8892a0">everyone — i.e.</text>
+                <text x="538" y="148" fill="#8892a0">calibration by group.</text>
+
+                <rect x="24" y="166" width="652" height="98" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="188" fill="#fff" font-size="11.5">⭐ The impossibility result</text>
+                <text x="40" y="210" fill="#c2cad6">When <tspan font-weight="600">base rates genuinely differ between groups</tspan>, you cannot simultaneously have calibration within groups (predictive</text>
+                <text x="40" y="226" fill="#c2cad6">parity) and equalised odds, except in degenerate cases — a perfect classifier, or equal base rates. This is a theorem, not a</text>
+                <text x="40" y="242" fill="#7fd6a0">tooling gap. So &ldquo;make it fair&rdquo; is not a specification: someone has to <tspan font-weight="600">choose which criterion</tspan>, and that is a policy decision,</text>
+                <text x="40" y="256" fill="#7fd6a0">not a modelling one. Saying that — and asking who owns it — is the strongest possible answer to a fairness question.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Proxies are the practical trap.</b> Removing the protected attribute does not remove the bias, because postcode, name, device, education history and shopping patterns encode it. That is why fairness is <em>measured</em> per subgroup on the <b>deployed decision</b> — not asserted by omission. Mitigation happens at three stages: <b>pre-processing</b> (reweighting, resampling), <b>in-processing</b> (constrained optimisation), <b>post-processing</b> (per-group thresholds — effective, and legally fraught because they explicitly use the protected attribute).</figcaption>
+        </figure>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Document it, or it didn't happen</span>
+          <p><b>Model cards</b> (intended use, out-of-scope uses, per-subgroup performance, known limitations) and <b>datasheets for datasets</b> (how it was collected, by whom, with what consent, what is missing) are the standard artefacts. They matter for a boring reason: they make the assumptions <em>auditable later</em>, which is exactly what someone will ask for when a journalist calls or a complaint escalates.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Define two fairness metrics and explain why you can't satisfy all of them.</summary>
+              <div class="ans"><p><b>Demographic parity:</b> equal positive-prediction rates across groups. <b>Equal opportunity:</b> equal true-positive rates among those who actually qualify. Also worth naming: <b>equalised odds</b> (equal TPR <em>and</em> FPR) and <b>predictive parity</b> (equal precision — i.e. a score means the same thing in every group). The <b>impossibility result</b>: when base rates genuinely differ between groups, calibration within groups and equalised odds cannot both hold except in degenerate cases — a perfect classifier or equal base rates. It's a theorem, not a tooling gap. So "make it fair" is under-specified: someone must <b>choose which criterion</b>, and that's a policy decision, not a modelling one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Can't you just remove the protected attribute?</summary>
+              <div class="ans"><p>No — this is "fairness through unawareness" and it doesn't work. <b>Proxies</b> encode the attribute: postcode, name, device type, education history, shopping patterns, even writing style. A model with enough features will reconstruct it, and you've now lost the ability to <em>measure</em> disparate impact while doing nothing to prevent it. The correct approach is the opposite: <b>retain the attribute for measurement</b> (in a governed way), measure outcomes per subgroup on the <b>deployed decision</b>, and mitigate deliberately at whichever stage is appropriate — pre-processing, in-processing, or post-processing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>You discover a shipped model has disparate impact. What do you do?</summary>
+              <div class="ans"><p><b>Quantify it precisely first</b> — per subgroup, on the deployed decision, with confidence intervals, before saying anything imprecise. Then <b>escalate immediately</b> with the number and the affected population, because delay is the thing that becomes indefensible later. Propose <b>interim mitigation</b> while a fix is built: a threshold change, human review for the affected slice, or disabling the model if the harm is serious. Then treat "which fairness criterion do we hold ourselves to" as a <b>policy decision needing an owner outside the modelling team</b> — legal, compliance, or the product owner — because the impossibility result means it's a value judgement, not a technical one. Finally, document the whole thing in the model card.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 14 widgets ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function gauss(r){ var u=1-r(), v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+
+  /* ---------- 14.3 permutation importance ---------- */
+  var piCv=document.getElementById("piCanvas");
+  if(piCv){
+    var P=5, NTR=250, NVA=600;
+    function solveSys(A,b){
+      var n=b.length, M=A.map(function(r){return r.slice();}), v=b.slice();
+      for(var i=0;i<n;i++){
+        var p=i; for(var k=i+1;k<n;k++) if(Math.abs(M[k][i])>Math.abs(M[p][i])) p=k;
+        var t=M[i]; M[i]=M[p]; M[p]=t; var tb=v[i]; v[i]=v[p]; v[p]=tb;
+        if(Math.abs(M[i][i])<1e-10) M[i][i]=1e-10;
+        for(var k=i+1;k<n;k++){ var f=M[k][i]/M[i][i]; for(var j=i;j<n;j++) M[k][j]-=f*M[i][j]; v[k]-=f*v[i]; }
+      }
+      var w=new Array(n).fill(0);
+      for(var i=n-1;i>=0;i--){ var s=v[i]; for(var j=i+1;j<n;j++) s-=M[i][j]*w[j]; w[i]=s/M[i][i]; }
+      return w;
+    }
+    function make(rho){
+      var r=rng(404), X=[], y=[], Xv=[], yv=[];
+      var beta=[1.4, 1.0, 1.0, 0.0, 0.0];
+      function row(){
+        var v=[gauss(r), gauss(r), 0, gauss(r), gauss(r)];
+        v[2]= rho*v[1] + Math.sqrt(Math.max(0,1-rho*rho))*gauss(r);
+        return v;
+      }
+      for(var i=0;i<NTR;i++){ var v=row(), t=0; for(var j=0;j<P;j++) t+=beta[j]*v[j]; X.push(v); y.push(t+0.6*gauss(r)); }
+      for(var i=0;i<NVA;i++){ var v=row(), t=0; for(var j=0;j<P;j++) t+=beta[j]*v[j]; Xv.push(v); yv.push(t+0.6*gauss(r)); }
+      return {X:X,y:y,Xv:Xv,yv:yv};
+    }
+    function fit(D){
+      var G=[], c=[];
+      for(var i=0;i<P;i++){ G.push(new Array(P).fill(0)); c.push(0); }
+      for(var t=0;t<D.X.length;t++) for(var i=0;i<P;i++){ c[i]+=D.X[t][i]*D.y[t]; for(var j=0;j<P;j++) G[i][j]+=D.X[t][i]*D.X[t][j]; }
+      for(var i=0;i<P;i++) G[i][i]+=1e-3*D.X.length;
+      return solveSys(G,c);
+    }
+    function mse(w,X,y,drop){
+      var s=0;
+      for(var t=0;t<X.length;t++){
+        var p=0; for(var j=0;j<P;j++){ if(drop && drop.indexOf(j)>=0) continue; p+=w[j]*X[t][j]; }
+        var e=y[t]-p; s+=e*e;
+      }
+      return s/X.length;
+    }
+    function permMse(w,D,j){
+      var r=rng(77+j), s=0;
+      for(var t=0;t<D.Xv.length;t++){
+        var p=0;
+        for(var k=0;k<P;k++){
+          var v = (k===j)? D.Xv[Math.floor(r()*D.Xv.length)][k] : D.Xv[t][k];
+          p+=w[k]*v;
+        }
+        var e=D.yv[t]-p; s+=e*e;
+      }
+      return s/D.Xv.length;
+    }
+    var piR=document.getElementById("piR");
+    function drawPI(){
+      var rho=(+piR.value)/100;
+      document.getElementById("piRVal").textContent=rho.toFixed(2);
+      var D=make(rho), w=fit(D), base=mse(w,D.Xv,D.yv);
+      var imp=[];
+      for(var j=0;j<P;j++) imp.push(permMse(w,D,j)-base);
+      var joint=mse(w,D.Xv,D.yv,[1,2])-base;
+      var ctx=dpr(piCv), W=720, H=280; ctx.clearRect(0,0,W,H);
+      var L=70, B=210, bw=76, gap=26;
+      var mx=Math.max(joint, Math.max.apply(null,imp), 0.5);
+      ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+      ctx.fillText("permutation importance = increase in held-out MSE when the column is shuffled", L-40, 26);
+      var labs=["x₀","x₁","x₂","x₃","x₄"];
+      for(var j=0;j<P;j++){
+        var x=L+j*(bw+gap), h=Math.max(1,(imp[j]/mx)*(B-60));
+        ctx.fillStyle="#252D3A"; ctx.fillRect(x, 60, bw, B-60);
+        ctx.fillStyle = (j===1||j===2)? "#E0920C" : (j<1? "#5560D8" : "#3a4453");
+        ctx.fillRect(x, B-h, bw, h);
+        ctx.fillStyle="#fff"; ctx.font="600 12px ui-monospace,Menlo,monospace";
+        ctx.fillText(imp[j].toFixed(3), x+6, B-h-8);
+        ctx.fillStyle= (j===1||j===2)? "#f0c274" : "#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+        ctx.fillText(labs[j], x+30, B+18);
+      }
+      ctx.fillStyle="#6b7482"; ctx.font="10px ui-monospace,Menlo,monospace";
+      ctx.fillText("signal", L+18, B+34); ctx.fillText("correlated pair", L+(bw+gap)+30, B+34); ctx.fillText("noise", L+3*(bw+gap)+40, B+34);
+      var jx=L+5*(bw+gap)+10, jh=Math.max(1,(joint/mx)*(B-60));
+      ctx.fillStyle="#252D3A"; ctx.fillRect(jx, 60, bw+20, B-60);
+      ctx.fillStyle="#2E9E5B"; ctx.fillRect(jx, B-jh, bw+20, jh);
+      ctx.fillStyle="#fff"; ctx.font="600 12px ui-monospace,Menlo,monospace";
+      ctx.fillText(joint.toFixed(3), jx+8, B-jh-8);
+      ctx.fillStyle="#7fd6a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+      ctx.fillText("x₁+x₂", jx+24, B+18);
+      ctx.fillText("dropped together", jx-14, B+34);
+      document.getElementById("piX1").textContent=imp[1].toFixed(3);
+      document.getElementById("piX2").textContent=imp[2].toFixed(3);
+      document.getElementById("piJoint").textContent=joint.toFixed(3);
+      document.getElementById("piX0").textContent=imp[0].toFixed(3);
+      var msg;
+      if(rho<0.3) msg="At ρ = "+rho.toFixed(2)+" the features are near-independent and permutation importance is well behaved: x₀, x₁ and x₂ all show real importance, x₃ and x₄ show ~0. This is the case the method was designed for.";
+      else if(rho<0.85) msg="ρ = "+rho.toFixed(2)+". Individual importances for x₁ and x₂ are <span class='v'>"+imp[1].toFixed(3)+"</span> and <span class='v'>"+imp[2].toFixed(3)+"</span> and falling — each is partly substitutable for the other, so shuffling one alone costs less. Dropping both costs <span class='v'>"+joint.toFixed(3)+"</span>.";
+      else msg="<span class='warn'>ρ = "+rho.toFixed(2)+" — both correlated features now look almost unimportant individually</span> (<span class='v'>"+imp[1].toFixed(3)+"</span> and <span class='v'>"+imp[2].toFixed(3)+"</span>), because shuffling one leaves its information available through the other. But removing <em>both</em> costs <span class='v'>"+joint.toFixed(3)+"</span>. <b>A naive reading would drop two essential features.</b> This is why every importance number needs a correlation analysis beside it — and SHAP has its own version of the same problem.";
+      document.getElementById("piOut").innerHTML=msg;
+    }
+    piR.addEventListener("input", drawPI);
+    drawPI();
+  }
+
+  /* ---------- 14.4 PDP vs ICE ---------- */
+  var pdCv=document.getElementById("pdCanvas");
+  if(pdCv){
+    var showIce=true;
+    var pdI=document.getElementById("pdI");
+    var r0=rng(808), INST=[];
+    for(var i=0;i<60;i++) INST.push({seg: i%2===0?1:-1, off: gauss(r0)*0.4, slope: 0.25+0.35*r0()});
+    function drawPD(){
+      var inter=(+pdI.value)/100;
+      document.getElementById("pdIVal").textContent=inter.toFixed(2);
+      var ctx=dpr(pdCv), W=720, H=290; ctx.clearRect(0,0,W,H);
+      var L=70,R=680,T=44,B=250;
+      function px(x){ return L+x*(R-L); }
+      function py(y){ return B-(y+2)/4*(B-T); }
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("feature x →", (L+R)/2-30, B+22);
+      ctx.save(); ctx.translate(L-26,(T+B)/2); ctx.rotate(-Math.PI/2); ctx.fillText("prediction", -30, 0); ctx.restore();
+      var grid=[]; for(var i=0;i<=40;i++) grid.push(i/40);
+      var pdp=new Array(grid.length).fill(0);
+      INST.forEach(function(ins){
+        var pts=grid.map(function(x){
+          var base = 0.5*x + ins.off;
+          return base + inter*ins.seg*ins.slope*6*(x-0.5);
+        });
+        pts.forEach(function(v,i){ pdp[i]+=v/INST.length; });
+        if(showIce){
+          ctx.strokeStyle= ins.seg>0? "rgba(85,96,216,0.30)" : "rgba(224,146,12,0.30)";
+          ctx.lineWidth=1.3; ctx.beginPath();
+          pts.forEach(function(v,i){ var X=px(grid[i]), Y=py(v); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+          ctx.stroke();
+        }
+      });
+      ctx.strokeStyle="#2E9E5B"; ctx.lineWidth=3.4; ctx.beginPath();
+      pdp.forEach(function(v,i){ var X=px(grid[i]), Y=py(v); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+      ctx.stroke();
+      ctx.fillStyle="#7fd6a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+      ctx.fillText("PDP (average)", R-140, py(pdp[pdp.length-1])-12);
+      if(showIce){
+        ctx.fillStyle="#98a0f0"; ctx.fillText("ICE · segment A", L+10, T+16);
+        ctx.fillStyle="#f0c274"; ctx.fillText("ICE · segment B", L+10, T+32);
+      }
+      var range=Math.max.apply(null,pdp)-Math.min.apply(null,pdp);
+      var msg;
+      if(inter>0.6 && !showIce) msg="<span class='warn'>The PDP is nearly flat</span> (range <span class='v'>"+range.toFixed(2)+"</span>), so read alone it says &ldquo;this feature barely matters.&rdquo; Switch ICE back on before you believe that.";
+      else if(inter>0.6) msg="<span class='warn'>The PDP is nearly flat</span> (range <span class='v'>"+range.toFixed(2)+"</span>) while the ICE curves fan apart in <b>opposite directions</b>. Raising x helps segment A and hurts segment B by roughly the same amount, so the average cancels. <b>The feature matters enormously; the PDP says it doesn't.</b> This is the standard argument for always plotting ICE alongside — and for using ALE when features are correlated.";
+      else if(inter<0.15) msg="With no interaction, every instance responds the same way and the ICE curves are parallel — <span class='good'>here the PDP is a faithful summary</span>. That is precisely the condition under which a PDP alone is safe.";
+      else msg="Interaction strength "+inter.toFixed(2)+": the ICE curves are starting to diverge and the PDP range is shrinking to <span class='v'>"+range.toFixed(2)+"</span>. Push it higher and the average will cancel out entirely.";
+      document.getElementById("pdOut").innerHTML=msg;
+    }
+    pdI.addEventListener("input", drawPD);
+    document.getElementById("pdBoth").addEventListener("click", function(){ showIce=true; this.classList.add("on"); document.getElementById("pdPdp").classList.remove("on"); drawPD(); });
+    document.getElementById("pdPdp").addEventListener("click", function(){ showIce=false; this.classList.add("on"); document.getElementById("pdBoth").classList.remove("on"); drawPD(); });
+    drawPD();
+  }
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

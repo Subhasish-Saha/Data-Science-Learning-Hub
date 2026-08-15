@@ -439,7 +439,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <div class="meta-chips">
           <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 11</b></span>
           <span class="chip"><b>9</b> topics</span>
-          <span class="chip">📐 <b>14</b> diagrams</span>
+          <span class="chip">📐 <b>4</b> diagrams</span>
+          <span class="chip">💬 <b>24</b> Q&amp;A</span>
           <span class="chip">🎛 <b>3</b> interactive</span>
           <span class="chip">⏱ <b>~9h</b></span>
         </div>
@@ -487,7 +488,783 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 12.1 ===== -->
+      <article class="topic" id="c12-1">
+        <h3><span class="tn">12.1</span> The confusion matrix <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Everything in this part is derived from four numbers. Being fluent in that derivation is what lets you answer any metric question from first principles.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Move the threshold, watch every metric move with it</div>
+          <div class="wbody">
+            <canvas id="thCanvas" width="720" height="300" aria-label="Two score distributions for positive and negative classes with a movable decision threshold, alongside an ROC curve and a precision-recall curve with the current operating point marked on each."></canvas>
+            <div class="wctl">
+              <label>decision threshold · <b id="thTVal">0.50</b>
+                <input type="range" id="thT" min="1" max="99" value="50" step="1">
+              </label>
+              <label>base rate (positives) · <b id="thPVal">30%</b>
+                <input type="range" id="thP" min="1" max="50" value="30" step="1">
+              </label>
+              <label>signal strength · <b id="thSVal">1.6</b>
+                <input type="range" id="thS" min="4" max="34" value="16" step="1">
+              </label>
+            </div>
+            <div class="cm">
+              <div class="tp">True positives<b id="cmTP">—</b></div>
+              <div class="fp">False positives<b id="cmFP">—</b></div>
+              <div class="fn">False negatives<b id="cmFN">—</b></div>
+              <div class="tn">True negatives<b id="cmTN">—</b></div>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="mAcc">—</span>accuracy</div>
+              <div class="wcell"><span class="n" id="mPre">—</span>precision</div>
+              <div class="wcell"><span class="n" id="mRec">—</span>recall</div>
+              <div class="wcell"><span class="n" id="mF1">—</span>F1</div>
+              <div class="wcell"><span class="n" id="mRoc">—</span>ROC-AUC</div>
+              <div class="wcell"><span class="n" id="mPr">—</span>PR-AUC</div>
+            </div>
+            <div class="wout" id="thOut"></div>
+            <p class="wnote">All six numbers computed exactly from 4,000 simulated scores. Three experiments. <b>(1)</b> Drop the base rate to 2% and watch <b>accuracy stay above 0.97 at every threshold</b> while precision collapses. <b>(2)</b> Compare <b>ROC-AUC and PR-AUC</b> as the base rate falls. <b>(3)</b> Notice that ROC-AUC and PR-AUC don't change at all when you move the threshold — they are <em>threshold-free</em>, which is exactly why neither tells you what your deployed system will do.</p>
+          </div>
+        </div>
+
+        <h4>Everything derived from four cells</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Metric</th><th>Formula</th><th>Reads as</th></tr></thead>
+            <tbody>
+              <tr><td>Accuracy</td><td><code class="ic">(TP+TN)/n</code></td><td>Fraction correct — <b>useless under imbalance</b></td></tr>
+              <tr><td><b>Precision (PPV)</b></td><td><code class="ic">TP/(TP+FP)</code></td><td>Of what we flagged, how much was real?</td></tr>
+              <tr><td><b>Recall / TPR / sensitivity</b></td><td><code class="ic">TP/(TP+FN)</code></td><td>Of what was real, how much did we catch?</td></tr>
+              <tr><td>Specificity / TNR</td><td><code class="ic">TN/(TN+FP)</code></td><td>Of the negatives, how many did we leave alone?</td></tr>
+              <tr><td>FPR</td><td><code class="ic">FP/(FP+TN) = 1 − specificity</code></td><td>The ROC x-axis — <b>normalised by the negative count</b>, which is why it flatters imbalance</td></tr>
+              <tr><td>F1 / F-β</td><td><code class="ic">(1+β²)PR/(β²P+R)</code></td><td>Harmonic mean; β &gt; 1 favours recall, β &lt; 1 favours precision</td></tr>
+              <tr><td>MCC</td><td>Correlation between predicted and true labels</td><td>Uses <b>all four cells</b>; robust under imbalance where F1 is not</td></tr>
+              <tr><td>Balanced accuracy</td><td><code class="ic">(TPR + TNR)/2</code></td><td>Accuracy with class sizes ignored</td></tr>
+              <tr><td>Cohen's κ</td><td>Agreement corrected for chance</td><td>Also the annotator-agreement measure (§16.7)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">F1 ignores true negatives — MCC doesn't</span>
+          <p>F1 is the harmonic mean of precision and recall, both of which are computed without ever touching <b>TN</b>. That's usually what you want (TN is enormous and uninformative under imbalance), but it means F1 can look identical for two very different classifiers, and it's <b>asymmetric</b> — swap which class you call positive and F1 changes. <b>MCC</b> uses all four cells, is symmetric, and gives a more honest single number on imbalanced problems. Worth naming when someone asks for "one metric".</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Accuracy is 95% and the model is useless. Explain.</summary>
+              <div class="ans"><p>Ask for the <b>base rate</b>. If 95% of rows are negative, predicting "negative" for everything scores 95% and catches nothing — accuracy has become a majority-class detector. Report instead the <b>confusion matrix at the deployed threshold</b>, <b>per-class recall</b>, and <b>PR-AUC</b>. There's a second failure worth adding: accuracy is blind to the <b>cost asymmetry</b> between a false positive and a false negative, so even on balanced data it's the wrong objective whenever the two errors cost different amounts.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Precision vs recall — a business example where each dominates.</summary>
+              <div class="ans"><p><b>Precision dominates</b> when acting is expensive or damaging: blocking a legitimate payment (lost sale + support contact), sending an enforcement letter, or opening a fraud case that costs an analyst 20 minutes. <b>Recall dominates</b> when missing is catastrophic: cancer screening, safety recalls, AML compliance, security alerts. The framing to use: precision is "what happens when we act", recall is "what happens when we miss" — and the <b>threshold</b> (§12.7) is the dial that buys one with the other, so the real question is always which error the business can afford.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>When would you use MCC instead of F1?</summary>
+              <div class="ans"><p>When you want a <b>single honest number on an imbalanced problem</b>. F1 is the harmonic mean of precision and recall, neither of which uses <b>true negatives</b> — so F1 is asymmetric (swap which class is "positive" and it changes) and can be identical for classifiers that behave very differently. <b>MCC</b> is essentially the correlation between predicted and true labels, uses all four cells, is symmetric, and returns 0 for a random or constant classifier regardless of the class balance. That last property makes it much harder to game than F1 or accuracy.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.2 ===== -->
+      <article class="topic" id="c12-2">
+        <h3><span class="tn">12.2</span> Precision, recall and F-β <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The trade-off is mechanical: moving the threshold buys one with the other. What's <em>not</em> mechanical is choosing where to sit.</p>
+
+        <p><b>F-β</b> lets you state that preference numerically: <code class="ic">F_β = (1+β²)·P·R/(β²P + R)</code>. Setting <code class="ic">β = 2</code> weights recall roughly 4× more than precision (β² = 4); <code class="ic">β = 0.5</code> does the reverse. The clean way to choose β is from the cost ratio — if a miss costs 4× a false alarm, β = 2 is the corresponding F-measure.</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Why the harmonic mean rather than the arithmetic</span>
+          <p>The harmonic mean is <b>dominated by the smaller value</b>. A classifier with precision 1.0 and recall 0.01 has an arithmetic mean of 0.505 — flattering — but an F1 of about <b>0.02</b>. That's the point: F1 refuses to reward a model that achieves one at the total expense of the other, which is exactly the degenerate behaviour a threshold at an extreme produces. Being able to explain <em>why harmonic</em> is a small but reliable differentiator.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why is F1 a harmonic mean rather than an arithmetic one?</summary>
+              <div class="ans"><p>Because the harmonic mean is <b>dominated by the smaller value</b>, so it refuses to reward a model that maximises one metric at the total expense of the other. Precision 1.0 with recall 0.01 gives an arithmetic mean of 0.505 but an F1 of ~0.02 — which correctly reflects that the model is useless. Since moving the threshold to an extreme trivially maximises either precision or recall alone, a mean that punishes imbalance between them is the only sensible single summary.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you choose β in F-β?</summary>
+              <div class="ans"><p>From the <b>cost ratio</b>. β² is roughly how many times more you weight recall than precision, so if a false negative costs 4× a false positive, <code class="ic">β = 2</code> is the matching measure. In practice I'd rather skip F-β entirely and go straight to <b>expected cost</b>: assign real currency values to FP and FN, and choose the threshold that minimises total cost (§12.7). F-β is a useful summary when you need one number for comparison, but it's a proxy for the cost calculation, and if you can do the calculation directly you should.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.3 ===== -->
+      <article class="topic" id="c12-3">
+        <h3><span class="tn">12.3</span> ROC-AUC vs PR-AUC <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The most-asked metrics question, and it has a <em>structural</em> explanation that most candidates don't give.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> ROC-AUC flatters, PR-AUC doesn't</div>
+          <div class="wbody">
+            <canvas id="imCanvas" width="720" height="290" aria-label="Side-by-side ROC and precision-recall curves for the same classifier evaluated at different class base rates, showing that the ROC curve is almost unchanged as positives become rarer while the precision-recall curve collapses."></canvas>
+            <div class="wctl">
+              <label>positive base rate · <b id="imPVal">30%</b>
+                <input type="range" id="imP" min="1" max="50" value="30" step="1">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="imRoc">—</span>ROC-AUC</div>
+              <div class="wcell"><span class="n" id="imPr">—</span>PR-AUC</div>
+              <div class="wcell"><span class="n" id="imBase">—</span>PR baseline (= base rate)</div>
+              <div class="wcell"><span class="n" id="imLift">—</span>lift over baseline</div>
+            </div>
+            <div class="wout" id="imOut"></div>
+            <p class="wnote">The classifier is <b>exactly as good</b> at every setting — the score distributions never change, only the mix. Drag from 50% down to 1% and watch ROC-AUC stay essentially flat while PR-AUC falls off a cliff. The reason is structural: the ROC's x-axis is the false-positive <em>rate</em>, normalised by a huge negative count, so a flood of false positives barely registers.</p>
+          </div>
+        </div>
+
+        <h4>The structural explanation</h4>
+        <p>ROC plots <b>TPR against FPR</b>. FPR is <code class="ic">FP/(FP+TN)</code> — divided by the <em>total number of negatives</em>. Under 1:1000 imbalance, going from 100 false positives to 1,000 moves FPR from 0.0001 to 0.001: visually nothing. But precision, <code class="ic">TP/(TP+FP)</code>, is divided by the <em>number of alerts</em>, so the same change is devastating. That is the whole difference: <strong>ROC normalises by a quantity you don't care about; PR normalises by the one you do.</strong></p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th>ROC-AUC</th><th>PR-AUC / Average Precision</th></tr></thead>
+            <tbody>
+              <tr><td>Axes</td><td>TPR vs FPR</td><td>Precision vs Recall</td></tr>
+              <tr><td>Random baseline</td><td><b>Always 0.5</b>, regardless of balance</td><td><b>The base rate</b> — so 0.30 means very different things at 2% vs 40% prevalence</td></tr>
+              <tr><td>Under imbalance</td><td><b>Flattering</b> — barely moves</td><td>Reflects what the alert queue will feel</td></tr>
+              <tr><td>Interpretation</td><td>P(random positive ranks above random negative)</td><td>Roughly the average precision across recall levels</td></tr>
+              <tr><td>Use when</td><td>Roughly balanced; you care about ranking generally; comparing across datasets with different prevalence</td><td><b>Positives are rare</b>; you care about the top of the ranking</td></tr>
+              <tr><td>Says about calibration</td><td><b>Nothing</b></td><td><b>Nothing</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ ROC-AUC vs PR-AUC — when do you prefer which?</summary>
+              <div class="ans"><p><b>ROC-AUC</b> plots TPR against FPR and summarises ranking quality well when classes are roughly balanced. Its weakness under imbalance is <b>structural</b>: FPR divides by the total negative count, so going from 100 to 1,000 false positives on a 1:1000 problem moves it from 0.0001 to 0.001 — visually nothing. <b>PR-AUC</b> plots precision against recall, and precision divides by the <em>number of alerts</em>, so the same change is devastating. ROC normalises by a quantity you don't care about; PR normalises by the one you do. Prefer PR-AUC when positives are rare. And note its baseline is the <b>base rate</b>, not 0.5 — plus <b>neither says anything about calibration</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>What does ROC-AUC actually mean, probabilistically?</summary>
+              <div class="ans"><p>It's the probability that a randomly chosen positive is scored above a randomly chosen negative — <code class="ic">P(score(x⁺) &gt; score(x⁻))</code>, with ties counted as a half. It equals the normalised <b>Mann-Whitney U statistic</b>. Two consequences follow directly: it's <b>threshold-free</b>, so it tells you nothing about the deployed operating point; and it's <b>invariant to any monotone transform</b> of the scores, which is why Platt scaling changes the probabilities completely and leaves AUC untouched (§12.8).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Can you compare PR-AUC across two datasets?</summary>
+              <div class="ans"><p>Not directly, because the <b>baseline differs</b> — a random ranker achieves PR-AUC equal to the base rate, so 0.30 on a 2% prevalence problem is a 15× lift and excellent, while 0.30 on a 40% prevalence problem is worse than random. Report PR-AUC <b>alongside the base rate</b>, or report the <b>lift over baseline</b>. ROC-AUC is comparable across prevalence (its baseline is always 0.5), which is one of the few genuine arguments in its favour — but that same property is exactly what makes it flattering on the imbalanced problem itself.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.4 ===== -->
+      <article class="topic" id="c12-4">
+        <h3><span class="tn">12.4</span> Multi-class averaging <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">&ldquo;F1 = 0.84&rdquo; is an incomplete claim in a multi-class setting. Which averaging you used changes the number and the meaning.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Averaging</th><th>How</th><th>Dominated by</th><th>Report it when</th></tr></thead>
+            <tbody>
+              <tr><td><b>Micro</b></td><td>Pool TP/FP/FN across all classes, then compute</td><td>Frequent classes</td><td>You care about overall correct predictions. <b>In single-label multi-class, micro-F1 = accuracy</b></td></tr>
+              <tr><td><b>Macro</b></td><td>Compute per class, then average <b>unweighted</b></td><td>Nothing — every class counts equally</td><td><b>Rare classes matter as much as common ones</b> — the usual choice when imbalance is meaningful</td></tr>
+              <tr><td><b>Weighted</b></td><td>Per class, averaged by support</td><td>Frequent classes</td><td>You want per-class detail but a support-weighted summary; mostly reproduces micro</td></tr>
+              <tr><td><b>Samples</b></td><td>Per row, then averaged</td><td>—</td><td>Multi-label only (§10.2)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Why micro-F1 = accuracy in single-label multi-class</span>
+          <p>Every prediction is either correct (one TP) or wrong — in which case it contributes exactly <b>one FP</b> to the predicted class and <b>one FN</b> to the true class. So summed across classes, <code class="ic">ΣFP = ΣFN</code>, which makes micro-precision = micro-recall = <code class="ic">ΣTP/n</code> = accuracy — and the harmonic mean of two equal numbers is that number. Being able to derive it in two sentences is a satisfying answer to a question that usually gets a shrug.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Micro vs macro F1 — which do you report?</summary>
+              <div class="ans"><p><b>Micro</b> pools TP/FP/FN across classes, so it's dominated by frequent classes — and in single-label multi-class it <b>equals accuracy</b> exactly. <b>Macro</b> averages per-class F1 with equal weight, so a rare class counts as much as a common one; that's what you report when small classes matter, which under imbalance they usually do. <b>Weighted</b> averages by support and mostly reproduces micro. The real answer: report the one matching the decision, say which one it is, and show the <b>per-class breakdown</b> — the aggregate hides exactly the failure you need to see.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Prove that micro-F1 equals accuracy in single-label multi-class.</summary>
+              <div class="ans"><p>Every prediction is either right or wrong. A correct prediction contributes one <b>TP</b>. An incorrect one contributes exactly one <b>FP</b> (to the class predicted) and exactly one <b>FN</b> (to the true class). Summing over classes therefore gives <code class="ic">ΣFP = ΣFN</code> = number of errors. Micro-precision is <code class="ic">ΣTP/(ΣTP+ΣFP)</code> and micro-recall is <code class="ic">ΣTP/(ΣTP+ΣFN)</code>, which are equal, and both equal <code class="ic">ΣTP/n</code> = accuracy. The harmonic mean of two identical numbers is that number, so micro-F1 = accuracy. Note it relies on <b>single-label</b>: in multi-label it no longer holds.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.5 ===== -->
+      <article class="topic" id="c12-5">
+        <h3><span class="tn">12.5</span> Regression metrics <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Same principle as classification: pick from the decision. Is a 10-unit error twice as bad as a 5-unit error, or four times?</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Metric</th><th>Optimises / penalises</th><th>Use when</th><th>Watch out</th></tr></thead>
+            <tbody>
+              <tr><td><b>RMSE</b></td><td>The mean; large errors quadratically</td><td>Big misses are disproportionately costly</td><td>Outlier-sensitive; in target units, which is good for communication</td></tr>
+              <tr><td><b>MAE</b></td><td>The median; linear penalty</td><td>&ldquo;Typical error&rdquo; is the business quantity</td><td>Not differentiable at zero (rarely a practical issue)</td></tr>
+              <tr><td>RMSLE</td><td>Relative error; punishes under-prediction more</td><td>Targets spanning orders of magnitude</td><td>Requires non-negative targets</td></tr>
+              <tr><td><b>MAPE</b></td><td>Percentage error</td><td>Communicating to a business audience</td><td><b>Undefined/explodes near zero</b>; asymmetric — biases forecasts low (§10.6)</td></tr>
+              <tr><td><b>MASE</b></td><td>Error ÷ seasonal-naive error</td><td>Comparing across many series of different scale</td><td>Needs a defined seasonal period</td></tr>
+              <tr><td><b>Pinball</b></td><td>A specific quantile</td><td>Prediction intervals; asymmetric costs</td><td>Report <b>coverage</b> alongside it</td></tr>
+              <tr><td>R² / adjusted R²</td><td>Variance explained</td><td>Communicating fit</td><td>Always rises with features; test R² can be <b>negative</b>; not comparable across datasets (§5.5)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">RMSE vs MAE, stated as a decision</span>
+          <p>If the cost of an error grows <b>faster than linearly</b> — a stock-out that cascades, a structural failure — RMSE matches the business and you should optimise squared loss. If cost grows roughly <b>linearly</b> and you have outliers you cannot clean, MAE matches it. And note the consequence for the <em>model</em>, not just the report: optimising MSE fits the conditional <b>mean</b>, optimising MAE fits the conditional <b>median</b> (§4.1). On a right-skewed target those are materially different numbers, so this choice changes the predictions themselves.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>RMSE vs MAE — what does each optimise?</summary>
+              <div class="ans"><p>Minimising squared error fits the conditional <b>mean</b>; minimising absolute error fits the conditional <b>median</b> — so on a right-skewed target they give materially different predictions, not just different scores. RMSE penalises large errors quadratically (right when costs grow super-linearly) and is outlier-sensitive; MAE is robust and reports "typical error". Choose from the decision: <em>is a 10-unit error twice as bad as a 5-unit error, or four times?</em> And keep the metric consistent with the <b>training loss</b> — reporting MAE while optimising MSE means you're measuring something you didn't ask the model to do.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your RMSE looks fine but the business says the model is wrong. What might be happening?</summary>
+              <div class="ans"><p>Several possibilities worth checking in order. <b>The error is concentrated in a slice</b> that matters — high-value customers, recent periods — and the aggregate hides it (§11.6). <b>The mean isn't the quantity they act on</b>: if they need a typical value or a safety margin, RMSE's mean-seeking behaviour is systematically wrong for them and MAE or a quantile is right. <b>The scale differs across the range</b>: 10% error is fine on large values and disastrous on small ones, which RMSE weights the opposite way. Or the errors are <b>biased in one direction</b> — RMSE doesn't distinguish over- from under-prediction, so I'd plot residuals against fitted and check for systematic bias.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.6 ===== -->
+      <article class="topic" id="c12-6">
+        <h3><span class="tn">12.6</span> Ranking metrics</h3>
+        <p class="lead">Short section, one idea: position matters, and only some metrics know it.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 210" role="img" aria-label="Two ranked lists containing the same relevant items in different positions: precision at ten is identical for both, while nDCG is much higher for the list that puts the relevant items at the top.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">same items, same Precision@10 — very different user experience</text>
+              <g font-size="10">
+                <text x="24" y="52" fill="#c2cad6">List A</text>
+                <rect x="90" y="40" width="48" height="18" rx="3" fill="#2E9E5B"/><rect x="142" y="40" width="48" height="18" rx="3" fill="#2E9E5B"/><rect x="194" y="40" width="48" height="18" rx="3" fill="#2E9E5B"/>
+                <rect x="246" y="40" width="48" height="18" rx="3" fill="#3a4453"/><rect x="298" y="40" width="48" height="18" rx="3" fill="#3a4453"/><rect x="350" y="40" width="48" height="18" rx="3" fill="#3a4453"/>
+                <rect x="402" y="40" width="48" height="18" rx="3" fill="#3a4453"/><rect x="454" y="40" width="48" height="18" rx="3" fill="#3a4453"/><rect x="506" y="40" width="48" height="18" rx="3" fill="#3a4453"/><rect x="558" y="40" width="48" height="18" rx="3" fill="#3a4453"/>
+                <text x="624" y="53" fill="#7fd6a0">nDCG ≈ 1.00</text>
+                <text x="24" y="92" fill="#c2cad6">List B</text>
+                <rect x="90" y="80" width="48" height="18" rx="3" fill="#3a4453"/><rect x="142" y="80" width="48" height="18" rx="3" fill="#3a4453"/><rect x="194" y="80" width="48" height="18" rx="3" fill="#3a4453"/>
+                <rect x="246" y="80" width="48" height="18" rx="3" fill="#3a4453"/><rect x="298" y="80" width="48" height="18" rx="3" fill="#3a4453"/><rect x="350" y="80" width="48" height="18" rx="3" fill="#3a4453"/>
+                <rect x="402" y="80" width="48" height="18" rx="3" fill="#3a4453"/><rect x="454" y="80" width="48" height="18" rx="3" fill="#2E9E5B"/><rect x="506" y="80" width="48" height="18" rx="3" fill="#2E9E5B"/><rect x="558" y="80" width="48" height="18" rx="3" fill="#2E9E5B"/>
+                <text x="624" y="93" fill="#e0a3a8">nDCG ≈ 0.51</text>
+                <rect x="24" y="118" width="652" height="76" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="140" fill="#c2cad6" font-size="10.5">Precision@10 = <tspan fill="#fff" font-weight="600">0.3 for both</tspan> — it is blind to order. So are Recall@k and (mostly) MAP.</text>
+                <text x="40" y="162" fill="#7fd6a0" font-size="10.5"><tspan font-weight="600">nDCG</tspan> discounts each item's gain by <tspan font-family="var(--mono)">1/log₂(rank+1)</tspan> and normalises by the ideal ordering, so rank 1 is worth roughly</text>
+                <text x="40" y="178" fill="#7fd6a0" font-size="10.5">3× rank 8. <tspan font-weight="600">MRR</tspan> only cares where the <tspan font-style="italic">first</tspan> relevant item lands — the right metric for &ldquo;one correct answer&rdquo; search.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>And the sentence that separates ranking from classification:</b> your offline ranking metric and your online engagement metric are different objectives, and the gap is usually large because the model's own ordering determines what users can interact with. State it before someone else does (§10.4).</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Precision@k vs nDCG vs MRR — when does each apply?</summary>
+              <div class="ans"><p><b>Precision@k</b> when you only care whether relevant items are in the top k and order within it doesn't matter — a grid of results all visible at once. <b>nDCG</b> when position matters and relevance is <b>graded</b>: it discounts gain by <code class="ic">1/log₂(rank+1)</code> and normalises by the ideal ordering, so rank 1 is worth ~3× rank 8. <b>MRR</b> when there's essentially <b>one</b> right answer and all you care about is how far down it is — question answering, navigational search. Default to nDCG for feeds and recommendations; it's the one that matches how people actually consume a ranked list.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.7 ===== -->
+      <article class="topic" id="c12-7">
+        <h3><span class="tn">12.7</span> Choosing a threshold <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead"><strong>0.5 is a default, not a decision.</strong> It is the right threshold only when false positives and false negatives cost the same and the classes are balanced — which is almost never.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Three ways of choosing a decision threshold: from a cost matrix by minimising expected cost, from an operating constraint such as review capacity, and from a required precision level, each shown as a curve with the chosen operating point marked.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">three legitimate ways to pick t — and none of them is 0.5</text>
+              <g font-size="10">
+                <rect x="24" y="40" width="207" height="200" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="40" y="62" fill="#f0c274" font-size="11.5">1 · From a cost matrix</text>
+                <text x="40" y="84" fill="#c2cad6">FP costs £8, FN costs £120</text>
+                <line x1="44" y1="180" x2="212" y2="180" stroke="#3a4453"/>
+                <path d="M48 92 C 80 150, 110 172, 140 168 C 170 164, 196 132, 210 100" fill="none" stroke="#F0A81E" stroke-width="2.2"/>
+                <circle cx="140" cy="168" r="4.5" fill="#2E9E5B"/>
+                <text x="140" y="196" fill="#7fd6a0" text-anchor="middle">t* = 0.06</text>
+                <text x="40" y="216" fill="#8892a0">minimise expected cost;</text>
+                <text x="40" y="230" fill="#8892a0">t* ≈ c_FP/(c_FP+c_FN)</text>
+
+                <rect x="247" y="40" width="207" height="200" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="263" y="62" fill="#98a0f0" font-size="11.5">2 · From capacity</text>
+                <text x="263" y="84" fill="#c2cad6">&ldquo;analysts review 200/day&rdquo;</text>
+                <line x1="267" y1="180" x2="435" y2="180" stroke="#3a4453"/>
+                <path d="M271 96 C 310 130, 350 160, 431 176" fill="none" stroke="#5560D8" stroke-width="2.2"/>
+                <line x1="352" y1="80" x2="352" y2="180" stroke="#e0a3a8" stroke-dasharray="3 3"/>
+                <circle cx="352" cy="164" r="4.5" fill="#2E9E5B"/>
+                <text x="352" y="196" fill="#7fd6a0" text-anchor="middle">t* = 0.34</text>
+                <text x="263" y="216" fill="#8892a0">alerts per day vs t; take the t</text>
+                <text x="263" y="230" fill="#8892a0">that fills the queue exactly</text>
+
+                <rect x="470" y="40" width="206" height="200" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="486" y="62" fill="#7fd6a0" font-size="11.5">3 · From a guarantee</text>
+                <text x="486" y="84" fill="#c2cad6">&ldquo;precision must be ≥ 0.90&rdquo;</text>
+                <line x1="490" y1="180" x2="656" y2="180" stroke="#3a4453"/>
+                <path d="M494 172 C 540 160, 580 120, 652 92" fill="none" stroke="#2E9E5B" stroke-width="2.2"/>
+                <line x1="490" y1="118" x2="656" y2="118" stroke="#e0a3a8" stroke-dasharray="3 3"/>
+                <circle cx="583" cy="118" r="4.5" fill="#F0A81E"/>
+                <text x="583" y="196" fill="#f0c274" text-anchor="middle">t* = 0.62</text>
+                <text x="486" y="216" fill="#8892a0">the lowest t meeting the</text>
+                <text x="486" y="230" fill="#8892a0">contract; report the recall you get</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Tune the threshold on a validation set, not on test</b> — it is a fitted parameter like any other, and scikit-learn's <code class="ic">TunedThresholdClassifierCV</code> automates exactly this with cross-validation and a custom scorer. Two extras worth naming: <b>abstention</b> (a coverage-vs-accuracy curve, where low-confidence cases go to a human) and <b>per-segment thresholds</b>, which can improve outcomes but carry real fairness and legal implications (§14.8).</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ How do you choose a decision threshold?</summary>
+              <div class="ans"><p>Not 0.5 — that's a default, correct only when classes are balanced and both errors cost the same. Three legitimate sources: a <b>cost matrix</b> (minimise expected cost; for a <em>calibrated</em> model the optimum is near <code class="ic">c_FP/(c_FP+c_FN)</code>); an <b>operating constraint</b> ("analysts can review 200 cases a day" fixes alert volume and therefore t); or a <b>guarantee</b> (the lowest t meeting a contractual precision floor, then report the recall you get). Tune it on a <b>validation</b> set — <code class="ic">TunedThresholdClassifierCV</code> does this with CV — never on test, and consider abstention for low-confidence cases.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Why is the cost-optimal threshold c_FP/(c_FP+c_FN)?</summary>
+              <div class="ans"><p>At probability <code class="ic">p</code>, acting costs <code class="ic">(1−p)·c_FP</code> in expectation (you pay for a false positive when the case is negative); not acting costs <code class="ic">p·c_FN</code>. You should act when acting is cheaper: <code class="ic">(1−p)c_FP &lt; p·c_FN</code>, which rearranges to <code class="ic">p &gt; c_FP/(c_FP + c_FN)</code>. So with FP = £8 and FN = £120, the threshold is <code class="ic">8/128 ≈ 0.0625</code>. The crucial precondition: this only holds if <code class="ic">p</code> is a <b>genuine calibrated probability</b> — which is why calibration (§12.8) isn't an optional refinement but a prerequisite for cost-based decisions.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Would you use different thresholds for different customer segments?</summary>
+              <div class="ans"><p>Sometimes, and it needs care. It's <b>legitimate and often optimal</b> when the cost structure genuinely differs by segment — reviewing a high-value transaction is worth more analyst time, so a lower threshold there maximises expected value. It's <b>legally fraught</b> when the segment correlates with a protected attribute, because per-group thresholds are an explicit use of that attribute and are prohibited in several jurisdictions even when they improve outcomes (§14.8). My rule: segment by <b>cost or capacity</b>, never by a protected characteristic or an obvious proxy, and document the justification.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.8 ===== -->
+      <article class="topic" id="c12-8">
+        <h3><span class="tn">12.8</span> Calibration <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Among the cases you scored 0.7, roughly 70% should be positive. If they aren't, every expected-value calculation downstream is wrong — including the threshold you just derived.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Reliability diagram — miscalibrate it, then fix it</div>
+          <div class="wbody">
+            <canvas id="caCanvas" width="720" height="300" aria-label="A reliability diagram plotting observed frequency against predicted probability with the perfect-calibration diagonal, for raw scores and for scores corrected by Platt scaling and isotonic regression, with expected calibration error and Brier score reported."></canvas>
+            <div class="wctl">
+              <label>miscalibration · <b id="caMVal">over-confident</b>
+                <input type="range" id="caM" min="30" max="220" value="180" step="2">
+              </label>
+              <label>calibration set size · <b id="caNVal">1200</b>
+                <input type="range" id="caN" min="120" max="4000" value="1200" step="20">
+              </label>
+            </div>
+            <div class="wbtns" id="caBtns">
+              <button class="wbtn on" data-c="raw">Raw</button>
+              <button class="wbtn" data-c="platt">Platt (sigmoid)</button>
+              <button class="wbtn" data-c="iso">Isotonic</button>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="caEce">—</span>ECE</div>
+              <div class="wcell"><span class="n" id="caBri">—</span>Brier score</div>
+              <div class="wcell"><span class="n" id="caLl">—</span>log loss</div>
+              <div class="wcell"><span class="n" id="caAuc">—</span>ROC-AUC</div>
+            </div>
+            <div class="wout" id="caOut"></div>
+            <p class="wnote">Platt scaling is fitted by real gradient descent on a one-parameter-pair logistic model; isotonic regression is a real <b>pool-adjacent-violators</b> implementation. Two things to notice. <b>ROC-AUC does not move</b> under Platt scaling — it's a monotone transform, so the ranking is untouched while the probabilities change completely. And with a <b>small calibration set</b>, isotonic overfits: its ECE looks good while its log loss gets worse.</p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 270" role="img" aria-label="Reliability diagram shapes for four model families: a well-regularized logistic regression close to the diagonal, a random forest under-confident at the extremes, boosted trees over-confident, and naive Bayes wildly overconfident.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">who is miscalibrated, and in which direction — a standard follow-up</text>
+              <g font-size="10">
+                <g transform="translate(24,40)">
+                  <rect width="150" height="150" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <line x1="10" y1="140" x2="140" y2="10" stroke="#5A6472" stroke-dasharray="3 3"/>
+                  <path d="M10 140 C 50 100, 100 50, 140 10" fill="none" stroke="#2E9E5B" stroke-width="2.4"/>
+                  <text x="75" y="168" fill="#7fd6a0" text-anchor="middle">logistic regression</text>
+                  <text x="75" y="182" fill="#8892a0" text-anchor="middle">nearly calibrated</text>
+                </g>
+                <g transform="translate(196,40)">
+                  <rect width="150" height="150" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <line x1="10" y1="140" x2="140" y2="10" stroke="#5A6472" stroke-dasharray="3 3"/>
+                  <path d="M10 122 C 46 108, 60 74, 100 46 C 118 32, 130 26, 140 26" fill="none" stroke="#5560D8" stroke-width="2.4"/>
+                  <text x="75" y="168" fill="#98a0f0" text-anchor="middle">Random Forest</text>
+                  <text x="75" y="182" fill="#8892a0" text-anchor="middle"><tspan font-weight="600">under</tspan>-confident at the ends</text>
+                </g>
+                <g transform="translate(368,40)">
+                  <rect width="150" height="150" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <line x1="10" y1="140" x2="140" y2="10" stroke="#5A6472" stroke-dasharray="3 3"/>
+                  <path d="M10 146 C 40 142, 66 118, 88 84 C 108 52, 124 20, 140 12" fill="none" stroke="#E0920C" stroke-width="2.4"/>
+                  <text x="75" y="168" fill="#f0c274" text-anchor="middle">boosted trees</text>
+                  <text x="75" y="182" fill="#8892a0" text-anchor="middle">typically <tspan font-weight="600">over</tspan>-confident</text>
+                </g>
+                <g transform="translate(540,40)">
+                  <rect width="136" height="150" rx="7" fill="#161b23" stroke="#2c3542"/>
+                  <line x1="10" y1="140" x2="126" y2="10" stroke="#5A6472" stroke-dasharray="3 3"/>
+                  <path d="M10 140 L14 140 C 40 138, 52 96, 68 74 C 84 52, 100 12, 122 10" fill="none" stroke="#e0a3a8" stroke-width="2.4"/>
+                  <text x="68" y="168" fill="#e0a3a8" text-anchor="middle">Naive Bayes / SVM</text>
+                  <text x="68" y="182" fill="#8892a0" text-anchor="middle">extreme; SVM has no p at all</text>
+                </g>
+                <rect x="24" y="204" width="652" height="54" rx="8" fill="#3a2418" stroke="#E0920C"/>
+                <text x="40" y="226" fill="#f0c274" font-size="10.5"><tspan font-weight="600">The 2026 nuance worth raising:</tspan> a recent benchmark across many calibrators and classifiers on TabArena-style binary tasks found Platt weak and</text>
+                <text x="40" y="246" fill="#f0c274" font-size="10.5">inconsistent, found that <tspan font-weight="600">Platt and isotonic can degrade</tspan> proper-scoring performance for strong modern tabular models, and found <tspan font-weight="600">Venn-Abers</tspan> best on average log loss.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Measure, don't assume.</b> Diagnose with a <b>reliability diagram</b>, <b>ECE</b> (<code class="ic">Σ(nᵦ/n)|acc(b) − conf(b)|</code>) and the <b>Brier score</b>; fix with Platt, isotonic or Venn-Abers <b>on held-out data</b>; then <em>check whether it actually helped</em> on a proper scoring rule. Quote the benchmark as &ldquo;a recent benchmark found…&rdquo; rather than as settled consensus — that hedge is itself a signal of care.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ What is calibration, how do you measure it, and how do you fix it?</summary>
+              <div class="ans"><p>A model is calibrated if, among cases predicted at <code class="ic">p</code>, a fraction <code class="ic">p</code> are actually positive. Measure with a <b>reliability diagram</b>, <b>ECE</b> <code class="ic">Σ(nᵦ/n)|acc(b) − conf(b)|</code>, and the <b>Brier score</b>. Fix with <b>Platt scaling</b> (a sigmoid on the log-odds — parametric, works with little data), <b>isotonic regression</b> (non-parametric, more flexible, needs more data and overfits on small calibration sets), or <b>Venn-Abers</b>. Always fit on <b>held-out</b> data. The 2026 nuance: <em>verify it helped</em> on a proper scoring rule — a recent benchmark found Platt and isotonic can <b>degrade</b> strong tabular models. And it matters because cost-based thresholds (§12.7) are only valid if <code class="ic">p</code> is real.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Which models are typically miscalibrated, and in which direction?</summary>
+              <div class="ans"><p><b>Well-regularized logistic regression</b> is usually close to calibrated — it optimises log loss, a proper scoring rule, so calibration is what it's minimising. <b>Random Forests are under-confident at the extremes</b>: averaging many trees pulls predictions away from 0 and 1, because reaching a prediction of 1.0 requires <em>every</em> tree to agree. <b>Boosted trees are typically over-confident</b>, since boosting drives margins up. <b>Naive Bayes is wildly overconfident</b> because it double-counts correlated evidence (§6.2). <b>SVMs have no probabilities</b> natively. Rule: check with a reliability diagram, never assume.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Platt vs isotonic — how do you choose?</summary>
+              <div class="ans"><p><b>Platt</b> fits a two-parameter sigmoid to the log-odds — parametric, so it works with a few hundred calibration points, but it can only apply a sigmoid-shaped correction and will fail if the miscalibration has a different shape. <b>Isotonic</b> fits a free monotone step function via <b>pool-adjacent-violators</b> — it can correct any monotone distortion, but with too little data it interpolates noise and <b>overfits</b>, which shows up as good ECE and worse log loss. Rule of thumb: isotonic above ~1,000 calibration points, Platt below. And with either: fit on <b>held-out</b> data, and <b>measure whether it helped</b> on a proper scoring rule rather than assuming.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Does calibration change your AUC?</summary>
+              <div class="ans"><p><b>Not for Platt scaling</b>, and not for any strictly monotone transform — ROC-AUC depends only on the <b>ranking</b>, and a monotone map preserves the order of every pair. That's a useful sanity check: if AUC changes after Platt scaling, something is wrong with your implementation. <b>Isotonic</b> can change AUC very slightly, because it produces <b>ties</b> where the step function is flat, and tied scores are handled differently in the AUC calculation. The broader point: calibration and discrimination are <b>independent axes</b> — a model can rank perfectly and be badly calibrated, or be well-calibrated and rank poorly.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 12.9 ===== -->
+      <article class="topic" id="c12-9">
+        <h3><span class="tn">12.9</span> Imbalanced classification <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">There is a correct <em>order of operations</em>, and reaching for SMOTE first is the single most common wrong answer in classical ML interviews.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 270" role="img" aria-label="The correct order of operations for class imbalance: first tune the decision threshold, then apply class weights, and only then consider resampling, with a warning that applying SMOTE before the train-test split leaks and inflates validation scores.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the order of operations — cheapest and safest first</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="200" height="96" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="40" y="62" fill="#7fd6a0" font-size="11.5">1 · Tune the threshold</text>
+                <text x="40" y="84" fill="#c2cad6">on a strong baseline model</text>
+                <text x="40" y="104" fill="#7fd6a0">cheapest experiment there is,</text>
+                <text x="40" y="118" fill="#7fd6a0">no new failure modes, and</text>
+                <text x="40" y="132" fill="#7fd6a0">frequently sufficient on its own</text>
+                <path d="M228 88 L250 88" stroke="#3a4453" stroke-width="1.5" marker-end="url(#p12a)"/>
+                <rect x="252" y="40" width="200" height="96" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="268" y="62" fill="#98a0f0" font-size="11.5">2 · Class weights</text>
+                <text x="268" y="84" fill="#c2cad6"><tspan font-family="var(--mono)">class_weight</tspan> / <tspan font-family="var(--mono)">scale_pos_weight</tspan></text>
+                <text x="268" y="104" fill="#98a0f0">no synthetic rows, no leakage</text>
+                <text x="268" y="118" fill="#98a0f0">risk. Note it decalibrates p,</text>
+                <text x="268" y="132" fill="#98a0f0">so recalibrate if p is used.</text>
+                <path d="M456 88 L478 88" stroke="#3a4453" stroke-width="1.5" marker-end="url(#p12a)"/>
+                <rect x="480" y="40" width="196" height="96" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="496" y="62" fill="#f0c274" font-size="11.5">3 · Resampling</text>
+                <text x="496" y="84" fill="#c2cad6">SMOTE · under-sampling ·</text>
+                <text x="496" y="98" fill="#c2cad6">Tomek · BalancedRandomForest</text>
+                <text x="496" y="120" fill="#f0c274">only if 1 and 2 are exhausted,</text>
+                <text x="496" y="132" fill="#f0c274">and always inside the pipeline</text>
+
+                <rect x="24" y="150" width="652" height="106" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="40" y="172" fill="#e0a3a8" font-size="11.5">Why SMOTE is not the first answer</text>
+                <text x="40" y="194" fill="#c2cad6">· Applied <tspan font-weight="600">before the split</tspan> it <tspan font-weight="600">leaks</tspan>: synthetic minority points are interpolated from rows that end up in validation, so validation</text>
+                <text x="52" y="208" fill="#c2cad6">  rows are partly reconstructions of the training set. Beautiful CV scores, production collapse.</text>
+                <text x="40" y="228" fill="#c2cad6">· When classes <tspan font-weight="600">overlap or the data is noisy</tspan>, interpolating between minority points manufactures ambiguous examples in the</text>
+                <text x="52" y="242" fill="#c2cad6">  majority region — which <tspan font-weight="600">inflates false positives</tspan>. On clean tabular data, inverse-frequency weighting performs about the same.</text>
+              </g>
+              <defs><marker id="p12a" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#5A6472"/></marker></defs>
+            </svg>
+          </div>
+          <figcaption><b>Start by understanding the imbalance</b>, not by fixing it: is it 1:10 or 1:10,000? Is the minority class well-separated or genuinely overlapping? Those two facts determine everything that follows. And when the minority class is <em>extremely</em> rare and heterogeneous, consider reframing as <b>anomaly detection</b> (§9.8) — though if you have labels, a classifier with a tuned threshold usually still wins.</figcaption>
+        </figure>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Metrics under imbalance</span>
+          <p><b>Never accuracy.</b> Report <b>PR-AUC / average precision</b>, <b>per-class recall</b>, and an <b>F-β aligned to your costs</b>. Be explicitly wary of ROC-AUC's optimism — the §12.3 widget shows exactly why. And always show the <b>confusion matrix at the threshold you intend to deploy</b>, because that is the only artefact that tells the business how many cases land in the queue tomorrow.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ How do you handle class imbalance? Give me your order of operations.</summary>
+              <div class="ans"><p><b>(0)</b> Characterise it — 1:10 or 1:10,000? separated or overlapping? <b>(1) Tune the decision threshold</b> on a strong baseline: cheapest experiment, no new failure modes, frequently sufficient on its own. <b>(2) Class weights</b> / <code class="ic">scale_pos_weight</code>: no synthetic rows, no leakage risk — but it <b>decalibrates</b>, so recalibrate if you use the probabilities. <b>(3) Only then resampling</b> — SMOTE, under-sampling, Tomek links, BalancedRandomForest — always inside the pipeline. Throughout: PR-AUC, per-class recall, cost-aligned F-β. Never accuracy.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>What's wrong with applying SMOTE before the train-test split?</summary>
+              <div class="ans"><p>It leaks. Synthetic minority points are <b>interpolated between real rows</b>, and some of those real rows end up in validation — so validation rows are partly reconstructions of training data and the model is effectively tested on things it has seen. You get an excellent CV score and a production collapse. The fix is structural rather than a judgement call: split first, and put the resampler <b>inside the pipeline</b> so it's refitted on each training fold only — which is exactly what <code class="ic">imblearn</code>'s <code class="ic">Pipeline</code> exists for (sklearn's won't do it, because it applies transforms at predict time too).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>When is SMOTE actively harmful?</summary>
+              <div class="ans"><p>When classes <b>overlap</b> or labels are <b>noisy</b>. Interpolating between two minority points that sit near or inside the majority region manufactures synthetic examples right on the boundary, which pushes the boundary into majority territory and <b>inflates false positives</b>. It also amplifies a single mislabelled minority point into a whole neighbourhood of fake ones. In high dimensions the interpolation is even less meaningful (§2.7). On clean tabular data, inverse-frequency weighting gives near-identical results while being simpler and leak-proof — which is why it's step 2 and SMOTE is step 3.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Fraud at 0.1% prevalence. Walk me through your approach.</summary>
+              <div class="ans"><p>First, <b>characterise</b>: 1:1000, and fraud is heterogeneous rather than a single tight cluster. Metric: <b>PR-AUC</b> plus precision-at-the-review-capacity, never accuracy or ROC-AUC alone. Model: a GBM with <code class="ic">scale_pos_weight</code>, but I'd start by checking whether threshold tuning alone on an unweighted model suffices. <b>Threshold from capacity</b> — if analysts review 200 cases/day, that fixes the alert volume and everything else follows. Validate with a <b>time-based split</b>, because fraud patterns drift. Then the two things people forget: <b>calibrate</b> if the probability feeds an expected-value decision, and plan for the <b>feedback loop</b> — blocked transactions never reveal their true label, so I'd hold out a small exploration slice (§15.7).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 12 widgets ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function gauss(r){ var u=1-r(), v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+  function rocpr(scores, labels){
+    var ord=scores.map(function(s,i){return i;}).sort(function(a,b){ return scores[b]-scores[a]; });
+    var P=labels.reduce(function(a,b){return a+b;},0), N=labels.length-P;
+    var tp=0, fp=0, roc=[[0,0]], pr=[], aucR=0, aucP=0, prevFpr=0, prevTpr=0, prevRec=0;
+    for(var i=0;i<ord.length;i++){
+      if(labels[ord[i]]===1) tp++; else fp++;
+      var tpr=P?tp/P:0, fpr=N?fp/N:0, prec=(tp+fp)?tp/(tp+fp):1, rec=tpr;
+      roc.push([fpr,tpr]); pr.push([rec,prec]);
+      aucR += (fpr-prevFpr)*(tpr+prevTpr)/2;
+      aucP += (rec-prevRec)*prec;
+      prevFpr=fpr; prevTpr=tpr; prevRec=rec;
+    }
+    return {roc:roc, pr:pr, aucR:aucR, aucP:aucP, P:P, N:N};
+  }
+
+  /* ---------- 12.1 threshold ---------- */
+  var thCv=document.getElementById("thCanvas");
+  if(thCv){
+    var thT=document.getElementById("thT"), thP=document.getElementById("thP"), thS=document.getElementById("thS");
+    function build(base, sig){
+      var r=rng(1234), n=4000, sc=[], y=[];
+      for(var i=0;i<n;i++){
+        var yy = r()<base ? 1:0;
+        var z = (yy? sig/10 : 0) + gauss(r);
+        sc.push(1/(1+Math.exp(-z))); y.push(yy);
+      }
+      return {sc:sc, y:y};
+    }
+    function drawTH(){
+      var t=(+thT.value)/100, base=(+thP.value)/100, sig=+thS.value;
+      document.getElementById("thTVal").textContent=t.toFixed(2);
+      document.getElementById("thPVal").textContent=(base*100).toFixed(0)+"%";
+      document.getElementById("thSVal").textContent=(sig/10).toFixed(1);
+      var D=build(base,sig), M=rocpr(D.sc,D.y);
+      var TP=0,FP=0,FN=0,TN=0;
+      for(var i=0;i<D.sc.length;i++){
+        var p = D.sc[i]>=t;
+        if(D.y[i]===1){ if(p) TP++; else FN++; } else { if(p) FP++; else TN++; }
+      }
+      var acc=(TP+TN)/D.sc.length, pre=(TP+FP)?TP/(TP+FP):0, rec=(TP+FN)?TP/(TP+FN):0;
+      var f1=(pre+rec)?2*pre*rec/(pre+rec):0;
+      var ctx=dpr(thCv), W=720, H=300; ctx.clearRect(0,0,W,H);
+      var L=24,R=340,T=44,B=250;
+      var bins=44, hp=new Array(bins).fill(0), hn=new Array(bins).fill(0);
+      for(var i=0;i<D.sc.length;i++){ var b=Math.min(bins-1,Math.floor(D.sc[i]*bins)); if(D.y[i]===1) hp[b]++; else hn[b]++; }
+      var mx=Math.max(Math.max.apply(null,hp),Math.max.apply(null,hn));
+      for(var b=0;b<bins;b++){
+        var x=L+b*(R-L)/bins, w=(R-L)/bins-1;
+        ctx.fillStyle="rgba(85,96,216,0.55)"; ctx.fillRect(x, B-(hn[b]/mx)*(B-T), w, (hn[b]/mx)*(B-T));
+        ctx.fillStyle="rgba(240,168,30,0.72)"; ctx.fillRect(x, B-(hp[b]/mx)*(B-T), w, (hp[b]/mx)*(B-T));
+      }
+      var TX=L+t*(R-L);
+      ctx.strokeStyle="#2E9E5B"; ctx.lineWidth=2.6; ctx.beginPath(); ctx.moveTo(TX,T-8); ctx.lineTo(TX,B+6); ctx.stroke();
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("score distributions · blue = negatives, gold = positives", L, 26);
+      ctx.fillText("threshold "+t.toFixed(2), TX+6, T-12);
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+      function curve(x0, data, lab, col, pt){
+        var L2=x0, R2=x0+150, T2=64, B2=230;
+        ctx.strokeStyle="#2c3542"; ctx.lineWidth=1; ctx.strokeRect(L2,T2,R2-L2,B2-T2);
+        ctx.strokeStyle=col; ctx.lineWidth=2.2; ctx.beginPath();
+        data.forEach(function(p,i){ var X=L2+p[0]*(R2-L2), Y=B2-p[1]*(B2-T2); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+        ctx.stroke();
+        ctx.fillStyle="#c2cad6"; ctx.font="10.5px ui-monospace,Menlo,monospace"; ctx.fillText(lab, L2, T2-10);
+        if(pt){ ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(L2+pt[0]*(R2-L2), B2-pt[1]*(B2-T2), 5, 0, 6.3); ctx.fill(); }
+        return [L2,R2,T2,B2];
+      }
+      var fpr=(FP+TN)?FP/(FP+TN):0;
+      var d1=curve(376, M.roc, "ROC · AUC "+M.aucR.toFixed(3), "#5560D8", [fpr,rec]);
+      ctx.strokeStyle="#3a4453"; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(d1[0],d1[3]); ctx.lineTo(d1[1],d1[2]); ctx.stroke(); ctx.setLineDash([]);
+      var d2=curve(556, M.pr, "PR · AP "+M.aucP.toFixed(3), "#E0920C", [rec,pre]);
+      ctx.strokeStyle="#3a4453"; ctx.setLineDash([3,3]);
+      var by=d2[3]-base*(d2[3]-d2[2]);
+      ctx.beginPath(); ctx.moveTo(d2[0],by); ctx.lineTo(d2[1],by); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle="#6b7482"; ctx.font="9.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("baseline = base rate", d2[0], by-4);
+      ctx.fillText("FPR →", d1[0], d1[3]+16); ctx.fillText("recall →", d2[0], d2[3]+16);
+      document.getElementById("cmTP").textContent=TP; document.getElementById("cmFP").textContent=FP;
+      document.getElementById("cmFN").textContent=FN; document.getElementById("cmTN").textContent=TN;
+      document.getElementById("mAcc").textContent=acc.toFixed(3);
+      document.getElementById("mPre").textContent=pre.toFixed(3);
+      document.getElementById("mRec").textContent=rec.toFixed(3);
+      document.getElementById("mF1").textContent=f1.toFixed(3);
+      document.getElementById("mRoc").textContent=M.aucR.toFixed(3);
+      document.getElementById("mPr").textContent=M.aucP.toFixed(3);
+      var msg="", trivialAcc=1-base;
+      if(base<=0.06) msg+="<span class='warn'>Base rate "+(base*100).toFixed(0)+"%.</span> Predicting &lsquo;negative&rsquo; for everything would score <span class='v'>"+trivialAcc.toFixed(3)+"</span> accuracy — your model's <span class='v'>"+acc.toFixed(3)+"</span> has to be read against that, not against 0.5. ";
+      msg+="At t = "+t.toFixed(2)+" you alert on <span class='v'>"+(TP+FP)+"</span> cases, of which <span class='v'>"+TP+"</span> are real (precision "+pre.toFixed(3)+") and you miss <span class='v'>"+FN+"</span>. ";
+      if(pre<0.4 && rec>0.7) msg+="High recall bought with a queue that is mostly noise — fine for screening, terrible if each alert costs an analyst 20 minutes.";
+      else if(pre>0.8 && rec<0.4) msg+="A clean queue that misses most of the positives — fine if acting is expensive, unacceptable in a safety context.";
+      else msg+="Note that <b>ROC-AUC and PR-AUC did not change</b> when you moved the threshold: they summarise ranking, not the deployed decision.";
+      document.getElementById("thOut").innerHTML=msg;
+    }
+    [thT,thP,thS].forEach(function(e){ e.addEventListener("input", drawTH); });
+    drawTH();
+  }
+
+  /* ---------- 12.3 ROC vs PR ---------- */
+  var imCv=document.getElementById("imCanvas");
+  if(imCv){
+    var imP=document.getElementById("imP");
+    function drawIM(){
+      var base=(+imP.value)/100;
+      document.getElementById("imPVal").textContent=(base*100).toFixed(0)+"%";
+      var r=rng(2024), n=6000, sc=[], y=[];
+      for(var i=0;i<n;i++){
+        var yy=r()<base?1:0;
+        sc.push((yy?1.5:0)+gauss(r)); y.push(yy);
+      }
+      var M=rocpr(sc,y);
+      var ctx=dpr(imCv), W=720, H=290; ctx.clearRect(0,0,W,H);
+      function plot(x0,data,title,col,diag,baseline){
+        var L=x0,R=x0+250,T=60,B=250;
+        ctx.strokeStyle="#2c3542"; ctx.lineWidth=1; ctx.strokeRect(L,T,R-L,B-T);
+        if(diag){ ctx.strokeStyle="#3a4453"; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,T); ctx.stroke(); ctx.setLineDash([]); }
+        if(baseline!==undefined){
+          var yy=B-baseline*(B-T);
+          ctx.strokeStyle="#C0392B"; ctx.setLineDash([4,4]); ctx.beginPath(); ctx.moveTo(L,yy); ctx.lineTo(R,yy); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle="#e0a3a8"; ctx.font="9.5px ui-monospace,Menlo,monospace"; ctx.fillText("random baseline = "+(baseline*100).toFixed(1)+"%", L+4, yy-5);
+        }
+        ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.beginPath();
+        data.forEach(function(p,i){ var X=L+p[0]*(R-L), Y=B-p[1]*(B-T); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); });
+        ctx.stroke();
+        ctx.fillStyle="#c2cad6"; ctx.font="12px ui-monospace,Menlo,monospace"; ctx.fillText(title, L, 40);
+      }
+      plot(60, M.roc, "ROC · AUC "+M.aucR.toFixed(3), "#5560D8", true);
+      plot(410, M.pr, "Precision-Recall · AP "+M.aucP.toFixed(3), "#E0920C", false, base);
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("FPR →", 60, 268); ctx.fillText("recall →", 410, 268);
+      ctx.fillText("6,000 rows · identical score distributions at every setting · only the class mix changes", 60, 22);
+      document.getElementById("imRoc").textContent=M.aucR.toFixed(3);
+      document.getElementById("imPr").textContent=M.aucP.toFixed(3);
+      document.getElementById("imBase").textContent=(base*100).toFixed(1)+"%";
+      document.getElementById("imLift").textContent=(M.aucP/base).toFixed(1)+"×";
+      var msg="At a base rate of <span class='v'>"+(base*100).toFixed(0)+"%</span>: ROC-AUC <span class='v'>"+M.aucR.toFixed(3)+"</span>, PR-AUC <span class='v'>"+M.aucP.toFixed(3)+"</span> against a random baseline of <span class='v'>"+base.toFixed(3)+"</span>. ";
+      if(base<=0.05) msg+="<span class='warn'>The ROC curve looks almost identical to the balanced case</span> — because FPR is normalised by an enormous negative count, so thousands of false positives shift it barely at all. Meanwhile precision has collapsed, which is what your alert queue will actually feel. <b>This is why you report PR-AUC when positives are rare.</b>";
+      else msg+="Drag the base rate down toward 1% and watch what happens: ROC-AUC will barely move, PR-AUC will fall sharply. The model is not getting worse — the metric is finally telling you the truth.";
+      document.getElementById("imOut").innerHTML=msg;
+    }
+    imP.addEventListener("input", drawIM);
+    drawIM();
+  }
+
+  /* ---------- 12.8 calibration ---------- */
+  var caCv=document.getElementById("caCanvas");
+  if(caCv){
+    var mode="raw";
+    var caM=document.getElementById("caM"), caN=document.getElementById("caN");
+    function build(){
+      var pw=(+caM.value)/100, n=+caN.value, r=rng(555), p=[], y=[];
+      for(var i=0;i<n;i++){
+        var tp=r();
+        var yy = r()<tp ? 1:0;
+        var d = Math.pow(tp,pw)/(Math.pow(tp,pw)+Math.pow(1-tp,pw));
+        p.push(Math.min(0.999,Math.max(0.001,d))); y.push(yy);
+      }
+      return {p:p,y:y};
+    }
+    function platt(p,y){
+      var A=0,Bp=0;
+      for(var it=0; it<600; it++){
+        var gA=0,gB=0;
+        for(var i=0;i<p.length;i++){
+          var z=Math.log(p[i]/(1-p[i]));
+          var q=1/(1+Math.exp(-(A*z+Bp)));
+          gA+=(q-y[i])*z; gB+=(q-y[i]);
+        }
+        A-=0.6*gA/p.length; Bp-=0.6*gB/p.length;
+      }
+      return p.map(function(v){ var z=Math.log(v/(1-v)); return 1/(1+Math.exp(-(A*z+Bp))); });
+    }
+    function isotonic(p,y){
+      var ord=p.map(function(v,i){return i;}).sort(function(a,b){ return p[a]-p[b]; });
+      var vals=ord.map(function(i){ return y[i]; });
+      var v=[], ww=[];
+      for(var i=0;i<vals.length;i++){
+        v.push(vals[i]); ww.push(1);
+        while(v.length>1 && v[v.length-2]>v[v.length-1]){
+          var a=v.pop(), wa=ww.pop(), b=v.pop(), wb=ww.pop();
+          v.push((a*wa+b*wb)/(wa+wb)); ww.push(wa+wb);
+        }
+      }
+      var out=new Array(p.length), k=0;
+      for(var i=0;i<v.length;i++) for(var j=0;j<ww[i];j++){ out[ord[k]]=v[i]; k++; }
+      return out.map(function(x){ return Math.min(0.999,Math.max(0.001,x)); });
+    }
+    function drawCA(){
+      var pw=(+caM.value)/100;
+      document.getElementById("caMVal").textContent = pw>1.15? "over-confident" : (pw<0.85? "under-confident" : "near-calibrated");
+      document.getElementById("caNVal").textContent=(+caN.value);
+      var D=build();
+      var p = mode==="raw"? D.p : (mode==="platt"? platt(D.p,D.y) : isotonic(D.p,D.y));
+      var bins=12, bs=new Array(bins).fill(0), bc=new Array(bins).fill(0), bn=new Array(bins).fill(0);
+      for(var i=0;i<p.length;i++){ var b=Math.min(bins-1,Math.floor(p[i]*bins)); bs[b]+=D.y[i]; bc[b]+=p[i]; bn[b]++; }
+      var ece=0, bri=0, ll=0;
+      for(var b=0;b<bins;b++) if(bn[b]) ece += (bn[b]/p.length)*Math.abs(bs[b]/bn[b]-bc[b]/bn[b]);
+      for(var i=0;i<p.length;i++){ var e=p[i]-D.y[i]; bri+=e*e; ll -= D.y[i]*Math.log(p[i])+(1-D.y[i])*Math.log(1-p[i]); }
+      bri/=p.length; ll/=p.length;
+      var M=rocpr(p,D.y);
+      var ctx=dpr(caCv), W=720, H=300; ctx.clearRect(0,0,W,H);
+      var L=70,R=350,T=40,Bm=250;
+      ctx.strokeStyle="#2c3542"; ctx.lineWidth=1; ctx.strokeRect(L,T,R-L,Bm-T);
+      ctx.strokeStyle="#5A6472"; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(L,Bm); ctx.lineTo(R,T); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle= mode==="raw"? "#E0920C" : "#2E9E5B"; ctx.lineWidth=2.6; ctx.beginPath();
+      var first=true;
+      for(var b=0;b<bins;b++){
+        if(!bn[b]) continue;
+        var X=L+(bc[b]/bn[b])*(R-L), Y=Bm-(bs[b]/bn[b])*(Bm-T);
+        if(first){ ctx.moveTo(X,Y); first=false; } else ctx.lineTo(X,Y);
+      }
+      ctx.stroke();
+      for(var b=0;b<bins;b++){
+        if(!bn[b]) continue;
+        var X=L+(bc[b]/bn[b])*(R-L), Y=Bm-(bs[b]/bn[b])*(Bm-T);
+        ctx.fillStyle= mode==="raw"? "#F0A81E":"#2E9E5B";
+        ctx.beginPath(); ctx.arc(X,Y,Math.max(2.5,Math.min(8,Math.sqrt(bn[b])/3)),0,6.3); ctx.fill();
+      }
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("predicted probability →", L, Bm+22);
+      ctx.save(); ctx.translate(L-24,(T+Bm)/2); ctx.rotate(-Math.PI/2); ctx.fillText("observed frequency", -52, 0); ctx.restore();
+      ctx.fillText("perfect calibration", R-120, T+16);
+      ctx.fillStyle="#c2cad6"; ctx.font="12px ui-monospace,Menlo,monospace";
+      ctx.fillText("reliability diagram · "+({raw:"raw scores",platt:"after Platt scaling",iso:"after isotonic regression"})[mode], L, 26);
+      var HL=400, HR=690, HT=64, HB=250;
+      var hb=new Array(30).fill(0);
+      for(var i=0;i<p.length;i++) hb[Math.min(29,Math.floor(p[i]*30))]++;
+      var mx=Math.max.apply(null,hb);
+      for(var b=0;b<30;b++){
+        var x=HL+b*(HR-HL)/30;
+        ctx.fillStyle="rgba(85,96,216,0.6)";
+        ctx.fillRect(x, HB-(hb[b]/mx)*(HB-HT), (HR-HL)/30-1, (hb[b]/mx)*(HB-HT));
+      }
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(HL,HB); ctx.lineTo(HR,HB); ctx.stroke();
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("distribution of predicted probabilities", HL, 48);
+      ctx.fillText("0", HL, HB+16); ctx.fillText("1", HR-8, HB+16);
+      document.getElementById("caEce").textContent=ece.toFixed(4);
+      document.getElementById("caBri").textContent=bri.toFixed(4);
+      document.getElementById("caLl").textContent=ll.toFixed(4);
+      document.getElementById("caAuc").textContent=M.aucR.toFixed(4);
+      var msg;
+      if(mode==="raw") msg = pw>1.15
+        ? "<span class='warn'>Over-confident.</span> The curve sits below the diagonal at the top and above it at the bottom — cases scored 0.9 are positive far less than 90% of the time. ECE <span class='v'>"+ece.toFixed(4)+"</span>. Any expected-value calculation built on these numbers is wrong, even though the <em>ranking</em> may be excellent."
+        : (pw<0.85 ? "<span class='warn'>Under-confident.</span> Predictions are squashed toward the middle — the signature of an averaged ensemble like a Random Forest. ECE <span class='v'>"+ece.toFixed(4)+"</span>."
+                   : "Close to the diagonal already. ECE <span class='v'>"+ece.toFixed(4)+"</span> — calibration would buy little here, which is itself worth checking before applying it.");
+      else if(mode==="platt") msg="<b>Platt scaling</b> fits a two-parameter sigmoid on the log-odds. ECE is now <span class='v'>"+ece.toFixed(4)+"</span>, Brier <span class='v'>"+bri.toFixed(4)+"</span>. <span class='good'>Note ROC-AUC is unchanged at "+M.aucR.toFixed(4)+"</span> — a monotone transform cannot reorder anything, so calibration improves probabilities without touching ranking.";
+      else msg="<b>Isotonic regression</b> (pool-adjacent-violators) fits a free monotone step function, so it can correct shapes Platt cannot. ECE <span class='v'>"+ece.toFixed(4)+"</span>, log loss <span class='v'>"+ll.toFixed(4)+"</span>. "+((+caN.value)<400? "<span class='warn'>With only "+(+caN.value)+" calibration points it is overfitting</span> — compare its log loss against Platt's at this size." : "With this much calibration data it is well behaved; shrink the calibration set and watch it overfit.");
+      document.getElementById("caOut").innerHTML=msg;
+    }
+    document.getElementById("caBtns").addEventListener("click", function(e){
+      var b=e.target.closest(".wbtn"); if(!b) return;
+      this.querySelectorAll(".wbtn").forEach(function(x){x.classList.remove("on");});
+      b.classList.add("on"); mode=b.dataset.c; drawCA();
+    });
+    [caM,caN].forEach(function(e){ e.addEventListener("input", drawCA); });
+    drawCA();
+  }
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

@@ -61,45 +61,76 @@ p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
     <svg class="mark" viewBox="0 0 40 40" fill="none"><path d="M7 31 L16 19 L23 25 L33 9" stroke="#E0920C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="19" r="3" fill="#5560D8"/><circle cx="23" cy="25" r="3" fill="#5560D8"/><circle cx="33" cy="9" r="3.4" fill="#2E9E5B"/></svg>
     <div class="eyebrow">Interview Prep · Tabular &amp; Structured Data</div>
     <h1>Classical Machine Learning</h1>
-    <p>Everything a tabular-ML interview actually covers: <b>data leakage</b> and the splits that prevent it, bias-variance and regularization, the model zoo from logistic regression to <b>XGBoost / LightGBM / CatBoost</b>, clustering and PCA, then the level most candidates fail — <b>validation, ROC vs PR, thresholds, calibration and imbalance</b> — plus feature stores and point-in-time correctness, SHAP's failure modes, fairness, production drift, and the 2026 frontier: <b>tabular foundation models, conformal prediction and uplift modelling</b>.</p>
+    <p>A master concept-building and revision guide — <b>one part per level</b>, so every topic gets the room it needs. Each of the <b>147 sections</b> ends with the <b>interview questions that topic answers</b>, so you learn the concept and drill it in the same place. Covers <b>data leakage</b> and validation, <b>every linear-regression assumption and what breaks when it fails</b>, the model zoo through <b>XGBoost / LightGBM / CatBoost</b>, <b>ROC vs PR, thresholds and calibration</b>, feature stores and point-in-time correctness, SHAP's failure modes, production drift — and the 2026 frontier: <b>tabular foundation models, conformal prediction and uplift</b>.</p>
     <div class="chips">
-      <span class="chip"><b>7</b> parts · 16 levels</span>
-      <span class="chip"><b>439</b> topics</span>
-      <span class="chip"><b>66</b> diagrams</span>
-      <span class="chip">🎛 <b>24</b> interactive</span>
-      <span class="chip"><b>105</b> Q&amp;A + 15 traps</span>
+      <span class="chip"><b>17</b> parts · 16 levels</span>
+      <span class="chip"><b>147</b> sections</span>
+      <span class="chip"><b>439</b> tracked topics</span>
+      <span class="chip"><b>69</b> diagrams</span>
+      <span class="chip">🎛 <b>28</b> interactive</span>
+      <span class="chip"><b>438</b> Q&amp;A</span>
       <span class="chip">sklearn <b>1.9</b></span>
     </div>
-    <a class="cta" href="CML_Complete.html">Open the full resource (all 7 parts) →</a>
+    <a class="cta" href="CML_Complete.html">Open the full resource (all 17 parts) →</a>
   </header>
 
   <h2 class="sec">Read by part</h2>
-  <p class="seclead">Each part is self-contained; the progress tracker at the top of each is shared across all of them on this device. Every part carries <b>live interactive widgets</b> — real models fitted in your browser, not screenshots.</p>
+  <p class="seclead">One part per level. Each part is self-contained; the progress tracker at the top of each is shared across all of them on this device. <b>Every topic ends with its own interview Q&amp;A box</b>, and the widgets are live — real models fitted in your browser, not screenshots.</p>
   <div class="grid">
-    <a class="card" href="CML_Part1_Foundations.html">
-      <div class="pk">Part 1 · Levels 0–3</div><div class="t">Foundations</div>
-      <div class="d">When <em>not</em> to use ML, the maths you're actually asked about, missingness, scaling, encoding, <b>splitting</b> and the four kinds of <b>data leakage</b> — then loss functions, bias-variance and regularization. <b>Interactive:</b> split visualiser, leakage simulator, polynomial bias-variance fitter, Ridge-vs-Lasso solver.</div><span class="go">23 sections · 19 diagrams · 4 interactive · Open →</span></a>
-    <a class="card" href="CML_Part2_LinearDistanceTrees.html">
-      <div class="pk">Part 2 · Levels 4–6</div><div class="t">Linear, Distance &amp; Trees</div>
-      <div class="d">Linear regression diagnostics, Ridge/Lasso paths, <b>logistic regression and the odds ratio</b>, GLMs (Poisson/Gamma/Tweedie), kNN, Naive Bayes, LDA vs PCA, SVMs — and how a tree actually splits. <b>Interactive:</b> log-odds explorer, live kNN boundary, the kernel lift, Gini/entropy split finder.</div><span class="go">12 sections · 10 diagrams · 4 interactive · Open →</span></a>
-    <a class="card" href="CML_Part3_EnsemblesUnsupervised.html">
-      <div class="pk">Part 3 · Levels 7–9</div><div class="t">Ensembles &amp; Unsupervised</div>
-      <div class="d">Why ensembles work, Random Forest and OOB, <b>gradient boosting from the residual up</b>, <b>XGBoost vs LightGBM vs CatBoost</b> mechanism by mechanism, stacking's leakage trap — then clustering, PCA/t-SNE/UMAP, survival, ranking and time series. <b>Interactive:</b> bagging variance, boosting stepper, k-means iterations, PCA scaling.</div><span class="go">15 sections · 13 diagrams · 4 interactive · Open →</span></a>
-    <a class="card" href="CML_Part4_ValidationMetrics.html">
-      <div class="pk">Part 4 · Levels 10–11</div><div class="t">Validation &amp; Metrics</div>
-      <div class="d">The CV family, <b>nested CV</b>, modern HPO, honest model comparison — then the level interviews are lost on: <b>ROC vs PR</b>, thresholds as a business decision, <b>calibration</b>, and the imbalance order of operations. <b>Interactive:</b> grid-vs-random, threshold &amp; confusion matrix, reliability diagram with Platt/isotonic, ROC-vs-PR under imbalance.</div><span class="go">12 sections · 9 diagrams · 4 interactive · Open →</span></a>
-    <a class="card" href="CML_Part5_FeaturesInterpretability.html">
-      <div class="pk">Part 5 · Levels 12–13</div><div class="t">Features &amp; Interpretability</div>
-      <div class="d">Feature engineering that beats model choice, selection inside the CV loop, <b>feature stores and point-in-time correctness</b> — then the three feature importances, PDP/ICE/ALE, <b>SHAP's failure modes</b>, and the fairness impossibility result. <b>Interactive:</b> cyclical encoding, permutation importance under correlation, PDP vs ICE.</div><span class="go">10 sections · 7 diagrams · 3 interactive · Open →</span></a>
-    <a class="card" href="CML_Part6_ProductionFrontier.html">
-      <div class="pk">Part 6 · Levels 14–15</div><div class="t">Production &amp; Frontier</div>
-      <div class="d">Training/serving skew, latency budgets, <b>drift when labels arrive 60 days late</b>, retraining triggers, A/B pitfalls, the feedback loop — then <b>TabPFN-3</b>, conformal prediction, causal inference and data-centric ML. <b>Interactive:</b> PSI drift calculator, conformal coverage, churn-score vs uplift targeting.</div><span class="go">12 sections · 8 diagrams · 3 interactive · Open →</span></a>
-    <a class="card" href="CML_Part7_QABank.html">
-      <div class="pk">Part 7 · Q&amp;A Bank</div><div class="t">Interview Q&amp;A Bank</div>
-      <div class="d"><b>105 questions</b> with model answers, the <b>15 trap questions</b>, your own PDF set mapped honestly, 15 derivations, 16 coding exercises, 10 case designs, 12 behavioural questions, and the formula + legacy→modern sheets. <b>Interactive:</b> random drill with shaky/solid marks, and a trap drill.</div><span class="go">105 Q&amp;A · 2 drills · Open →</span></a>
+    <a class="card" href="CML_Part01_WhatMLIs.html">
+      <div class="pk">Part 1 · Level 0</div><div class="t">What ML Actually Is</div>
+      <div class="d">Rules vs examples and what the trade costs you, the five learning paradigms, <b>prediction vs inference vs decision</b>, the lifecycle, how to frame a target and horizon, baselines — and <b>when not to use ML at all</b>.</div><span class="go">7 sections · 6 diagrams · 24 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part02_MathToolkit.html">
+      <div class="pk">Part 2 · Level 1</div><div class="t">The Mathematical Toolkit</div>
+      <div class="d">Eigenvectors and the SVD, convexity and second-order methods, Bayes and the <b>base-rate fallacy</b>, the <b>MLE/MAP bridge</b> that makes every loss a probabilistic statement, and the curse of dimensionality measured.</div><span class="go">7 sections · 5 diagrams · 2 interactive · 21 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part03_DataBeforeModels.html">
+      <div class="pk">Part 3 · Level 2</div><div class="t">Data Before Models</div>
+      <div class="d">The three questions EDA exists to answer, MCAR/MAR/MNAR, outliers as judgement, who needs scaling, cross-fitted target encoding, <b>splitting</b>, the <b>four kinds of leakage</b>, and how to audit someone else's pipeline.</div><span class="go">8 sections · 5 diagrams · 2 interactive · 24 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part04_LearningProblem.html">
+      <div class="pk">Part 4 · Level 3</div><div class="t">The Learning Problem</div>
+      <div class="d">Which loss recovers which summary, ERM and where i.i.d. breaks, the <b>bias-variance decomposition</b> with its two-number diagnostic, <b>L1 vs L2 in all three answers</b>, regularization beyond penalties, and reading a learning curve.</div><span class="go">7 sections · 6 diagrams · 2 interactive · 23 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part05_LinearModels.html">
+      <div class="pk">Part 5 · Level 4</div><div class="t">Linear Models</div>
+      <div class="d">The normal equation and why nobody computes it; <b>every assumption — what breaks, how to detect it, how to fix it</b>; residual diagnostics; VIF; R²'s traps; Ridge/Lasso/Elastic Net; logistic and the odds ratio; GLMs; quantile regression.</div><span class="go">9 sections · 4 diagrams · 2 interactive · 28 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part06_DistanceProbability.html">
+      <div class="pk">Part 6 · Level 5</div><div class="t">Distance &amp; Probability Models</div>
+      <div class="d">kNN as a pure bias-variance dial, why Naive Bayes works despite a false assumption, LDA vs PCA and vs logistic, the SVM margin and support vectors, soft margin and C — and <b>exactly where the kernel enters the dual</b>.</div><span class="go">7 sections · 3 diagrams · 2 interactive · 18 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part07_DecisionTrees.html">
+      <div class="pk">Part 7 · Level 6</div><div class="t">Decision Trees</div>
+      <div class="d">The split search step by step, Gini vs entropy vs gain ratio, regression trees and <b>why they can't extrapolate</b>, every complexity knob, cost-complexity pruning, three failure modes — and <b>the feature-importance trap</b>.</div><span class="go">7 sections · 3 diagrams · 1 interactive · 17 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part08_Ensembles.html">
+      <div class="pk">Part 8 · Level 7</div><div class="t">Ensembles &amp; Gradient Boosting</div>
+      <div class="d">The variance formula that explains ensembling, bagging and the 63.2%, <b>Random Forest's decorrelation trick</b> and OOB, AdaBoost as a special case, <b>gradient boosting from function-space descent</b>, XGB/LGBM/CatBoost mechanisms, tuning order, stacking's leakage trap.</div><span class="go">9 sections · 6 diagrams · 2 interactive · 23 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part09_Unsupervised.html">
+      <div class="pk">Part 9 · Level 8</div><div class="t">Unsupervised Learning</div>
+      <div class="d">Lloyd's algorithm and k-means' three assumptions, every way to choose k, linkage and dendrograms, DBSCAN and <b>why HDBSCAN fixes it</b>, GMM and EM, PCA from the eigen-decomposition, <b>the t-SNE trap</b>, anomaly detection, lift.</div><span class="go">9 sections · 3 diagrams · 2 interactive · 20 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part10_BeyondSupervised.html">
+      <div class="pk">Part 10 · Level 9</div><div class="t">Beyond Plain Supervised Learning</div>
+      <div class="d">Active learning and weak supervision, multi-label vs ordinal, <b>survival analysis and censoring</b>, learning-to-rank and nDCG, time series as supervised learning, and <b>walk-forward validation with purge and embargo</b>.</div><span class="go">6 sections · 4 diagrams · 16 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part11_Validation.html">
+      <div class="pk">Part 11 · Level 10</div><div class="t">Model Selection &amp; Validation</div>
+      <div class="d">The CV family and what each costs, how k trades bias against variance, <b>nested CV and the optimism it removes</b>, grid vs random vs Bayesian search, learning and validation curves, slice analysis, and honest model comparison.</div><span class="go">7 sections · 4 diagrams · 1 interactive · 12 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part12_Metrics.html">
+      <div class="pk">Part 12 · Level 11</div><div class="t">Metrics, Thresholds &amp; Imbalance</div>
+      <div class="d">The confusion matrix and everything from it, F-β and MCC, <b>ROC vs PR with the structural explanation</b>, micro/macro averaging, regression and ranking metrics, <b>thresholds as a business decision</b>, calibration end to end, the imbalance order of operations.</div><span class="go">9 sections · 4 diagrams · 3 interactive · 24 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part13_FeatureEngineering.html">
+      <div class="pk">Part 13 · Level 12</div><div class="t">Feature Engineering &amp; Selection</div>
+      <div class="d">Why feature work still beats model choice, ratios and group aggregates, <b>datetime done properly</b>, text and geo on a tabular row, filter/wrapper/embedded selection, production pipelines, and <b>point-in-time correctness</b>.</div><span class="go">7 sections · 4 diagrams · 1 interactive · 17 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part14_Interpretability.html">
+      <div class="pk">Part 14 · Level 13</div><div class="t">Interpretability &amp; Fairness</div>
+      <div class="d">The taxonomy, glass-box models including <b>EBMs</b>, <b>the three importances and the three questions</b>, PDP vs ICE vs ALE, LIME's instability, <b>SHAP with its failure modes named</b>, counterfactuals and adverse-action notices, the fairness impossibility result.</div><span class="go">8 sections · 3 diagrams · 2 interactive · 16 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part15_Production.html">
+      <div class="pk">Part 15 · Level 14</div><div class="t">Production ML Engineering</div>
+      <div class="d">One feature definition for both paths, batch vs real-time, latency decomposed to p99, <b>training/serving skew</b>, the full drift taxonomy with <b>proxies for late labels</b>, retraining triggers, shadow→canary→A/B, <b>the feedback loop</b>, and engineering hygiene.</div><span class="go">9 sections · 4 diagrams · 1 interactive · 19 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part16_Frontier.html">
+      <div class="pk">Part 16 · Level 15</div><div class="t">Frontier &amp; Senior Signal</div>
+      <div class="d"><b>TabPFN-3 and the answer that changed</b>, aleatoric vs epistemic, <b>conformal prediction</b> with its one assumption, causal inference and colliders, <b>uplift modelling</b>, double machine learning, data-centric ML, and &ldquo;is classical ML dead?&rdquo;</div><span class="go">8 sections · 5 diagrams · 2 interactive · 19 Q&amp;A · Open →</span></a>
+    <a class="card" href="CML_Part17_QABank.html">
+      <div class="pk">Part 17 · Q&amp;A Bank</div><div class="t">Interview Q&amp;A Bank</div>
+      <div class="d">The consolidated drill: <b>105 questions</b> with model answers, the <b>15 traps</b>, your own PDF set mapped honestly, 15 derivations, 16 coding exercises, 10 case designs, 12 behavioural questions, and the reference sheets.</div><span class="go">23 sections · 2 drills · 117 Q&amp;A · Open →</span></a>
     <a class="card combined" href="CML_Complete.html">
       <div class="pk">All-in-one</div><div class="t">Complete edition ★</div>
-      <div class="d">Every part stitched into one page with the master tracker at the top — print- and PDF-ready, widgets included.</div><span class="go">Open →</span></a>
+      <div class="d">All 17 parts stitched into one page with the master tracker at the top — print- and PDF-ready, widgets included.</div><span class="go">1.3 MB · Open →</span></a>
   </div>
 
   <div class="note">
@@ -115,7 +146,7 @@ p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
   </div>
 
   <div class="foot">
-    Classical Machine Learning — 7 parts · 439 tracked topics · 66 diagrams · 24 interactive widgets · progress saved per device (<code>cmlPrepStatus_v1</code>)<br>
+    Classical Machine Learning — 17 parts · 147 sections · 439 tracked topics · 69 diagrams · 28 interactive widgets · 438 Q&amp;A · progress saved per device (<code>cmlPrepStatus_v1</code>)<br>
     Scope: this subject owns tabular modelling, validation, metrics and the ML lifecycle. Text and embeddings → <a href="../nlp/index.html">NLP</a> · retrieval → <a href="../rag/index.html">RAG</a> · prompting → <a href="../langchain/index.html">LangChain</a> · agents → <a href="../langgraph/index.html">LangGraph</a>.
   </div>
 

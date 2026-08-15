@@ -459,6 +459,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
           <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Q&amp;A Bank</b></span>
           <span class="chip"><b>23</b> topics</span>
           <span class="chip">📐 <b>0</b> diagrams</span>
+          <span class="chip">💬 <b>117</b> Q&amp;A</span>
           <span class="chip">🎛 <b>2</b> interactive</span>
           <span class="chip">⏱ <b>~6h drill</b></span>
         </div>
@@ -506,7 +507,769 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 7.0 drill ===== -->
+      <article class="topic" id="c17-0">
+        <h3><span class="tn">17.0</span> How to use this bank</h3>
+        <p class="lead">Read the question. Answer it <em>out loud</em>. Only then expand and compare. Reading answers you already half-know is the least efficient possible use of this page.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Random drill — 105 questions, answer before you reveal</div>
+          <div class="wbody">
+            <div class="wout" id="qdQ" style="font-family:var(--sans);font-size:1.06rem;line-height:1.6;min-height:74px"></div>
+            <div class="wbtns">
+              <button class="wbtn" id="qdNew">Next random question</button>
+              <button class="wbtn" id="qdShow">Show which section answers it</button>
+              <button class="wbtn" id="qdHard">Mark as shaky</button>
+              <button class="wbtn" id="qdOk">Mark as solid</button>
+              <button class="wbtn" id="qdOnlyHard">Drill only my shaky ones</button>
+              <button class="wbtn" id="qdReset">Reset my marks</button>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="qdSolid">0</span>marked solid</div>
+              <div class="wcell"><span class="n" id="qdShaky">0</span>marked shaky</div>
+              <div class="wcell"><span class="n" id="qdSeen">0</span>seen this session</div>
+              <div class="wcell"><span class="n" id="qdPool">105</span>questions in pool</div>
+            </div>
+            <p class="wnote">Your marks are saved in this browser under <code class="ic">cmlDrill_v1</code> — separate from the topic tracker, so drilling never touches your study progress. The point of &ldquo;shaky&rdquo; is not shame: it is a queue. When the shaky list is empty you are ready.</p>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">What a good answer sounds like</span>
+          <p>Three moves, in order. <b>(1) Answer the question asked</b>, in one or two sentences, without preamble. <b>(2) Add the mechanism</b> — <em>why</em> it is true, not just that it is. <b>(3) Add the caveat or the trade-off</b>, unprompted. Candidates who do all three sound senior even when the underlying fact is simple; candidates who only do (1) sound like they revised.</p>
+        </div>
+      </article>
+
+      <!-- ===== 7.1 ===== -->
+      <article class="topic" id="c17-1">
+        <h3><span class="tn">17.1</span> Foundations &amp; framing</h3>
+        <p class="lead">Seven questions. These decide whether the rest of the interview is a conversation between peers.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q1–7 · foundations</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>1. What is machine learning, and when would you <em>not</em> use it?</summary><div class="ans"><p>Learning a function from examples plus a loss, instead of specifying rules. <b>Don't use it</b> when: the rule is stable and writable (ship the rule — auditable and free); you have no labels and no path to them; an unexplainable error is unacceptable; or the data is too small for the signal you want. Volunteering the four branches unprompted is a strong senior signal.</p></div></details>
+            <details class="qa"><summary>2. Supervised vs unsupervised vs reinforcement learning — with a real example of each.</summary><div class="ans"><p><b>Supervised:</b> features + labels → a mapping. Credit default from application data. <b>Unsupervised:</b> features only → structure. Customer segmentation, anomaly detection. <b>Reinforcement:</b> an environment and a reward → a policy. Bid optimisation, inventory control. Worth adding <b>self-supervised</b> (a pretext task creates the labels — the basis of all pretraining) and <b>semi-supervised</b> (few labels, much unlabelled data — the realistic fraud case).</p></div></details>
+            <details class="qa"><summary>3. ⭐ How do you choose the target variable and prediction horizon for a churn model?</summary><div class="ans"><p>Work backwards from the <b>decision</b>. Ask what action the model triggers and how long that action needs — if retention needs 30 days to run a campaign, the target is &ldquo;churns within 30 days&rdquo;, not &ldquo;ever churns&rdquo;. Then define churn concretely (cancellation? 90 days inactive? downgrade?) and check the base rate under each definition. Pin the <b>unit of prediction</b> (customer? customer-month?) because it determines the split. Add a <b>data-latency gap</b> so every feature is knowable at prediction time. Finish with the framing caveat: if the decision is <em>who gets a retention offer</em>, churn is the wrong target and you want uplift (§16.4).</p></div></details>
+            <details class="qa"><summary>4. Parametric vs non-parametric models — and why does it matter?</summary><div class="ans"><p><b>Parametric</b> models have a fixed number of parameters regardless of data size (linear/logistic regression, Naive Bayes, GLMs): strong assumptions, fast, data-efficient, and they can't grow to fit more structure. <b>Non-parametric</b> models grow with the data (kNN, trees, kernel SVM, RF): fewer assumptions, more flexible, more data-hungry, and usually higher variance. It matters because it tells you which failure to expect — a parametric model underfits, a non-parametric one overfits.</p></div></details>
+            <details class="qa"><summary>5. Discriminative vs generative models — an example and a trade-off.</summary><div class="ans"><p><b>Discriminative</b> models <code class="ic">P(y|x)</code> directly (logistic regression, SVM, trees, GBMs); <b>generative</b> models the joint <code class="ic">P(x,y)</code> and derives the posterior via Bayes (Naive Bayes, LDA/QDA, GMM, HMM). Generative imposes more structure so it needs less data, handles missing features naturally and can sample; discriminative usually wins on accuracy with enough data because all its capacity goes into the boundary. Same axis as HMM vs CRF.</p></div></details>
+            <details class="qa"><summary>6. What baselines would you report before any model?</summary><div class="ans"><p>Majority class or mean; previous value / seasonal-naive for time series; <b>the existing business rule</b> (the real bar); a random-but-calibrated predictor to anchor log loss; and a <b>strong simple model</b> — logistic regression or a small GBM on obvious features, which usually reaches 90–95% of the final performance. And the sentence that matters: if the complex model doesn't beat these by enough to justify its cost and risk, <b>that is the finding</b>.</p></div></details>
+            <details class="qa"><summary>7. What is the offline/online metric gap and how do you manage it?</summary><div class="ans"><p>Your offline metric is a <b>proxy</b> for a business outcome, and the mapping is an assumption. A better AUC can lose an A/B test — because the improvement was in a region users never see, because the score distribution shifted under a fixed threshold, or because the business metric depends on something you didn't optimise. Manage it by: stating the assumed link explicitly, checking it against historical launches, shipping through shadow → canary → A/B, and keeping guardrail metrics.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.2 ===== -->
+      <article class="topic" id="c17-2">
+        <h3><span class="tn">17.2</span> Bias, variance &amp; generalization</h3>
+        <p class="lead">Six questions. The decomposition is the single most-asked piece of theory in the subject.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q8–13 · generalization</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>8. ⭐ Explain the bias-variance trade-off. Write the decomposition.</summary><div class="ans"><p><code class="ic">E[(y − f̂(x))²] = Bias[f̂]² + Var[f̂] + σ²</code>. <b>Bias</b> is error from wrong assumptions — the model can't represent the truth. <b>Variance</b> is sensitivity to the particular training sample. <b>σ²</b> is irreducible noise. What moves each: model complexity, regularization strength, feature count, tree depth, k in kNN, ensemble size. The one-liner: <b>bagging reduces variance, boosting reduces bias</b>. The subtlety that earns credit: the decomposition is exact only for <b>squared loss</b> and merely heuristic for log loss or 0-1 loss.</p></div></details>
+            <details class="qa"><summary>9. Overfitting vs underfitting — how do you diagnose which one you have?</summary><div class="ans"><p>Two numbers. <b>Train error high and validation error close to it</b> ⇒ high bias / underfitting: add capacity, add features, reduce regularization. <b>Train error low and validation error far above</b> ⇒ high variance / overfitting: more data, more regularization, less capacity, bagging. Then confirm with a <b>learning curve</b>, which also tells you whether more data will help.</p></div></details>
+            <details class="qa"><summary>10. Will more data help? How do you know?</summary><div class="ans"><p>Plot a <b>learning curve</b> — training and validation error against training-set size. If both have converged above your target, you have a bias problem and <b>more data will not help</b>; change the model or the features. If a substantial gap is still closing, more data will help. The compact statement: <b>more data fixes variance, not bias.</b></p></div></details>
+            <details class="qa"><summary>11. What is the curse of dimensionality and which models suffer most?</summary><div class="ans"><p>As dimensions grow, volume grows exponentially while your sample doesn't, so points spread to the shell of the space and pairwise distances <b>concentrate</b> — nearest and farthest neighbours become nearly equidistant, and &ldquo;local&rdquo; stops meaning anything. Worst affected: <b>kNN, k-means, DBSCAN, RBF-SVM</b> and anything else built on a distance. Barely affected: <b>trees and tree ensembles</b>, which split one feature at a time. Secondary effect: more features = more capacity to memorise = more variance.</p></div></details>
+            <details class="qa"><summary>12. What is the &ldquo;no free lunch&rdquo; theorem and what does it imply practically?</summary><div class="ans"><p>Averaged over <em>all</em> possible problems, no algorithm outperforms any other — superiority comes from assumptions matching the problem. Practically: there is no universally best model, which is <em>why benchmarking is a step rather than a formality</em>, and why &ldquo;always use XGBoost&rdquo; is a heuristic about the distribution of real tabular problems rather than a theorem.</p></div></details>
+            <details class="qa"><summary>13. What is double descent?</summary><div class="ans"><p>Beyond the classical U-curve, test error can <b>rise to a peak at the interpolation threshold</b> (roughly where parameters ≈ samples) and then <b>fall again</b> as capacity grows further. Well documented in over-parameterised models. Know it exists so the U-curve isn't the only story you can tell — while noting that on tabular data with regularized GBMs you are still firmly in the classical regime.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.3 ===== -->
+      <article class="topic" id="c17-3">
+        <h3><span class="tn">17.3</span> Regularization</h3>
+        <p class="lead">Five questions. L1 vs L2 has a geometric half, a probabilistic half and a practical half — give all three.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q14–18 · regularization</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>14. ⭐ L1 vs L2 — what does each do, and why does L1 produce exact zeros?</summary><div class="ans"><p><b>L2/Ridge</b> shrinks coefficients smoothly, handles multicollinearity by re-conditioning <code class="ic">XᵀX + αI</code>, and never reaches exactly zero. <b>L1/Lasso</b> drives coefficients to exactly zero, so it performs feature selection. <b>Geometric:</b> the L1 constraint region is a diamond whose <b>corners lie on the axes</b>, and elliptical loss contours typically first touch it at a corner — where a coordinate is exactly zero; the L2 ball is smooth, so contact is at a generic point. <b>Probabilistic:</b> Ridge is MAP with a Gaussian prior, Lasso with a Laplace prior whose density spikes at zero. <b>Practical:</b> Lasso is unstable with correlated features (picks one arbitrarily); Elastic Net fixes that.</p></div></details>
+            <details class="qa"><summary>15. Why must you standardise features before regularizing?</summary><div class="ans"><p>The penalty is on coefficient magnitude, and magnitude depends on the feature's units. Income in pounds and age in years produce coefficients orders of magnitude apart, so the penalty falls almost entirely on one feature — you would be regularizing by choice of measurement unit. Standardise <b>inside the pipeline</b>, and leave the intercept unpenalised.</p></div></details>
+            <details class="qa"><summary>16. When would you use Elastic Net over Lasso?</summary><div class="ans"><p>With <b>groups of correlated features</b>: Lasso picks one essentially arbitrarily and zeroes the rest, and picks a different one on a slightly different sample — fine for prediction, terrible for stability and interpretation. Elastic Net's L2 component makes correlated coefficients shrink together so the group survives or dies together. Also when <code class="ic">p &gt; n</code>: Lasso can select at most <code class="ic">n</code> features; Elastic Net has no such cap.</p></div></details>
+            <details class="qa"><summary>17. Show that Ridge is MAP estimation with a Gaussian prior.</summary><div class="ans"><p>With Gaussian noise, the likelihood is <code class="ic">p(y|X,w) ∝ exp(−‖y−Xw‖²/2σ²)</code>. Put a Gaussian prior <code class="ic">p(w) ∝ exp(−‖w‖²/2τ²)</code>. The posterior is proportional to their product; taking <code class="ic">−log</code> gives <code class="ic">‖y−Xw‖²/2σ² + ‖w‖²/2τ²</code>, and maximising the posterior means minimising that — which is exactly Ridge with <code class="ic">α = σ²/τ²</code>. Swap the Gaussian prior for a <b>Laplace</b> prior <code class="ic">exp(−‖w‖₁/b)</code> and the penalty becomes <code class="ic">‖w‖₁</code>: Lasso. A tighter prior (small τ) means stronger regularization.</p></div></details>
+            <details class="qa"><summary>18. Name three regularization techniques that aren't a penalty term.</summary><div class="ans"><p><b>Structural:</b> tree depth, <code class="ic">min_samples_leaf</code>, <code class="ic">num_leaves</code>, max features — limiting the hypothesis space directly. <b>Stochastic:</b> row and column subsampling, bagging, dropout — injecting noise and decorrelating. <b>Implicit:</b> <b>early stopping</b>, which in boosting is approximately equivalent to shrinkage; and more data or augmentation, which raises the bar for memorisation.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.4 ===== -->
+      <article class="topic" id="c17-4">
+        <h3><span class="tn">17.4</span> Linear models</h3>
+        <p class="lead">Six questions. Logistic regression's coefficient interpretation is the one people fumble.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q19–24 · linear &amp; GLM</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>19. State the assumptions of linear regression and what breaks when each fails.</summary><div class="ans"><p><b>Linearity in the parameters</b> — fails ⇒ biased predictions, curvature in the residual plot; fix with splines or a different model. <b>Independent errors</b> — fails with time or clustered data ⇒ standard errors wrong. <b>Homoscedasticity</b> — fails ⇒ inefficient estimates, wrong CIs; log the target, use a GLM, or robust SEs. <b>Normal residuals</b> — needed only for <em>inference</em>, not prediction. <b>No perfect multicollinearity</b> — fails ⇒ no unique solution; near-failure inflates coefficient variance.</p></div></details>
+            <details class="qa"><summary>20. Why can't you use MSE as the loss for logistic regression?</summary><div class="ans"><p>Composed with a sigmoid, squared error is <b>non-convex</b> in the parameters, so gradient descent has no global guarantee. And log loss <em>is</em> the negative log-likelihood of the Bernoulli model — the MLE and a proper scoring rule — so it has a principled justification MSE lacks, and it punishes confidently-wrong predictions far more sharply.</p></div></details>
+            <details class="qa"><summary>21. Interpret a logistic regression coefficient. What is an odds ratio?</summary><div class="ans"><p>A one-unit increase in x raises the <b>log-odds</b> by β, i.e. <b>multiplies the odds by <code class="ic">exp(β)</code></b> — the odds ratio. β = 0.4 ⇒ odds ×1.49. The effect on the <em>probability</em> is not constant: maximal near p = 0.5 (<code class="ic">dp/dz = p(1−p)</code>) and vanishing in the tails. Standardise if you want to compare magnitudes, and remember sklearn's <code class="ic">C</code> is the <b>inverse</b> penalty strength.</p></div></details>
+            <details class="qa"><summary>22. What is multicollinearity, how do you detect it, and does it hurt predictions or interpretation?</summary><div class="ans"><p>Features carrying near-identical information, making <code class="ic">XᵀX</code> ill-conditioned and the loss surface a flat valley. Detect with a correlation matrix, condition number, or <b>VIF = 1/(1−R²ⱼ)</b> above ~5–10. It inflates coefficient <b>variance</b> — signs flip, magnitudes swing between refits — so it damages <b>interpretation and stability</b>, usually not predictive accuracy. Fix by dropping, combining, using PCA, or using <b>Ridge</b>.</p></div></details>
+            <details class="qa"><summary>23. Why does R² always increase when you add a feature? What do you use instead?</summary><div class="ans"><p>An extra column can only enlarge the space the fit is chosen from, so the residual sum of squares cannot rise — and least squares will exploit chance correlation to do slightly better even with pure noise. Use <b>adjusted R²</b>, which penalises <code class="ic">p</code>, or a held-out score. Note test R² is a different statistic and can be <b>negative</b> if you do worse than predicting the mean.</p></div></details>
+            <details class="qa"><summary>24. When would you reach for a GLM — Poisson or Tweedie — instead of linear regression?</summary><div class="ans"><p>When you know the target's distribution and it isn't Gaussian. <b>Poisson</b> (log link) for counts; <b>negative binomial</b> when counts are over-dispersed; <b>Gamma</b> for positive right-skewed amounts like claim severity; <b>Tweedie</b> for zero-inflated positive targets like insurance pure premium. You get non-negative predictions, a correct variance function and defensible coefficients — and all three objectives exist in XGBoost and LightGBM if you'd rather use trees.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.5 ===== -->
+      <article class="topic" id="c17-5">
+        <h3><span class="tn">17.5</span> Trees &amp; ensembles</h3>
+        <p class="lead">Thirteen questions — the largest block, because this is what wins on tabular data.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q25–37 · trees, bagging, boosting</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>25. How does a decision tree choose a split? Gini vs entropy — does it matter?</summary><div class="ans"><p>Greedily: at each node it scans every feature and every candidate threshold, computes the impurity decrease <code class="ic">H(parent) − Σ(nᵢ/n)H(childᵢ)</code>, and takes the maximum — then recurses, never revisiting earlier choices. <b>Gini</b> is <code class="ic">1 − Σpᵢ²</code>, <b>entropy</b> is <code class="ic">−Σpᵢlog₂pᵢ</code>. In practice they choose nearly the same splits; Gini is cheaper (no logarithm) and is the default. The honest answer is &ldquo;it doesn't matter — I'd spend the budget on depth and <code class="ic">min_samples_leaf</code>.&rdquo; For regression the criterion is variance/MSE reduction.</p></div></details>
+            <details class="qa"><summary>26. Why is a single deep tree high-variance?</summary><div class="ans"><p>Because splits are chosen greedily and hierarchically: moving a few rows can flip the <em>root</em> split, and everything below it changes. A fully-grown tree also drives training error to near zero by isolating individual points, so it is fitting noise. That instability is precisely the property bagging exploits — average many high-variance, low-bias trees and the variance falls while the bias stays put.</p></div></details>
+            <details class="qa"><summary>27. ⭐ Bagging vs boosting — what does each reduce, and why?</summary><div class="ans"><p><b>Bagging:</b> parallel, high-variance low-bias learners on bootstrap samples, averaged. Ensemble variance is roughly <code class="ic">ρσ² + (1−ρ)σ²/M</code>, so averaging kills the second term — it <b>reduces variance</b>, and ρ (the correlation between members) is the ceiling on how much. <b>Boosting:</b> sequential weak high-bias learners, each fitted to the current ensemble's errors, so systematic error shrinks — it <b>reduces bias</b>, and can raise variance, which is why it overfits with too many rounds and needs early stopping.</p></div></details>
+            <details class="qa"><summary>28. How does Random Forest differ from plain bagging? What is OOB error?</summary><div class="ans"><p>RF adds <b>random feature subsetting at each split</b> (<code class="ic">max_features</code>, default √p for classification). Without it, a dominant feature is picked at the root of every tree and the trees are highly correlated — and correlation caps the benefit of averaging. <b>OOB error:</b> each bootstrap omits about <code class="ic">(1−1/n)ⁿ → 1/e ≈ 36.8%</code> of rows, so each row can be scored by the trees that never saw it, giving free validation without a holdout.</p></div></details>
+            <details class="qa"><summary>29. Can you overfit a Random Forest by adding trees? Can you overfit a GBM?</summary><div class="ans"><p><b>RF:</b> adding trees does not overfit — the ensemble converges rather than degrading, so <code class="ic">n_estimators</code> is a compute knob, not a regularization knob. But a forest of deep unpruned trees on noisy data <em>can</em> overfit by memorising label noise; control that with <code class="ic">min_samples_leaf</code> and <code class="ic">max_features</code>. <b>GBM:</b> yes, readily — each round fits the remaining error including noise. Use a validation set with <b>early stopping</b>, plus shrinkage and subsampling.</p></div></details>
+            <details class="qa"><summary>30. ⭐ Explain gradient boosting. What exactly is each new tree fitted to?</summary><div class="ans"><p>Start from a constant. At each round compute the <b>negative gradient of the loss with respect to the current predictions</b> — the pseudo-residuals — fit a shallow tree to those, and add it scaled by the learning rate: <code class="ic">Fₘ = Fₘ₋₁ + ν·hₘ</code>. For squared loss the negative gradient <em>is</em> the ordinary residual, which is why textbooks say &ldquo;fit to the residuals&rdquo;; saying <b>negative gradient</b> is what generalises it to log loss, Poisson, quantile and everything else. AdaBoost is the special case with exponential loss.</p></div></details>
+            <details class="qa"><summary>31. XGBoost vs LightGBM vs CatBoost — the real differences, and how do you choose?</summary><div class="ans"><p><b>XGBoost:</b> second-order (Newton) using gradients <em>and</em> Hessians, explicit <code class="ic">λ</code>/<code class="ic">α</code>/<code class="ic">γ</code> in the objective, sparsity-aware learned default direction for missing values, level-wise growth by default. <b>LightGBM:</b> leaf-wise growth plus <b>GOSS</b> (keep large-gradient rows, subsample the rest) and <b>EFB</b> (bundle mutually exclusive sparse features) — fastest at scale, native categorical splits. <b>CatBoost:</b> <b>ordered boosting</b> and ordered target statistics to remove the target leakage in naive encoding, symmetric oblivious trees for very fast inference, strong defaults. <b>Choose:</b> many high-cardinality categoricals + little tuning time ⇒ CatBoost; very large data + tight budget ⇒ LightGBM; maximum control and ecosystem ⇒ XGBoost. Then add that once tuned they're usually within noise of each other.</p></div></details>
+            <details class="qa"><summary>32. What is leaf-wise vs level-wise growth, and what's the risk of leaf-wise?</summary><div class="ans"><p>Level-wise expands every node at a depth before descending — balanced trees, predictable cost, some splits that gain little. Leaf-wise always expands the leaf with the largest loss reduction, reaching a lower loss with fewer leaves. The risk: it grows very deep down one branch and <b>overfits small or noisy data</b>. Control with <code class="ic">num_leaves</code> and <code class="ic">min_data_in_leaf</code> — and note that setting only <code class="ic">max_depth</code> while leaving <code class="ic">num_leaves</code> at default is a classic misconfiguration.</p></div></details>
+            <details class="qa"><summary>33. What problem does CatBoost's ordered boosting solve?</summary><div class="ans"><p><b>Prediction shift</b> from target leakage in naive target statistics: if a row's encoding and residual use its own label, training residuals are systematically biased and the model is over-optimistic on data it has seen. Ordered boosting computes each row's statistics and residuals only from rows preceding it in a random permutation (with several permutations so early rows aren't starved) — the algorithmic version of out-of-fold target encoding.</p></div></details>
+            <details class="qa"><summary>34. How do you tune a GBM? Give me your order of operations.</summary><div class="ans"><p><b>(1)</b> Fix a modest learning rate (0.05–0.1) and let <b>early stopping</b> pick <code class="ic">n_estimators</code>. <b>(2)</b> Tree complexity: <code class="ic">max_depth</code> / <code class="ic">num_leaves</code>, <code class="ic">min_child_weight</code> / <code class="ic">min_data_in_leaf</code>. <b>(3)</b> Sampling: <code class="ic">subsample</code>, <code class="ic">colsample_bytree</code>. <b>(4)</b> Regularization: <code class="ic">lambda</code>, <code class="ic">alpha</code>, <code class="ic">gamma</code>. <b>(5)</b> Lower the learning rate and refit with more trees. Use random or TPE search over <b>log-uniform</b> ranges, inside the CV loop. Giving an <em>order</em> rather than a parameter list is what makes this sound like experience.</p></div></details>
+            <details class="qa"><summary>35. What are monotonic constraints and when have you needed them?</summary><div class="ans"><p>They force the model's output to be non-decreasing (or non-increasing) in a given feature, enforced at split time so no split can violate the direction. You need them when a business or regulatory rule demands it — <em>risk must not fall as debt rises; premium must not fall as claim history worsens</em> — and they also act as a strong regularizer and make the model far easier to defend. Available in XGBoost, LightGBM and CatBoost; interaction constraints are the related tool for &ldquo;these features may not interact&rdquo;.</p></div></details>
+            <details class="qa"><summary>36. How does stacking work, and what's the leakage trap in it?</summary><div class="ans"><p>Base models' predictions become features for a <b>meta-learner</b>. The trap: those meta-features must be <b>out-of-fold</b> — each row's base prediction must come from a model that never saw it. Train the base models on all the data and predict that same data and the meta-learner learns to trust whichever base model overfits hardest. Keep the meta-learner simple (regularized linear), prize diversity over individual strength, and be honest that stacking rarely survives production review on latency and maintenance grounds.</p></div></details>
+            <details class="qa"><summary>37. ⭐ Why is impurity-based feature importance misleading? What do you use instead?</summary><div class="ans"><p>Mean decrease in impurity is <b>biased toward high-cardinality and continuous features</b> — more candidate split points means more chances to reduce impurity by luck — and it is computed on <b>training data</b>, so it rewards overfitting. A random continuous ID-like column will rank high. Use <b>permutation importance on held-out data</b>, which measures the real metric drop when a feature is shuffled. Then state the residual caveat: with correlated features, permuting one leaves its information available through the other, so both look unimportant while jointly being essential — and SHAP has its own version of that problem.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.6 ===== -->
+      <article class="topic" id="c17-6">
+        <h3><span class="tn">17.6</span> Other models</h3>
+        <p class="lead">Five questions on kNN, Naive Bayes, SVM and discriminant analysis.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q38–42 · the rest of the zoo</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>38. How does kNN work, and why is scaling mandatory?</summary><div class="ans"><p>Store the training set; to predict, find the k nearest rows by some distance and take their vote or mean. Because the prediction <em>is</em> a distance computation, a feature in larger units dominates it entirely — income in pounds swamps age in years, so you are effectively doing 1-D nearest neighbour on income. <b>k is a pure bias-variance dial</b>: k=1 gives zero training error and maximum variance; k=n is the majority-class baseline. Training is free, inference is <code class="ic">O(n·p)</code> per query — usually disqualifying in production.</p></div></details>
+            <details class="qa"><summary>39. Why does Naive Bayes work despite a false independence assumption?</summary><div class="ans"><p>Classification needs the correct <b>argmax</b>, not correct probabilities. Correlated features are counted as independent evidence, which multiplies their effect and drives the posterior toward 0 or 1 — but the class <em>ordering</em> usually survives. So it is <b>badly calibrated and overconfident</b>, and its <code class="ic">predict_proba</code> should never be used as a probability without calibration. Add Laplace smoothing so an unseen pair doesn't zero the product, and compute in log space.</p></div></details>
+            <details class="qa"><summary>40. Explain the SVM margin, the role of C, and the kernel trick.</summary><div class="ans"><p>The SVM maximises the <b>margin</b> <code class="ic">2/‖w‖</code> to the nearest points — the <b>support vectors</b>, the only points that define the solution. The soft margin allows violations via slack; <b>C</b> trades margin width against violations (large C ⇒ narrow margin, low bias, high variance). The <b>kernel trick</b>: the dual objective touches the data only through inner products, so substituting <code class="ic">K(xᵢ,xⱼ)</code> gives you the geometry of a high-dimensional space — infinite-dimensional for RBF — without ever computing φ(x). Costs: <code class="ic">O(n²)–O(n³)</code> training, mandatory scaling, no native probabilities.</p></div></details>
+            <details class="qa"><summary>41. LDA vs PCA — what's the difference in objective?</summary><div class="ans"><p><b>PCA is unsupervised</b> and maximises total variance; it never sees the labels, so it can discard exactly the direction that separates classes. <b>LDA is supervised</b> and maximises between-class scatter relative to within-class scatter, giving at most <code class="ic">k−1</code> components. Both are linear projections; only one is trying to help your classifier. LDA-the-classifier assumes a shared covariance (linear boundary); QDA gives each class its own (quadratic boundary, more parameters, more data needed).</p></div></details>
+            <details class="qa"><summary>42. When would you still choose an SVM in 2026?</summary><div class="ans"><p>Small-to-medium data with a clear margin; <b>high-dimensional sparse features</b> where a linear SVM is excellent and very fast (<code class="ic">LinearSVC</code> on text); and cases where you want a maximum-margin rule rather than a probability. Otherwise gradient boosting wins on tabular data, trains faster, needs no scaling and handles mixed types. Note also that <code class="ic">probability=True</code> runs an internal 5-fold Platt calibration — slow, and often still poorly calibrated.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.7 ===== -->
+      <article class="topic" id="c17-7">
+        <h3><span class="tn">17.7</span> Unsupervised</h3>
+        <p class="lead">Six questions. The t-SNE trap is the one to volunteer unprompted.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q43–48 · clustering, PCA, anomalies</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>43. How does k-means work? How do you choose k? What are its assumptions?</summary><div class="ans"><p><b>Lloyd's algorithm:</b> seed centroids (k-means++ spreads them out), assign each point to its nearest centroid, recompute centroids as means, repeat until assignments stabilise. It minimises <b>inertia</b>, which is non-convex — so the seed changes the answer, hence <code class="ic">n_init</code>. <b>Assumptions:</b> spherical, roughly equal-variance clusters and a meaningful Euclidean distance ⇒ scale-sensitive and outlier-sensitive. <b>Choosing k:</b> elbow, silhouette, gap statistic, Davies-Bouldin — and honestly, k is usually a business constraint.</p></div></details>
+            <details class="qa"><summary>44. k-means vs DBSCAN vs hierarchical — pick one for a given problem.</summary><div class="ans"><p><b>k-means</b> for large data with roughly spherical, similarly-sized clusters and a k you can justify. <b>DBSCAN</b> when clusters are arbitrarily shaped, you don't know k, and you want <b>noise labelled as noise</b> rather than forced into a cluster — but it struggles with varying density, which is what <b>HDBSCAN</b> fixes (and it is the sensible modern default for exploration). <b>Hierarchical/Ward</b> when you want a dendrogram you can cut at any level and n is small enough for <code class="ic">O(n²)</code>. Add <b>GMM/EM</b> when you want soft assignments and elliptical clusters.</p></div></details>
+            <details class="qa"><summary>45. ⭐ Explain PCA. Why must you scale first? How do you choose the number of components?</summary><div class="ans"><p>PCA finds orthogonal directions of maximum variance — the eigenvectors of the covariance matrix, equivalently the right singular vectors of the centred data matrix, with eigenvalues giving explained variance. <b>Scaling</b>: variance carries units, so an unscaled feature in small units dominates PC1 by measurement convention rather than information. <b>Components</b>: cumulative explained-variance threshold, the scree elbow, or (best) cross-validated downstream performance. Caveat: components are mixtures of every feature, so interpretability is limited.</p></div></details>
+            <details class="qa"><summary>46. PCA vs t-SNE vs UMAP — and what's the trap with t-SNE plots?</summary><div class="ans"><p>PCA is linear, deterministic, reversible and safe as preprocessing. t-SNE and UMAP are non-linear, stochastic <b>visualisation</b> tools. <b>The trap:</b> in a t-SNE plot, <b>distances between clusters and cluster sizes are meaningless</b> — it preserves local neighbourhoods only, and the layout depends heavily on <code class="ic">perplexity</code>. UMAP preserves more global structure and is faster, but is still stochastic. Never say &ldquo;these clusters are similar because they're close on the plot.&rdquo;</p></div></details>
+            <details class="qa"><summary>47. How do you evaluate a clustering with no labels?</summary><div class="ans"><p><b>Internal indices:</b> silhouette <code class="ic">(b−a)/max(a,b)</code>, Davies-Bouldin, Calinski-Harabasz, inertia — all of which reward the geometry the algorithm optimised, so they favour k-means-shaped clusters. <b>Stability:</b> re-run on bootstrap samples and measure how consistent assignments are. <b>External validation</b> against a proxy label if one exists (ARI, NMI, homogeneity/completeness). And the honest answer: <b>usefulness</b> — do the segments differ on something the business acts on, and can a human name them?</p></div></details>
+            <details class="qa"><summary>48. How would you detect anomalies with no labels?</summary><div class="ans"><p><b>Isolation Forest</b> as the default (anomalies need fewer random splits to isolate — scales well, few assumptions), <b>LOF</b> for local density anomalies, <b>Mahalanobis/z-score</b> for a Gaussian baseline, One-Class SVM, or autoencoder reconstruction error for high-dimensional structured data. Three points to raise: <b>contamination is a prior you are asserting</b> and it directly sets your alert volume; <b>novelty vs outlier detection</b> are different settings; and <b>if you have labels, use a classifier</b> — anomaly detection is what you do when you can't frame it as imbalanced classification.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.8 ===== -->
+      <article class="topic" id="c17-8">
+        <h3><span class="tn">17.8</span> Validation</h3>
+        <p class="lead">Seven questions. Getting the split wrong invalidates every other number you report.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q49–55 · CV and model selection</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>49. ⭐ Explain k-fold cross-validation. When is stratification necessary?</summary><div class="ans"><p>Partition into k folds; train on k−1 and evaluate on the held-out one, k times; report <b>mean ± standard deviation</b>. Every row is tested exactly once, which gives a lower-variance estimate than a single hold-out. <b>Stratify</b> when the target is imbalanced or n is small, so no fold ends up with too few positives. Choosing k is itself a trade-off: small k biases the estimate pessimistically (less training data per fold), large k raises variance through overlapping training sets — 5 or 10 is the standard compromise, and LOO is high-variance rather than &ldquo;most accurate&rdquo;.</p></div></details>
+            <details class="qa"><summary>50. When is a random split wrong? Give three cases.</summary><div class="ans"><p><b>(1) Grouped rows</b> — many transactions per customer; a random split lets the model recognise the customer, so use <code class="ic">GroupKFold</code>. <b>(2) Temporal data</b> — a random split trains on the future to predict the past and hides drift; use <code class="ic">TimeSeriesSplit</code> with a gap. <b>(3) Near-duplicates</b> — deduplicate before splitting or copies straddle the boundary. The governing rule: <b>your split must simulate how the model will be used.</b></p></div></details>
+            <details class="qa"><summary>51. What is nested cross-validation and why does it exist?</summary><div class="ans"><p>Tuning on the same CV you report is <b>optimistically biased</b> — the reported score is the maximum over many noisy estimates, so it is inflated even if all settings were equally good. Nested CV runs hyperparameter selection in an <b>inner</b> loop inside each <b>outer</b> training fold, so no outer test fold influences selection. Cost: <code class="ic">k_outer × k_inner</code> fits. It estimates the performance of the <em>whole procedure including tuning</em>, not of one model. Pragmatic alternative: a test set you touch exactly once.</p></div></details>
+            <details class="qa"><summary>52. How do you cross-validate time series data? What are purging and embargo?</summary><div class="ans"><p><b>Walk-forward / rolling-origin</b>: train on everything up to time t, test on the window after it, then roll forward — expanding or sliding window. <b>Purging</b> removes training samples whose label horizon overlaps the test window (a label observed 30 days later has partly happened during the test period). <b>Embargo</b> additionally drops a buffer immediately after the test window before training resumes, so serial correlation and feature reporting latency can't leak across the boundary. Without both, you get an optimistic score and a production surprise.</p></div></details>
+            <details class="qa"><summary>53. Grid vs random vs Bayesian search — which and why?</summary><div class="ans"><p><b>Random</b> is the sane default: with a fixed budget it probes far more distinct values of the parameters that actually matter (the Bergstra &amp; Bengio result), and the advantage grows with dimensionality. <b>Grid</b> only for two or three parameters with genuinely few sensible values. <b>Bayesian/TPE</b> (Optuna) when each evaluation is expensive — noting it behaves like random search until its surrogate warms up. <b>Successive halving / Hyperband</b> when a cheap fidelity predicts the full one. And the real lesson: <b>the search space matters more than the algorithm</b> — log-uniform for learning rates and penalties, bounded by domain knowledge, tuned inside the CV loop.</p></div></details>
+            <details class="qa"><summary>54. Your model is 0.4% better. Is it better?</summary><div class="ans"><p>Three checks. <b>Statistical:</b> compare paired across the same folds, report a bootstrap CI on the <em>difference</em>, and use a paired permutation test or the corrected resampled t-test (naive t-tests over folds are anti-conservative because training sets overlap). <b>Selection:</b> if this is the best of 40 variants, part of that 0.4% is luck. <b>Practical:</b> what does it cost in latency, complexity, retraining and explainability? A 0.4% gain that adds a service dependency is usually not worth shipping.</p></div></details>
+            <details class="qa"><summary>55. How do you validate a model when rows are grouped by customer?</summary><div class="ans"><p><code class="ic">GroupKFold</code> or <code class="ic">StratifiedGroupKFold</code>, so no customer's rows appear in two folds — otherwise you are measuring how well the model recognises customers it has already seen, not how it generalises to new ones. Deduplicate first. If there is also a time dimension, split by time <em>and</em> check that groups don't straddle the boundary. And be aware of the cost: grouped folds are less balanced, so report the fold-to-fold spread.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.9 ===== -->
+      <article class="topic" id="c17-9">
+        <h3><span class="tn">17.9</span> Metrics</h3>
+        <p class="lead">Ten questions. This is the block that most often decides the outcome.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q56–65 · metrics, thresholds, calibration</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>56. ⭐ Accuracy is 95% and the model is useless. Explain.</summary><div class="ans"><p>Ask for the <b>base rate</b>. If 95% of rows are negative, always predicting &ldquo;negative&rdquo; scores 95% and catches nothing — accuracy has become a majority-class detector. Report the <b>confusion matrix at the deployed threshold</b>, <b>per-class recall</b> and <b>PR-AUC</b> instead. Second failure: accuracy is blind to the cost asymmetry between a false positive and a false negative.</p></div></details>
+            <details class="qa"><summary>57. Precision vs recall — a business example where each dominates.</summary><div class="ans"><p><b>Precision dominates</b> when acting is expensive or damaging: blocking a legitimate payment, sending an enforcement letter, opening a fraud case that costs an analyst 20 minutes. <b>Recall dominates</b> when missing is catastrophic: cancer screening, safety recalls, AML compliance, a security alert. The framing to use: precision is &ldquo;what happens when we act&rdquo;, recall is &ldquo;what happens when we miss&rdquo; — and the threshold (§12.7) is how you buy one with the other.</p></div></details>
+            <details class="qa"><summary>58. ⭐ ROC-AUC vs PR-AUC — when do you prefer which?</summary><div class="ans"><p><b>ROC-AUC</b> plots TPR against FPR and summarises ranking quality well when classes are roughly balanced. Under imbalance it is <b>structurally flattering</b>: FPR divides by a huge negative count, so thousands of false positives barely move the x-axis. <b>PR-AUC / average precision</b> plots precision against recall, so it responds directly to false positives among your alerts, and its baseline is the base rate rather than 0.5. Prefer PR-AUC when positives are rare. And note that <b>neither says anything about calibration</b>.</p></div></details>
+            <details class="qa"><summary>59. What does ROC-AUC actually mean, probabilistically?</summary><div class="ans"><p>The probability that a randomly chosen positive scores above a randomly chosen negative — <code class="ic">P(score(x⁺) &gt; score(x⁻))</code>, ties counted as a half. It equals the normalised <b>Mann-Whitney U statistic</b>. Hence it is threshold-free and invariant to any monotone transform of the scores — which is precisely why Platt scaling changes the probabilities and leaves AUC untouched.</p></div></details>
+            <details class="qa"><summary>60. Micro vs macro F1 — which do you report?</summary><div class="ans"><p><b>Micro</b> pools TP/FP/FN across classes, so it is dominated by frequent classes — and in single-label multi-class it equals <b>accuracy</b> exactly. <b>Macro</b> averages per-class F1 with equal weight, so a rare class counts as much as a common one; report it when rare classes matter. <b>Weighted</b> averages by support and mostly reproduces micro. Report the one that matches the decision, and always say which.</p></div></details>
+            <details class="qa"><summary>61. RMSE vs MAE — what does each optimise?</summary><div class="ans"><p>Minimising squared error fits the conditional <b>mean</b>; minimising absolute error fits the conditional <b>median</b>. On a right-skewed target those are materially different numbers. RMSE penalises large errors quadratically (right when costs grow super-linearly) and is outlier-sensitive; MAE is robust and reports &ldquo;typical error&rdquo;. Choose from the decision: <em>is a 10-unit error twice as bad as a 5-unit error, or four times?</em></p></div></details>
+            <details class="qa"><summary>62. When does MAPE break? What do you use instead?</summary><div class="ans"><p>Two failures: it is <b>undefined and explodes as the actual approaches zero</b>, and it is <b>asymmetric</b> — over-prediction is bounded at 100% error while under-prediction is unbounded, so optimising it biases forecasts low. Use <b>sMAPE</b> (better, still unstable near zero) or — the right answer for many series of different scales — <b>MASE</b>, which divides by the seasonal-naive error, is scale-free, and has the useful property that &lt; 1 means you beat the naive baseline.</p></div></details>
+            <details class="qa"><summary>63. ⭐ What is calibration, how do you measure it, and how do you fix it?</summary><div class="ans"><p>Calibrated means: among cases predicted at p, a fraction p are actually positive. Measure with a <b>reliability diagram</b>, <b>ECE</b> <code class="ic">Σ(nᵦ/n)|acc(b) − conf(b)|</code>, and the <b>Brier score</b>. Fix with <b>Platt scaling</b> (a sigmoid on the log-odds; parametric, works with little data), <b>isotonic regression</b> (non-parametric, more flexible, needs more data, overfits on small calibration sets), or <b>Venn-Abers</b>. Always fit on <b>held-out</b> data. The 2026 nuance: <em>verify it helped</em> on a proper scoring rule — a recent benchmark found Platt and isotonic can degrade proper-scoring performance for strong tabular models.</p></div></details>
+            <details class="qa"><summary>64. Which models are typically miscalibrated, and in which direction?</summary><div class="ans"><p><b>Well-regularized logistic regression</b> is usually close to calibrated — it optimises log loss, a proper scoring rule. <b>Random Forests are under-confident at the extremes</b> (averaging many trees pulls predictions away from 0 and 1). <b>Boosted trees are typically over-confident</b>. <b>Naive Bayes is wildly overconfident</b> because it double-counts correlated evidence. <b>SVMs have no probabilities</b> natively. Rule: check with a reliability diagram, never assume.</p></div></details>
+            <details class="qa"><summary>65. How do you choose a decision threshold?</summary><div class="ans"><p>Not 0.5 — that is a default, correct only when the classes are balanced and the two error costs are equal. Three legitimate sources: a <b>cost matrix</b> (minimise expected cost; for a calibrated model the optimum is near <code class="ic">c_FP/(c_FP+c_FN)</code>); an <b>operating constraint</b> (&ldquo;analysts review 200 cases a day&rdquo; fixes the alert volume); or a <b>guarantee</b> (the lowest t meeting a contractual precision floor). Tune it on a <b>validation</b> set — <code class="ic">TunedThresholdClassifierCV</code> does this with CV — never on test, and consider abstention for low-confidence cases.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.10 ===== -->
+      <article class="topic" id="c17-10">
+        <h3><span class="tn">17.10</span> Imbalance &amp; leakage</h3>
+        <p class="lead">Six questions. Leakage is the most examinable topic in the subject; imbalance is the one with the most wrong reflex answers.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q66–71 · imbalance and leakage</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>66. ⭐ How do you handle class imbalance? Give me your order of operations.</summary><div class="ans"><p><b>(0)</b> Characterise it — 1:10 or 1:10,000? separated or overlapping? <b>(1) Tune the decision threshold</b> on a strong baseline: cheapest experiment, no new failure modes, frequently sufficient. <b>(2) Class weights</b> / <code class="ic">scale_pos_weight</code>: no synthetic rows, no leakage risk — but it decalibrates, so recalibrate if the probabilities are used. <b>(3) Only then resampling</b> — SMOTE, under-sampling, Tomek links, BalancedRandomForest / EasyEnsemble — always inside the pipeline. Throughout: PR-AUC, per-class recall and cost-aligned F-β. Never accuracy.</p></div></details>
+            <details class="qa"><summary>67. What's wrong with applying SMOTE before the train-test split?</summary><div class="ans"><p>It leaks. Synthetic minority points are interpolated between real rows, and some of those real rows land in validation — so validation rows are partly reconstructions of training data, and the model is effectively being tested on things it has seen. You get an excellent CV score and a production collapse. The fix is structural: split first, and put the resampler <b>inside the pipeline</b> so it is refitted on each training fold only (that is exactly what <code class="ic">imblearn</code>'s <code class="ic">Pipeline</code> exists for).</p></div></details>
+            <details class="qa"><summary>68. When is SMOTE actively harmful?</summary><div class="ans"><p>When classes <b>overlap</b> or labels are <b>noisy</b>. Interpolating between two minority points that sit near or inside the majority region manufactures synthetic examples right on the boundary, which pushes the boundary into majority territory and <b>inflates false positives</b>. It also amplifies mislabelled minority points into whole neighbourhoods of fake ones. On clean tabular data, inverse-frequency weighting gives near-identical results while being simpler and leak-proof.</p></div></details>
+            <details class="qa"><summary>69. ⭐ What is data leakage? Name four distinct kinds.</summary><div class="ans"><p><b>Target leakage:</b> a feature that is a consequence of the target or recorded after it (<code class="ic">account_closed_date</code>, <code class="ic">num_collection_calls</code>). <b>Train-test contamination:</b> scaling, imputing, encoding, selecting features or resampling before the split. <b>Temporal leakage:</b> features computed from the future, or aggregates over the whole period. <b>Group leakage:</b> the same entity or a near-duplicate on both sides. Symptom in all four: an implausibly good validation score that collapses in production. Structural fix: <b>everything learned from data goes inside a <code class="ic">Pipeline</code>, fitted inside the CV loop</b> — plus a split that mimics deployment.</p></div></details>
+            <details class="qa"><summary>70. How would you detect leakage in someone else's notebook?</summary><div class="ans"><p>Five checks, in order. <b>(1)</b> Is the split the first data operation? <b>(2)</b> Search for <code class="ic">fit_transform</code> outside a pipeline. <b>(3)</b> Sort feature importances and ask what the top feature <em>is</em> and <em>when it was recorded</em>. <b>(4)</b> Re-run with a time-based split and see how far the score falls. <b>(5)</b> Check for duplicate IDs across train and test. Also: a 0.99 AUC on a hard problem is an alarm, not a result.</p></div></details>
+            <details class="qa"><summary>71. What is target encoding and how do you do it without leaking?</summary><div class="ans"><p>Replace a category with a statistic of the target within it. Done naively it uses the row's own label, so the feature contains the target — CV soars, production collapses, and a category seen once becomes literally its own label. Do it <b>out-of-fold / cross-fitted</b> (each fold's encoding computed from the other folds), <b>smoothed</b> toward the global mean by category count <code class="ic">(n·ȳ_c + m·ȳ)/(n+m)</code>, with an explicit <code class="ic">unknown</code> bucket for serve-time categories — all inside the pipeline. CatBoost's <b>ordered target statistics</b> solve it structurally.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.11 ===== -->
+      <article class="topic" id="c17-11">
+        <h3><span class="tn">17.11</span> Feature engineering</h3>
+        <p class="lead">Six questions. One of them is a generative exercise, not a recall exercise.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q72–77 · features</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>72. Walk me through feature engineering for a transaction fraud model.</summary><div class="ans"><p>Organise by <b>entity × window × statistic</b>. <b>Transaction:</b> amount, currency, hour (cyclically encoded), channel, merchant category, is-new-country. <b>Card/customer aggregates</b> over 1h/24h/7d/30d: count, sum, max, std, distinct merchants, distinct countries, velocity ratios. <b>Deviation:</b> amount ÷ 30-day median, geo-distance ÷ elapsed time. <b>Merchant:</b> cross-fitted chargeback rate, relationship age. <b>Device/graph:</b> cards per device. Then the constraints that make it a real answer: every feature must fit the <b>~150 ms budget</b> and be <b>point-in-time correct</b>, and aggregates must never be computed over the full history at training time.</p></div></details>
+            <details class="qa"><summary>73. How do you handle high-cardinality categoricals?</summary><div class="ans"><p>In order of preference: <b>native handling</b> (CatBoost ordered target statistics, LightGBM categorical splits, <code class="ic">HistGradientBoosting</code>'s <code class="ic">categorical_features</code>); <b>cross-fitted target encoding</b> with smoothing and an <code class="ic">unknown</code> bucket; <b>frequency/count encoding</b> as a cheap partial signal; <b>hashing</b> for unbounded or streaming vocabularies; and <b>grouping by a business hierarchy</b>, which often beats any statistical trick. Avoid one-hot here — it creates thousands of sparse, weak columns and weak splits.</p></div></details>
+            <details class="qa"><summary>74. How do you encode a datetime? Why cyclical encoding?</summary><div class="ans"><p>Components (hour, day-of-week, month, week-of-year), domain flags (holiday, business day, days-to-next-holiday), and <b>time-since-last-event</b> recency features. Use <b>cyclical encoding</b> <code class="ic">sin(2πh/24), cos(2πh/24)</code> because on the raw integer scale 23 and 0 are the <em>furthest apart</em> values when they are actually one hour apart. Two traps: be explicit about <b>timezone and DST</b>, and never feed the <b>raw absolute timestamp</b> — the model will memorise a period rather than a pattern.</p></div></details>
+            <details class="qa"><summary>75. Filter vs wrapper vs embedded feature selection.</summary><div class="ans"><p><b>Filter</b>: score each feature independently (correlation, chi², ANOVA F, mutual information, variance threshold) — fast, model-agnostic, blind to interactions. <b>Wrapper</b>: refit a model on subsets (forward/backward, RFE/RFECV) — model-aware and interaction-aware, expensive, can overfit the selection. <b>Embedded</b>: selection as a by-product of fitting (L1, tree importances, boosting gain) — the practical default, inherits the model's biases. All of them must be fitted <b>inside the CV loop</b>.</p></div></details>
+            <details class="qa"><summary>76. Why would you drop features that improve accuracy?</summary><div class="ans"><p>Because accuracy isn't the only cost. Each feature carries serving <b>latency</b>, <b>acquisition cost</b> (a paid bureau call), <b>drift and monitoring surface</b>, <b>leakage risk</b>, <b>maintenance burden</b>, and sometimes <b>regulatory exposure</b> as a proxy for a protected attribute. A feature worth 0.002 AUC and £0.30 per prediction is a bad trade. Being able to make that argument explicitly is a senior signal.</p></div></details>
+            <details class="qa"><summary>77. ⭐ What is a feature store and what problem does point-in-time correctness solve?</summary><div class="ans"><p>A shared, versioned system for computing, storing and serving features so <b>training and inference use the same definitions</b>. <b>Point-in-time correctness</b> is the hard part: a training row for March must carry the feature values that <em>existed in March</em>, not today's. Joining today's <code class="ic">lifetime_spend</code> onto a March label leaks six months of the future. The mechanism is an <b>as-of join</b> against time-versioned feature history. The sibling problem it solves is <b>training/serving skew</b> — one code path instead of two implementations that silently diverge.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.12 ===== -->
+      <article class="topic" id="c17-12">
+        <h3><span class="tn">17.12</span> Missing data &amp; preprocessing</h3>
+        <p class="lead">Four questions that are easy to answer badly and easy to answer well.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q78–81 · missingness and scaling</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>78. MCAR / MAR / MNAR — define them and say which is dangerous.</summary><div class="ans"><p><b>MCAR:</b> missingness independent of everything (a sensor dropped packets) — deletion is unbiased, imputation is fine, and it is rare in real data. <b>MAR:</b> missingness depends on <em>observed</em> variables (income missing more often for younger applicants) — model-based imputation (MICE, kNN) is principled; this is the common realistic case. <b>MNAR:</b> missingness depends on the <em>unobserved value itself</em> (high earners decline to state income) — <b>the dangerous one</b>: no imputation can recover it from the data alone, so you model the mechanism or flag the limitation.</p></div></details>
+            <details class="qa"><summary>79. How do you impute, and where in the pipeline does imputation live?</summary><div class="ans"><p>Simple constant fill (median/mode) as a baseline — noting it <b>shrinks variance and distorts correlations</b>; <b>iterative/MICE</b> or kNN under MAR; and on tabular data, often <b>no imputation at all</b>, letting XGBoost/LightGBM learn a default direction for missing values or using <code class="ic">HistGradientBoosting</code>, which takes NaN natively. Wherever it happens, it lives <b>inside the <code class="ic">Pipeline</code></b> and is fitted on the training fold only — a median is a statistic learned from data, and computing it over the whole dataset is contamination.</p></div></details>
+            <details class="qa"><summary>80. Why can missingness itself be a useful feature?</summary><div class="ans"><p>Because the <em>fact</em> that a value is absent often carries signal — an applicant who declines to state income, a customer with no support history, a device that reports no location. Under MNAR the pattern of missingness is precisely what encodes the hidden value. Add a <code class="ic">was_missing</code> indicator alongside whatever you impute (<code class="ic">SimpleImputer(add_indicator=True)</code>); it costs almost nothing and is frequently one of the larger wins available.</p></div></details>
+            <details class="qa"><summary>81. Which models need feature scaling and which don't?</summary><div class="ans"><p><b>Need it:</b> anything measuring distance (kNN, k-means, DBSCAN, RBF-SVM), maximising variance (PCA), or penalising coefficient magnitude (Ridge, Lasso, regularized logistic), plus neural nets for gradient conditioning. <b>Don't:</b> trees and every tree ensemble, because a split is a threshold on <b>rank order</b> and a monotone transform can't change which side of it a value falls on. Unregularized OLS also doesn't need it — the coefficient absorbs the units — but the moment a penalty appears, it does.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.13 ===== -->
+      <article class="topic" id="c17-13">
+        <h3><span class="tn">17.13</span> Interpretability</h3>
+        <p class="lead">Five questions. Naming SHAP's failure modes is worth more than describing what SHAP does.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q82–86 · explanations and fairness</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>82. ⭐ Explain SHAP. What are its assumptions and failure modes?</summary><div class="ans"><p>SHAP gives each feature the Shapley value of its contribution to a single prediction — averaged over all orderings in which features could be added — producing <b>additive, locally faithful, consistent</b> attributions that sum to the prediction minus a base value and aggregate into a global view. <b>Failure modes:</b> KernelSHAP assumes <b>feature independence</b> when marginalising, so it queries the model on unrealistic rows off the data manifold; <b>path-dependent TreeSHAP</b> avoids that by using the tree's own paths, but this changes the value function such that a feature with <em>no</em> effect can receive non-zero attribution — breaking the dummy axiom; with correlated features credit is split unintuitively; and <b>a SHAP value is not a causal effect</b>. Use it alongside correlation analysis and permutation importance.</p></div></details>
+            <details class="qa"><summary>83. PDP vs ICE vs ALE — what does each show?</summary><div class="ans"><p><b>PDP</b>: the <em>average</em> marginal effect of a feature — hides heterogeneity, and evaluates unrealistic combinations when features are correlated. <b>ICE</b>: one curve per instance, revealing exactly that hidden heterogeneity; if half your population responds positively and half negatively, the PDP is flat and the ICE plot shows two fans. <b>ALE</b>: accumulates effects computed within small local windows of the feature, so it never leaves the data manifold — the <b>correlation-robust</b> alternative. Rule: look at ICE before trusting a PDP.</p></div></details>
+            <details class="qa"><summary>84. Three kinds of feature importance — how do they differ?</summary><div class="ans"><p><b>Impurity/gain (MDI):</b> how much this feature reduced impurity while the tree was <em>built</em> — free, but biased toward high-cardinality and continuous features and computed on training data. <b>Permutation:</b> how much the held-out <em>metric</em> degrades when the column is shuffled — measures what you care about and works for any model, but correlated features mask each other and shuffling creates unrealistic rows. <b>SHAP:</b> how <em>this prediction</em> is divided among features — local and globally aggregable, additive, expensive, with correlation problems of its own. Three questions, not three implementations.</p></div></details>
+            <details class="qa"><summary>85. A regulator asks why an application was declined. What do you give them?</summary><div class="ans"><p>An <b>adverse-action notice</b>, not a plot: a small number of specific, plain-language, <em>actionable</em> reasons, derived reproducibly, tied to a recorded model version and input snapshot. In practice: a locally faithful attribution ranked into standardised reason codes, ideally with a <b>counterfactual</b> (&ldquo;had utilisation been below 40%, this would have been approved&rdquo;), plus the audit trail. Mention that this requirement is often <em>why</em> the production model is a logistic regression or a monotonically-constrained GBM.</p></div></details>
+            <details class="qa"><summary>86. Define two fairness metrics and explain why you can't satisfy all of them.</summary><div class="ans"><p><b>Demographic parity:</b> equal positive-prediction rates across groups. <b>Equal opportunity:</b> equal TPR among those who qualify. (Also: <b>equalised odds</b> — equal TPR and FPR; <b>predictive parity</b> — equal precision, i.e. calibration within groups.) The <b>impossibility result</b>: when base rates genuinely differ, calibration within groups and equalised odds cannot both hold except in degenerate cases. So &ldquo;make it fair&rdquo; is under-specified — someone must choose which criterion, and that is a <b>policy decision</b>. Add that removing the protected attribute doesn't help, because proxies encode it.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.14 ===== -->
+      <article class="topic" id="c17-14">
+        <h3><span class="tn">17.14</span> Production</h3>
+        <p class="lead">Ten questions. Senior interviews spend most of their time here.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q87–96 · shipping and keeping it alive</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>87. Walk me through deploying a model end to end.</summary><div class="ans"><p>Frame the decision and metric → build the offline pipeline with point-in-time-correct features → validate with a split that mimics production → choose a threshold from cost or capacity → package the <b>whole pipeline</b> and register it with a version and lineage → <b>shadow</b> deploy to check latency and stability → <b>canary</b> at a few percent with guardrails → <b>A/B</b> against the incumbent → full rollout with a rollback path → monitor data quality, drift, prediction distribution and eventually performance → define retraining triggers and write the runbook. The two markers of a good answer: <b>one feature code path</b>, and <b>a rollback plus an on-call playbook</b>.</p></div></details>
+            <details class="qa"><summary>88. Batch vs real-time serving — how do you decide?</summary><div class="ans"><p>One question: <b>do the features exist before the request arrives?</b> If yes, precompute on a schedule into a key-value store and make prediction an O(1) lookup — cheaper, more stable, easier to monitor. If a feature only exists at request time, you need real-time. Secondary: acceptable staleness, model cost, and the p99 budget. Most real systems are <b>hybrid</b>.</p></div></details>
+            <details class="qa"><summary>89. ⭐ How do you detect drift when labels arrive 60 days late?</summary><div class="ans"><p>Layered proxies. <b>Input:</b> per-feature PSI (&lt;0.1 stable, 0.1–0.2 moderate, &gt;0.2 significant), KS/chi-square, Jensen-Shannon and Wasserstein as smoother alternatives to KL — weighted by feature importance. <b>Output:</b> prediction distribution and mean predicted probability, which move immediately. <b>Behavioural:</b> override rate, abstention rate, analyst agreement, downstream conversion. <b>Partial labels:</b> any fast-resolving subset. <b>Data quality:</b> schema, nulls, ranges, cardinality — which catches more incidents than drift statistics do. And the discipline: <b>confirm a metric actually moved before retraining</b>.</p></div></details>
+            <details class="qa"><summary>90. Data drift vs concept drift — how do the responses differ?</summary><div class="ans"><p><b>Data/covariate drift</b> is <code class="ic">P(x)</code> moving with <code class="ic">P(y|x)</code> stable — a new segment or channel. The model may still be valid; reweight, retrain on recent data, or do nothing. <b>Concept drift</b> is <code class="ic">P(y|x)</code> changing — fraudsters adapt, a recession redefines risk — and only retraining helps, possibly with new features or a new target definition. Practical difference: covariate drift is detectable without labels; concept drift generally is not.</p></div></details>
+            <details class="qa"><summary>91. When do you retrain? What triggers it?</summary><div class="ans"><p><b>Performance-triggered</b> when labels arrive in time; <b>drift-triggered</b> as the proxy, with a confirmation step; <b>scheduled</b> as the boring default that mostly works. The trade-off is <b>staleness vs churn</b> — retraining constantly makes predictions shift under users for no visible reason and makes incidents unreproducible. Gate every retrain behind <b>champion/challenger</b> comparison and a <b>golden-set regression suite in CI</b>.</p></div></details>
+            <details class="qa"><summary>92. What is training/serving skew and how do you prevent it?</summary><div class="ans"><p>Training and serving compute the same feature <em>differently</em> — a different window, null handling, timezone or rounding — so the model sees a distribution it was never trained on, and nothing alerts because both systems individually &ldquo;work&rdquo;. Prevent it architecturally with <b>one shared code path</b> (feature store, shared library, or a batch job whose output the API reads), plus a <b>skew check</b> comparing logged serving features against the training distribution. Its worse sibling is <b>point-in-time incorrectness</b>.</p></div></details>
+            <details class="qa"><summary>93. How do you A/B test a model? What could invalidate the test?</summary><div class="ans"><p>Randomise at the unit the effect acts on (usually the user), compute the sample size up front from the MDE and power, declare one primary metric plus guardrails (latency, revenue, complaints, fairness), and fix the duration. <b>Invalidators:</b> peeking and stopping at significance; novelty and primacy effects; network effects leaking treatment into control (use cluster/geo randomisation); sample-ratio mismatch; and choosing the winning metric after the fact. Use <b>CUPED</b> to cut variance. And state the <b>offline-to-online gap</b> explicitly.</p></div></details>
+            <details class="qa"><summary>94. Your model was great offline and users are complaining. Debug it.</summary><div class="ans"><p>An ordered checklist, cheapest first. <b>(1) Leakage</b> — was the offline number ever real? Re-validate with a time split. <b>(2) Split mismatch</b> — did validation mimic production (groups, time, purge)? <b>(3) Slices</b> — is the aggregate fine but a segment broken? <b>(4) Skew</b> — compare live feature distributions against training. <b>(5) Drift</b>. <b>(6) Threshold</b> — is 0.5 still deployed while the base rate moved? <b>(7) Label quality</b> — was the offline label the same thing users care about? <b>(8) The metric itself</b> — does it correlate with the user experience? Naming the ordered list is worth more than any single hypothesis.</p></div></details>
+            <details class="qa"><summary>95. How do you make an ML pipeline reproducible?</summary><div class="ans"><p>&ldquo;Set the seed&rdquo; is the 2018 answer. The full one: <b>pinned dependencies</b> (a lockfile), <b>versioned data snapshots</b> (DVC/lakeFS-style), captured environment, <b>config-as-code</b>, recorded <b>lineage</b> from a prediction back to a model, dataset and commit, experiment tracking, and <b>golden-prediction tests in CI</b>. What actually breaks reproducibility is a library minor version changing a default, or the upstream table being backfilled — seeds only control randomness you own.</p></div></details>
+            <details class="qa"><summary>96. What is the feedback-loop problem in a fraud or credit model?</summary><div class="ans"><p>The model's decisions determine its future training data. A fraud model never observes whether the transactions it <b>blocked</b> were fraud; a credit model never sees how <b>rejected</b> applicants would have performed (<em>reject inference</em>). The training set becomes systematically censored, the model grows confident about a shrinking slice of the world, and offline evaluation can't see it. Mitigations: a small <b>exploration/control slice</b> that bypasses the model, propensity weighting on observed data, and modelling the blocked population explicitly instead of dropping it.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.15 ===== -->
+      <article class="topic" id="c17-15">
+        <h3><span class="tn">17.15</span> Frontier &amp; senior signal</h3>
+        <p class="lead">Nine questions. These are the ones that separate a 2026 candidate from a 2019 one.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Q97–105 · the frontier</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>97. ⭐ GBDT or deep learning for tabular data? Has that changed?</summary><div class="ans"><p>&ldquo;Historically GBDTs, decisively — faster to train, less tuning, native missing-value and categorical handling. As of 2026 it is <b>genuinely contested</b> for small-to-medium data by <b>tabular foundation models</b>: TabPFN-2.5 reported a 100% win rate against default XGBoost on ≤10k rows / ≤500 features, and <b>TabPFN-3</b> (May 2026) scales to <b>1M training rows</b>, reporting that a single forward pass beats 8-hour-tuned GBDT baselines up to 1M rows / 200 features on TabArena and outperforms AutoGluon 1.5 &lsquo;extreme&rsquo; while roughly 10× faster. Caveats: pretrained <b>exclusively on synthetic data</b>, benchmark selection effects, and thinner deployment/licensing/interpretability stories. So I'd <b>benchmark both</b> on my own data and still default to a GBDT where I need monotonic constraints, interpretability, cheap retraining and a known ops story.&rdquo;</p></div></details>
+            <details class="qa"><summary>98. What is conformal prediction and what guarantee does it give?</summary><div class="ans"><p>A distribution-free, model-agnostic wrapper turning point predictions into <b>sets or intervals with finite-sample coverage</b>. Split conformal: fit on a training split, compute a nonconformity score (e.g. absolute residual) on a disjoint <b>calibration</b> split, take the <code class="ic">⌈(n+1)(1−α)⌉/n</code> empirical quantile as <code class="ic">q̂</code>, emit <code class="ic">ŷ ± q̂</code>. The guarantee is <b>marginal coverage ≥ 1−α</b> under <b>exchangeability</b> — which breaks under drift and for time series, hence adaptive/weighted variants. Note it gives marginal, not <em>conditional</em>, coverage unless you use a normalised score. Uses: selective prediction, deferral to a human, safe deployment.</p></div></details>
+            <details class="qa"><summary>99. Aleatoric vs epistemic uncertainty.</summary><div class="ans"><p><b>Aleatoric</b> is irreducible noise in the process — two identical applicants can have different outcomes. More data will not reduce it; model it with quantile regression or a predictive distribution. <b>Epistemic</b> is model ignorance where data is sparse — it <em>does</em> shrink with more data, which is exactly what active learning targets, and you estimate it with ensemble variance or bootstrap spread. The practical payoff: epistemic uncertainty tells you <em>where to collect data</em>; aleatoric tells you <em>where to widen the interval and stop trying</em>.</p></div></details>
+            <details class="qa"><summary>100. ⭐ Your model predicts churn accurately. The business asks who to give a discount to. What's wrong with using it?</summary><div class="ans"><p>The churn model answers &ldquo;who will leave?&rdquo;; the decision needs &ldquo;who will <b>stay because we acted</b>?&rdquo;. The highest scores are dominated by <b>lost causes</b> who leave regardless, budget leaks to <b>sure things</b> who would have stayed, and some customers are <b>sleeping dogs</b> for whom the offer is a reminder to cancel — a negative treatment effect. You need <b>uplift / CATE</b>, ideally from a randomised holdout, evaluated with <b>Qini and uplift curves rather than AUC</b>. The general principle: <b>a predictive model is invalid under intervention.</b></p></div></details>
+            <details class="qa"><summary>101. Explain uplift modelling. Why is AUC the wrong metric for it?</summary><div class="ans"><p>Uplift estimates the <b>conditional average treatment effect</b> <code class="ic">E[y|x, treat] − E[y|x, control]</code> — the <em>change</em> caused by the action, not the outcome level. Estimators: T-learner (separate models per arm), S-learner (one model with treatment as a feature), X-learner (better with imbalanced arms), causal forests. <b>AUC is wrong</b> because there is no per-row label to be right about — you never observe both potential outcomes for the same person. Evaluation must be aggregate: rank by predicted uplift, and compare treated vs control outcomes within score deciles, which is what the <b>Qini curve</b> plots.</p></div></details>
+            <details class="qa"><summary>102. What is double machine learning for?</summary><div class="ans"><p>Estimating a causal effect with high-dimensional confounders while still using flexible ML. Fit two <b>nuisance</b> models with any learner — outcome given confounders, and treatment given confounders — take the residuals of each, and regress one on the other (Frisch-Waugh-Lovell). Two ingredients make it valid: <b>Neyman orthogonality</b>, so small nuisance errors don't bias the effect to first order, and <b>cross-fitting</b>, so a row's nuisance predictions come from a model that never saw it. The payoff is a <b>√n-consistent effect estimate with valid confidence intervals</b> while using gradient boosting for the messy parts. <code class="ic">EconML</code> implements it.</p></div></details>
+            <details class="qa"><summary>103. What is Simpson's paradox and when have you seen it?</summary><div class="ans"><p>A trend that holds within every subgroup reverses (or vanishes) when the groups are pooled, because the groups differ in both their exposure and their baseline. Where it bites in ML: a model that looks better overall but is worse on every segment; an A/B test where treatment wins overall but loses on both mobile and desktop (an allocation imbalance — usually a <b>sample-ratio mismatch</b> bug); and any &ldquo;feature X correlates with the target&rdquo; claim made without conditioning. The fix is to condition on the confounder, or randomise.</p></div></details>
+            <details class="qa"><summary>104. How do you decide between a simpler and a more accurate model?</summary><div class="ans"><p>Price the difference. What is the accuracy gain <em>worth</em> in business units, and what does the complex model cost in latency, infrastructure, retraining, monitoring surface, debugging time, explainability and regulatory risk? Then check whether the gain is even real — paired comparison, a CI on the difference, and an honest accounting of how many variants you tried. In regulated settings the answer is often simple-by-constraint. And say the thing most candidates won't: <b>if the difference doesn't clear the cost, the simpler model is the better model, and that is a result worth reporting.</b></p></div></details>
+            <details class="qa"><summary>105. What would you do with 500 labels and a need for 10,000?</summary><div class="ans"><p>First question the premise — would 1,500 well-chosen labels do? Then a ladder: <b>strong simple baseline</b> with heavy regularization and cross-validation you can trust at this size; <b>active learning</b> to spend the next labels where uncertainty is highest, with a diversity/core-set term so you don't label 500 near-duplicates; <b>weak supervision</b> if domain rules exist (labelling functions + a label model); <b>pseudo-labelling</b> with a clean held-out set to catch confirmation bias; <b>transfer</b> from a related task or a pretrained representation; a cheaper <b>proxy label</b>; and — genuinely often the right answer — <b>buy the labels</b>, with clear annotation guidelines and an inter-annotator agreement check, because that agreement rate is your accuracy ceiling. Also worth naming here: <b>TabPFN</b>-style tabular foundation models are strongest exactly in this small-data regime.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.16 ===== -->
+      <article class="topic" id="c17-16">
+        <h3><span class="tn">17.16</span> The 15 trap questions <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">These separate people who have read about ML from people who have shipped it. Each one is a statement an interviewer makes to see whether you agree.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Trap drill — say your answer out loud, then reveal</div>
+          <div class="wbody">
+            <div class="wout" id="tdQ" style="font-family:var(--sans);font-size:1.06rem;line-height:1.6;min-height:56px"></div>
+            <div class="wbtns">
+              <button class="wbtn" id="tdShow">Reveal the strong answer</button>
+              <button class="wbtn" id="tdNext">Next trap</button>
+            </div>
+            <div class="wout" id="tdA" style="font-family:var(--sans);font-size:.98rem;line-height:1.65;display:none"></div>
+            <p class="wnote">All fifteen are in the table below too — but say the answer aloud <em>before</em> revealing. The gap between &ldquo;I knew that&rdquo; and &ldquo;I said that fluently under mild pressure&rdquo; is the entire reason this page exists.</p>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>The trap</th><th>Naive answer</th><th>What a strong candidate says</th></tr></thead>
+            <tbody>
+              <tr><td><b>&ldquo;The model is 95% accurate — good, right?&rdquo;</b></td><td>Yes</td><td>Under imbalance, accuracy is a <b>majority-class detector</b>. Ask for the base rate, then report <b>PR-AUC, per-class recall and the confusion matrix at the chosen threshold</b>.</td></tr>
+              <tr><td><b>&ldquo;Just use SMOTE for imbalance.&rdquo;</b></td><td>Agrees</td><td><b>Threshold tuning first</b>, then <b>class weights</b> (no synthetic rows, no leakage risk). SMOTE <b>before the split leaks</b>, and interpolating across overlapping or noisy classes manufactures ambiguous points and inflates false positives.</td></tr>
+              <tr><td><b>&ldquo;Scale before splitting so everything's consistent.&rdquo;</b></td><td>Agrees</td><td>That is <b>train-test contamination</b> — the test set's statistics leak into training. Split first, then fit the scaler <b>inside a <code class="ic">Pipeline</code> on the training fold only</b>.</td></tr>
+              <tr><td><b>&ldquo;Feature importance says X matters most.&rdquo;</b></td><td>Reports it</td><td><em>Which</em> importance? Impurity-based is <b>biased toward high-cardinality and continuous features</b> and computed on training data. Prefer <b>permutation importance on held-out data</b>, and note that correlated features distort every method including SHAP.</td></tr>
+              <tr><td><b>&ldquo;We use cross-validation, so a random split is fine.&rdquo;</b></td><td>Agrees</td><td>Not if rows are <b>grouped</b> (same customer both sides) or <b>temporal</b> (predicting the past from the future). Use <code class="ic">GroupKFold</code> or <code class="ic">TimeSeriesSplit</code> with a <b>gap</b>.</td></tr>
+              <tr><td><b>&ldquo;We got 0.99 AUC.&rdquo;</b></td><td>Celebrates</td><td>That is a <b>leakage alarm</b>, not a result. Look for a feature recorded after the target, an ID proxy, or an aggregate computed over the whole period.</td></tr>
+              <tr><td><b>&ldquo;More features can't hurt — the model ignores useless ones.&rdquo;</b></td><td>Agrees</td><td>More features = more capacity to memorise = more variance, plus more leakage surface, more drift surface, more cost and slower serving.</td></tr>
+              <tr><td><b>&ldquo;ROC-AUC is the metric.&rdquo;</b></td><td>Agrees</td><td>ROC-AUC is <b>insensitive to imbalance in a flattering way</b>. With rare positives, <b>PR-AUC / average precision</b> reflects what you'll experience — and neither says anything about <b>calibration</b>.</td></tr>
+              <tr><td><b>&ldquo;Random Forest can't overfit.&rdquo;</b></td><td>Agrees</td><td>Adding <em>trees</em> doesn't overfit — but a forest of deep unpruned trees on noisy data absolutely can, and will happily memorise label noise. Boosting overfits readily with too many rounds; use early stopping.</td></tr>
+              <tr><td><b>&ldquo;p = 0.03, so the effect is real.&rdquo;</b></td><td>Agrees</td><td>A p-value is the probability of data at least this extreme <em>under the null</em>, not the probability the hypothesis is true. Report effect size and CI, and correct for multiple comparisons if you tested 40 models.</td></tr>
+              <tr><td><b>&ldquo;<code class="ic">predict_proba</code> gives probabilities.&rdquo;</b></td><td>Agrees</td><td>It gives <em>scores</em>. RFs are under-confident at the extremes, boosted trees over-confident, Naive Bayes wildly so. Check a <b>reliability diagram</b> and calibrate on held-out data — and note that Platt/isotonic can <b>degrade</b> strong modern tabular models, so verify.</td></tr>
+              <tr><td><b>&ldquo;Deep learning beats trees now.&rdquo;</b></td><td>Agrees</td><td>For tabular data GBDTs dominated for years — and as of 2026 <b>tabular foundation models (TabPFN-3) genuinely contest that</b> up to ~1M rows. But they're pretrained on synthetic data with a thinner ops story, so <b>benchmark</b>, and keep GBDTs where you need constraints, interpretability and cheap retraining.</td></tr>
+              <tr><td><b>&ldquo;We'll fix the noise with a better model.&rdquo;</b></td><td>Agrees</td><td><b>Label noise caps</b> achievable performance regardless of model — a model that beats the noise rate is memorising it. Audit 200 random labels first.</td></tr>
+              <tr><td><b>&ldquo;Correlation isn't causation — but the model found it, so we'll act.&rdquo;</b></td><td>Agrees</td><td>A predictive model is <b>invalid under intervention</b>. If the question is &ldquo;who should get the discount?&rdquo;, you need <b>uplift/CATE</b>, not a churn score — sure-things and lost causes both score high.</td></tr>
+              <tr><td><b>&ldquo;Tune hyperparameters, then run CV to report the score.&rdquo;</b></td><td>Agrees</td><td>That score is <b>optimistically biased</b> — you selected on it, so it is the maximum of many noisy estimates. Use <b>nested CV</b>, or a test set you touch exactly once.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- ===== 7.17 ===== -->
+      <article class="topic" id="c17-17">
+        <h3><span class="tn">17.17</span> Your own PDF question set — mapped, and the gap it reveals <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Extracted from <code class="ic">~/Downloads/Interview</code> and filtered to what a <em>classical ML</em> interviewer would ask.</p>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.4" stroke="#C0392B" stroke-width="1.7"/><path d="M12 7v6M12 15.8v.6" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Honest finding: this is a gap, not an overlap</span>
+          <p>That PDF set is overwhelmingly <b>deep learning and generative AI</b>. There is almost no pure classical ML in it — <b>no tree or ensemble questions, no metrics or validation depth, no clustering, no feature engineering, no production ML</b>. What is classical-ML-relevant is a thin slice of generic learning-theory material, mapped below. <b>Treat this table as evidence of what your existing prep does not cover</b>, rather than as a coverage check: the six parts of this subject are the primary source here, and the NLP guide already absorbed the parts of those PDFs that were in scope there.</p>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Source</th><th>Question in your PDFs</th><th>Answered in</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">DL/part_2</code> 5</td><td>How do you tackle overfitting?</td><td><a href="CML_Part04_LearningProblem.html#c4-6">1.21</a> · <a href="CML_Part04_LearningProblem.html#c4-4">1.20</a></td></tr>
+              <tr><td><code class="ic">DL/part_2</code></td><td>Regularization (L1/L2): penalty terms, controlling complexity, generalization</td><td><a href="CML_Part04_LearningProblem.html#c4-4">1.20</a> · <a href="CML_Part05_LinearModels.html#c5-6">2.2</a></td></tr>
+              <tr><td><code class="ic">DL/part_2</code></td><td>&ldquo;Balances bias and variance&rdquo;</td><td><a href="CML_Part04_LearningProblem.html#c4-3">1.19</a> — and the interactive fitter there</td></tr>
+              <tr><td><code class="ic">DL/part_2</code></td><td>Early stopping — stopping at the right moment, monitoring validation</td><td><a href="CML_Part04_LearningProblem.html#c4-4">1.20</a> · <a href="CML_Part08_Ensembles.html#c8-5">3.3</a> (see the boosting stepper)</td></tr>
+              <tr><td><code class="ic">DL/part_2</code></td><td>Data augmentation to increase diversity and prevent memorisation</td><td><a href="CML_Part16_Frontier.html#c16-7">6.10</a> (synthetic data) · <a href="CML_Part12_Metrics.html#c12-9">4.11</a> (the resampling critique)</td></tr>
+              <tr><td><code class="ic">DL/part_3</code> 7</td><td>Cross-validation for tuning; trial-and-error architecture search</td><td><a href="CML_Part11_Validation.html#c11-1">4.1</a> · <a href="CML_Part11_Validation.html#c11-4">4.3</a> · <a href="CML_Part11_Validation.html#c11-3">4.2</a> (nested CV — the part the PDFs miss)</td></tr>
+              <tr><td><code class="ic">DL/part_3</code> 8</td><td>Transfer learning and when it helps; negative transfer, domain shift</td><td><a href="CML_Part10_BeyondSupervised.html#c10-1">3.11</a> · <a href="CML_Part16_Frontier.html#c16-8">6.11</a></td></tr>
+              <tr><td><code class="ic">DL/Part_1</code></td><td>Automatic feature extraction vs manual feature engineering</td><td><a href="CML_Part13_FeatureEngineering.html#c13-1">5.1</a> — <b>and the counter-argument for tabular data</b></td></tr>
+              <tr><td><code class="ic">DL/Part_1</code></td><td>Generalization to unseen data</td><td><a href="CML_Part04_LearningProblem.html#c4-2">1.18</a></td></tr>
+              <tr><td><code class="ic">GenAI</code></td><td>Fine-tuning challenges: overfitting, imbalance, hyperparameter sensitivity, domain shift</td><td><a href="CML_Part04_LearningProblem.html#c4-6">1.21</a> · <a href="CML_Part12_Metrics.html#c12-9">4.11</a> · <a href="CML_Part11_Validation.html#c11-4">4.3</a></td></tr>
+              <tr><td><code class="ic">GenAI</code></td><td>Data bias inherited from training data</td><td><a href="CML_Part14_Interpretability.html#c14-8">5.9</a></td></tr>
+              <tr><td><code class="ic">GenAI</code></td><td>Data preparation: collection, cleaning, splitting, handling imbalance</td><td><a href="CML_Part03_DataBeforeModels.html#c3-1">1.10</a>–<a href="CML_Part03_DataBeforeModels.html#c3-7">1.16</a> · <a href="CML_Part12_Metrics.html#c12-9">4.11</a></td></tr>
+              <tr><td><code class="ic">GenAI</code></td><td>Evaluating a model beyond accuracy</td><td><a href="CML_Part12_Metrics.html#c12-1">4.6</a>–<a href="CML_Part12_Metrics.html#c12-9">4.11</a> — the whole metrics level</td></tr>
+              <tr><td><code class="ic">GenAI</code></td><td>Model drift in production</td><td><a href="CML_Part15_Production.html#c15-5">6.3</a> · and the PSI widget there</td></tr>
+              <tr><td><code class="ic">GenAI</code></td><td>Explainability to non-technical stakeholders</td><td><a href="CML_Part14_Interpretability.html#c14-1">5.6</a>–<a href="CML_Part14_Interpretability.html#c14-6">5.8</a></td></tr>
+              <tr><td><code class="ic">GenAI</code></td><td>Off-the-shelf vs fine-tuning / build-vs-buy</td><td><a href="CML_Part01_WhatMLIs.html#c1-1">1.1</a> · <a href="CML_Part16_Frontier.html#c16-1">6.7</a></td></tr>
+              <tr><td><code class="ic">GenAI</code> (behavioural)</td><td>Deadlines, criticism, production failure, scaling cost, governance, hiring</td><td><a href="#c17-21">7.21</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">What your PDFs do not ask, and an interviewer will</span>
+          <p>Everything in <b>Part 3</b> (bagging vs boosting, the XGB/LGBM/CatBoost comparison, ordered boosting, clustering assumptions), essentially all of <b>Part 4</b> (ROC vs PR, calibration, thresholds, nested CV, the imbalance order of operations), the <b>leakage taxonomy</b> in 1.16, the <b>three feature importances</b> in 5.7, <b>point-in-time correctness</b> in 5.5, and everything in <b>Part 6</b> from drift onward. That is the majority of a classical ML interview, and none of it is in that PDF set — which is precisely why this subject exists as its own resource.</p>
+        </div>
+      </article>
+
+      <!-- ===== 7.18 ===== -->
+      <article class="topic" id="c17-18">
+        <h3><span class="tn">17.18</span> Math &amp; derivation questions</h3>
+        <p class="lead">Fifteen derivations. Do them on paper, from a blank page, once a week.</p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>#</th><th>Derive / prove</th><th>The key step</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>The normal equation, and why not to invert <code class="ic">XᵀX</code></td><td>Set <code class="ic">∂‖Xw−y‖²/∂w = 2Xᵀ(Xw−y) = 0</code>. Avoid the inverse: singular under collinearity, <code class="ic">O(p³)</code>, and it <b>squares the condition number</b> — use QR or SVD.</td></tr>
+              <tr><td>2</td><td>The logistic log-loss gradient</td><td><code class="ic">∇ = Xᵀ(σ(Xw) − y)</code> — identical in form to OLS with <code class="ic">σ(Xw)</code> replacing <code class="ic">Xw</code>. That shared form is the point of the question.</td></tr>
+              <tr><td>3</td><td>The bias-variance decomposition</td><td>Add and subtract <code class="ic">E[f̂]</code> inside the squared error; the cross-term vanishes in expectation, leaving <code class="ic">Bias² + Var + σ²</code>.</td></tr>
+              <tr><td>4</td><td>Ridge = MAP with a Gaussian prior; Lasso = Laplace</td><td>Take <code class="ic">−log</code> of likelihood × prior. Gaussian prior → <code class="ic">‖w‖²</code>; Laplace prior → <code class="ic">‖w‖₁</code>, with <code class="ic">α = σ²/τ²</code>.</td></tr>
+              <tr><td>5</td><td>Why L1 gives exact zeros, geometrically</td><td>The L1 ball has <b>corners on the axes</b>; elliptical contours generically first touch a corner. The L2 ball is smooth, so contact is at a generic point.</td></tr>
+              <tr><td>6</td><td>Entropy, Gini, information gain</td><td><code class="ic">H = −Σpᵢlog₂pᵢ</code>, <code class="ic">G = 1−Σpᵢ²</code>, <code class="ic">IG = H(parent) − Σ(nᵢ/n)H(childᵢ)</code>. Gini is the first-order Taylor approximation of entropy about uniform.</td></tr>
+              <tr><td>7</td><td>The 63.2% bootstrap result</td><td><code class="ic">P(row omitted) = (1−1/n)ⁿ → 1/e ≈ 0.368</code>, so ~63.2% appear at least once; the rest are the <b>out-of-bag</b> set.</td></tr>
+              <tr><td>8</td><td>Why boosting fits the negative gradient</td><td>Treat the ensemble's predictions as parameters and do gradient descent in function space: the steepest-descent direction is <code class="ic">−∂L/∂F</code>, so fit the base learner to that.</td></tr>
+              <tr><td>9</td><td>XGBoost's leaf weight and split gain</td><td>Second-order Taylor of the loss gives <code class="ic">w*ⱼ = −Gⱼ/(Hⱼ+λ)</code> and objective <code class="ic">−½ΣGⱼ²/(Hⱼ+λ) + γT</code>; the split gain is the parent's term subtracted from the children's, minus <code class="ic">γ</code>.</td></tr>
+              <tr><td>10</td><td>SVM max-margin and where the kernel enters</td><td>Maximise <code class="ic">2/‖w‖</code> ⇔ minimise <code class="ic">½‖w‖²</code> s.t. <code class="ic">yᵢ(wᵀxᵢ+b) ≥ 1</code>. The Lagrangian dual depends on data only through <code class="ic">⟨xᵢ,xⱼ⟩</code> — replace with <code class="ic">K</code>.</td></tr>
+              <tr><td>11</td><td>PCA ≡ SVD of the centred matrix</td><td><code class="ic">X = UΣVᵀ</code> ⇒ <code class="ic">XᵀX = VΣ²Vᵀ</code>, so the right singular vectors <b>are</b> the covariance eigenvectors and <code class="ic">σᵢ²/(n−1)</code> the eigenvalues.</td></tr>
+              <tr><td>12</td><td>micro-F1 = accuracy in single-label multi-class</td><td>Every prediction is exactly one TP, or one FP for the predicted class <em>and</em> one FN for the true class. So <code class="ic">ΣFP = ΣFN</code>, micro-precision = micro-recall = accuracy, and their harmonic mean is the same number.</td></tr>
+              <tr><td>13</td><td>ROC-AUC = P(pos ranks above neg)</td><td>Integrate TPR over FPR and change variables to ranks; the result is the Mann-Whitney U statistic normalised by <code class="ic">n₊n₋</code>.</td></tr>
+              <tr><td>14</td><td>The EM update for a GMM</td><td><b>E-step:</b> responsibilities <code class="ic">γᵢₖ ∝ πₖ N(xᵢ|μₖ,Σₖ)</code>. <b>M-step:</b> re-estimate <code class="ic">πₖ, μₖ, Σₖ</code> as responsibility-weighted averages. Each iteration cannot decrease the likelihood.</td></tr>
+              <tr><td>15</td><td>Pinball loss recovers the τ-quantile</td><td>Differentiate the expected loss <code class="ic">τE[(y−q)⁺] + (1−τ)E[(q−y)⁺]</code> w.r.t. <code class="ic">q</code>: the stationary point is <code class="ic">F(q) = τ</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- ===== 7.19 ===== -->
+      <article class="topic" id="c17-19">
+        <h3><span class="tn">17.19</span> Coding questions</h3>
+        <p class="lead">Sixteen exercises. Implement from scratch, no libraries, unless stated — then reconcile against the library version.</p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>#</th><th>Implement</th><th>What it's really testing</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Linear regression by normal equation <em>and</em> gradient descent</td><td>Do you know why the closed form isn't always used? Compare timings and conditioning.</td></tr>
+              <tr><td>2</td><td>Logistic regression with L2, by gradient descent</td><td>The sigmoid, the log-loss gradient, and not penalising the intercept.</td></tr>
+              <tr><td>3</td><td>k-means with k-means++ init, plus elbow and silhouette</td><td>Convergence criterion, the non-convexity, and that silhouette needs pairwise distances.</td></tr>
+              <tr><td>4</td><td>A classification tree: Gini, recursive splitting, <code class="ic">max_depth</code></td><td>Candidate-threshold enumeration, the weighted-impurity formula, base cases.</td></tr>
+              <tr><td>5</td><td>Gradient boosting from scratch with stumps on squared loss</td><td>That the new learner fits residuals, and the role of the learning rate.</td></tr>
+              <tr><td>6</td><td>k-fold, then <code class="ic">StratifiedGroupKFold</code>, by hand</td><td>Group integrity is a constraint, not a preference — and stratifying <em>within</em> that constraint is genuinely fiddly.</td></tr>
+              <tr><td>7</td><td>A time-series split with a purge/embargo gap</td><td>Whether you understand label horizons, not just index slicing.</td></tr>
+              <tr><td>8</td><td>Precision, recall, F1, ROC curve and AUC from raw scores</td><td>Sorting by score, sweeping thresholds, tie handling, trapezoid integration.</td></tr>
+              <tr><td>9</td><td>PR curve and average precision; show where it differs from ROC</td><td>The base-rate baseline, and why AP is a sum over recall increments rather than a trapezoid.</td></tr>
+              <tr><td>10</td><td>Reliability diagram + ECE, then Platt vs isotonic, compare Brier</td><td>Binning choices, and the pool-adjacent-violators algorithm.</td></tr>
+              <tr><td>11</td><td>Out-of-fold target encoding that provably does not leak</td><td>The core leakage exercise. Assert that no row's encoding used its own label.</td></tr>
+              <tr><td>12</td><td><code class="ic">ColumnTransformer</code> + <code class="ic">Pipeline</code> over numeric, categorical and datetime, with a custom transformer</td><td><code class="ic">BaseEstimator</code>/<code class="ic">TransformerMixin</code>, <code class="ic">get_feature_names_out</code>, <code class="ic">set_output</code>.</td></tr>
+              <tr><td>13</td><td>Permutation importance by hand; demonstrate instability with two correlated features</td><td>The point of §14.3, in code.</td></tr>
+              <tr><td>14</td><td>Split conformal prediction: 90% intervals from any regressor, verify coverage</td><td>The <code class="ic">⌈(n+1)(1−α)⌉/n</code> quantile — the off-by-one is the whole exercise.</td></tr>
+              <tr><td>15</td><td>PSI between two distributions, plus a KS test</td><td>Quantile binning on the <em>reference</em>, and handling empty bins without dividing by zero.</td></tr>
+              <tr><td>16</td><td>Bootstrap CI for the difference between two models' scores</td><td>Resample <b>paired</b> — the same indices for both models — or your interval is wrong.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- ===== 7.20 ===== -->
+      <article class="topic" id="c17-20">
+        <h3><span class="tn">17.20</span> Case &amp; system design scenarios</h3>
+        <p class="lead">Structure every answer the same way, out loud, before diving into detail.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The skeleton</span>
+          <p><b>clarify → framing (target, unit, horizon) → data &amp; labels → baseline → features → model → validation strategy → metric &amp; threshold → serving → monitoring &amp; retraining → failure modes.</b> Say the skeleton at the start so the interviewer knows where you're going, then spend the time where they push.</p>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>#</th><th>Scenario</th><th>What it is really testing</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><b>Credit default scoring</b></td><td>Explainability by construction (logistic or monotonically-constrained GBM), adverse-action notices, <b>monotonic constraints</b>, fairness audit, PSI monitoring, reject inference.</td></tr>
+              <tr><td>2</td><td><b>Real-time payment fraud</b></td><td>A <b>~150 ms budget</b> forcing feature-store vs inline decisions, extreme imbalance, threshold from <b>review capacity</b>, and the <b>feedback-loop bias</b> from blocked transactions.</td></tr>
+              <tr><td>3</td><td><b>Churn + retention offers</b></td><td>The trap: churn prediction is the wrong model. You need <b>uplift/CATE</b> and a randomised holdout, evaluated with a Qini curve.</td></tr>
+              <tr><td>4</td><td><b>Demand forecasting, 10,000 SKUs</b></td><td>Global model on lag features vs per-series classical; <b>walk-forward validation</b>; MASE; intermittent demand; trees can't extrapolate a trend.</td></tr>
+              <tr><td>5</td><td><b>Dynamic pricing / elasticity</b></td><td>Causal, not predictive — past prices were set by a policy, so naive regression estimates the policy, not the elasticity. Experiments, IV or DML.</td></tr>
+              <tr><td>6</td><td><b>Predictive maintenance</b></td><td>Survival framing with <b>censoring</b>, extreme imbalance, cost asymmetry, and <b>calibrated</b> probabilities because they feed a maintenance schedule.</td></tr>
+              <tr><td>7</td><td><b>Lead scoring for a sales team</b></td><td>Fixed capacity ⇒ threshold from capacity; <b>calibration matters more than AUC</b> because expected value drives prioritisation; ranking vs probability.</td></tr>
+              <tr><td>8</td><td><b>Insurance claim severity</b></td><td>Tweedie/Gamma GLM vs GBM with the same objective; monotonic constraints; regulatory explainability; the frequency × severity decomposition.</td></tr>
+              <tr><td>9</td><td><b>Marketing budget allocation</b></td><td>Incrementality over attribution; geo experiments; MMM vs uplift; and the fact that last-click attribution is a causal claim in disguise.</td></tr>
+              <tr><td>10</td><td><b>Excellent offline, failing in production</b></td><td>The systematic debug: leakage → split → slices → skew → drift → threshold → label quality → the metric itself.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- ===== 7.21 ===== -->
+      <article class="topic" id="c17-21">
+        <h3><span class="tn">17.21</span> Behavioural / context questions</h3>
+        <p class="lead">Answer with a concrete story: <strong>situation → constraint → what you measured → decision → outcome → what you'd change.</strong> Prepare four stories that can be recombined to cover all twelve.</p>
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.2" stroke="#F0A81E" stroke-width="1.7"/><path d="M9.4 9.2a2.6 2.6 0 015.2.4c0 1.7-2.6 1.9-2.6 3.6M12 16.6v.5" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg><span>Twelve context questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary>1. Tell me about a model that failed in production.</summary><div class="ans"><p>They want the <b>process</b> change, not the bug. Name the root cause precisely (skew? leakage? drift? a threshold nobody owned?), say how you found it, then describe what you changed so the class of failure cannot recur — a skew check, a golden-set test, a monitoring alert, a runbook. &ldquo;We fixed it and moved on&rdquo; is the weak version.</p></div></details>
+            <details class="qa"><summary>2. How do you measure the success of an ML project beyond model metrics?</summary><div class="ans"><p>The decision it feeds and the business quantity that decision moves — cases prevented, hours saved, margin protected, complaints avoided — measured against the pre-existing baseline, ideally with an experiment. Plus the operational half: is it maintained, is it monitored, does the team trust it, can it be rolled back.</p></div></details>
+            <details class="qa"><summary>3. A stakeholder says the model &ldquo;just needs to be more accurate&rdquo;. How do you turn that into a spec?</summary><div class="ans"><p>Ask what decision changes if it is. Then convert: which error is costing us — false positives or false negatives? What is each worth? What is the current operating point and capacity? That produces a metric, a threshold and a target, which is a spec. Often the real answer is not more accuracy but a different threshold, better calibration, or a different target variable entirely.</p></div></details>
+            <details class="qa"><summary>4. How do you explain a model's decision to a non-technical stakeholder or a regulator?</summary><div class="ans"><p>Two different audiences. A <b>stakeholder</b> wants the mechanism in their language plus one worked example: &ldquo;the three factors that pushed this case over the line were X, Y, Z.&rdquo; A <b>regulator</b> wants a reproducible, documented, auditable process — reason codes, model version, input snapshot, and the fairness evidence. Never show either a beeswarm plot as the answer.</p></div></details>
+            <details class="qa"><summary>5. How do you decide between a simple interpretable model and a more accurate black box?</summary><div class="ans"><p>Price the difference in business units, then subtract the cost: latency, infrastructure, retraining, monitoring, debugging, explainability, regulatory risk. Check whether the gain is even real (paired CI, how many variants you tried). Say the thing most candidates won't: if the gap doesn't clear the cost, the simpler model is the better model.</p></div></details>
+            <details class="qa"><summary>6. Tell me about a time you chose <em>not</em> to use ML.</summary><div class="ans"><p>The strongest possible answer to this exists in §1.1's four branches. Pick the one that is true for you — a writable rule, unavailable labels, unacceptable unexplainable error, or too little data — and describe what you shipped instead and how you knew it was enough.</p></div></details>
+            <details class="qa"><summary>7. How do you handle a domain expert disagreeing with your model?</summary><div class="ans"><p>Treat the disagreement as data. Get specific cases, look at them individually, and one of three things is true: the expert is right and the model has a real failure mode (a slice, a feature, a label definition); the model is right and the expert's intuition is a base-rate error; or you're both right and the metric is wrong. All three are useful. What is not useful is defending the aggregate number.</p></div></details>
+            <details class="qa"><summary>8. How do you prioritise when three teams want models and you have one quarter?</summary><div class="ans"><p>Score on: value of the decision × frequency, data readiness (labels exist? point-in-time feasible?), baseline gap (can a rule already do it?), and deployment cost. Prefer the one where a simple model shipped end-to-end creates a repeatable path for the other two. Be explicit that saying no to two of them <em>is</em> the job.</p></div></details>
+            <details class="qa"><summary>9. How do you handle discovering bias in a shipped model?</summary><div class="ans"><p>Quantify it per subgroup on the <b>deployed decision</b> before saying anything imprecise; escalate immediately with the number and the affected population; propose interim mitigation (threshold change, human review for the affected slice, or disabling) while a fix is built; and treat &ldquo;which fairness criterion do we hold ourselves to&rdquo; as a policy decision that needs an owner outside the modelling team.</p></div></details>
+            <details class="qa"><summary>10. How do you keep up with the field without chasing every paper?</summary><div class="ans"><p>A small number of high-signal sources, and a filter: does this change a decision I actually make? Release notes for the libraries you use, one or two benchmark suites checked <em>at decision time</em> rather than quoted from memory, and depth over breadth — reading one paper properly beats skimming ten. Naming something specific and recent (e.g. the tabular foundation model results) demonstrates it better than describing the habit.</p></div></details>
+            <details class="qa"><summary>11. Describe a time you found a bug in your own analysis after presenting it.</summary><div class="ans"><p>They're testing whether you disclose. The structure: found it, quantified the impact immediately, told the people who acted on it before they found out elsewhere, corrected the record, and added the check that would have caught it. Understated and specific beats dramatic.</p></div></details>
+            <details class="qa"><summary>12. How do you manage the cost of an ML system as it scales?</summary><div class="ans"><p>Measure first — cost per prediction, split across feature fetch, inference and retraining. Then the usual ladder: precompute and cache, batch, drop expensive features that don't earn their keep, right-size the model, and revisit retraining frequency, which is often the largest and least-examined line item. And say the unglamorous thing: the biggest saving is usually turning off a model nobody is acting on.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.22 ===== -->
+      <article class="topic" id="c17-22">
+        <h3><span class="tn">17.22</span> Formula sheet &amp; legacy → modern map</h3>
+        <p class="lead">The last-hour revision page. If you can reproduce the left column and defend the right column, you are ready.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Concept</th><th>Formula</th></tr></thead>
+            <tbody>
+              <tr><td>Linear regression (normal equation)</td><td><code class="ic">w = (XᵀX)⁻¹Xᵀy</code></td></tr>
+              <tr><td>Ridge</td><td><code class="ic">min ‖y − Xw‖² + α‖w‖²₂</code></td></tr>
+              <tr><td>Lasso</td><td><code class="ic">min ‖y − Xw‖² + α‖w‖₁</code></td></tr>
+              <tr><td>Elastic Net</td><td><code class="ic">min ‖y − Xw‖² + α(ρ‖w‖₁ + (1−ρ)‖w‖²₂/2)</code></td></tr>
+              <tr><td>Sigmoid / logit</td><td><code class="ic">σ(z) = 1/(1+e⁻ᶻ)</code>; <code class="ic">logit(p) = log(p/(1−p))</code></td></tr>
+              <tr><td>Log loss</td><td><code class="ic">−(1/n)Σ[y log p + (1−y) log(1−p)]</code></td></tr>
+              <tr><td>Bias-variance</td><td><code class="ic">E[(y − f̂)²] = Bias² + Var + σ²</code></td></tr>
+              <tr><td>Gini impurity</td><td><code class="ic">1 − Σpᵢ²</code></td></tr>
+              <tr><td>Entropy</td><td><code class="ic">−Σpᵢ log₂ pᵢ</code></td></tr>
+              <tr><td>Information gain</td><td><code class="ic">H(parent) − Σ(nᵢ/n)·H(childᵢ)</code></td></tr>
+              <tr><td>Bootstrap coverage</td><td><code class="ic">1 − (1 − 1/n)ⁿ → 1 − 1/e ≈ 0.632</code></td></tr>
+              <tr><td>Gradient boosting step</td><td><code class="ic">Fₘ(x) = Fₘ₋₁(x) + ν·hₘ(x)</code>, <code class="ic">hₘ ≈ −∂L/∂F</code></td></tr>
+              <tr><td>XGBoost leaf weight</td><td><code class="ic">w*ⱼ = −Gⱼ/(Hⱼ + λ)</code>; gain uses <code class="ic">G²/(H+λ)</code></td></tr>
+              <tr><td>Precision / Recall</td><td><code class="ic">TP/(TP+FP)</code> · <code class="ic">TP/(TP+FN)</code></td></tr>
+              <tr><td>F-β</td><td><code class="ic">(1+β²)·P·R/(β²P + R)</code></td></tr>
+              <tr><td>ROC-AUC</td><td><code class="ic">P(score(x⁺) &gt; score(x⁻))</code> — the Mann-Whitney U statistic</td></tr>
+              <tr><td>Brier score</td><td><code class="ic">(1/n)Σ(pᵢ − yᵢ)²</code></td></tr>
+              <tr><td>ECE</td><td><code class="ic">Σ(nᵦ/n)·|acc(b) − conf(b)|</code></td></tr>
+              <tr><td>R² · adjusted R²</td><td><code class="ic">1 − SS_res/SS_tot</code> · <code class="ic">1 − (1−R²)(n−1)/(n−p−1)</code></td></tr>
+              <tr><td>MASE</td><td><code class="ic">MAE / MAE_seasonal-naive</code> — &lt; 1 beats the naive baseline</td></tr>
+              <tr><td>Pinball loss</td><td><code class="ic">max(τ(y−ŷ), (τ−1)(y−ŷ))</code></td></tr>
+              <tr><td>PSI</td><td><code class="ic">Σ(aᵢ − eᵢ)·ln(aᵢ/eᵢ)</code> — &lt;0.1 stable · 0.1–0.2 moderate · &gt;0.2 significant</td></tr>
+              <tr><td>Silhouette</td><td><code class="ic">(b − a)/max(a, b)</code></td></tr>
+              <tr><td>Bayes' theorem</td><td><code class="ic">P(A|B) = P(B|A)P(A)/P(B)</code></td></tr>
+              <tr><td>VIF</td><td><code class="ic">1/(1 − R²ⱼ)</code> — &gt; 5–10 signals multicollinearity</td></tr>
+              <tr><td>Conformal quantile</td><td><code class="ic">q̂ = ⌈(n+1)(1−α)⌉/n</code> empirical quantile of calibration scores</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Question</th><th>The 2018 answer</th><th>The 2026 answer</th></tr></thead>
+            <tbody>
+              <tr><td>Best model for tabular data</td><td>Random Forest</td><td><b>Gradient boosting</b> (LGBM/XGB/CatBoost) — and benchmark a <b>tabular foundation model</b> for small/medium data</td></tr>
+              <tr><td>Handle imbalance</td><td>SMOTE</td><td><b>Threshold tuning first</b>, then class weights; resampling last</td></tr>
+              <tr><td>Categorical encoding</td><td>One-hot everything</td><td>Native handling (CatBoost/LightGBM/HistGB) or <b>cross-fitted target encoding</b></td></tr>
+              <tr><td>Feature importance</td><td><code class="ic">feature_importances_</code></td><td><b>Permutation importance on held-out data</b> + SHAP, with correlation caveats stated</td></tr>
+              <tr><td>Hyperparameter search</td><td>Grid search</td><td><b>Bayesian/TPE (Optuna)</b> or <b>successive halving</b>, over log-uniform spaces</td></tr>
+              <tr><td>Missing values</td><td>Impute the mean</td><td>Native NaN handling in GBMs + a <b>missingness indicator</b>; iterative imputation inside the pipeline</td></tr>
+              <tr><td>Model probabilities</td><td><code class="ic">predict_proba</code> is a probability</td><td><b>Check a reliability diagram</b>; calibrate on held-out data — and verify calibration actually helped</td></tr>
+              <tr><td>Uncertainty</td><td>A confidence interval from the model</td><td><b>Conformal prediction</b> (distribution-free coverage) or quantile regression</td></tr>
+              <tr><td>Explainability</td><td>Coefficients / tree plots</td><td><b>SHAP + ALE + counterfactuals</b>, with SHAP's correlation failure modes named</td></tr>
+              <tr><td>&ldquo;Which customers to target?&rdquo;</td><td>The highest churn scores</td><td><b>Uplift / CATE</b> — target the persuadables</td></tr>
+              <tr><td>Drift detection</td><td>Retrain quarterly</td><td><b>PSI/KS/JS per feature + performance proxies</b>, with the rule that not every signal justifies retraining</td></tr>
+              <tr><td>Deployment</td><td>Pickle the model, ship the notebook</td><td><b>Pipeline + registry + shadow/canary + monitoring + a runbook</b></td></tr>
+              <tr><td>Reproducibility</td><td>Set <code class="ic">random_state</code></td><td>Pinned deps, data snapshots, lineage, config-as-code, golden-prediction tests</td></tr>
+              <tr><td>Parallelism ceiling</td><td>The GIL, so use joblib processes</td><td>scikit-learn <b>1.8+ supports free-threaded CPython</b> (3.14 wheels)</td></tr>
+              <tr><td>Routing <code class="ic">sample_weight</code></td><td>Write a manual loop over folds</td><td><b>Metadata routing</b> — <code class="ic">set_config(enable_metadata_routing=True)</code> and <code class="ic">set_fit_request()</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The weekly ritual</span>
+          <p><b>(1)</b> Re-derive the bias-variance decomposition and one other formula from a blank page — ten minutes. <b>(2)</b> Answer five trap questions out loud, timed. <b>(3)</b> Re-run one project's evaluation on a new slice and write a paragraph of error analysis. <b>(4)</b> Read one release note or paper abstract. Four items, under an hour, and it keeps everything in this bank live rather than remembered.</p>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 7 drill widgets ============ */
+(function(){
+  "use strict";
+  var QS = [
+   ["What is machine learning, and when would you not use it?","17.1"],
+   ["Supervised vs unsupervised vs reinforcement — a real example of each.","17.1"],
+   ["⭐ How do you choose the target variable and horizon for a churn model?","17.1"],
+   ["Parametric vs non-parametric models — why does it matter?","17.1"],
+   ["Discriminative vs generative — an example and a trade-off.","17.1"],
+   ["What baselines would you report before any model?","17.1"],
+   ["What is the offline/online metric gap and how do you manage it?","17.1"],
+   ["⭐ Explain the bias-variance trade-off. Write the decomposition.","17.2"],
+   ["Overfitting vs underfitting — how do you diagnose which one you have?","17.2"],
+   ["Will more data help? How do you know?","17.2"],
+   ["What is the curse of dimensionality and which models suffer most?","17.2"],
+   ["What is the no-free-lunch theorem and what does it imply practically?","17.2"],
+   ["What is double descent?","17.2"],
+   ["⭐ L1 vs L2 — what does each do, and why does L1 produce exact zeros?","17.3"],
+   ["Why must you standardise features before regularizing?","17.3"],
+   ["When would you use Elastic Net over Lasso?","17.3"],
+   ["Show that Ridge is MAP estimation with a Gaussian prior.","17.3"],
+   ["Name three regularization techniques that aren't a penalty term.","17.3"],
+   ["State the assumptions of linear regression and what breaks when each fails.","17.4"],
+   ["Why can't you use MSE as the loss for logistic regression?","17.4"],
+   ["Interpret a logistic regression coefficient. What is an odds ratio?","17.4"],
+   ["What is multicollinearity, how do you detect it, and does it hurt?","17.4"],
+   ["Why does R² always increase when you add a feature?","17.4"],
+   ["When would you reach for a GLM — Poisson or Tweedie?","17.4"],
+   ["How does a decision tree choose a split? Gini vs entropy — does it matter?","17.5"],
+   ["Why is a single deep tree high-variance?","17.5"],
+   ["⭐ Bagging vs boosting — what does each reduce, and why?","17.5"],
+   ["How does Random Forest differ from plain bagging? What is OOB error?","17.5"],
+   ["Can you overfit a Random Forest by adding trees? Can you overfit a GBM?","17.5"],
+   ["⭐ Explain gradient boosting. What exactly is each new tree fitted to?","17.5"],
+   ["XGBoost vs LightGBM vs CatBoost — the real differences, and how do you choose?","17.5"],
+   ["Leaf-wise vs level-wise growth — what's the risk of leaf-wise?","17.5"],
+   ["What problem does CatBoost's ordered boosting solve?","17.5"],
+   ["How do you tune a GBM? Give me your order of operations.","17.5"],
+   ["What are monotonic constraints and when have you needed them?","17.5"],
+   ["How does stacking work, and what's the leakage trap in it?","17.5"],
+   ["⭐ Why is impurity-based feature importance misleading? What instead?","17.5"],
+   ["How does kNN work, and why is scaling mandatory?","17.6"],
+   ["Why does Naive Bayes work despite a false independence assumption?","17.6"],
+   ["Explain the SVM margin, the role of C, and the kernel trick.","17.6"],
+   ["LDA vs PCA — what's the difference in objective?","17.6"],
+   ["When would you still choose an SVM in 2026?","17.6"],
+   ["How does k-means work? How do you choose k? What are its assumptions?","17.7"],
+   ["k-means vs DBSCAN vs hierarchical — pick one for a given problem.","17.7"],
+   ["⭐ Explain PCA. Why must you scale first? How many components?","17.7"],
+   ["PCA vs t-SNE vs UMAP — and what's the trap with t-SNE plots?","17.7"],
+   ["How do you evaluate a clustering with no labels?","17.7"],
+   ["How would you detect anomalies with no labels?","17.7"],
+   ["⭐ Explain k-fold CV. When is stratification necessary?","17.8"],
+   ["When is a random split wrong? Give three cases.","17.8"],
+   ["What is nested cross-validation and why does it exist?","17.8"],
+   ["How do you cross-validate time series? What are purging and embargo?","17.8"],
+   ["Grid vs random vs Bayesian search — which and why?","17.8"],
+   ["Your model is 0.4% better. Is it better?","17.8"],
+   ["How do you validate when rows are grouped by customer?","17.8"],
+   ["⭐ Accuracy is 95% and the model is useless. Explain.","17.9"],
+   ["Precision vs recall — a business example where each dominates.","17.9"],
+   ["⭐ ROC-AUC vs PR-AUC — when do you prefer which?","17.9"],
+   ["What does ROC-AUC actually mean, probabilistically?","17.9"],
+   ["Micro vs macro F1 — which do you report?","17.9"],
+   ["RMSE vs MAE — what does each optimise?","17.9"],
+   ["When does MAPE break? What do you use instead?","17.9"],
+   ["⭐ What is calibration, how do you measure it, how do you fix it?","17.9"],
+   ["Which models are typically miscalibrated, and in which direction?","17.9"],
+   ["How do you choose a decision threshold?","17.9"],
+   ["⭐ How do you handle class imbalance? Order of operations.","17.10"],
+   ["What's wrong with applying SMOTE before the train-test split?","17.10"],
+   ["When is SMOTE actively harmful?","17.10"],
+   ["⭐ What is data leakage? Name four distinct kinds.","17.10"],
+   ["How would you detect leakage in someone else's notebook?","17.10"],
+   ["What is target encoding and how do you do it without leaking?","17.10"],
+   ["Walk me through feature engineering for a transaction fraud model.","17.11"],
+   ["How do you handle high-cardinality categoricals?","17.11"],
+   ["How do you encode a datetime? Why cyclical encoding?","17.11"],
+   ["Filter vs wrapper vs embedded feature selection.","17.11"],
+   ["Why would you drop features that improve accuracy?","17.11"],
+   ["⭐ What is a feature store and what does point-in-time correctness solve?","17.11"],
+   ["MCAR / MAR / MNAR — define them and say which is dangerous.","17.12"],
+   ["How do you impute, and where in the pipeline does imputation live?","17.12"],
+   ["Why can missingness itself be a useful feature?","17.12"],
+   ["Which models need feature scaling and which don't?","17.12"],
+   ["⭐ Explain SHAP. What are its assumptions and failure modes?","17.13"],
+   ["PDP vs ICE vs ALE — what does each show?","17.13"],
+   ["Three kinds of feature importance — how do they differ?","17.13"],
+   ["A regulator asks why an application was declined. What do you give them?","17.13"],
+   ["Define two fairness metrics and explain why you can't satisfy all of them.","17.13"],
+   ["Walk me through deploying a model end to end.","17.14"],
+   ["Batch vs real-time serving — how do you decide?","17.14"],
+   ["⭐ How do you detect drift when labels arrive 60 days late?","17.14"],
+   ["Data drift vs concept drift — how do the responses differ?","17.14"],
+   ["When do you retrain? What triggers it?","17.14"],
+   ["What is training/serving skew and how do you prevent it?","17.14"],
+   ["How do you A/B test a model? What could invalidate the test?","17.14"],
+   ["Your model was great offline and users are complaining. Debug it.","17.14"],
+   ["How do you make an ML pipeline reproducible?","17.14"],
+   ["What is the feedback-loop problem in a fraud or credit model?","17.14"],
+   ["⭐ GBDT or deep learning for tabular data? Has that changed?","17.15"],
+   ["What is conformal prediction and what guarantee does it give?","17.15"],
+   ["Aleatoric vs epistemic uncertainty.","17.15"],
+   ["⭐ Accurate churn model — who gets the discount? What's wrong?","17.15"],
+   ["Explain uplift modelling. Why is AUC the wrong metric for it?","17.15"],
+   ["What is double machine learning for?","17.15"],
+   ["What is Simpson's paradox and when have you seen it?","17.15"],
+   ["How do you decide between a simpler and a more accurate model?","17.15"],
+   ["What would you do with 500 labels and a need for 10,000?","17.15"]
+  ];
+
+  var KEY="cmlDrill_v1";
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||"{}"); }catch(e){ return {}; } }
+  function save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+  var state=load(), cur=-1, seen=0, onlyHard=false;
+
+  var qdQ=document.getElementById("qdQ");
+  if(qdQ){
+    function pool(){
+      var p=[];
+      for(var i=0;i<QS.length;i++){ if(!onlyHard || state[i]==="hard") p.push(i); }
+      return p.length? p : QS.map(function(_,i){return i;});
+    }
+    function stats(){
+      var solid=0, shaky=0;
+      Object.keys(state).forEach(function(k){ if(state[k]==="ok") solid++; else if(state[k]==="hard") shaky++; });
+      document.getElementById("qdSolid").textContent=solid;
+      document.getElementById("qdShaky").textContent=shaky;
+      document.getElementById("qdSeen").textContent=seen;
+      document.getElementById("qdPool").textContent=pool().length;
+    }
+    function pick(){
+      var p=pool();
+      var n=p[Math.floor(Math.random()*p.length)];
+      if(p.length>1 && n===cur) n=p[(p.indexOf(n)+1)%p.length];
+      cur=n; seen++;
+      var mark = state[cur]==="ok" ? " <span class='good'>· marked solid</span>" : (state[cur]==="hard" ? " <span class='warn'>· marked shaky</span>" : "");
+      qdQ.innerHTML = "<b>Q"+(cur+1)+".</b> "+QS[cur][0]+mark;
+      stats();
+    }
+    document.getElementById("qdNew").addEventListener("click", pick);
+    document.getElementById("qdShow").addEventListener("click", function(){
+      if(cur<0) return;
+      qdQ.innerHTML = "<b>Q"+(cur+1)+".</b> "+QS[cur][0]+"<br><span class='k' style='font-family:var(--mono);font-size:12px'>answered in §"+QS[cur][1]+" of this page — expand it there and compare against what you just said</span>";
+    });
+    document.getElementById("qdOk").addEventListener("click", function(){ if(cur>=0){ state[cur]="ok"; save(state); stats(); pick(); } });
+    document.getElementById("qdHard").addEventListener("click", function(){ if(cur>=0){ state[cur]="hard"; save(state); stats(); pick(); } });
+    document.getElementById("qdOnlyHard").addEventListener("click", function(){
+      onlyHard=!onlyHard; this.classList.toggle("on");
+      this.textContent = onlyHard? "Drilling shaky only — click to drill all" : "Drill only my shaky ones";
+      pick();
+    });
+    document.getElementById("qdReset").addEventListener("click", function(){ state={}; save(state); seen=0; stats(); pick(); });
+    pick();
+  }
+
+  var TRAPS=[
+   ["&ldquo;The model is 95% accurate — that's good, right?&rdquo;","Under imbalance, accuracy is a <b>majority-class detector</b>. I'd ask for the base rate, then report <b>PR-AUC, per-class recall and the confusion matrix at the threshold we'd actually deploy</b> — and note that accuracy is also blind to the cost difference between a false positive and a false negative."],
+   ["&ldquo;Just use SMOTE — that's how you fix imbalance.&rdquo;","<b>Threshold tuning first</b>, then <b>class weights</b>. SMOTE applied <b>before the split leaks</b>, because synthetic points are interpolated from rows that end up in validation. And when classes overlap or labels are noisy it manufactures ambiguous points in the majority region, inflating false positives. On clean tabular data, weighting performs about the same and can't leak."],
+   ["&ldquo;Scale your features before splitting so everything's consistent.&rdquo;","That's <b>train-test contamination</b> — the test set's mean and variance leak into training. Split first, then fit the scaler <b>inside a <code>Pipeline</code> on the training fold only</b>. Same rule for imputers, encoders, feature selectors and resamplers."],
+   ["&ldquo;Feature importance says X matters most, so X is the key driver.&rdquo;","Which importance? The default is impurity-based, which is <b>biased toward high-cardinality and continuous features</b> and computed on <b>training</b> data — a random ID-like column will rank high. I'd use <b>permutation importance on held-out data</b>, and add that correlated features distort every method including SHAP."],
+   ["&ldquo;We use cross-validation, so a random split is fine.&rdquo;","Not if rows are <b>grouped</b> — the same customer on both sides means you're measuring recognition, not generalisation — or <b>temporal</b>, where a random split trains on the future. Use <code>GroupKFold</code> / <code>StratifiedGroupKFold</code> or <code>TimeSeriesSplit</code> with a <b>purge/embargo gap</b>."],
+   ["&ldquo;Great news — we got 0.99 AUC.&rdquo;","On a hard problem that's a <b>leakage alarm</b>, not a result. I'd look for a feature recorded after the target, an ID proxy, an aggregate computed over the whole period, or duplicate rows across the split — and re-run with a time-based split to see how far it falls."],
+   ["&ldquo;More features can't hurt — the model will ignore the useless ones.&rdquo;","More features means more capacity to memorise and therefore more variance, plus more leakage surface, more drift surface, more acquisition cost and slower serving. I've dropped features that <em>improved</em> accuracy because they didn't earn their operational cost."],
+   ["&ldquo;ROC-AUC is the metric we report.&rdquo;","ROC-AUC is <b>insensitive to imbalance in a flattering way</b> — FPR divides by a huge negative count, so a flood of false positives barely moves it. With rare positives I'd report <b>PR-AUC / average precision</b>, whose baseline is the base rate. And neither says anything about <b>calibration</b>."],
+   ["&ldquo;Random Forests can't overfit, so just add trees.&rdquo;","Adding <em>trees</em> doesn't overfit — the ensemble converges. But a forest of deep unpruned trees on noisy data absolutely can, by memorising label noise; the fix is <code>min_samples_leaf</code> and <code>max_features</code>, not fewer trees. Boosting is the opposite: it overfits readily with too many rounds, so use early stopping."],
+   ["&ldquo;p = 0.03, so the effect is real.&rdquo;","A p-value is the probability of data at least this extreme <b>under the null</b> — not the probability the hypothesis is true, and not a measure of effect size. I'd report the effect size with a confidence interval, and correct for multiple comparisons if we tested forty variants."],
+   ["&ldquo;<code>predict_proba</code> gives us probabilities, so we can compute expected value.&rdquo;","It gives <em>scores</em>. Random Forests are under-confident at the extremes, boosted trees over-confident, Naive Bayes wildly so, and SVMs have none natively. I'd check a <b>reliability diagram</b> and calibrate on held-out data — and then <em>verify</em> it helped, because a recent benchmark found Platt and isotonic can degrade proper-scoring performance for strong tabular models."],
+   ["&ldquo;Deep learning beats trees on tabular data now.&rdquo;","For years GBDTs dominated decisively. As of 2026 that's <b>genuinely contested</b> for small-to-medium data by tabular foundation models — TabPFN-3 scales to a million rows and reports beating 8-hour-tuned GBDT baselines on TabArena. But they're pretrained purely on synthetic data with a thinner ops story, so I'd <b>benchmark both</b> and keep GBDTs where I need monotonic constraints, interpretability and cheap retraining."],
+   ["&ldquo;The labels are a bit noisy but a better model will handle it.&rdquo;","<b>Label noise caps</b> achievable performance regardless of model — and a model that appears to beat the noise rate is memorising it. I'd audit 200 random labels before touching the model; that's usually the highest-yield hour in the project."],
+   ["&ldquo;Correlation isn't causation, but the model found the pattern so let's act on it.&rdquo;","A predictive model is <b>invalid under intervention</b>. If the question is &lsquo;who should get the discount?&rsquo;, the highest churn scores are dominated by lost causes, and some customers are sleeping dogs whom the offer pushes out. That needs <b>uplift/CATE</b>, evaluated with a Qini curve rather than AUC."],
+   ["&ldquo;We tuned the hyperparameters, then ran cross-validation to report the score.&rdquo;","That score is <b>optimistically biased</b> — it's the maximum over many noisy estimates, and you selected on it. Use <b>nested CV</b>, where an inner loop selects and an outer loop estimates, or a test set you touch exactly once."]
+  ];
+  var tdQ=document.getElementById("tdQ"), tdA=document.getElementById("tdA");
+  if(tdQ){
+    var ti=-1;
+    function nextTrap(){
+      var n=Math.floor(Math.random()*TRAPS.length);
+      if(n===ti) n=(n+1)%TRAPS.length;
+      ti=n;
+      tdQ.innerHTML="<b>Trap "+(ti+1)+" of 15.</b> The interviewer says: "+TRAPS[ti][0];
+      tdA.style.display="none";
+    }
+    document.getElementById("tdNext").addEventListener("click", nextTrap);
+    document.getElementById("tdShow").addEventListener("click", function(){
+      if(ti<0) return;
+      tdA.innerHTML="<b>A strong answer:</b> "+TRAPS[ti][1];
+      tdA.style.display="block";
+    });
+    nextTrap();
+  }
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

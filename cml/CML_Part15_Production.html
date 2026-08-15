@@ -439,7 +439,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <div class="meta-chips">
           <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 14</b></span>
           <span class="chip"><b>9</b> topics</span>
-          <span class="chip">📐 <b>13</b> diagrams</span>
+          <span class="chip">📐 <b>4</b> diagrams</span>
+          <span class="chip">💬 <b>19</b> Q&amp;A</span>
           <span class="chip">🎛 <b>1</b> interactive</span>
           <span class="chip">⏱ <b>~8h</b></span>
         </div>
@@ -487,7 +488,580 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 15.1 ===== -->
+      <article class="topic" id="c15-1">
+        <h3><span class="tn">15.1</span> The architecture <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">One rule dominates this whole level: <strong>the same feature code must serve training and inference.</strong> Almost every production ML incident traces back to a violation of it.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 300" role="img" aria-label="A production machine learning architecture showing the offline training path from raw data through a shared feature transformation into a model registry, and the online inference path fetching features and loading the registered model, with monitoring feeding back into retraining.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">two paths, one feature definition — the shared box is the whole point</text>
+              <g font-size="10">
+                <rect x="24" y="40" width="300" height="106" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="60" fill="#98a0f0" font-size="11">OFFLINE · training</text>
+                <rect x="40" y="70" width="72" height="26" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="76" y="87" fill="#c2cad6" text-anchor="middle">warehouse</text>
+                <path d="M112 83 L134 83" stroke="#3a4453" marker-end="url(#p15a)"/>
+                <rect x="136" y="70" width="80" height="26" rx="5" fill="#3a2418" stroke="#E0920C"/><text x="176" y="87" fill="#f0c274" text-anchor="middle">as-of join</text>
+                <path d="M216 83 L238 83" stroke="#3a4453" marker-end="url(#p15a)"/>
+                <rect x="240" y="70" width="70" height="26" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="275" y="87" fill="#c2cad6" text-anchor="middle">fit</text>
+                <text x="40" y="118" fill="#8892a0">snapshot the data · pin the deps · seed everything</text>
+                <text x="40" y="134" fill="#8892a0">record lineage: prediction → model → dataset → commit</text>
+
+                <rect x="200" y="164" width="300" height="46" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="350" y="184" fill="#7fd6a0" text-anchor="middle" font-size="11.5">SHARED feature transformation code</text>
+                <text x="350" y="200" fill="#8892a0" text-anchor="middle">one library / one feature store / one definition</text>
+                <path d="M176 96 L176 174 L198 174" stroke="#2E9E5B" stroke-width="1.4" stroke-dasharray="4 3"/>
+
+                <rect x="376" y="40" width="300" height="106" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="392" y="60" fill="#f0c274" font-size="11">ONLINE · inference</text>
+                <rect x="392" y="70" width="66" height="26" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="425" y="87" fill="#c2cad6" text-anchor="middle">request</text>
+                <path d="M458 83 L478 83" stroke="#3a4453" marker-end="url(#p15a)"/>
+                <rect x="480" y="70" width="82" height="26" rx="5" fill="#1a2a1e" stroke="#2E9E5B"/><text x="521" y="87" fill="#7fd6a0" text-anchor="middle">feature fetch</text>
+                <path d="M562 83 L582 83" stroke="#3a4453" marker-end="url(#p15a)"/>
+                <rect x="584" y="70" width="76" height="26" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="622" y="87" fill="#c2cad6" text-anchor="middle">predict</text>
+                <text x="392" y="118" fill="#8892a0">p95 latency budget · circuit breaker · graceful default</text>
+                <text x="392" y="134" fill="#8892a0">log the inputs and the output — you will need them</text>
+                <path d="M521 96 L521 174 L498 174" stroke="#2E9E5B" stroke-width="1.4" stroke-dasharray="4 3"/>
+
+                <rect x="24" y="230" width="200" height="52" rx="9" fill="#252D3A" stroke="#3a4453"/>
+                <text x="124" y="250" fill="#fff" text-anchor="middle">model registry</text>
+                <text x="124" y="266" fill="#8892a0" text-anchor="middle">versions · stages · lineage</text>
+                <rect x="252" y="230" width="196" height="52" rx="9" fill="#252D3A" stroke="#3a4453"/>
+                <text x="350" y="250" fill="#fff" text-anchor="middle">monitoring</text>
+                <text x="350" y="266" fill="#8892a0" text-anchor="middle">data quality · drift · performance</text>
+                <rect x="476" y="230" width="200" height="52" rx="9" fill="#252D3A" stroke="#3a4453"/>
+                <text x="576" y="250" fill="#fff" text-anchor="middle">retraining trigger</text>
+                <text x="576" y="266" fill="#8892a0" text-anchor="middle">scheduled · drift · performance</text>
+                <path d="M448 256 L474 256" stroke="#3a4453" marker-end="url(#p15a)"/>
+                <path d="M576 230 L576 216 L124 216 L124 228" stroke="#2E9E5B" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#p15b)"/>
+              </g>
+              <defs>
+                <marker id="p15a" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#5A6472"/></marker>
+                <marker id="p15b" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Log the inputs, not just the output.</b> When someone disputes a decision six months later, or you need to debug a drift alert, you need the exact feature vector the model saw — not a reconstruction from the warehouse, which will have changed. Logging inputs is cheap and is the difference between a solvable incident and an unsolvable one.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>⭐ Walk me through deploying a model end to end.</summary>
+              <div class="ans"><p>Frame the decision and metric → build the offline pipeline with <b>point-in-time-correct</b> features → validate with a split that mimics production → choose a threshold from cost or capacity → package the <b>whole pipeline</b> (not just the estimator) and register it with a version and lineage → deploy in <b>shadow</b> to check latency and stability → <b>canary</b> at a few percent with guardrails → <b>A/B test</b> against the incumbent → full rollout with a rollback path → monitor data quality, drift, prediction distribution and eventually performance → define retraining triggers and write the runbook. The two markers of a good answer: <b>one feature code path</b> for training and serving, and <b>a rollback plus an on-call playbook</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What do you log at inference time, and why?</summary>
+              <div class="ans"><p>The <b>full input feature vector</b>, the raw score, the applied threshold, the final decision, the <b>model version</b>, and a request ID that ties back to the business event. The inputs matter most: when someone disputes a decision months later, or you're diagnosing a drift alert, reconstructing the feature vector from the warehouse gives you <em>today's</em> values, not what the model saw — and the difference is exactly the bug you're hunting. Input logs are also what let you compute <b>training/serving skew</b> (§15.4) and replay traffic against a candidate model. It's cheap, and its absence turns solvable incidents into unsolvable ones.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.2 ===== -->
+      <article class="topic" id="c15-2">
+        <h3><span class="tn">15.2</span> Batch vs real-time <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">One question decides it: <em>do the features exist before the request arrives?</em></p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th>Batch</th><th>Real-time</th><th>Streaming</th></tr></thead>
+            <tbody>
+              <tr><td>When it runs</td><td>On a schedule</td><td>On request</td><td>Continuously as events arrive</td></tr>
+              <tr><td>Serving</td><td>Precomputed to a key-value store — prediction is an <b>O(1) lookup</b></td><td>Fetch features, transform, predict inline</td><td>Update features as events land; predict on demand</td></tr>
+              <tr><td>Requires</td><td>All features knowable in advance</td><td>Features that only exist at request time</td><td>Event infrastructure</td></tr>
+              <tr><td>Cost &amp; complexity</td><td><b>Lowest</b></td><td>Higher — latency budget, scaling, cold starts</td><td>Highest</td></tr>
+              <tr><td>Staleness</td><td>Up to one cycle</td><td>None</td><td>Seconds</td></tr>
+              <tr><td>Example</td><td>Nightly churn scores for a CRM</td><td>Payment fraud, ad ranking</td><td>Velocity features for fraud</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Most real systems are hybrid — and that's the good answer</span>
+          <p>Precompute the expensive, slow-moving parts (customer 30-day aggregates, embeddings, segment membership) into a key-value store; compute only the genuinely request-time features inline (this transaction's amount, this session's clicks); join them at serving time. You get most of real-time's freshness at most of batch's cost and simplicity. Saying &ldquo;hybrid, and here's the split&rdquo; is a better answer than picking one.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>Batch vs real-time serving — how do you decide?</summary>
+              <div class="ans"><p>One question: <b>do the features exist before the request arrives?</b> If yes, precompute on a schedule and write to a key-value store — prediction becomes an O(1) lookup, which is cheaper, more stable and far easier to monitor. If a feature only exists at request time (this transaction's amount, this session's behaviour), you need real-time. Secondary considerations: acceptable staleness, model cost, and the p99 budget. Most real systems are <b>hybrid</b> — precomputed aggregates joined with a few live features — and describing the split is a better answer than choosing one.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.3 ===== -->
+      <article class="topic" id="c15-3">
+        <h3><span class="tn">15.3</span> Serving &amp; latency <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Latency budgets are decomposed, not asserted — and you report p95/p99, not p50.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="A 150 millisecond latency budget broken down into network, feature fetch, transformation, model prediction, post-processing and headroom, showing that the model itself is a small fraction of the total.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">a real-time fraud budget, decomposed — notice how small the model is</text>
+              <g font-size="10">
+                <rect x="30" y="52" width="620" height="42" rx="6" fill="#252D3A" stroke="#3a4453"/>
+                <rect x="32" y="54" width="70" height="38" rx="4" fill="#5A6472" opacity="0.8"/>
+                <rect x="104" y="54" width="248" height="38" rx="4" fill="#E0920C" opacity="0.85"/>
+                <rect x="354" y="54" width="86" height="38" rx="4" fill="#8A5CD8" opacity="0.8"/>
+                <rect x="442" y="54" width="74" height="38" rx="4" fill="#3B45B5" opacity="0.85"/>
+                <rect x="518" y="54" width="50" height="38" rx="4" fill="#5A6472" opacity="0.6"/>
+                <rect x="570" y="54" width="78" height="38" rx="4" fill="#2E9E5B" opacity="0.6"/>
+                <g fill="#14181f" font-size="9.5" text-anchor="middle" font-weight="600">
+                  <text x="67" y="78">15 ms</text><text x="228" y="78">60 ms</text><text x="397" y="78">20 ms</text><text x="479" y="78">18 ms</text><text x="543" y="78">12 ms</text><text x="609" y="78">25 ms</text>
+                </g>
+                <g fill="#8892a0" font-size="9.5" text-anchor="middle">
+                  <text x="67" y="112">network</text>
+                  <text x="228" y="112">feature fetch (the usual bottleneck)</text>
+                  <text x="397" y="112">transform</text>
+                  <text x="479" y="112">predict</text>
+                  <text x="543" y="112">post</text>
+                  <text x="609" y="112">headroom</text>
+                </g>
+                <rect x="30" y="136" width="303" height="96" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="46" y="158" fill="#fff" font-size="11">p50 is a comfortable lie</text>
+                <text x="46" y="178" fill="#c2cad6">A p50 of 40 ms with a p99 of 900 ms means 1 in 100</text>
+                <text x="46" y="192" fill="#c2cad6">customers waits nearly a second — and at scale that</text>
+                <text x="46" y="206" fill="#c2cad6">is thousands of people an hour.</text>
+                <text x="46" y="224" fill="#8892a0">Budget and alert on <tspan font-weight="600" fill="#F0A81E">p95/p99</tspan>, always.</text>
+
+                <rect x="347" y="136" width="303" height="96" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="363" y="158" fill="#fff" font-size="11">Levers, cheapest first</text>
+                <text x="363" y="178" fill="#c2cad6">precompute → cache → batch → drop a feature →</text>
+                <text x="363" y="192" fill="#c2cad6">smaller model → <tspan font-family="var(--mono)">ONNX</tspan>/native booster → scale out</text>
+                <text x="363" y="212" fill="#8892a0">Cold starts matter for serverless. Warm the model</text>
+                <text x="363" y="226" fill="#8892a0">at boot and health-check with a real prediction.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Model formats, with the trade-off attached:</b> <code class="ic">pickle</code>/<code class="ic">joblib</code> is convenient but couples you to exact library versions and is an <b>arbitrary-code-execution risk</b> if you ever load an untrusted file. <b>ONNX</b> gives a portable, language-agnostic graph and usually faster inference, at the cost of an export step that doesn't support every estimator. <b>Native boosters</b> (<code class="ic">Booster.save_model</code>) are the pragmatic middle ground for GBMs — stable, fast, independent of the Python wrapper version.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>You have a 150 ms end-to-end budget. How do you spend it?</summary>
+              <div class="ans"><p>Decompose it: network (~15 ms), <b>feature fetch</b> (usually the bottleneck — 60 ms if it's a remote store), transform (~20 ms), <b>predict</b> (~18 ms, and often the smallest piece), post-process (~12 ms), and keep <b>headroom</b> for tail latency. Then optimise in cost order: <b>precompute</b> what you can, <b>cache</b>, <b>batch</b> the fetches into one round trip, <b>drop</b> features that don't earn their fetch cost, then shrink the model, then change the serving format. And budget on <b>p95/p99</b>, not p50 — a p50 of 40 ms with a p99 of 900 ms means thousands of users an hour waiting a second.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>Would you pickle a model for production?</summary>
+              <div class="ans"><p>It works, and I'd do it with eyes open. Three issues: it's <b>version-coupled</b> (unpickling with a different sklearn version can fail or, worse, silently misbehave), it's an <b>arbitrary-code-execution</b> vector if the file is ever untrusted, and it's Python-only. Alternatives: <b>ONNX</b> for a portable graph with usually faster inference, at the cost of an export step that doesn't cover every estimator; or the model's <b>native format</b> (<code class="ic">Booster.save_model</code> for XGBoost/LightGBM), which is my usual choice for GBMs because it's stable across wrapper versions. Whatever I use, the deps get <b>pinned</b> and there's a golden-prediction test that would catch a silent change (§15.9).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.4 ===== -->
+      <article class="topic" id="c15-4">
+        <h3><span class="tn">15.4</span> Training/serving skew <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The same feature computed two slightly different ways in two codebases — with nothing to alert you, because both systems individually &ldquo;work&rdquo;.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Skew source</th><th>Concrete example</th><th>Detection</th></tr></thead>
+            <tbody>
+              <tr><td><b>Different implementations</b></td><td>Training computes a 30-day mean in SQL; serving reimplements it in Python with a subtly different window</td><td>Log serving features and compare distributions against training</td></tr>
+              <tr><td><b>Different null handling</b></td><td>SQL <code class="ic">AVG</code> ignores nulls; pandas <code class="ic">mean()</code> does too, but the <em>denominator</em> differs from a hand-written sum/count</td><td>Same</td></tr>
+              <tr><td><b>Timezone / boundary</b></td><td>&ldquo;Yesterday&rdquo; means UTC in the warehouse and local time in the service</td><td>Compare per-hour distributions</td></tr>
+              <tr><td><b>Data freshness</b></td><td>Training used a complete day; serving sees a partial one because the ETL hasn't finished</td><td>Monitor feature <b>completeness</b> by hour</td></tr>
+              <tr><td><b>Schema drift</b></td><td>An upstream column changed type or units, only one side updated</td><td>Schema tests on both paths</td></tr>
+              <tr><td><b>Point-in-time incorrectness</b></td><td>Training joined today's value onto a historical row (§13.7)</td><td>The worst case — it can't be seen from serving logs at all</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.4" stroke="#C0392B" stroke-width="1.7"/><path d="M12 7v6M12 15.8v.6" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Why the fix is architectural, not procedural</span>
+          <p>&ldquo;Be careful to implement it the same way&rdquo; is not a fix — it's a hope, and it fails the first time someone changes one side. The fix is to make two implementations <b>impossible</b>: one shared library imported by both paths, a feature store both paths read from, or a batch job whose output the API simply looks up. Then add a <b>skew check</b> that logs serving features and compares their distribution against training, so if it does happen you find out in a dashboard rather than in a post-mortem.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ What is training/serving skew and how do you prevent it?</summary>
+              <div class="ans"><p>The training pipeline and the serving path compute the same feature <em>differently</em> — a different window, null handling, timezone, or rounding — so the model sees a distribution it was never trained on, and <b>nothing alerts</b> because both systems are individually working. Prevent it <b>architecturally</b>: one shared code path (a library, a feature store, or a batch job whose output the API reads), because "be careful to implement it the same way" fails the first time someone changes one side. Then add a <b>skew check</b> comparing logged serving features against the training distribution. Its worse sibling is <b>point-in-time incorrectness</b>, which serving logs can't reveal at all.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debugging</span>Offline AUC 0.85, production performance clearly worse, no drift alerts. What do you check?</summary>
+              <div class="ans"><p><b>Skew</b>, because drift monitors compare production to production and won't catch a training/serving mismatch. Concretely: log the actual serving feature vectors and compare each feature's distribution against the training data — a shifted mean, a different null rate, or a different cardinality on one feature usually falls out immediately. Also check <b>feature completeness by hour</b> (a partial-day ETL gives serving a different picture than training had), and <b>replay</b> a sample of production requests through the training pipeline to see whether the scores match. If the scores differ for identical inputs, it's skew; if they match, look at threshold, base rate, or label definition instead.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.5 ===== -->
+      <article class="topic" id="c15-5">
+        <h3><span class="tn">15.5</span> Monitoring &amp; drift <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The highest-value idea in production ML is a negative one: <strong>not every drift alert warrants a retrain.</strong></p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> PSI, KS and the question they can't answer</div>
+          <div class="wbody">
+            <canvas id="drCanvas" width="720" height="290" aria-label="Training and production distributions of a feature overlaid, with a shift and spread control, showing the population stability index and Kolmogorov-Smirnov statistic and the resulting alert band."></canvas>
+            <div class="wctl">
+              <label>distribution shift · <b id="drSVal">0.00</b>
+                <input type="range" id="drS" min="0" max="200" value="0" step="2">
+              </label>
+              <label>spread change · <b id="drWVal">1.00</b>
+                <input type="range" id="drW" min="50" max="250" value="100" step="2">
+              </label>
+              <label>does this feature matter? · <b id="drIVal">high importance</b>
+                <input type="range" id="drI" min="0" max="100" value="80" step="1">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="drPsi">—</span>PSI</div>
+              <div class="wcell"><span class="n" id="drKs">—</span>KS statistic</div>
+              <div class="wcell"><span class="n" id="drBand">—</span>PSI band</div>
+              <div class="wcell"><span class="n" id="drAct">—</span>action</div>
+            </div>
+            <div class="wout" id="drOut"></div>
+            <p class="wnote">PSI is computed exactly as <code class="ic">Σ (aᵢ − eᵢ)·ln(aᵢ/eᵢ)</code> over 10 quantile bins of the reference distribution, and KS as the maximum gap between the empirical CDFs. The third slider is the one that isn't in the formula: <b>a large PSI on an unimportant feature is not an incident</b>, and a small PSI on the feature carrying half your signal might be.</p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="Four kinds of drift compared: covariate drift where the input distribution moves, concept drift where the relationship changes, prior drift where the class balance moves, and performance drift which is what you actually care about but which arrives late.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">four kinds of drift — and only one of them is the thing you care about</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="158" height="118" rx="9" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="62" fill="#98a0f0">Covariate / data drift</text>
+                <text x="40" y="82" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">P(x) changes</text>
+                <text x="40" y="104" fill="#8892a0">New customer mix,</text>
+                <text x="40" y="118" fill="#8892a0">a new channel, an</text>
+                <text x="40" y="132" fill="#8892a0">upstream schema change.</text>
+                <text x="40" y="150" fill="#7fd6a0">Detectable without labels.</text>
+
+                <rect x="190" y="40" width="158" height="118" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="206" y="62" fill="#e0a3a8">Concept drift</text>
+                <text x="206" y="82" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">P(y|x) changes</text>
+                <text x="206" y="104" fill="#8892a0">Fraudsters adapt; a</text>
+                <text x="206" y="118" fill="#8892a0">recession rewrites what</text>
+                <text x="206" y="132" fill="#8892a0">&ldquo;risky&rdquo; means.</text>
+                <text x="206" y="150" fill="#e0a3a8">Needs labels. Retrain.</text>
+
+                <rect x="356" y="40" width="158" height="118" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="372" y="62" fill="#f0c274">Prior / label drift</text>
+                <text x="372" y="82" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">P(y) changes</text>
+                <text x="372" y="104" fill="#8892a0">The base rate moves —</text>
+                <text x="372" y="118" fill="#8892a0">which shifts precision</text>
+                <text x="372" y="132" fill="#8892a0">at a fixed threshold (§2.3).</text>
+                <text x="372" y="150" fill="#f0c274">Often re-threshold, not retrain.</text>
+
+                <rect x="522" y="40" width="154" height="118" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="538" y="62" fill="#7fd6a0">Performance drift</text>
+                <text x="538" y="82" fill="#c2cad6" font-family="var(--mono)" font-size="9.5">the metric moves</text>
+                <text x="538" y="104" fill="#8892a0">The only one that is</text>
+                <text x="538" y="118" fill="#8892a0">definitionally a problem —</text>
+                <text x="538" y="132" fill="#8892a0">and it arrives <tspan font-weight="600">late</tspan>, with</text>
+                <text x="538" y="146" fill="#8892a0">the labels.</text>
+
+                <rect x="24" y="172" width="652" height="96" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="194" fill="#fff" font-size="11.5">⭐ &ldquo;How do you detect drift when labels arrive 60 days late?&rdquo; — the proxy stack</text>
+                <text x="40" y="216" fill="#c2cad6">· <tspan font-weight="600">Input side:</tspan> PSI / KS / Jensen-Shannon / Wasserstein per feature, weighted by feature importance; plus schema, null-rate and cardinality checks</text>
+                <text x="40" y="232" fill="#c2cad6">· <tspan font-weight="600">Output side:</tspan> the <tspan font-weight="600">prediction distribution</tspan> and mean predicted probability — these move immediately and need no labels</text>
+                <text x="40" y="248" fill="#c2cad6">· <tspan font-weight="600">Behavioural:</tspan> override rate, abstention rate, analyst agreement, downstream conversion — humans notice degradation before your metric does</text>
+                <text x="40" y="264" fill="#7fd6a0">· <tspan font-weight="600">Partial labels:</tspan> fast-arriving subsets (confirmed fraud within 24h) give an early, biased-but-directional read</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Tooling pattern, said concretely:</b> an open-source drift-report library for the statistics (Evidently's drift presets, for instance) plus Prometheus and Grafana for storage, dashboards and alerting. <b>Cadence:</b> daily for revenue-critical models, weekly otherwise. And the point most candidates miss: <b>data-quality monitoring catches more incidents than model monitoring does</b> — a column that silently became all-nulls is far more common than genuine concept drift.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ How do you detect drift when labels arrive 60 days late?</summary>
+              <div class="ans"><p>Layered proxies. <b>Input:</b> per-feature PSI (&lt;0.1 stable, 0.1–0.2 moderate, &gt;0.2 significant), KS/chi-square, Jensen-Shannon and Wasserstein as smoother alternatives to KL on noisy production data — <b>weighted by feature importance</b>. <b>Output:</b> the prediction distribution and mean predicted probability, which move immediately and need no labels. <b>Behavioural:</b> override rate, abstention rate, analyst agreement, downstream conversion. <b>Partial labels:</b> any fast-resolving subset. <b>Data quality:</b> schema, nulls, ranges, cardinality — which in practice catches more incidents than drift statistics do. And the discipline: <b>confirm a metric actually moved before retraining</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Data drift vs concept drift — how do the responses differ?</summary>
+              <div class="ans"><p><b>Data/covariate drift</b> is <code class="ic">P(x)</code> moving with <code class="ic">P(y|x)</code> stable — a new segment or channel. The model may still be valid; you might reweight, retrain on recent data, or do nothing. <b>Concept drift</b> is <code class="ic">P(y|x)</code> changing — fraudsters adapt, a recession redefines risk — and only retraining helps, possibly with new features or a new target definition. There's a third worth naming: <b>prior/label drift</b>, where the base rate moves, which shifts precision at a fixed threshold and is usually fixed by <b>re-thresholding rather than retraining</b>. Practical difference: covariate and prior drift are detectable without labels; concept drift generally is not.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debugging</span>PSI = 0.35 on one feature. Do you retrain?</summary>
+              <div class="ans"><p><b>Not yet.</b> PSI &gt; 0.2 means the distribution changed significantly — it does <em>not</em> mean the model got worse. First: <b>how important is that feature?</b> A big shift on a feature contributing 1% of the signal is a log entry, not an incident. Second: <b>did a metric actually move?</b> Score the recent window against whatever labels have arrived, watch the prediction distribution and the override rate. Third: <b>why</b> did it shift — an upstream pipeline change or a genuine population change? Those have different fixes. Retraining on drifted-but-harmless data costs you churn, reproducibility and possibly performance. <b>Not every drift alert warrants a retrain</b>, and alert fatigue kills monitoring programmes faster than missed drift does.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.6 ===== -->
+      <article class="topic" id="c15-6">
+        <h3><span class="tn">15.6</span> Retraining triggers <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Three triggers, in preference order — and one trade-off nobody mentions until it bites them.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Trigger</th><th>When it works</th><th>Risk</th></tr></thead>
+            <tbody>
+              <tr><td><b>Performance-triggered</b></td><td>Labels arrive in time to measure — the ideal</td><td>By the time you can measure it, you've already been degraded for the label-delay period</td></tr>
+              <tr><td><b>Drift-triggered</b></td><td>The proxy when labels are slow, with a confirmation step (§15.5)</td><td><b>False alarms</b> — retraining on harmless drift costs churn and reproducibility</td></tr>
+              <tr><td><b>Scheduled</b></td><td>The boring default that mostly works</td><td>Retrains when nothing changed; misses fast degradation between cycles</td></tr>
+              <tr><td>Data-volume triggered</td><td>&ldquo;Every 100k new labelled rows&rdquo;</td><td>Decouples from calendar, which suits irregular businesses</td></tr>
+              <tr><td>Event-triggered</td><td>A known regime change — a product launch, a policy change</td><td>Requires someone to remember to trigger it</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The staleness-vs-churn trade-off</span>
+          <p>Retraining constantly sounds obviously good and isn't. Every retrain <b>changes predictions for the same inputs</b>, which means a customer declined today might be approved tomorrow for no reason anyone can explain; incidents become unreproducible because the model that made the decision no longer exists; and downstream thresholds calibrated to the old score distribution silently stop meaning what they meant. Against that, staleness costs accuracy. The resolution: retrain on a <b>defensible cadence</b>, gate every retrain behind <b>champion/challenger</b> comparison and a <b>golden-set regression suite</b>, and <b>version every model</b> so any past decision can be reproduced.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>When do you retrain? What triggers it?</summary>
+              <div class="ans"><p>Three triggers in preference order: <b>performance-triggered</b> when labels arrive in time, <b>drift-triggered</b> as the proxy when they don't (with a confirmation step so you don't retrain on noise), and <b>scheduled</b> as the boring default that mostly works. The trade-off to name is <b>staleness vs churn</b>: retraining constantly makes predictions change under users for no visible reason, makes incidents unreproducible, and silently invalidates downstream thresholds calibrated to the old score distribution. So I'd gate every retrain behind <b>champion/challenger</b> comparison and a <b>golden-set regression suite</b>, and version every model so past decisions stay reproducible.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Retrain on all history, or a rolling window?</summary>
+              <div class="ans"><p>Depends on whether the <b>relationship</b> is stable. If <code class="ic">P(y|x)</code> is stable and only the input mix moves, use <b>all history</b> — more data is better and old rows are still valid. If there's genuine <b>concept drift</b>, old data is actively misleading and a rolling window (or exponentially decaying <b>sample weights</b>, §8.9) is right. The empirical way to decide: backtest both — train on all-history and on a window, evaluate on the most recent period, and see which wins. Sample weighting is often the best of both, since it downweights rather than discarding, and the decay rate becomes a tunable parameter rather than an arbitrary cutoff.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.7 ===== -->
+      <article class="topic" id="c15-7">
+        <h3><span class="tn">15.7</span> Deployment &amp; the feedback loop <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The ladder from shadow to full rollout — and the problem that makes fraud and credit systems genuinely hard.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 290" role="img" aria-label="A deployment ladder from shadow mode through canary and A/B test to full rollout with a rollback path, and below it the feedback loop problem in which a fraud model never observes the outcomes of the transactions it blocked.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the deployment ladder — every rung answers a different question</text>
+              <g font-size="10">
+                <rect x="24" y="40" width="150" height="70" rx="8" fill="#252D3A" stroke="#3a4453"/>
+                <text x="99" y="60" fill="#fff" text-anchor="middle">1 · Shadow</text>
+                <text x="99" y="78" fill="#8892a0" text-anchor="middle">runs on live traffic,</text>
+                <text x="99" y="92" fill="#8892a0" text-anchor="middle">affects nothing</text>
+                <text x="99" y="106" fill="#7fd6a0" text-anchor="middle">&ldquo;does it survive prod?&rdquo;</text>
+                <path d="M174 75 L196 75" stroke="#3a4453" marker-end="url(#p15c)"/>
+                <rect x="198" y="40" width="150" height="70" rx="8" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="273" y="60" fill="#98a0f0" text-anchor="middle">2 · Canary</text>
+                <text x="273" y="78" fill="#8892a0" text-anchor="middle">1–5% of traffic,</text>
+                <text x="273" y="92" fill="#8892a0" text-anchor="middle">real decisions</text>
+                <text x="273" y="106" fill="#7fd6a0" text-anchor="middle">&ldquo;does it break anything?&rdquo;</text>
+                <path d="M348 75 L370 75" stroke="#3a4453" marker-end="url(#p15c)"/>
+                <rect x="372" y="40" width="150" height="70" rx="8" fill="#3a2418" stroke="#E0920C"/>
+                <text x="447" y="60" fill="#f0c274" text-anchor="middle">3 · A/B test</text>
+                <text x="447" y="78" fill="#8892a0" text-anchor="middle">powered split,</text>
+                <text x="447" y="92" fill="#8892a0" text-anchor="middle">guardrails on</text>
+                <text x="447" y="106" fill="#7fd6a0" text-anchor="middle">&ldquo;is it actually better?&rdquo;</text>
+                <path d="M522 75 L544 75" stroke="#3a4453" marker-end="url(#p15c)"/>
+                <rect x="546" y="40" width="130" height="70" rx="8" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="611" y="60" fill="#7fd6a0" text-anchor="middle">4 · Rollout</text>
+                <text x="611" y="78" fill="#8892a0" text-anchor="middle">with a one-command</text>
+                <text x="611" y="92" fill="#8892a0" text-anchor="middle">rollback path</text>
+                <text x="611" y="106" fill="#e0a3a8" text-anchor="middle">and a runbook</text>
+
+                <rect x="24" y="130" width="652" height="146" rx="9" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="40" y="152" fill="#e0a3a8" font-size="11.5">The feedback-loop problem</text>
+                <rect x="46" y="166" width="120" height="30" rx="6" fill="#252D3A" stroke="#3a4453"/><text x="106" y="186" fill="#c2cad6" text-anchor="middle">model blocks a txn</text>
+                <path d="M166 181 L192 181" stroke="#e0a3a8" marker-end="url(#p15d)"/>
+                <rect x="194" y="166" width="150" height="30" rx="6" fill="#252D3A" stroke="#3a4453"/><text x="269" y="186" fill="#c2cad6" text-anchor="middle">outcome never observed</text>
+                <path d="M344 181 L370 181" stroke="#e0a3a8" marker-end="url(#p15d)"/>
+                <rect x="372" y="166" width="150" height="30" rx="6" fill="#252D3A" stroke="#3a4453"/><text x="447" y="186" fill="#c2cad6" text-anchor="middle">training data is censored</text>
+                <path d="M522 181 L548 181" stroke="#e0a3a8" marker-end="url(#p15d)"/>
+                <rect x="550" y="166" width="112" height="30" rx="6" fill="#3a1e22" stroke="#e0a3a8"/><text x="606" y="186" fill="#e0a3a8" text-anchor="middle">next model is worse</text>
+                <path d="M606 196 L606 210 L106 210 L106 198" stroke="#e0a3a8" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#p15d)"/>
+                <text x="40" y="238" fill="#c2cad6">The model's own decisions determine the data it will next be trained on — a fraud model never sees whether the transactions it</text>
+                <text x="40" y="254" fill="#c2cad6">blocked were really fraud, and a credit model never sees how the rejected applicants would have performed (<tspan font-style="italic">reject inference</tspan>).</text>
+                <text x="40" y="270" fill="#7fd6a0">Fixes: hold out a small <tspan font-weight="600">exploration / control slice</tspan> that bypasses the model, and use propensity weighting on the observed data.</text>
+              </g>
+              <defs>
+                <marker id="p15c" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#5A6472"/></marker>
+                <marker id="p15d" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#e0a3a8"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Shadow mode is the underrated rung.</b> It answers questions no offline test can: does the feature fetch actually work at production latency, does the model handle the real distribution of malformed inputs, does memory usage hold at peak traffic. And it costs nothing except compute, because it affects no decisions — running for a week before a canary catches most operational problems.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ What is the feedback-loop problem in a fraud or credit model?</summary>
+              <div class="ans"><p>The model's decisions determine the data it will be trained on next. A fraud model never observes whether the transactions it <b>blocked</b> were really fraud; a credit model never sees how <b>rejected</b> applicants would have performed (the <em>reject inference</em> problem). The training set becomes systematically <b>censored</b>, the model grows confident about a shrinking slice of the world, and offline evaluation cannot detect it because the missing data is missing from evaluation too. Mitigations: hold out a small <b>exploration/control slice</b> that bypasses the model, use <b>propensity weighting</b> on the observed data, and model the blocked population explicitly rather than dropping it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Why bother with shadow mode if you're going to canary anyway?</summary>
+              <div class="ans"><p>Because they answer different questions and shadow is free. <b>Shadow</b> answers <em>"does this survive production?"</em> — real latency on real feature fetches, real malformed inputs, real memory at peak traffic, real distribution of missing values — none of which offline testing reproduces, and all of which are cheaper to discover when the model affects nothing. <b>Canary</b> answers <em>"does it break anything when it actually decides?"</em> — which risks real customers. Running shadow for a week catches most operational failures before any user is exposed, and it also gives you a <b>score-distribution comparison</b> against the incumbent, which is the best early warning that something is subtly wrong.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.8 ===== -->
+      <article class="topic" id="c15-8">
+        <h3><span class="tn">15.8</span> A/B testing a model <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The statistics are standard. What makes it an ML question is everything that can invalidate the test.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Design decision</th><th>Get it right</th><th>What goes wrong</th></tr></thead>
+            <tbody>
+              <tr><td><b>Randomisation unit</b></td><td>Randomise the unit the effect acts on — usually the user, not the request</td><td>Per-request randomisation lets one user see both variants, diluting the effect and breaking independence</td></tr>
+              <tr><td><b>Sample size</b></td><td>Compute it up front from the MDE, baseline rate and power</td><td>Underpowered tests read as &ldquo;no effect&rdquo; when the effect exists</td></tr>
+              <tr><td><b>Primary vs guardrail</b></td><td>One primary metric; guardrails on latency, revenue, complaints, fairness</td><td>Picking the winning metric after the fact is p-hacking</td></tr>
+              <tr><td><b>Peeking</b></td><td>Fix the duration, or use a proper sequential test</td><td>Checking daily and stopping at significance badly inflates the false-positive rate</td></tr>
+              <tr><td><b>Novelty / primacy</b></td><td>Run at least one full business cycle</td><td>Early lift that decays; or early loss from users adapting</td></tr>
+              <tr><td><b>Network effects</b></td><td>Cluster/geo randomisation</td><td>Treatment leaks to control through the marketplace, biasing everything toward zero</td></tr>
+              <tr><td><b>Sample-ratio mismatch</b></td><td>Check the actual split matches the intended one</td><td>A 50/50 split that arrives 52/48 signals an assignment bug that invalidates everything</td></tr>
+              <tr><td><b>Variance reduction</b></td><td><b>CUPED</b> using pre-period data</td><td>Not using it just means a longer, more expensive test</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The offline-to-online gap, stated before someone asks</span>
+          <p>Your offline metric is a <b>proxy</b>. A model with better AUC can lose an A/B test because it improved ranking in a region users never see, because it shifted the score distribution and the fixed threshold now behaves differently, or because the business metric depends on something the model doesn't optimise (diversity, latency, fairness of exposure). Say explicitly: <em>&ldquo;I'd confirm that the offline metric actually moves the online objective — ideally by checking historical launches — before trusting it as a launch criterion.&rdquo;</em></p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How do you A/B test a model? What could invalidate the test?</summary>
+              <div class="ans"><p>Randomise at the unit the effect acts on (usually the <b>user</b>, not the request), compute the sample size up front from the MDE and power, declare <b>one primary metric plus guardrails</b> (latency, revenue, complaints, fairness), and fix the duration. <b>Invalidators:</b> peeking and stopping at significance; novelty and primacy effects; network effects leaking treatment into control (use cluster/geo randomisation); <b>sample-ratio mismatch</b>, which signals an assignment bug; and choosing the winning metric after the fact. Use <b>CUPED</b> with pre-period data to cut variance. And state the <b>offline-to-online gap</b> explicitly rather than assuming better AUC means a better outcome.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is CUPED and why does it help?</summary>
+              <div class="ans"><p><b>Controlled-experiment Using Pre-Experiment Data.</b> Much of the variance in an outcome metric is explained by the same user's <em>pre-period</em> behaviour — a heavy spender before the test is a heavy spender during it. CUPED regresses the outcome on that pre-period covariate and analyses the <b>residual</b>, which removes that predictable variance without biasing the treatment effect (the covariate is pre-treatment, so it can't be affected by the assignment). The practical payoff is large: variance reductions of 30–50% are common, which means the same test reaches significance in roughly half the time — or detects an effect half the size for the same duration.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your A/B test shows treatment winning overall but losing on both mobile and desktop. What's happening?</summary>
+              <div class="ans"><p><b>Simpson's paradox</b> (§2.5), and in an A/B test it almost always indicates a <b>bug rather than a real effect</b> — specifically a <b>sample-ratio mismatch</b>, where the treatment group received a different mix of mobile and desktop users than control. That means randomisation didn't work as intended, which invalidates the whole test rather than just this cut. I'd check the actual assignment ratios per segment against the intended split with a chi-square test, look for a bug in the assignment logic or in how exposure is logged, and <b>not ship on the aggregate result</b> until it's resolved.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 15.9 ===== -->
+      <article class="topic" id="c15-9">
+        <h3><span class="tn">15.9</span> Engineering hygiene</h3>
+        <p class="lead">The unglamorous section that separates a system from a notebook. Interviewers ask it as &ldquo;how do you make an ML pipeline reproducible?&rdquo;</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Practice</th><th>Concretely</th></tr></thead>
+            <tbody>
+              <tr><td><b>Data-schema tests</b></td><td>Types, ranges, allowed categories, null rates, row-count bounds — run on every batch, fail loudly</td></tr>
+              <tr><td><b>Pipeline invariants</b></td><td>Does <code class="ic">fit</code> then <code class="ic">transform</code> equal <code class="ic">fit_transform</code>? Are outputs deterministic given a seed? Does it reject unseen categories gracefully?</td></tr>
+              <tr><td><b>Golden-prediction tests</b></td><td>A fixed set of inputs with expected outputs, checked in CI — <b>the single cheapest way to catch a silent regression</b></td></tr>
+              <tr><td><b>No-network unit tests</b></td><td>Tests must not depend on a live warehouse; fixture the data</td></tr>
+              <tr><td><b>Reproducibility</b></td><td>Pinned dependencies (a lockfile), seeded randomness, <b>data snapshots or versioned datasets</b>, captured environment, and lineage from a prediction back to a model, a dataset and a commit</td></tr>
+              <tr><td><b>Config over code</b></td><td>Hyperparameters, feature lists and thresholds in versioned config, not scattered literals</td></tr>
+              <tr><td><b>Experiment tracking</b></td><td>Every run's params, metrics, artefacts and data version recorded automatically</td></tr>
+              <tr><td><b>Documentation</b></td><td>Model card, stated assumptions, known limitations, a <b>retraining runbook</b> and an <b>on-call playbook</b> — &ldquo;the model is returning nulls, now what?&rdquo;</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Reproducibility is more than <code class="ic">random_state</code></span>
+          <p>&ldquo;Set the seed&rdquo; is the 2018 answer. The 2026 answer is: <b>pinned dependencies, a versioned data snapshot, captured environment, config-as-code, recorded lineage, and golden-prediction tests</b> — because what actually breaks reproducibility is a library minor-version bump changing a default, or the upstream table having been backfilled since you trained. Seeds only control the randomness you own.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you make an ML pipeline reproducible?</summary>
+              <div class="ans"><p>"Set the seed" is the 2018 answer. The full one: <b>pinned dependencies</b> (a lockfile, not a range), <b>versioned data snapshots</b> (DVC/lakeFS-style, or an immutable partition), captured environment, <b>config-as-code</b> for hyperparameters and thresholds, recorded <b>lineage</b> from a prediction back to a model, dataset and commit, experiment tracking, and <b>golden-prediction tests in CI</b>. What actually breaks reproducibility in practice is a library minor version changing a default, or the upstream table being backfilled after you trained — seeds only control the randomness you own.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>What tests would you write for an ML pipeline?</summary>
+              <div class="ans"><p><b>Data-schema tests</b> on every batch (types, ranges, allowed categories, null rates, row counts) — these catch more production incidents than model monitoring does. <b>Pipeline invariants</b>: <code class="ic">fit</code>-then-<code class="ic">transform</code> equals <code class="ic">fit_transform</code>; output is deterministic given a seed; unseen categories don't crash. <b>Golden-prediction tests</b>: a fixed set of inputs with expected outputs, checked in CI — the cheapest possible guard against a silent regression from a library bump. <b>No-network unit tests</b> with fixtured data so the suite runs anywhere. And a <b>smoke test</b> that trains on a tiny sample end-to-end, so a broken pipeline fails in seconds rather than after an hour of training.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 15 widget ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function gauss(r){ var u=1-r(), v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+  var dr=document.getElementById("drCanvas");
+  if(!dr) return;
+  var drS=document.getElementById("drS"), drW=document.getElementById("drW"), drI=document.getElementById("drI");
+  function drawDR(){
+    var shift=(+drS.value)/100, wid=(+drW.value)/100, imp=(+drI.value)/100;
+    document.getElementById("drSVal").textContent=shift.toFixed(2);
+    document.getElementById("drWVal").textContent=wid.toFixed(2);
+    document.getElementById("drIVal").textContent= imp>0.6? "high importance" : (imp>0.25? "moderate" : "barely used");
+    var r=rng(31), n=4000, ref=[], cur=[];
+    for(var i=0;i<n;i++){ ref.push(gauss(r)); cur.push(shift + wid*gauss(r)); }
+    var sr=ref.slice().sort(function(a,b){return a-b;});
+    var edges=[];
+    for(var q=1;q<10;q++) edges.push(sr[Math.floor(q*n/10)]);
+    function hist(arr){
+      var h=new Array(10).fill(0);
+      arr.forEach(function(v){ var b=0; while(b<9 && v>edges[b]) b++; h[b]++; });
+      return h.map(function(c){ return Math.max(c/arr.length, 1e-4); });
+    }
+    var e=hist(ref), a=hist(cur), psi=0;
+    for(var i=0;i<10;i++) psi += (a[i]-e[i])*Math.log(a[i]/e[i]);
+    var scur=cur.slice().sort(function(x,y){return x-y;});
+    var ks=0, i1=0, i2=0;
+    for(var t=0;t<200;t++){
+      var x=-5+10*t/199;
+      while(i1<n && sr[i1]<=x) i1++;
+      while(i2<n && scur[i2]<=x) i2++;
+      ks=Math.max(ks, Math.abs(i1/n - i2/n));
+    }
+    var ctx=dpr(dr), W=720, H=290; ctx.clearRect(0,0,W,H);
+    var L=50,R=470,T=50,B=230;
+    function dens(arr){
+      var h=new Array(60).fill(0);
+      arr.forEach(function(v){ var b=Math.floor((v+4)/9*60); if(b>=0&&b<60) h[b]++; });
+      return h;
+    }
+    var d1=dens(ref), d2=dens(cur), mx=Math.max(Math.max.apply(null,d1),Math.max.apply(null,d2));
+    for(var b=0;b<60;b++){
+      var x=L+b*(R-L)/60, w=(R-L)/60;
+      ctx.fillStyle="rgba(85,96,216,0.45)"; ctx.fillRect(x, B-(d1[b]/mx)*(B-T), w-0.5, (d1[b]/mx)*(B-T));
+      ctx.fillStyle="rgba(240,168,30,0.55)"; ctx.fillRect(x, B-(d2[b]/mx)*(B-T), w-0.5, (d2[b]/mx)*(B-T));
+    }
+    ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.stroke();
+    ctx.fillStyle="#98a0f0"; ctx.font="11px ui-monospace,Menlo,monospace"; ctx.fillText("training reference", L, 26);
+    ctx.fillStyle="#f0c274"; ctx.fillText("production window", L+160, 26);
+    ctx.fillStyle="#8892a0"; ctx.font="10px ui-monospace,Menlo,monospace"; ctx.fillText("feature value →", L, B+20);
+    var BL=506, BR=690, BT=60, BB=230;
+    ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+    ctx.fillText("PSI contribution per bin", BL, 44);
+    var maxc=0.02;
+    for(var i=0;i<10;i++) maxc=Math.max(maxc, Math.abs((a[i]-e[i])*Math.log(a[i]/e[i])));
+    for(var i=0;i<10;i++){
+      var c=(a[i]-e[i])*Math.log(a[i]/e[i]);
+      var y=BT+i*((BB-BT)/10), h=(BB-BT)/10-3;
+      ctx.fillStyle="#252D3A"; ctx.fillRect(BL, y, BR-BL, h);
+      ctx.fillStyle= c>0.05? "#C0392B" : "#E0920C";
+      ctx.fillRect(BL, y, Math.max(1,(c/maxc)*(BR-BL)), h);
+    }
+    var band = psi<0.1? "stable" : (psi<0.2? "moderate" : "significant");
+    document.getElementById("drPsi").textContent=psi.toFixed(3);
+    document.getElementById("drKs").textContent=ks.toFixed(3);
+    document.getElementById("drBand").textContent=band;
+    var action = (psi<0.1) ? "monitor" : (imp<0.25 ? "log only" : (psi<0.2 ? "investigate" : "confirm metric"));
+    document.getElementById("drAct").textContent=action;
+    var msg="PSI <span class='v'>"+psi.toFixed(3)+"</span> ("+band+" band: &lt;0.1 stable · 0.1–0.2 moderate · &gt;0.2 significant), KS <span class='v'>"+ks.toFixed(3)+"</span>. ";
+    if(psi<0.1) msg+="<span class='good'>No action.</span> Normal week-to-week variation.";
+    else if(imp<0.25) msg+="<span class='warn'>Significant drift on a feature the model barely uses.</span> Log it, don't page anyone. This is precisely the alert that trains a team to ignore its own monitoring.";
+    else msg+="<span class='warn'>Drift on an important feature.</span> The correct next step is <b>not</b> &ldquo;retrain&rdquo; — it is to check whether a metric actually moved: score the recent window against whatever labels have arrived, watch the prediction distribution and the override rate, and find out <em>why</em> it shifted. Distribution change is evidence, not a verdict.";
+    document.getElementById("drOut").innerHTML=msg;
+  }
+  [drS,drW,drI].forEach(function(e){ e.addEventListener("input", drawDR); });
+  drawDR();
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">
