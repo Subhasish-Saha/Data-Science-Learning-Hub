@@ -4,7 +4,7 @@ A growing set of deep, self-paced study resources for ML / AI-engineering interv
 Each subject is a **self-contained static mini-site** (styled HTML, inline SVG diagrams,
 runnable code, an interactive progress tracker, and an interview Q&A bank).
 
-**Live:** RAG · NLP · LangChain & Prompt Engineering · LangGraph & Agentic AI. **Planned:** Classical ML.
+**Live:** RAG · Classical ML · NLP · LangChain & Prompt Engineering · LangGraph & Agentic AI.
 
 ## Structure
 
@@ -30,17 +30,25 @@ runnable code, an interactive progress tracker, and an interview Q&A bank).
 │   ├── LangGraph_Complete.html
 │   ├── stitch_lg.py           # rebuilds the Complete file
 │   └── build_lg.py            # regenerates shells + the tracker from the blueprint .md
-└── nlp/                       # subject: Natural Language Processing (7 parts)
+├── nlp/                       # subject: Natural Language Processing (7 parts)
+│   ├── index.html
+│   ├── NLP_Part1_Foundations.html  … Part2 … Part7
+│   ├── NLP_Complete.html
+│   ├── stitch_nlp.py          # rebuilds the Complete file
+│   ├── build_nlp.py           # regenerates shells + the tracker from the blueprint .md
+│   └── insert.py              # splices a content fragment into a shell + validates it
+└── cml/                       # subject: Classical Machine Learning (7 parts)
     ├── index.html
-    ├── NLP_Part1_Foundations.html  … Part2 … Part7
-    ├── NLP_Complete.html
-    ├── stitch_nlp.py          # rebuilds the Complete file
-    ├── build_nlp.py           # regenerates shells + the tracker from the blueprint .md
+    ├── CML_Part1_Foundations.html  … Part2 … Part7
+    ├── CML_Complete.html
+    ├── stitch_cml.py          # rebuilds the Complete file
+    ├── build_cml.py           # regenerates shells + tracker + the widget CSS layer
     └── insert.py              # splices a content fragment into a shell + validates it
 ```
 
 Each subject keeps its own progress-tracker localStorage key so they never collide:
-`ragPrepStatus_v1`, `nlpPrepStatus_v1`, `lcPrepStatus_v1` and `lgPrepStatus_v1`.
+`ragPrepStatus_v1`, `cmlPrepStatus_v1`, `nlpPrepStatus_v1`, `lcPrepStatus_v1` and `lgPrepStatus_v1`.
+Classical ML additionally uses `cmlDrill_v1` for the Q&A drill marks, kept separate from study progress.
 
 Everything is plain static HTML — no build step, no server. Fonts and code
 syntax-highlighting load from a CDN; pages still render offline with fallbacks.
@@ -60,10 +68,11 @@ interfere with each other.
 After editing any part, rebuild that subject's stitched `Complete` file:
 
 ```bash
-cd rag       && python3 stitch.py      # RAG        (6 parts)
-cd nlp       && python3 stitch_nlp.py  # NLP        (7 parts)
-cd langchain && python3 stitch_lc.py   # LangChain  (6 parts)
-cd langgraph && python3 stitch_lg.py   # LangGraph  (6 parts)
+cd rag       && python3 stitch.py      # RAG          (6 parts)
+cd cml       && python3 stitch_cml.py  # Classical ML (7 parts)
+cd nlp       && python3 stitch_nlp.py  # NLP          (7 parts)
+cd langchain && python3 stitch_lc.py   # LangChain    (6 parts)
+cd langgraph && python3 stitch_lg.py   # LangGraph    (6 parts)
 ```
 
 ## Hosting (free)
@@ -88,12 +97,20 @@ Both are free and rebuild automatically whenever you `git push`.
 
 ## Subject sizes
 
-| Subject | Parts | Tracked topics | Diagrams | Q&A | Blueprint |
-|---|---|---|---|---|---|
-| RAG | 6 | 206 | 65 | 162 | `rag-learning-master-prompt.md` |
-| NLP | 7 | 520 | 73 | 171 | `nlp-study-guide.md` |
-| LangChain & Prompt Engineering | 6 | 313 | 16 | 69 | `langchain-llm-prompt-study-guide.md` |
-| LangGraph & Agentic AI | 6 | 210 | 26 | 78 | `langgraph-agentic-ai-study-guide.md` |
+| Subject | Parts | Tracked topics | Diagrams | Interactive | Q&A | Blueprint |
+|---|---|---|---|---|---|---|
+| RAG | 6 | 206 | 65 | — | 162 | `rag-learning-master-prompt.md` |
+| Classical ML | 7 | 439 | 66 | **24** | 186 | `classical-ml-study-guide.md` |
+| NLP | 7 | 520 | 73 | — | 171 | `nlp-study-guide.md` |
+| LangChain & Prompt Engineering | 6 | 313 | 16 | — | 69 | `langchain-llm-prompt-study-guide.md` |
+| LangGraph & Agentic AI | 6 | 210 | 26 | — | 78 | `langgraph-agentic-ai-study-guide.md` |
+
+**Interactive widgets** (Classical ML only, so far) are self-contained `<canvas>` + vanilla-JS
+components defined inside each content fragment, styled by the `.wdg` CSS block that
+`build_cml.py` injects before `</style>`. They compute for real in the browser — least-squares
+fits, coordinate-descent Lasso, Lloyd iterations, PAVA isotonic regression, exact AUC/PSI —
+rather than replaying a recorded animation, and each is wrapped in an IIFE with unique element
+IDs so they survive being concatenated into `CML_Complete.html`.
 
 Each subject is generated from a Markdown blueprint in `rag_learning/` (one level per
 `##` heading, one tracker row per `- [ ]` checkbox), so the tracker can always be

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classical Machine Learning — Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14181F; --paper:#F1F3F6; --surface:#FFFFFF;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95; --green:#2E9E5B;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0; --line:#E2E5EB;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace; --sans:'IBM Plex Sans',system-ui,sans-serif; --disp:'Space Grotesk',var(--sans);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05); --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:var(--indigo);text-decoration:none}
+.wrap{max-width:1000px;margin:0 auto;padding:34px 22px 90px}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--faint);margin-bottom:18px}
+.crumb a{color:var(--muted)} .crumb a:hover{color:var(--indigo)}
+.hero{background:radial-gradient(120% 140% at 15% 0%,#1e2632 0%,#14181f 60%);color:#fff;border-radius:20px;padding:44px 40px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(2rem,5vw,2.9rem);line-height:1.05;letter-spacing:-1.2px;margin:0 0 14px}
+.hero p{color:#c2cad6;max-width:62ch;font-size:1.04rem;margin:0 0 24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:12px;color:#c2cad6;background:#1f2733;border:1px solid #2c3542;padding:6px 12px;border-radius:20px}
+.chip b{color:#fff}
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:26px;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#3a2a00;font-family:var(--disp);font-weight:700;padding:14px 24px;border-radius:12px;font-size:1.02rem;box-shadow:var(--shadow)}
+.cta:hover{filter:brightness(1.05);text-decoration:none}
+.mark{position:absolute;right:-24px;top:-18px;width:210px;height:210px;opacity:.13}
+h2.sec{font-family:var(--disp);font-weight:700;font-size:1.45rem;letter-spacing:-.4px;margin:50px 0 6px;color:var(--ink)}
+p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:22px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--indigo-line);text-decoration:none}
+.card .pk{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
+.card .t{font-family:var(--disp);font-weight:600;font-size:1.16rem;color:var(--ink);margin:6px 0 6px}
+.card .d{color:var(--muted);font-size:.92rem}
+.card .go{display:inline-block;margin-top:13px;font-family:var(--mono);font-size:11.5px;color:var(--indigo);font-weight:500}
+.card.combined{background:linear-gradient(135deg,#fff,#f3f4fb);border-color:var(--indigo-line)}
+.note{margin:44px 0 0;background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:14px;padding:20px 24px}
+.note h3{font-family:var(--disp);font-weight:600;font-size:1.04rem;margin:0 0 8px;color:#a5710a}
+.note p,.note ul{color:#3d3527;font-size:.95rem;margin:.4rem 0 0}
+.note ul{padding-left:1.2rem} .note li{margin:.35rem 0}
+.note code{font-family:var(--mono);font-size:.86em;background:#fff;border:1px solid var(--gold-line);padding:.1em .35em;border-radius:4px}
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--faint);line-height:1.8}
+@media (max-width:560px){.hero{padding:32px 22px} .wrap{padding:20px 14px 70px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="crumb"><a href="../index.html">← Learning Hub</a> &nbsp;/&nbsp; Classical Machine Learning</div>
+
+  <header class="hero">
+    <svg class="mark" viewBox="0 0 40 40" fill="none"><path d="M7 31 L16 19 L23 25 L33 9" stroke="#E0920C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="19" r="3" fill="#5560D8"/><circle cx="23" cy="25" r="3" fill="#5560D8"/><circle cx="33" cy="9" r="3.4" fill="#2E9E5B"/></svg>
+    <div class="eyebrow">Interview Prep · Tabular &amp; Structured Data</div>
+    <h1>Classical Machine Learning</h1>
+    <p>Everything a tabular-ML interview actually covers: <b>data leakage</b> and the splits that prevent it, bias-variance and regularization, the model zoo from logistic regression to <b>XGBoost / LightGBM / CatBoost</b>, clustering and PCA, then the level most candidates fail — <b>validation, ROC vs PR, thresholds, calibration and imbalance</b> — plus feature stores and point-in-time correctness, SHAP's failure modes, fairness, production drift, and the 2026 frontier: <b>tabular foundation models, conformal prediction and uplift modelling</b>.</p>
+    <div class="chips">
+      <span class="chip"><b>7</b> parts · 16 levels</span>
+      <span class="chip"><b>439</b> topics</span>
+      <span class="chip"><b>66</b> diagrams</span>
+      <span class="chip">🎛 <b>24</b> interactive</span>
+      <span class="chip"><b>105</b> Q&amp;A + 15 traps</span>
+      <span class="chip">sklearn <b>1.9</b></span>
+    </div>
+    <a class="cta" href="CML_Complete.html">Open the full resource (all 7 parts) →</a>
+  </header>
+
+  <h2 class="sec">Read by part</h2>
+  <p class="seclead">Each part is self-contained; the progress tracker at the top of each is shared across all of them on this device. Every part carries <b>live interactive widgets</b> — real models fitted in your browser, not screenshots.</p>
+  <div class="grid">
+    <a class="card" href="CML_Part1_Foundations.html">
+      <div class="pk">Part 1 · Levels 0–3</div><div class="t">Foundations</div>
+      <div class="d">When <em>not</em> to use ML, the maths you're actually asked about, missingness, scaling, encoding, <b>splitting</b> and the four kinds of <b>data leakage</b> — then loss functions, bias-variance and regularization. <b>Interactive:</b> split visualiser, leakage simulator, polynomial bias-variance fitter, Ridge-vs-Lasso solver.</div><span class="go">23 sections · 19 diagrams · 4 interactive · Open →</span></a>
+    <a class="card" href="CML_Part2_LinearDistanceTrees.html">
+      <div class="pk">Part 2 · Levels 4–6</div><div class="t">Linear, Distance &amp; Trees</div>
+      <div class="d">Linear regression diagnostics, Ridge/Lasso paths, <b>logistic regression and the odds ratio</b>, GLMs (Poisson/Gamma/Tweedie), kNN, Naive Bayes, LDA vs PCA, SVMs — and how a tree actually splits. <b>Interactive:</b> log-odds explorer, live kNN boundary, the kernel lift, Gini/entropy split finder.</div><span class="go">12 sections · 10 diagrams · 4 interactive · Open →</span></a>
+    <a class="card" href="CML_Part3_EnsemblesUnsupervised.html">
+      <div class="pk">Part 3 · Levels 7–9</div><div class="t">Ensembles &amp; Unsupervised</div>
+      <div class="d">Why ensembles work, Random Forest and OOB, <b>gradient boosting from the residual up</b>, <b>XGBoost vs LightGBM vs CatBoost</b> mechanism by mechanism, stacking's leakage trap — then clustering, PCA/t-SNE/UMAP, survival, ranking and time series. <b>Interactive:</b> bagging variance, boosting stepper, k-means iterations, PCA scaling.</div><span class="go">15 sections · 13 diagrams · 4 interactive · Open →</span></a>
+    <a class="card" href="CML_Part4_ValidationMetrics.html">
+      <div class="pk">Part 4 · Levels 10–11</div><div class="t">Validation &amp; Metrics</div>
+      <div class="d">The CV family, <b>nested CV</b>, modern HPO, honest model comparison — then the level interviews are lost on: <b>ROC vs PR</b>, thresholds as a business decision, <b>calibration</b>, and the imbalance order of operations. <b>Interactive:</b> grid-vs-random, threshold &amp; confusion matrix, reliability diagram with Platt/isotonic, ROC-vs-PR under imbalance.</div><span class="go">12 sections · 9 diagrams · 4 interactive · Open →</span></a>
+    <a class="card" href="CML_Part5_FeaturesInterpretability.html">
+      <div class="pk">Part 5 · Levels 12–13</div><div class="t">Features &amp; Interpretability</div>
+      <div class="d">Feature engineering that beats model choice, selection inside the CV loop, <b>feature stores and point-in-time correctness</b> — then the three feature importances, PDP/ICE/ALE, <b>SHAP's failure modes</b>, and the fairness impossibility result. <b>Interactive:</b> cyclical encoding, permutation importance under correlation, PDP vs ICE.</div><span class="go">10 sections · 7 diagrams · 3 interactive · Open →</span></a>
+    <a class="card" href="CML_Part6_ProductionFrontier.html">
+      <div class="pk">Part 6 · Levels 14–15</div><div class="t">Production &amp; Frontier</div>
+      <div class="d">Training/serving skew, latency budgets, <b>drift when labels arrive 60 days late</b>, retraining triggers, A/B pitfalls, the feedback loop — then <b>TabPFN-3</b>, conformal prediction, causal inference and data-centric ML. <b>Interactive:</b> PSI drift calculator, conformal coverage, churn-score vs uplift targeting.</div><span class="go">12 sections · 8 diagrams · 3 interactive · Open →</span></a>
+    <a class="card" href="CML_Part7_QABank.html">
+      <div class="pk">Part 7 · Q&amp;A Bank</div><div class="t">Interview Q&amp;A Bank</div>
+      <div class="d"><b>105 questions</b> with model answers, the <b>15 trap questions</b>, your own PDF set mapped honestly, 15 derivations, 16 coding exercises, 10 case designs, 12 behavioural questions, and the formula + legacy→modern sheets. <b>Interactive:</b> random drill with shaky/solid marks, and a trap drill.</div><span class="go">105 Q&amp;A · 2 drills · Open →</span></a>
+    <a class="card combined" href="CML_Complete.html">
+      <div class="pk">All-in-one</div><div class="t">Complete edition ★</div>
+      <div class="d">Every part stitched into one page with the master tracker at the top — print- and PDF-ready, widgets included.</div><span class="go">Open →</span></a>
+  </div>
+
+  <div class="note">
+    <h3>⚠ Library currency — verified August 2026</h3>
+    <p><b><code>scikit-learn</code> 1.9.0</b> (2 Jun 2026, Python ≥ 3.11) · <code>XGBoost</code> <b>3.4.1</b> · <code>LightGBM</code> <b>4.7.0</b> · <code>CatBoost</code> <b>1.2.10</b>.</p>
+    <ul>
+      <li><b>Metadata routing</b> (<code>set_config(enable_metadata_routing=True)</code>, <code>set_fit_request</code>) is how <code>sample_weight</code> travels through a <code>Pipeline</code> and cross-validation. Saying &ldquo;sklearn can't do that, so I write a manual fold loop&rdquo; describes a library from several versions ago.</li>
+      <li><b>scikit-learn 1.8 added free-threaded CPython support</b> (3.14 wheels) — the GIL is no longer automatically your parallelism ceiling.</li>
+      <li><b>The tabular consensus moved.</b> &ldquo;GBDTs beat deep learning on tabular data&rdquo; is now genuinely contested for small-to-medium data by <b>TabPFN-3</b>, which scales to 1M rows and reports beating 8-hour-tuned GBDT baselines on TabArena. Caveat it properly: pretrained purely on synthetic data, with a thinner ops story.</li>
+      <li><b>Calibration is no longer automatic advice.</b> A recent benchmark found Platt and isotonic can <em>degrade</em> proper-scoring performance for strong tabular models, with Venn-Abers best on average — so calibrate on held-out data and <em>measure whether it helped</em>.</li>
+    </ul>
+    <p>Every part carries a provenance note distinguishing what was verified against primary sources from what is directional. Treat any <b>benchmark ranking or &ldquo;current best model&rdquo; claim as stale on sight</b> and re-benchmark on your own data.</p>
+  </div>
+
+  <div class="foot">
+    Classical Machine Learning — 7 parts · 439 tracked topics · 66 diagrams · 24 interactive widgets · progress saved per device (<code>cmlPrepStatus_v1</code>)<br>
+    Scope: this subject owns tabular modelling, validation, metrics and the ML lifecycle. Text and embeddings → <a href="../nlp/index.html">NLP</a> · retrieval → <a href="../rag/index.html">RAG</a> · prompting → <a href="../langchain/index.html">LangChain</a> · agents → <a href="../langgraph/index.html">LangGraph</a>.
+  </div>
+
+</div>
+</body>
+</html>
