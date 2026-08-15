@@ -485,7 +485,506 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 7.1 ===== -->
+      <article class="topic" id="c7-1">
+        <h3><span class="tn">7.1</span> How a tree is built <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Everything in Part 8 is made of these. If you cannot compute an information gain by hand, the ensembles conversation will not go well.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Find the split — Gini, entropy and information gain, live</div>
+          <div class="wbody">
+            <canvas id="dtCanvas" width="720" height="290" aria-label="Twenty-four labelled points laid out along a single feature axis with a movable split threshold, showing the impurity of the left and right children and the resulting information gain, alongside a curve of gain against threshold position."></canvas>
+            <div class="wctl">
+              <label>split threshold · <b id="dtTVal">0.50</b>
+                <input type="range" id="dtT" min="2" max="98" value="50" step="1">
+              </label>
+              <label>criterion
+                <span class="wbtns" style="margin-top:2px">
+                  <button class="wbtn on" id="dtGini">Gini</button><button class="wbtn" id="dtEnt">Entropy</button>
+                </span>
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="dtParent">—</span>parent impurity</div>
+              <div class="wcell"><span class="n" id="dtLeft">—</span>left child</div>
+              <div class="wcell"><span class="n" id="dtRight">—</span>right child</div>
+              <div class="wcell"><span class="n" id="dtGain">—</span>information gain</div>
+            </div>
+            <div class="wout" id="dtOut"></div>
+            <p class="wnote">Everything is computed exactly: <code class="ic">Gini = 1 − Σpᵢ²</code>, <code class="ic">Entropy = −Σpᵢ log₂ pᵢ</code>, and <code class="ic">gain = H(parent) − Σ(nᵢ/n)·H(childᵢ)</code>. Drag the threshold and watch the gain curve; the tree's algorithm simply evaluates every candidate threshold on every feature and takes the maximum. Switch criteria and notice how little the <em>chosen</em> split moves — which is the honest answer to &ldquo;Gini or entropy?&rdquo;</p>
+          </div>
+        </div>
+
+        <h4>The algorithm, precisely</h4>
+        <ol style="color:var(--text);line-height:1.75">
+          <li>At the current node, for <b>every feature</b> and <b>every candidate threshold</b>, split the rows into left and right.</li>
+          <li>Compute the <b>weighted child impurity</b> <code class="ic">Σ(nᵢ/n)·H(childᵢ)</code> and subtract it from the parent's impurity to get the <b>gain</b>.</li>
+          <li>Take the split with the highest gain. If no split beats the stopping criteria, make this node a <b>leaf</b> and predict the majority class (or the mean).</li>
+          <li>Recurse on each child, with only that child's rows.</li>
+        </ol>
+        <p>Two properties fall straight out of that description and are constantly asked about. It is <b>greedy</b> — it takes the best split now and never revisits it, so the tree it produces is <em>not</em> the globally optimal tree (finding that is NP-hard). And it is <b>axis-aligned</b> — every split is a threshold on a single feature, which is why a diagonal boundary costs a staircase of splits (§7.6).</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="A feature space being recursively partitioned by axis-aligned splits, shown alongside the corresponding tree structure, so each rectangle in the space corresponds to one leaf of the tree.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">recursive binary partitioning — the space and the tree are the same object</text>
+              <g>
+                <rect x="30" y="44" width="240" height="216" fill="#161b23" stroke="#2c3542"/>
+                <line x1="140" y1="44" x2="140" y2="260" stroke="#F0A81E" stroke-width="2.2"/>
+                <line x1="30" y1="150" x2="140" y2="150" stroke="#5560D8" stroke-width="2"/>
+                <line x1="140" y1="112" x2="270" y2="112" stroke="#5560D8" stroke-width="2"/>
+                <line x1="200" y1="112" x2="200" y2="260" stroke="#2E9E5B" stroke-width="1.8"/>
+                <rect x="30" y="44" width="110" height="106" fill="#3B45B5" opacity="0.2"/>
+                <rect x="30" y="150" width="110" height="110" fill="#E0920C" opacity="0.2"/>
+                <rect x="140" y="44" width="130" height="68" fill="#E0920C" opacity="0.2"/>
+                <rect x="140" y="112" width="60" height="148" fill="#3B45B5" opacity="0.2"/>
+                <rect x="200" y="112" width="70" height="148" fill="#2E9E5B" opacity="0.22"/>
+                <text x="150" y="272" fill="#f0c274" font-size="10">x₁ &gt; a</text>
+                <text x="34" y="40" fill="#98a0f0" font-size="10">x₂</text>
+                <g font-size="10" fill="#c2cad6"><text x="70" y="100">L1</text><text x="70" y="208">L2</text><text x="196" y="82">L3</text><text x="162" y="192">L4</text><text x="228" y="192">L5</text></g>
+              </g>
+              <g transform="translate(320,0)" font-size="10">
+                <rect x="130" y="48" width="96" height="26" rx="6" fill="#3a2418" stroke="#E0920C"/><text x="178" y="65" fill="#f0c274" text-anchor="middle">x₁ ≤ a ?</text>
+                <path d="M150 74 L96 100 M206 74 L262 100" stroke="#3a4453" stroke-width="1.3"/>
+                <rect x="46" y="100" width="96" height="26" rx="6" fill="#1e2a3a" stroke="#3B45B5"/><text x="94" y="117" fill="#98a0f0" text-anchor="middle">x₂ ≤ b ?</text>
+                <rect x="216" y="100" width="96" height="26" rx="6" fill="#1e2a3a" stroke="#3B45B5"/><text x="264" y="117" fill="#98a0f0" text-anchor="middle">x₂ ≤ c ?</text>
+                <path d="M70 126 L44 154 M118 126 L142 154" stroke="#3a4453" stroke-width="1.3"/>
+                <path d="M240 126 L214 154 M288 126 L312 154" stroke="#3a4453" stroke-width="1.3"/>
+                <rect x="10" y="154" width="62" height="24" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="41" y="170" fill="#c2cad6" text-anchor="middle">L1</text>
+                <rect x="112" y="154" width="62" height="24" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="143" y="170" fill="#c2cad6" text-anchor="middle">L2</text>
+                <rect x="182" y="154" width="62" height="24" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="213" y="170" fill="#c2cad6" text-anchor="middle">L3</text>
+                <rect x="282" y="154" width="62" height="24" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="313" y="170" fill="#c2cad6" text-anchor="middle">x₁ ≤ d ?</text>
+                <path d="M300 178 L282 202 M330 178 L346 202" stroke="#3a4453" stroke-width="1.3"/>
+                <rect x="250" y="202" width="62" height="24" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="281" y="218" fill="#c2cad6" text-anchor="middle">L4</text>
+                <rect x="318" y="202" width="58" height="24" rx="5" fill="#252D3A" stroke="#3a4453"/><text x="347" y="218" fill="#c2cad6" text-anchor="middle">L5</text>
+                <text x="10" y="252" fill="#8892a0">Each leaf = one rectangle. Prediction = the leaf's</text>
+                <text x="10" y="266" fill="#8892a0">majority class (or mean, for regression).</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The space and the tree are the same object.</b> Every internal node is a cut; every leaf is a rectangle; every prediction is &ldquo;which rectangle am I in?&rdquo;. That equivalence is worth drawing in an interview because it makes the next three sections — complexity control, pruning, and the extrapolation failure — obvious rather than memorised.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How does a decision tree choose a split?</summary>
+              <div class="ans"><p>Greedily and exhaustively. At each node it scans <b>every feature and every candidate threshold</b>, computes the impurity decrease <code class="ic">H(parent) − Σ(nᵢ/n)H(childᵢ)</code>, and takes the maximum — then recurses on each child with only that child's rows, stopping when a criterion is hit. Two properties to volunteer: it's <b>greedy</b>, so it never revisits an earlier split and the resulting tree isn't globally optimal (that's NP-hard); and it's <b>axis-aligned</b>, so every boundary is a threshold on one feature at a time.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What are the "candidate thresholds", and how many are there?</summary>
+              <div class="ans"><p>For a continuous feature, the candidates are the midpoints between consecutive <b>distinct sorted values</b> — at most <code class="ic">n−1</code> per feature, so the naive split search is <code class="ic">O(n·p)</code> per node after sorting. That cost is why modern implementations use <b>histogram binning</b>: LightGBM, XGBoost's <code class="ic">hist</code> method and sklearn's <code class="ic">HistGradientBoosting</code> pre-bin each feature into ~256 buckets and only consider bin boundaries, which turns the per-node cost into <code class="ic">O(bins·p)</code> and is the single biggest reason those libraries are fast (§8.6).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why is the tree not globally optimal?</summary>
+              <div class="ans"><p>Because the algorithm is <b>greedy</b>: it picks the split with the highest immediate gain and never reconsiders. A split with modest gain now might enable two excellent splits below it, and the greedy algorithm will never find that path — the <b>horizon effect</b>. Finding the globally optimal tree is NP-hard, so exhaustive search isn't an option at any realistic size. In practice it matters less than it sounds, because <b>ensembles make individual trees' myopia irrelevant</b> — which is a large part of why we ensemble rather than trying to build one perfect tree.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.2 ===== -->
+      <article class="topic" id="c7-2">
+        <h3><span class="tn">7.2</span> Split criteria <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Gini, entropy, information gain and gain ratio — with the honest answer about which to use.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Criterion</th><th>Formula</th><th>Range (binary)</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><b>Gini impurity</b></td><td><code class="ic">1 − Σpᵢ²</code></td><td>0 to 0.5</td><td>Probability that two randomly drawn items from the node have different labels. <b>sklearn's default</b>; cheaper, no logarithm</td></tr>
+              <tr><td><b>Entropy</b></td><td><code class="ic">−Σpᵢ log₂ pᵢ</code></td><td>0 to 1</td><td>Bits needed to encode the class. Penalises impure nodes slightly more aggressively</td></tr>
+              <tr><td>Information gain</td><td><code class="ic">H(parent) − Σ(nᵢ/n)H(childᵢ)</code></td><td>—</td><td>The <em>reduction</em>, using either measure. This is what's maximised</td></tr>
+              <tr><td>Gain ratio</td><td><code class="ic">IG / SplitInfo</code></td><td>—</td><td>C4.5's correction for the <b>high-cardinality bias</b> — normalises by how many ways the split partitions the data</td></tr>
+              <tr><td>Log loss / deviance</td><td><code class="ic">−Σ y log p</code></td><td>—</td><td>Available in sklearn as <code class="ic">criterion='log_loss'</code>; equivalent to entropy for classification</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Gini is the <b>first-order Taylor approximation of entropy</b> around the uniform distribution, which is why they behave so similarly — a fact worth knowing if someone pushes on the difference.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Gini or entropy? The honest answer</span>
+          <p>They almost always choose the same splits and produce trees of nearly identical accuracy — empirical studies put the disagreement at around 2% of splits. Gini is <b>cheaper</b> (no logarithm) and is sklearn's default; entropy penalises impure nodes marginally more. Saying <em>&ldquo;in practice it doesn't matter — I'd spend the tuning budget on <code class="ic">max_depth</code> and <code class="ic">min_samples_leaf</code> instead&rdquo;</em> is a better answer than inventing a difference, and it's what an experienced practitioner would actually say.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Gini vs entropy — does it matter?</summary>
+              <div class="ans"><p>Almost never. <code class="ic">Gini = 1 − Σpᵢ²</code> is the probability two random items from the node have different labels; <code class="ic">entropy = −Σpᵢlog₂pᵢ</code> is the bits needed to encode the class. They pick the same split roughly 98% of the time — Gini is in fact the first-order Taylor approximation of entropy near uniform. Gini is <b>cheaper</b> (no logarithm) and is the default. The right answer is that it doesn't matter and the tuning budget belongs on depth and leaf size instead.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is gain ratio and what problem does it solve?</summary>
+              <div class="ans"><p>Plain information gain is <b>biased toward high-cardinality features</b>: a feature with a unique value per row splits the data into perfectly pure singleton nodes and scores maximum gain, while being useless. C4.5's <b>gain ratio</b> divides the gain by <code class="ic">SplitInfo</code> — the entropy of the partition sizes themselves — which penalises splits that shatter the data into many small pieces. Modern implementations mostly handle this differently: binary splits only, plus <code class="ic">min_samples_leaf</code>. But the underlying bias never fully goes away, and it's the root cause of the feature-importance trap in §7.7.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.3 ===== -->
+      <article class="topic" id="c7-3">
+        <h3><span class="tn">7.3</span> Regression trees</h3>
+        <p class="lead">Same algorithm, different impurity — and one consequence that decides whether you can use trees on a trending time series at all.</p>
+
+        <p>For regression the criterion is <b>variance reduction</b>: the impurity of a node is its MSE about the node mean, and the split maximises <code class="ic">MSE(parent) − Σ(nᵢ/n)·MSE(childᵢ)</code>. The leaf predicts the <b>mean</b> of its rows. Swap in MAE and the leaf predicts the <b>median</b> — the same mean-vs-median distinction as §4.1, and sklearn exposes it as <code class="ic">criterion='absolute_error'</code> (much slower, because the median can't be updated incrementally the way a mean can).</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">A regression tree outputs a step function — and cannot extrapolate</span>
+          <p>Because every prediction is a leaf mean, the output is <b>piecewise constant</b>: it can never produce a value outside the range of the training target, and beyond the training range of a feature it simply returns the nearest leaf's constant. For a trending series that is fatal — a model trained on 2024 data will predict 2024 levels forever. The fixes are to <b>detrend/difference</b> first, model the residual with a tree and add the trend back, or use a hybrid with a linear component. This is the single most important practical limitation of tree models (§10.5).</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How does a regression tree differ from a classification tree?</summary>
+              <div class="ans"><p>Only in the impurity measure and the leaf prediction. Classification uses Gini or entropy and predicts the majority class; regression uses <b>variance / MSE reduction</b> and predicts the leaf <b>mean</b>. Switch the criterion to absolute error and the leaf predicts the <b>median</b> instead — the same mean-vs-median choice as any other loss, and much slower to fit because medians can't be updated incrementally. Everything else — greedy search, axis-aligned splits, recursion — is identical.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>⭐ Can a decision tree extrapolate?</summary>
+              <div class="ans"><p><b>No.</b> Every prediction is a leaf constant, so the output is bounded by the range of the training target and is flat beyond the training range of any feature. A tree trained on house prices from £100k–£500k will never predict £800k, and a tree trained on a rising time series will predict the last level forever. That makes tree models a poor fit for <b>trending</b> targets without preprocessing — detrend or difference first, model the residual, add the trend back — or use a hybrid with a linear component. It's the main structural reason a linear model can still beat a GBM on a forecasting problem.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.4 ===== -->
+      <article class="topic" id="c7-4">
+        <h3><span class="tn">7.4</span> Controlling complexity <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A fully-grown tree has near-zero training error and enormous variance. Every hyperparameter here is a way of stopping that — and each controls a genuinely different thing.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Parameter</th><th>Stops growth when…</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">max_depth</code></td><td>The node is <code class="ic">d</code> levels down</td><td>The blunt, effective knob — tune it first. Caps interactions at depth <code class="ic">d</code></td></tr>
+              <tr><td><code class="ic">min_samples_split</code></td><td>A node has too few rows to consider splitting</td><td>Prevents splits on tiny samples</td></tr>
+              <tr><td><code class="ic">min_samples_leaf</code></td><td>A split would leave a child below the minimum</td><td><b>Usually the most useful</b> — it bounds the variance of <em>every</em> prediction, because no leaf estimate is based on fewer than that many rows</td></tr>
+              <tr><td><code class="ic">max_leaf_nodes</code></td><td>The tree hits a leaf budget</td><td>Grows <b>best-first</b> rather than depth-first — the same idea as LightGBM's leaf-wise growth (§8.6)</td></tr>
+              <tr><td><code class="ic">min_impurity_decrease</code></td><td>The best split's gain is below a threshold</td><td>Direct control on the gain shown in the §7.1 widget</td></tr>
+              <tr><td><code class="ic">max_features</code></td><td>—</td><td>Considers a random subset of features per split. Mostly a Random Forest device (§8.3), but it also regularizes a single tree</td></tr>
+              <tr><td><code class="ic">ccp_alpha</code></td><td>—</td><td><b>Post</b>-pruning by cost-complexity — see §7.5</td></tr>
+              <tr><td><code class="ic">class_weight</code></td><td>—</td><td>Re-weights impurity calculations; how you make a tree cost-sensitive</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Depth caps interaction order</span>
+          <p>A useful reframing: a tree of depth <code class="ic">d</code> can express interactions among at most <code class="ic">d</code> features on any single path. <code class="ic">max_depth=1</code> (a stump) is a purely additive model with no interactions at all; <code class="ic">max_depth=3</code> allows three-way interactions. That's why boosting with shallow trees works so well — you're fitting an <b>additive model of low-order interactions</b>, which is a good inductive bias for tabular data and is the connection to GAMs (§14.2).</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>Which tree hyperparameter would you tune first, and why?</summary>
+              <div class="ans"><p><code class="ic">max_depth</code> for a single tree — it's the bluntest and most effective control, and it has a clean interpretation: depth <code class="ic">d</code> caps the interaction order at <code class="ic">d</code>. Then <code class="ic">min_samples_leaf</code>, which I'd argue is actually the more useful one on noisy data because it bounds the variance of <em>every</em> leaf estimate rather than just the shape of the tree. For a Random Forest the priority inverts: leave depth unbounded and control the model with <code class="ic">min_samples_leaf</code> and <code class="ic">max_features</code>, because the averaging handles the variance (§8.3).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What's the difference between min_samples_split and min_samples_leaf?</summary>
+              <div class="ans"><p><code class="ic">min_samples_split</code> is a precondition on the <b>parent</b>: don't even consider splitting a node with fewer than this many rows. <code class="ic">min_samples_leaf</code> is a constraint on the <b>children</b>: reject any split that would leave a child below the minimum. The second is stronger and more useful, because a node with 100 rows passes <code class="ic">min_samples_split=20</code> and can still produce a 99/1 split whose tiny leaf is pure noise — exactly what <code class="ic">min_samples_leaf</code> prevents. If I could set only one, it'd be <code class="ic">min_samples_leaf</code>.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.5 ===== -->
+      <article class="topic" id="c7-5">
+        <h3><span class="tn">7.5</span> Pruning</h3>
+        <p class="lead">Pre-pruning is cheap and myopic; post-pruning is principled and slower. The distinction is a standard question with a satisfying answer.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Pre-pruning stops the tree early and may miss a good split that only becomes available deeper, while post-pruning grows the tree fully and then removes subtrees that do not justify their complexity, illustrated by a cost-complexity pruning path.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">pre-pruning is cheap and myopic · post-pruning is principled and slower</text>
+              <g font-size="10">
+                <rect x="24" y="42" width="300" height="180" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="40" y="66" fill="#f0c274" font-size="11.5">Pre-pruning (early stopping)</text>
+                <text x="40" y="88" fill="#c2cad6">Stop splitting when a criterion fails.</text>
+                <text x="40" y="110" fill="#7fd6a0">+ fast, one pass, no wasted work</text>
+                <text x="40" y="130" fill="#e0a3a8">− <tspan font-weight="600">myopic</tspan>: a weak split at depth 3 may be</text>
+                <text x="52" y="144" fill="#e0a3a8">the only route to a strong split at depth 4</text>
+                <text x="40" y="168" fill="#8892a0">This is the <tspan font-style="italic">horizon effect</tspan>, and it's why</text>
+                <text x="40" y="182" fill="#8892a0"><tspan font-family="var(--mono)">max_depth</tspan> alone can underfit an interaction.</text>
+                <text x="40" y="206" fill="#c2cad6">In practice: still the default, because ensembles</text>
+                <text x="40" y="216" fill="#c2cad6">make an individual tree's myopia irrelevant.</text>
+
+                <rect x="352" y="42" width="324" height="180" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="368" y="66" fill="#7fd6a0" font-size="11.5">Post-pruning (cost-complexity)</text>
+                <text x="368" y="88" fill="#c2cad6">Grow fully, then minimise <tspan font-family="var(--mono)">R(T) + α·|leaves(T)|</tspan></text>
+                <line x1="378" y1="192" x2="656" y2="192" stroke="#3a4453"/>
+                <line x1="378" y1="106" x2="378" y2="192" stroke="#3a4453"/>
+                <path d="M382 178 C 420 174, 470 150, 520 134 C 560 122, 610 116, 650 130" fill="none" stroke="#F0A81E" stroke-width="2.2"/>
+                <circle cx="546" cy="122" r="4.5" fill="#2E9E5B"/>
+                <text x="546" y="112" fill="#7fd6a0" text-anchor="middle" font-size="9.5">best α</text>
+                <text x="516" y="208" fill="#8892a0" text-anchor="middle">α → (fewer leaves)</text>
+                <text x="366" y="150" fill="#8892a0" transform="rotate(-90 366 150)" text-anchor="middle">CV error</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Cost-complexity pruning, concretely.</b> Grow the full tree, then for increasing <code class="ic">α</code> repeatedly remove the subtree whose removal costs least error per leaf saved. That generates a <em>finite sequence</em> of nested trees — <code class="ic">cost_complexity_pruning_path</code> returns exactly those <code class="ic">α</code> values — and you pick among them by cross-validation. Because the sequence is finite and nested, it's a genuinely cheap search compared with tuning depth directly.</figcaption>
+        </figure>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Why this section is really about Part 8</span>
+          <p>A single tree needs careful pruning because its variance is enormous. The insight behind ensembles is that you can instead let trees stay high-variance and <b>average that variance away</b> — which is why in a Random Forest you often leave <code class="ic">max_depth=None</code> entirely and control the model with <code class="ic">min_samples_leaf</code> and <code class="ic">max_features</code>. Pruning matters most in exactly the case where you're shipping a <em>single</em> tree for interpretability.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Pre-pruning vs post-pruning — which is better?</summary>
+              <div class="ans"><p><b>Pre-pruning</b> (early stopping via depth, leaf size, minimum gain) is fast and needs one pass, but it's <b>myopic</b>: a split with poor immediate gain might be the only route to two excellent splits below it, and you'll never find out. <b>Post-pruning</b> (cost-complexity, <code class="ic">ccp_alpha</code>) grows the full tree then removes subtrees that don't justify their leaves, so it sees the whole picture — at the cost of building a large tree first. Post-pruning is generally better for a <em>single</em> tree; pre-pruning is what everyone actually uses inside ensembles, because there the myopia is averaged away.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>How do you choose ccp_alpha?</summary>
+              <div class="ans"><p>Use <code class="ic">cost_complexity_pruning_path</code>, which returns the <b>finite sequence</b> of α values at which the pruned tree changes — because the pruning path is a nested sequence, there are only so many distinct trees. Then cross-validate over just those α values and pick the best, or apply the <b>one-standard-error rule</b> and take the smallest tree within one SE of the optimum. That's a cheaper and better-posed search than tuning <code class="ic">max_depth</code> over an arbitrary grid, and it's a nice thing to know because most people have never used it.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.6 ===== -->
+      <article class="topic" id="c7-6">
+        <h3><span class="tn">7.6</span> Strengths and failure modes <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Three failure modes worth being able to draw, and a strengths list that explains why trees became the base learner for everything in Part 8.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 270" role="img" aria-label="Three failure modes of decision trees: axis-aligned splits approximating a diagonal boundary as a staircase, inability to extrapolate beyond the training range, and instability where a small data change produces a different tree structure.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">three failure modes you should be able to draw</text>
+              <g>
+                <text x="112" y="46" fill="#f0c274" font-size="11" text-anchor="middle">axis-aligned only</text>
+                <rect x="30" y="56" width="164" height="150" fill="#161b23" stroke="#2c3542"/>
+                <path d="M30 206 L194 56" stroke="#2E9E5B" stroke-width="2" stroke-dasharray="5 4"/>
+                <path d="M30 190 L60 190 L60 162 L90 162 L90 134 L120 134 L120 106 L150 106 L150 78 L180 78 L180 56" fill="none" stroke="#F0A81E" stroke-width="2.2"/>
+                <text x="112" y="226" fill="#8892a0" font-size="10" text-anchor="middle">a diagonal costs many splits</text>
+                <text x="112" y="240" fill="#8892a0" font-size="10" text-anchor="middle">(rotate the features and it vanishes)</text>
+              </g>
+              <g transform="translate(230,0)">
+                <text x="112" y="46" fill="#f0c274" font-size="11" text-anchor="middle">cannot extrapolate</text>
+                <rect x="30" y="56" width="164" height="150" fill="#161b23" stroke="#2c3542"/>
+                <line x1="76" y1="56" x2="76" y2="206" stroke="#3a4453" stroke-dasharray="3 3"/>
+                <line x1="150" y1="56" x2="150" y2="206" stroke="#3a4453" stroke-dasharray="3 3"/>
+                <text x="113" y="70" fill="#6b7482" font-size="9" text-anchor="middle">training range</text>
+                <path d="M34 190 L76 178 L150 96 L190 84" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-dasharray="4 3"/>
+                <path d="M34 178 L76 178 L96 152 L120 130 L150 96 L190 96" fill="none" stroke="#F0A81E" stroke-width="2.4"/>
+                <text x="112" y="226" fill="#8892a0" font-size="10" text-anchor="middle">flat outside the range — a hard limit</text>
+                <text x="112" y="240" fill="#8892a0" font-size="10" text-anchor="middle">for trending time series (§10.5)</text>
+              </g>
+              <g transform="translate(460,0)">
+                <text x="112" y="46" fill="#f0c274" font-size="11" text-anchor="middle">unstable structure</text>
+                <rect x="30" y="56" width="180" height="150" fill="#161b23" stroke="#2c3542"/>
+                <g font-size="9">
+                  <rect x="90" y="66" width="60" height="18" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="120" y="79" fill="#c2cad6" text-anchor="middle">age ≤ 34</text>
+                  <path d="M104 84 L76 104 M136 84 L164 104" stroke="#3a4453"/>
+                  <rect x="46" y="104" width="60" height="18" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="76" y="117" fill="#c2cad6" text-anchor="middle">bal ≤ 2k</text>
+                  <rect x="134" y="104" width="60" height="18" rx="4" fill="#252D3A" stroke="#3a4453"/><text x="164" y="117" fill="#c2cad6" text-anchor="middle">tenure</text>
+                  <rect x="90" y="146" width="60" height="18" rx="4" fill="#3a1e22" stroke="#e0a3a8"><animate attributeName="opacity" values="1;0.25;1" dur="2.6s" repeatCount="indefinite"/></rect>
+                  <text x="120" y="159" fill="#e0a3a8" text-anchor="middle">bal ≤ 2k</text>
+                  <path d="M104 164 L76 182 M136 164 L164 182" stroke="#3a4453"><animate attributeName="opacity" values="1;0.25;1" dur="2.6s" repeatCount="indefinite"/></path>
+                  <rect x="46" y="182" width="60" height="18" rx="4" fill="#3a1e22" stroke="#e0a3a8"><animate attributeName="opacity" values="1;0.25;1" dur="2.6s" repeatCount="indefinite"/></rect>
+                  <text x="76" y="195" fill="#e0a3a8" text-anchor="middle">age ≤ 31</text>
+                  <text x="120" y="138" fill="#8892a0" text-anchor="middle">move 3 rows ⇒</text>
+                </g>
+                <text x="112" y="226" fill="#8892a0" font-size="10" text-anchor="middle">the root split flips; the whole tree</text>
+                <text x="112" y="240" fill="#8892a0" font-size="10" text-anchor="middle">below it changes ⇒ <tspan fill="#e0a3a8">high variance</tspan></text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The good half, stated fairly:</b> no scaling needed, mixed types handled natively, <b>interactions captured automatically</b> without you specifying them, missing values handled by a learned default direction, robust to outliers in the features, and completely interpretable at small depth. That combination is exactly why trees became the base learner for everything in Part 8 — the weaknesses above are all fixable by averaging, and the strengths are not easy to get any other way.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why is a single deep tree high-variance?</summary>
+              <div class="ans"><p>Because splits are chosen <b>greedily and hierarchically</b>: moving a handful of rows can flip the <em>root</em> split, and everything below it then changes completely. A fully-grown tree also drives training error to near zero by isolating individual points, so it's fitting noise by construction. That instability is exactly the property bagging exploits — average many high-variance, low-bias trees and the variance falls while the bias stays put (§8.2).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What are the strengths of trees that made them the base of every winning tabular model?</summary>
+              <div class="ans"><p><b>No scaling</b>, because splits use rank order. <b>Mixed types</b> handled natively. <b>Interactions captured automatically</b> — you don't have to specify them, which is exactly what linear models need feature engineering for. <b>Missing values</b> handled by a learned default direction. <b>Robust to feature outliers</b>, since an extreme value is just "the largest". And <b>interpretable at small depth</b>. The weakness — high variance — is precisely the one that averaging fixes, which is why bagging and boosting on trees works so well while bagging on, say, linear models buys almost nothing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why do trees struggle with a diagonal decision boundary?</summary>
+              <div class="ans"><p>Because every split is <b>axis-aligned</b> — a threshold on one feature — so a diagonal boundary must be approximated by a staircase, which costs many splits and therefore lots of data and depth. The giveaway in practice is a tree that needs surprising depth on what looks like a simple problem. Two fixes: <b>rotate the feature space</b> (a PCA or a learned linear combination can make the boundary axis-aligned), or <b>engineer the combination directly</b> — if you know the boundary is roughly <code class="ic">x₁ + x₂ = c</code>, giving the model <code class="ic">x₁ + x₂</code> as a feature turns many splits into one. Oblique-split trees exist but are rarely used in practice.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 7.7 ===== -->
+      <article class="topic" id="c7-7">
+        <h3><span class="tn">7.7</span> The feature-importance trap <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">One of the most reliable senior filters in the whole subject. Quoting <code class="ic">feature_importances_</code> without qualification is a specific, recognisable tell.</p>
+
+        <p>The default <code class="ic">feature_importances_</code> on a sklearn tree or forest is <b>mean decrease in impurity (MDI)</b>: for each feature, the total impurity reduction it produced across all splits, weighted by the rows reaching those nodes. It is free — it was computed while fitting — and it has two documented biases.</p>
+
+        <div class="assump">
+          <div class="ah"><span class="an">Bias 1</span> Cardinality — it favours features with many distinct values</div>
+          <div class="abody">
+            <div class="arow"><div class="al">Mechanism</div><div class="av">A continuous or high-cardinality feature offers <b>many more candidate split points</b>, so it has more chances to reduce impurity <em>by luck</em>. A binary feature offers one.</div></div>
+            <div class="arow brk"><div class="al">Demonstration</div><div class="av">Add a column of <b>pure random noise</b> with many distinct values to any dataset and it will rank as an important feature. Everyone should run this once — it takes four lines and permanently changes how you read an importance plot.</div></div>
+          </div>
+        </div>
+        <div class="assump">
+          <div class="ah"><span class="an">Bias 2</span> It is computed on <em>training</em> data</div>
+          <div class="abody">
+            <div class="arow"><div class="al">Mechanism</div><div class="av">MDI measures impurity reduction achieved <b>while fitting</b>, so a feature the model <em>overfitted</em> to scores highly — even if it contributes nothing out of sample.</div></div>
+            <div class="arow brk"><div class="al">Consequence</div><div class="av">The importances describe <b>how the model was built</b>, not <b>what actually predicts</b>. Those are different questions and the distinction is the whole point of §14.3.</div></div>
+          </div>
+        </div>
+
+        <figure class="code">
+          <div class="chead">
+            <div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div>
+            <span class="lang">Python</span>
+            <span class="cap">the four-line demonstration everyone should run once</span>
+            <button class="copy">Copy</button>
+          </div>
+<pre><code class="language-python">import numpy as np, pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.inspection import permutation_importance
+from sklearn.model_selection import train_test_split
+
+rng = np.random.default_rng(0)
+n = 2000
+X = pd.DataFrame({
+    "real_signal":  rng.normal(size=n),                  # genuinely predictive
+    "binary_noise": rng.integers(0, 2, size=n),          # noise, 2 distinct values
+    "random_id":    rng.normal(size=n),                  # noise, ~2000 distinct values
+})
+y = (X["real_signal"] + 0.3 * rng.normal(size=n) > 0).astype(int)
+
+Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, random_state=0)
+rf = RandomForestClassifier(n_estimators=300, random_state=0).fit(Xtr, ytr)
+
+mdi = pd.Series(rf.feature_importances_, index=X.columns)
+perm = permutation_importance(rf, Xte, yte, n_repeats=20, random_state=0)
+out = pd.DataFrame({"MDI (default)": mdi,
+                    "permutation (held-out)": perm.importances_mean}).round(4)
+print(out.sort_values("MDI (default)", ascending=False))
+#                MDI (default)  permutation (held-out)
+# real_signal           0.71xx                  0.28xx
+# random_id             0.26xx                 -0.00xx   <-- pure noise, ranked 2nd by MDI
+# binary_noise          0.02xx                  0.00xx
+#
+# `random_id` is noise. MDI gives it a quarter of the total importance purely because
+# it offers ~2000 candidate thresholds; permutation importance on held-out data
+# correctly assigns it ~zero (and often slightly negative).
+</code></pre>
+        </figure>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.4" stroke="#C0392B" stroke-width="1.7"/><path d="M12 7v6M12 15.8v.6" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">And permutation importance is not a free lunch either</span>
+          <p><b>Permutation importance on held-out data</b> is the right default — it measures the actual metric drop when a column is shuffled, on data the model didn't train on. But it has its own failure: with <b>correlated features</b>, permuting one leaves its information available through the other, so <em>both</em> look unimportant while jointly being essential. It also evaluates the model on <b>unrealistic rows</b> created by the shuffle. Three methods, three different questions — which is exactly the framing §14.3 develops.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Why is impurity-based feature importance misleading? What do you use instead?</summary>
+              <div class="ans"><p>Mean decrease in impurity has two documented biases. It <b>favours high-cardinality and continuous features</b>, because more candidate split points means more chances to reduce impurity by luck — add a column of pure noise with many distinct values and it will rank as important. And it's computed on <b>training data</b>, so it rewards features the model overfitted to. It describes <em>how the model was built</em>, not <em>what actually predicts</em>. Use <b>permutation importance on held-out data</b> instead, which measures the real metric drop when a feature is shuffled — then state its own caveat: correlated features mask each other, so both can look unimportant while jointly being essential.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your top feature by importance is the customer ID. What's happening?</summary>
+              <div class="ans"><p>Two possibilities, and I'd check both. <b>The MDI bias</b>: an ID has thousands of distinct values, so it offers thousands of split points and accumulates impurity reduction by chance — it can rank high while being useless. <b>Genuine leakage</b>: IDs are often assigned sequentially, so an ID encodes <em>time</em>, and if the target rate drifted over time the model has learned a temporal shortcut that will not generalise forward one day. The test that distinguishes them: compute <b>permutation importance on held-out data</b> — if it's ~zero, it's the cardinality bias; if it's large, it's leakage. Either way, drop the ID.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Is feature importance a causal statement?</summary>
+              <div class="ans"><p><b>No</b>, and this is the most consequential misuse. Importance measures how much the model <em>uses</em> a feature, which reflects predictive association — including through proxies, confounders and consequences of the target. <code class="ic">num_collection_calls</code> is enormously important for predicting default and reducing collection calls will not reduce default. If someone intends to <b>act</b> on the explanation, they need a causal design, not an importance ranking (§16.4). What importance <em>is</em> good for: debugging, sanity-checking, leakage detection, and generating hypotheses worth testing properly.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 7 widget ============ */
+(function(){
+  "use strict";
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+  var dtCv=document.getElementById("dtCanvas");
+  if(!dtCv) return;
+  var data=[];
+  var spec=[[0.05,0],[0.09,0],[0.13,0],[0.17,1],[0.21,0],[0.26,0],[0.30,0],[0.34,0],[0.39,1],[0.43,0],
+            [0.47,0],[0.52,1],[0.56,0],[0.60,1],[0.64,1],[0.68,0],[0.72,1],[0.76,1],[0.80,1],[0.84,1],
+            [0.88,0],[0.91,1],[0.95,1],[0.98,1]];
+  spec.forEach(function(s){ data.push({x:s[0], y:s[1]}); });
+  var useGini=true;
+  function imp(arr){
+    if(arr.length===0) return 0;
+    var p=arr.reduce(function(a,b){return a+b.y;},0)/arr.length;
+    if(useGini) return 1-(p*p+(1-p)*(1-p));
+    if(p<=0||p>=1) return 0;
+    return -(p*Math.log2(p)+(1-p)*Math.log2(1-p));
+  }
+  function gainAt(th){
+    var L=data.filter(function(d){return d.x<=th;}), R=data.filter(function(d){return d.x>th;});
+    var n=data.length;
+    return {g: imp(data) - (L.length/n)*imp(L) - (R.length/n)*imp(R), L:L, R:R};
+  }
+  var dtT=document.getElementById("dtT");
+  function drawDT(){
+    var th=(+dtT.value)/100;
+    document.getElementById("dtTVal").textContent=th.toFixed(2);
+    var res=gainAt(th);
+    var ctx=dpr(dtCv), W=720, H=290; ctx.clearRect(0,0,W,H);
+    var L=40,R=680,Y=96;
+    ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+    ctx.fillText("24 rows, one feature · blue = class 0 · gold = class 1", L, 24);
+    ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,Y); ctx.lineTo(R,Y); ctx.stroke();
+    data.forEach(function(d){
+      var X=L+d.x*(R-L);
+      ctx.fillStyle=d.y===0?"#5560D8":"#F0A81E";
+      ctx.beginPath(); ctx.arc(X, Y, 7, 0, 6.3); ctx.fill();
+    });
+    var TX=L+th*(R-L);
+    ctx.strokeStyle="#2E9E5B"; ctx.lineWidth=2.6;
+    ctx.beginPath(); ctx.moveTo(TX, Y-40); ctx.lineTo(TX, Y+34); ctx.stroke();
+    ctx.fillStyle="#7fd6a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+    ctx.fillText("x ≤ "+th.toFixed(2), TX-24, Y-48);
+    ctx.fillStyle="#8892a0";
+    ctx.fillText("left n="+res.L.length, L, Y+34);
+    ctx.fillText("right n="+res.R.length, R-84, Y+34);
+    var GT=140, GB=258;
+    ctx.strokeStyle="#2c3542"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(L,GB); ctx.lineTo(R,GB); ctx.moveTo(L,GT); ctx.lineTo(L,GB); ctx.stroke();
+    var best=-1, bestT=0, gs=[];
+    for(var i=1;i<100;i++){
+      var t2=i/100, g=gainAt(t2).g; gs.push([t2,g]);
+      if(g>best){ best=g; bestT=t2; }
+    }
+    ctx.strokeStyle="#F0A81E"; ctx.lineWidth=2.2; ctx.beginPath();
+    gs.forEach(function(pt,i){
+      var X=L+pt[0]*(R-L), Yv=GB-(pt[1]/Math.max(best,1e-6))*(GB-GT-10);
+      if(i===0) ctx.moveTo(X,Yv); else ctx.lineTo(X,Yv);
+    });
+    ctx.stroke();
+    var bx=L+bestT*(R-L);
+    ctx.strokeStyle="#2E9E5B"; ctx.setLineDash([3,3]); ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(bx,GT); ctx.lineTo(bx,GB); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle="#7fd6a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+    ctx.fillText("greedy optimum: x ≤ "+bestT.toFixed(2)+"  (gain "+best.toFixed(4)+")", bx+8, GT+16);
+    ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+    ctx.fillText("information gain across every candidate threshold", L, GT-6);
+    ctx.strokeStyle="#5560D8"; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(TX,GT); ctx.lineTo(TX,GB); ctx.stroke();
+    document.getElementById("dtParent").textContent=imp(data).toFixed(3);
+    document.getElementById("dtLeft").textContent=imp(res.L).toFixed(3);
+    document.getElementById("dtRight").textContent=imp(res.R).toFixed(3);
+    document.getElementById("dtGain").textContent=res.g.toFixed(4);
+    var crit=useGini?"Gini":"Entropy";
+    var msg="<span class='k'>"+crit+" · parent</span> <span class='v'>"+imp(data).toFixed(3)+"</span> → weighted children <span class='v'>"+(imp(data)-res.g).toFixed(3)+"</span>, so gain = <span class='v'>"+res.g.toFixed(4)+"</span>. ";
+    if(Math.abs(th-bestT)<0.02) msg+="<span class='good'>You are at the greedy optimum.</span> This is exactly the split the tree would choose — it evaluates every threshold like this and takes the maximum.";
+    else msg+="The best available split is at <span class='v'>x ≤ "+bestT.toFixed(2)+"</span> with gain <span class='v'>"+best.toFixed(4)+"</span>. Note that gain is <b>zero</b> at the extremes: a split that puts everything on one side separates nothing.";
+    document.getElementById("dtOut").innerHTML=msg;
+  }
+  dtT.addEventListener("input", drawDT);
+  document.getElementById("dtGini").addEventListener("click", function(){ useGini=true; this.classList.add("on"); document.getElementById("dtEnt").classList.remove("on"); drawDT(); });
+  document.getElementById("dtEnt").addEventListener("click", function(){ useGini=false; this.classList.add("on"); document.getElementById("dtGini").classList.remove("on"); drawDT(); });
+  drawDT();
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

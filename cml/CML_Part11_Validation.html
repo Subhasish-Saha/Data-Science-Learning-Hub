@@ -485,7 +485,399 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 11.1 ===== -->
+      <article class="topic" id="c11-1">
+        <h3><span class="tn">11.1</span> The cross-validation family <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">You met the <em>splitters</em> in §3.6. This is how you use them to produce a number you can defend — and what each one costs.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 300" role="img" aria-label="The cross-validation family: hold-out, five-fold, stratified, group k-fold, time-series split with a purge gap, and leave-one-out, each drawn as coloured bands showing which rows train and which are held out at each round.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the family — and what each one costs you</text>
+              <g font-size="10">
+                <text x="24" y="48" fill="#c2cad6">Hold-out</text>
+                <rect x="140" y="36" width="380" height="16" rx="3" fill="#3B45B5" opacity="0.55"/>
+                <rect x="520" y="36" width="140" height="16" rx="3" fill="#E0920C" opacity="0.8"/>
+                <text x="672" y="48" fill="#8892a0" text-anchor="end">1 fit · high-variance estimate</text>
+
+                <text x="24" y="82" fill="#c2cad6">5-fold</text>
+                <rect x="140" y="60" width="104" height="12" rx="2" fill="#E0920C" opacity="0.8"/><rect x="246" y="60" width="414" height="12" rx="2" fill="#3B45B5" opacity="0.5"/>
+                <rect x="140" y="76" width="104" height="12" rx="2" fill="#3B45B5" opacity="0.5"/><rect x="246" y="76" width="104" height="12" rx="2" fill="#E0920C" opacity="0.8"/><rect x="352" y="76" width="308" height="12" rx="2" fill="#3B45B5" opacity="0.5"/>
+                <rect x="140" y="92" width="210" height="12" rx="2" fill="#3B45B5" opacity="0.5"/><rect x="352" y="92" width="104" height="12" rx="2" fill="#E0920C" opacity="0.8"/><rect x="458" y="92" width="202" height="12" rx="2" fill="#3B45B5" opacity="0.5"/>
+                <text x="672" y="82" fill="#8892a0" text-anchor="end">5 fits · every row tested once</text>
+
+                <text x="24" y="132" fill="#c2cad6">Stratified</text>
+                <rect x="140" y="120" width="520" height="16" rx="3" fill="#2E9E5B" opacity="0.35"/>
+                <text x="150" y="132" fill="#fff" font-size="9">class balance preserved in every fold — mandatory under imbalance</text>
+
+                <text x="24" y="166" fill="#c2cad6">GroupKFold</text>
+                <rect x="140" y="154" width="520" height="16" rx="3" fill="#8A5CD8" opacity="0.35"/>
+                <text x="150" y="166" fill="#fff" font-size="9">no entity appears in two folds — the fix for nested rows</text>
+
+                <text x="24" y="204" fill="#c2cad6">TimeSeriesSplit</text>
+                <rect x="140" y="186" width="130" height="12" rx="2" fill="#3B45B5" opacity="0.5"/><rect x="272" y="186" width="24" height="12" rx="2" fill="#5A6472" opacity="0.7"/><rect x="298" y="186" width="90" height="12" rx="2" fill="#E0920C" opacity="0.8"/>
+                <rect x="140" y="202" width="248" height="12" rx="2" fill="#3B45B5" opacity="0.5"/><rect x="390" y="202" width="24" height="12" rx="2" fill="#5A6472" opacity="0.7"/><rect x="416" y="202" width="90" height="12" rx="2" fill="#E0920C" opacity="0.8"/>
+                <rect x="140" y="218" width="366" height="12" rx="2" fill="#3B45B5" opacity="0.5"/><rect x="508" y="218" width="24" height="12" rx="2" fill="#5A6472" opacity="0.7"/><rect x="534" y="218" width="90" height="12" rx="2" fill="#E0920C" opacity="0.8"/>
+                <text x="672" y="204" fill="#8892a0" text-anchor="end">grey = purge/embargo gap</text>
+
+                <text x="24" y="256" fill="#c2cad6">Leave-one-out</text>
+                <rect x="140" y="244" width="516" height="16" rx="3" fill="#3B45B5" opacity="0.5"/>
+                <rect x="656" y="244" width="4" height="16" rx="1" fill="#E0920C"/>
+                <text x="150" y="256" fill="#e0a3a8" font-size="9">n fits · nearly unbiased but <tspan font-weight="600">high variance</tspan> and expensive — not &ldquo;the most accurate CV&rdquo;</text>
+              </g>
+              <rect x="24" y="272" width="652" height="22" rx="6" fill="#1e2a3a" stroke="#3B45B5"/>
+              <text x="40" y="287" fill="#98a0f0" font-size="10.5">Report <tspan font-weight="600">mean ± standard deviation across folds</tspan>, never a single number. The spread tells the reader how much to trust the mean.</text>
+            </svg>
+          </div>
+          <figcaption><b>Repeated k-fold</b> deserves a mention: run k-fold several times with different shuffles and average. It reduces the variance of the <em>estimate</em> (not of the model) for a linear increase in cost, and it is the cheapest way to stop chasing noise when comparing two similar models on a small dataset.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Explain k-fold cross-validation. When is stratification necessary?</summary>
+              <div class="ans"><p>Partition into k folds; for each, train on k−1 and evaluate on the held-out one; average the k scores and — importantly — <b>report the standard deviation too</b>. Every row is tested exactly once, which gives a lower-variance estimate than a single hold-out. <b>Stratify</b> whenever the target is imbalanced or n is small, so no fold ends up with very few (or zero) positives, which destabilises both training and the metric. Add: stratification is <b>orthogonal to grouping and to time</b>, so it does not protect you from either (§3.6).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Is leave-one-out the most accurate form of CV?</summary>
+              <div class="ans"><p>No — that's a common misconception. LOO is nearly <b>unbiased</b> (each model trains on n−1 rows, almost the full dataset) but has <b>high variance</b>, because the n training sets are almost identical, so the n error estimates are highly correlated and averaging them removes little noise. It's also n model fits. 5- or 10-fold usually gives a <b>lower-variance</b> estimate at a fraction of the cost, which is why they're the standard. LOO earns its place mainly when n is tiny and you can't afford to hold anything out.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 11.2 ===== -->
+      <article class="topic" id="c11-2">
+        <h3><span class="tn">11.2</span> Choosing k</h3>
+        <p class="lead">k itself trades bias against variance, and knowing which direction each goes is a neat two-sentence answer.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>k</th><th>Training set per fold</th><th>Bias of the estimate</th><th>Variance of the estimate</th><th>Cost</th></tr></thead>
+            <tbody>
+              <tr><td><b>Small (k=2,3)</b></td><td>Much smaller than the full data</td><td><b>Pessimistic</b> — models trained on less data perform worse</td><td>Lower (folds share less training data)</td><td>Cheap</td></tr>
+              <tr><td><b>k=5 or 10</b></td><td>80–90% of the data</td><td>Small</td><td>Moderate</td><td>The standard compromise</td></tr>
+              <tr><td><b>k=n (LOO)</b></td><td>n−1 rows</td><td>Nearly unbiased</td><td><b>High</b> — training sets almost identical, so errors are correlated</td><td>n fits</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The practical rule: <b>5 or 10</b>, and use <b>repeated</b> k-fold if the fold-to-fold spread is large relative to the difference you're trying to detect. With very small datasets, prefer repeated stratified k-fold over LOO.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How does the choice of k affect the bias and variance of the CV estimate?</summary>
+              <div class="ans"><p><b>Small k</b> means each model trains on much less data, so it under-performs the model you'll actually ship — the estimate is <b>pessimistically biased</b>. <b>Large k</b> (up to LOO) trains on nearly the full data so bias is small, but the k training sets overlap almost completely, so the fold errors are <b>highly correlated</b> and averaging them removes little noise — high variance, plus k model fits. <b>5 or 10</b> is the standard compromise. If the fold spread is large relative to the effect you're measuring, use <b>repeated</b> k-fold rather than increasing k.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 11.3 ===== -->
+      <article class="topic" id="c11-3">
+        <h3><span class="tn">11.3</span> Nested cross-validation <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">A favourite senior question precisely because most candidates have read about it and never done it. The key insight is <em>why</em> a tuned CV score is not an estimate.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 290" role="img" aria-label="Nested cross-validation: an outer loop splits into training and test folds for the generalization estimate, and inside each outer training fold an inner loop performs its own cross-validation to select hyperparameters, so no test fold ever influences the selection.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">why tuning and reporting on the same CV is optimistically biased</text>
+              <g font-size="10">
+                <rect x="24" y="38" width="320" height="240" rx="10" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="40" y="60" fill="#e0a3a8" font-size="11.5">✗ Flat CV, tuned and reported</text>
+                <rect x="40" y="72" width="288" height="14" rx="3" fill="#E0920C" opacity="0.8"/>
+                <rect x="40" y="90" width="288" height="14" rx="3" fill="#E0920C" opacity="0.8"/>
+                <rect x="40" y="108" width="288" height="14" rx="3" fill="#E0920C" opacity="0.8"/>
+                <text x="40" y="144" fill="#c2cad6">You try 200 hyperparameter settings and</text>
+                <text x="40" y="160" fill="#c2cad6">report the best CV score.</text>
+                <text x="40" y="186" fill="#e0a3a8">That score is the <tspan font-weight="600">maximum of 200 noisy</tspan></text>
+                <text x="40" y="202" fill="#e0a3a8"><tspan font-weight="600">estimates</tspan> — so it is biased upward even if</text>
+                <text x="40" y="218" fill="#e0a3a8">every setting were equally good.</text>
+                <text x="40" y="246" fill="#8892a0">You selected on the number you are now</text>
+                <text x="40" y="262" fill="#8892a0">quoting. It is a training score in disguise.</text>
+
+                <rect x="356" y="38" width="320" height="240" rx="10" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="372" y="60" fill="#7fd6a0" font-size="11.5">✓ Nested CV</text>
+                <text x="372" y="82" fill="#c2cad6" font-size="9.5">OUTER — estimates generalization</text>
+                <rect x="372" y="90" width="60" height="14" rx="3" fill="#E0920C" opacity="0.85"/>
+                <rect x="434" y="90" width="228" height="14" rx="3" fill="#3B45B5" opacity="0.45"/>
+                <text x="372" y="122" fill="#c2cad6" font-size="9.5">INNER — selects hyperparameters, inside the blue only</text>
+                <rect x="434" y="130" width="72" height="11" rx="2" fill="#8A5CD8" opacity="0.8"/><rect x="508" y="130" width="154" height="11" rx="2" fill="#3B45B5" opacity="0.3"/>
+                <rect x="434" y="145" width="72" height="11" rx="2" fill="#3B45B5" opacity="0.3"/><rect x="508" y="145" width="72" height="11" rx="2" fill="#8A5CD8" opacity="0.8"/><rect x="582" y="145" width="80" height="11" rx="2" fill="#3B45B5" opacity="0.3"/>
+                <rect x="434" y="160" width="146" height="11" rx="2" fill="#3B45B5" opacity="0.3"/><rect x="582" y="160" width="80" height="11" rx="2" fill="#8A5CD8" opacity="0.8"/>
+                <text x="372" y="196" fill="#7fd6a0">The gold test fold never touches the selection,</text>
+                <text x="372" y="212" fill="#7fd6a0">so the outer score is an honest estimate of</text>
+                <text x="372" y="228" fill="#7fd6a0"><tspan font-weight="600">&ldquo;this whole procedure, applied to new data&rdquo;</tspan>.</text>
+                <text x="372" y="256" fill="#8892a0">Cost: k_outer × k_inner fits. Pragmatic</text>
+                <text x="372" y="270" fill="#8892a0">alternative: a test set you touch exactly once.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>What nested CV actually estimates</b> is subtle and worth saying: it estimates the performance of the <em>entire modelling procedure including its tuning</em>, not of one specific fitted model. That is why you don't get &ldquo;the best hyperparameters&rdquo; out of it — you get an honest number, then refit on all the data with an inner-loop search to produce the model you ship.</figcaption>
+        </figure>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">How much optimism are we talking about?</span>
+          <p>It scales with <b>how many settings you tried</b> and <b>how noisy each estimate is</b>. On a large dataset with 20 settings, the bias may be a fraction of a point and nested CV isn't worth the compute. On a <b>small</b> dataset with 500 settings and a high-variance metric, the flat-CV score can be optimistic by several points — enough to change a shipping decision. So the honest answer to &ldquo;do you always use nested CV?&rdquo; is <em>&ldquo;no — I use it when the dataset is small or the search is large, and otherwise I rely on a test set I touch once.&rdquo;</em></p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ What is nested cross-validation and why does it exist?</summary>
+              <div class="ans"><p>Tuning hyperparameters on the same CV you report gives an <b>optimistically biased</b> estimate — the reported score is the <b>maximum over many noisy estimates</b>, so it's inflated even if every setting were genuinely equally good. Nested CV puts hyperparameter selection in an <b>inner</b> loop run separately inside each <b>outer</b> training fold, so no outer test fold ever influences selection. Cost: <code class="ic">k_outer × k_inner</code> fits. What it estimates is subtle: the performance of the <em>whole procedure including tuning</em>, not of one model — so you don't get "the best hyperparameters" from it, you get an honest number and then refit.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Do you always use nested CV?</summary>
+              <div class="ans"><p>No, and being able to say when it's unnecessary is part of the answer. The optimism scales with <b>how many settings you tried</b> and <b>how noisy each fold estimate is</b>. On a large dataset with a modest search, the bias is often a fraction of a point and the <code class="ic">k×k</code> cost isn't justified. On <b>small data with a large search</b>, it can be several points — enough to change a decision. My default is a <b>single held-out test set touched exactly once</b>, with nested CV reserved for small datasets, large searches, or when the number itself is the deliverable (a paper, a regulatory submission).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 11.4 ===== -->
+      <article class="topic" id="c11-4">
+        <h3><span class="tn">11.4</span> Hyperparameter search <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The search <em>space</em> usually matters more than the search <em>algorithm</em>. But the algorithm question gets asked, so here is the picture that answers it.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Grid vs random search — the Bergstra &amp; Bengio result</div>
+          <div class="wbody">
+            <canvas id="hpCanvas" width="720" height="290" aria-label="A two-dimensional hyperparameter space in which only one parameter affects performance, with grid search points arranged in a lattice covering few distinct values of the important parameter, and random search points covering many more distinct values with the same budget."></canvas>
+            <div class="wctl">
+              <label>evaluation budget · <b id="hpBVal">16</b>
+                <input type="range" id="hpB" min="4" max="64" value="16" step="1">
+              </label>
+              <label>re-roll the random draw
+                <span class="wbtns" style="margin-top:2px"><button class="wbtn" id="hpRoll">shuffle</button></span>
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="hpGridD">—</span>grid · distinct values tried</div>
+              <div class="wcell"><span class="n" id="hpRandD">—</span>random · distinct values tried</div>
+              <div class="wcell"><span class="n" id="hpGridS">—</span>grid · best score found</div>
+              <div class="wcell"><span class="n" id="hpRandS">—</span>random · best score found</div>
+            </div>
+            <div class="wout" id="hpOut"></div>
+            <p class="wnote">The response surface here depends almost entirely on <b>one</b> of the two hyperparameters — which is the empirically usual situation. With a budget of 16, a 4×4 grid tries only <b>4</b> distinct values of the parameter that matters; random search tries <b>16</b>. That is the whole Bergstra &amp; Bengio argument, and it gets stronger as dimensions grow.</p>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Strategy</th><th>How it works</th><th>Reach for it when</th></tr></thead>
+            <tbody>
+              <tr><td>Grid search</td><td>Exhaustive product of values</td><td>2–3 parameters with genuinely few sensible values — e.g. the C/gamma grid for an SVM (§6.5)</td></tr>
+              <tr><td><b>Random search</b></td><td>Sample from distributions</td><td><b>The sane default</b> — better per unit compute when few parameters matter</td></tr>
+              <tr><td><b>Bayesian / TPE</b></td><td>Surrogate model + acquisition function (Optuna)</td><td>Expensive evaluations, many parameters. Note it <em>behaves like random search until its model warms up</em></td></tr>
+              <tr><td><b>Successive halving / Hyperband</b></td><td>Start many trials cheaply, kill the losers, escalate survivors</td><td><code class="ic">HalvingRandomSearchCV</code> — excellent when a cheap fidelity (fewer trees, less data) predicts the full one</td></tr>
+              <tr><td>Population-based / evolutionary</td><td>Mutate and select over a population</td><td>Rarely worth it for classical ML; more common in deep learning</td></tr>
+              <tr><td>Early stopping</td><td>Stop a single fit when validation stalls</td><td><b>Always</b>, for boosting and NNs — orthogonal to the search itself</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Search spaces beat search algorithms</span>
+          <p>Use <b>log-uniform</b> distributions for learning rates, regularization strengths and anything spanning orders of magnitude — a uniform sample over [0.0001, 1] puts 90% of its mass above 0.1, which is almost never where the answer is. Bound the space with domain knowledge instead of searching absurd regions. <b>Seed the sampler</b> for reproducibility. <b>Prune</b> unpromising trials. And the rule that matters most: <b>tune inside the CV loop, never on the test set</b> — otherwise §11.3 applies.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Grid vs random vs Bayesian search — which and why?</summary>
+              <div class="ans"><p><b>Random</b> is the sane default: with a fixed budget it probes far more distinct values of the parameters that <em>actually matter</em> (the Bergstra &amp; Bengio result), and the advantage grows with dimensionality since a grid's coverage per axis falls as <code class="ic">B^(1/d)</code>. <b>Grid</b> only for two or three parameters with genuinely few sensible values. <b>Bayesian/TPE</b> when each evaluation is expensive — noting it behaves like random search until its surrogate warms up. <b>Successive halving/Hyperband</b> when a cheap fidelity predicts the full one. And the real lesson: <b>the search space matters more than the algorithm</b> — log-uniform ranges, bounded by domain knowledge, tuned inside the CV loop.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>Why log-uniform for a learning rate?</summary>
+              <div class="ans"><p>Because what matters is the <b>order of magnitude</b>, not the linear value — 0.001 and 0.01 are as different from each other as 0.01 and 0.1, but a uniform sample over [0.0001, 1] puts about 90% of its draws above 0.1 and would barely explore the small end at all. Log-uniform sampling gives equal probability to each decade, which matches how the parameter actually behaves. The same applies to regularization strengths, <code class="ic">C</code>, <code class="ic">gamma</code>, and anything else spanning orders of magnitude. Getting this wrong is a much bigger error than choosing the wrong search algorithm.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 11.5 ===== -->
+      <article class="topic" id="c11-5">
+        <h3><span class="tn">11.5</span> Learning &amp; validation curves <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The two diagnostic plots that turn &ldquo;the model isn't good enough&rdquo; into a specific next action.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Plot</th><th>x-axis</th><th>Answers</th></tr></thead>
+            <tbody>
+              <tr><td><b>Learning curve</b></td><td>Training-set <b>size</b></td><td>Do I have a bias or variance problem? <b>Will more data help?</b> (§4.6)</td></tr>
+              <tr><td><b>Validation curve</b></td><td>One <b>hyperparameter</b></td><td>Is my search range even right? Where is the optimum, and is the curve flat around it?</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">A flat validation curve is information, not a failure</span>
+          <p>If performance barely changes across two orders of magnitude of a hyperparameter, that parameter <b>doesn't matter for this problem</b> — stop tuning it, fix it at a sensible value, and spend the budget elsewhere. Conversely, if the optimum is at the <b>edge</b> of your search range, your range is wrong and you should extend it. Both readings are more actionable than the best-score number that a search returns, and neither is visible from the search output alone.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>What's the difference between a learning curve and a validation curve?</summary>
+              <div class="ans"><p>A <b>learning curve</b> plots train and validation error against <b>training-set size</b>, and answers "do I have bias or variance, and will more data help?" A <b>validation curve</b> plots them against <b>one hyperparameter</b>, and answers "is my search range right and where is the optimum?" They're complementary: the learning curve tells you whether to buy data or change the model; the validation curve tells you whether you're even searching in the right region. Two readings worth stating: a <b>flat</b> validation curve means the parameter doesn't matter here, and an optimum <b>at the edge</b> of the range means your range is wrong.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 11.6 ===== -->
+      <article class="topic" id="c11-6">
+        <h3><span class="tn">11.6</span> Slice analysis <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">An aggregate metric tells you <em>whether</em> something is wrong. Slice analysis tells you <em>what</em> — and it is the single highest-yield diagnostic in applied ML.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="A slice analysis table showing that an overall recall of 0.81 hides a much lower recall on new customers and on one geographic region, demonstrating that an aggregate metric can conceal a segment-level failure.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the aggregate said 0.81 — the slices say something else entirely</text>
+              <g font-size="10.5">
+                <rect x="24" y="40" width="652" height="30" rx="6" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="40" y="60" fill="#7fd6a0">Overall recall <tspan font-weight="600" font-size="12">0.81</tspan> — looks fine, ship it</text>
+                <rect x="24" y="82" width="652" height="24" rx="4" fill="#252D3A"/>
+                <rect x="24" y="82" width="560" height="24" rx="4" fill="#2E9E5B" opacity="0.55"/>
+                <text x="40" y="99" fill="#fff">tenure &gt; 2 years  ·  n = 42,000</text><text x="660" y="99" fill="#fff" text-anchor="end">0.86</text>
+                <rect x="24" y="112" width="652" height="24" rx="4" fill="#252D3A"/>
+                <rect x="24" y="112" width="240" height="24" rx="4" fill="#C0392B" opacity="0.6"/>
+                <text x="40" y="129" fill="#fff">tenure &lt; 30 days  ·  n = 3,100</text><text x="660" y="129" fill="#e0a3a8" text-anchor="end">0.37</text>
+                <rect x="24" y="142" width="652" height="24" rx="4" fill="#252D3A"/>
+                <rect x="24" y="142" width="512" height="24" rx="4" fill="#2E9E5B" opacity="0.5"/>
+                <text x="40" y="159" fill="#fff">region A  ·  n = 31,000</text><text x="660" y="159" fill="#fff" text-anchor="end">0.79</text>
+                <rect x="24" y="172" width="652" height="24" rx="4" fill="#252D3A"/>
+                <rect x="24" y="172" width="286" height="24" rx="4" fill="#E0920C" opacity="0.6"/>
+                <text x="40" y="189" fill="#fff">region D  ·  n = 2,400</text><text x="660" y="189" fill="#f0c274" text-anchor="end">0.44</text>
+                <rect x="24" y="202" width="652" height="24" rx="4" fill="#252D3A"/>
+                <rect x="24" y="202" width="520" height="24" rx="4" fill="#2E9E5B" opacity="0.5"/>
+                <text x="40" y="219" fill="#fff">mobile channel  ·  n = 18,000</text><text x="660" y="219" fill="#fff" text-anchor="end">0.80</text>
+                <text x="24" y="248" fill="#8892a0">Small slices barely move the average and can be the ones that matter most — new customers, a new market, a protected group.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Which slices to check, as a standing list:</b> time period (recent vs older), tenure/recency, geography, channel, device, customer segment, value band, data-source, and — always — any <b>protected attribute</b> (§14.8). Automate it: a slice report that runs with every evaluation catches problems an aggregate never will.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Debugging</span>Your overall metric is fine but users are complaining. Where do you look?</summary>
+              <div class="ans"><p><b>Slices.</b> An aggregate is a weighted average, so a small segment can be badly broken while barely moving the headline — and small segments are often the important ones: new customers, a new market, a new channel, a protected group. I'd cut by time period, tenure, geography, channel, device, value band and data source, and look at both the metric <em>and</em> the sample size per slice. This is also where <b>Simpson's paradox</b> shows up (§2.5). I'd then automate the slice report so it runs with every evaluation, because this is exactly the failure a single number is designed not to show you.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 11.7 ===== -->
+      <article class="topic" id="c11-7">
+        <h3><span class="tn">11.7</span> Comparing models honestly <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">&ldquo;Your model is 0.4% better. Is it better?&rdquo; is a question about statistics <em>and</em> judgement, and the good answer contains both.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Two models compared with bootstrap confidence intervals: the intervals overlap heavily, so the observed difference in point estimates is not distinguishable from noise, while a paired per-fold comparison shows a small but consistent difference.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">point estimates lie; intervals and paired comparisons don't</text>
+              <g font-size="10.5">
+                <line x1="120" y1="200" x2="660" y2="200" stroke="#3a4453"/>
+                <text x="120" y="220" fill="#8892a0">0.78</text><text x="640" y="220" fill="#8892a0">0.86</text>
+                <text x="24" y="70" fill="#c2cad6">Model A</text>
+                <line x1="200" y1="66" x2="420" y2="66" stroke="#5560D8" stroke-width="7" stroke-linecap="round" opacity="0.5"/>
+                <circle cx="310" cy="66" r="6" fill="#5560D8"/>
+                <text x="436" y="70" fill="#98a0f0">0.822  [0.805, 0.839]</text>
+                <text x="24" y="106" fill="#c2cad6">Model B</text>
+                <line x1="232" y1="102" x2="452" y2="102" stroke="#E0920C" stroke-width="7" stroke-linecap="round" opacity="0.5"/>
+                <circle cx="342" cy="102" r="6" fill="#E0920C"/>
+                <text x="468" y="106" fill="#f0c274">0.826  [0.809, 0.843]</text>
+                <rect x="120" y="128" width="540" height="54" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="136" y="148" fill="#c2cad6">The intervals overlap almost entirely — but that alone does <tspan font-style="italic">not</tspan> settle it. Compare <tspan font-weight="600" fill="#7fd6a0">per fold, paired</tspan>:</text>
+                <text x="136" y="168" fill="#7fd6a0">B beats A in 5 of 5 folds by 0.003–0.006 ⇒ small but consistent. Now ask whether 0.004 is worth what it costs.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Overlapping intervals do not mean &ldquo;no difference&rdquo;.</b> Two marginal CIs can overlap substantially while the CI on the <em>paired difference</em> excludes zero, because pairing removes the shared variation between the two models. That's why you bootstrap the <b>difference</b> using the same resampled indices for both models, rather than comparing two separate intervals by eye.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Your model is 0.4% better. Is it better?</summary>
+              <div class="ans"><p>Three checks. <b>Statistical:</b> compare <b>paired</b> across the same folds or the same test rows, report a bootstrap CI on the <em>difference</em> (resampling indices once and scoring both models on the same resample), and use a paired permutation test or the <b>corrected resampled t-test</b> — plain t-tests over CV folds are anti-conservative because training sets overlap. <b>Selection:</b> if this is the best of 40 variants, part of that 0.4% is luck. <b>Practical:</b> what does it cost in latency, complexity, retraining and explainability? A 0.4% gain that adds a service dependency usually isn't worth shipping — and saying that is the senior half of the answer.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Two models' confidence intervals overlap. Does that mean no significant difference?</summary>
+              <div class="ans"><p><b>No</b> — that's a common inferential error. Overlapping <em>marginal</em> intervals can coexist with a paired difference whose interval excludes zero, because pairing removes the variation the two models share (same rows, same folds, same difficulty). The correct procedure is to bootstrap the <b>difference</b> directly: resample indices once, score both models on that resample, take the difference, repeat. If that interval excludes zero, the difference is real — regardless of what the marginal intervals look like.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Why are plain t-tests over CV folds problematic?</summary>
+              <div class="ans"><p>Because the fold results aren't independent — every pair of training sets in k-fold CV overlaps in about <code class="ic">(k−2)/(k−1)</code> of the data, so the fold-level differences are <b>positively correlated</b>. A standard t-test assumes independence, so it underestimates the variance and is <b>anti-conservative</b>: it declares significance far too often. Fixes: Nadeau &amp; Bengio's <b>corrected resampled t-test</b>, which inflates the variance estimate to account for the overlap; a <b>paired permutation test</b>, which makes no independence assumption; or repeated CV with the correction applied.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 11 widget ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+  var hpCv=document.getElementById("hpCanvas");
+  if(!hpCv) return;
+  var seed=3;
+  function score(a){ return Math.exp(-Math.pow((a-0.63)/0.16,2)); }
+  function drawHP(){
+    var B=+document.getElementById("hpB").value;
+    document.getElementById("hpBVal").textContent=B;
+    var g=Math.max(2,Math.round(Math.sqrt(B))), gp=[];
+    for(var i=0;i<g;i++) for(var j=0;j<g;j++) gp.push([(i+0.5)/g, (j+0.5)/g]);
+    var r=rng(seed), rp=[];
+    for(var i=0;i<gp.length;i++) rp.push([r(), r()]);
+    var ctx=dpr(hpCv), W=720, H=290; ctx.clearRect(0,0,W,H);
+    function panel(x0, pts, title, col){
+      var L=x0, R=x0+280, T=54, Bm=250;
+      for(var i=0;i<60;i++){
+        var a=(i+0.5)/60, s=score(a);
+        ctx.fillStyle="rgba(46,158,91,"+(0.06+0.5*s)+")";
+        ctx.fillRect(L+i*(R-L)/60, T, (R-L)/60+1, Bm-T);
+      }
+      ctx.strokeStyle="#2c3542"; ctx.lineWidth=1; ctx.strokeRect(L,T,R-L,Bm-T);
+      var best=0;
+      pts.forEach(function(p){
+        var s=score(p[0]); best=Math.max(best,s);
+        ctx.fillStyle=col; ctx.strokeStyle="#14181f"; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(L+p[0]*(R-L), Bm-p[1]*(Bm-T), 4.4, 0, 6.3); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle="rgba(255,255,255,0.15)";
+        ctx.beginPath(); ctx.moveTo(L+p[0]*(R-L), Bm); ctx.lineTo(L+p[0]*(R-L), Bm+8); ctx.stroke();
+      });
+      ctx.fillStyle="#c2cad6"; ctx.font="12px ui-monospace,Menlo,monospace";
+      ctx.fillText(title, L, 30);
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("important parameter →", L, Bm+26);
+      ctx.save(); ctx.translate(L-12, (T+Bm)/2); ctx.rotate(-Math.PI/2);
+      ctx.fillText("unimportant parameter", -60, 0); ctx.restore();
+      return best;
+    }
+    var gb=panel(56, gp, "Grid search · "+gp.length+" trials", "#5560D8");
+    var rb=panel(400, rp, "Random search · "+rp.length+" trials", "#F0A81E");
+    document.getElementById("hpGridD").textContent=g;
+    document.getElementById("hpRandD").textContent=rp.length;
+    document.getElementById("hpGridS").textContent=gb.toFixed(3);
+    document.getElementById("hpRandS").textContent=rb.toFixed(3);
+    document.getElementById("hpOut").innerHTML =
+      "With the same budget of <span class='v'>"+gp.length+"</span> evaluations, grid search probes only <span class='v'>"+g+"</span> distinct values of the parameter that matters, while random search probes <span class='v'>"+rp.length+"</span>. Best score found: grid <span class='v'>"+gb.toFixed(3)+"</span> vs random <span class='v'>"+rb.toFixed(3)+"</span>. "+
+      (rb>gb? "<span class='good'>Random wins here.</span> " : "<span class='k'>Grid happened to land well this time — hit shuffle a few times and watch the distribution.</span> ")+
+      "The effect compounds with dimensions: in 5-D, a 3-per-axis grid costs 243 fits and still tries only 3 values of each parameter.";
+  }
+  document.getElementById("hpB").addEventListener("input", drawHP);
+  document.getElementById("hpRoll").addEventListener("click", function(){ seed=(seed*7+13)%9973; drawHP(); });
+  drawHP();
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

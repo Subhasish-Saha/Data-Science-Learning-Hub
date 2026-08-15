@@ -487,7 +487,739 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 8.1 ===== -->
+      <article class="topic" id="c8-1">
+        <h3><span class="tn">8.1</span> Why ensembles work <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Combining models helps only under one condition, and naming that condition — with the formula — is what separates a real answer from &ldquo;more models is better&rdquo;.</p>
+
+        <h4>The variance formula that explains everything</h4>
+        <p>Average <code class="ic">M</code> estimators, each with error variance <code class="ic">σ²</code> and average pairwise correlation <code class="ic">ρ</code>. The variance of the average is:</p>
+        <p style="text-align:center"><code class="ic">Var(ensemble) = ρσ² + (1 − ρ)σ²/M</code></p>
+        <p>Read it carefully. The second term <b>vanishes as M grows</b> — that's the benefit of adding models. The first term does <b>not</b>: <code class="ic">ρσ²</code> is a floor you cannot get below no matter how many members you add. So <strong>ρ is the ceiling on how much ensembling can help</strong>, and every design decision in bagging and Random Forest is an attempt to push ρ down.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="Two panels comparing correlated and decorrelated ensembles: when five models make the same mistakes, averaging them changes nothing; when their errors are independent, the errors cancel and the averaged prediction is far closer to the truth.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">averaging only helps when the errors are <tspan font-style="italic">different</tspan></text>
+              <g>
+                <text x="168" y="46" fill="#e0a3a8" font-size="11.5" text-anchor="middle">correlated models (ρ ≈ 0.9)</text>
+                <line x1="40" y1="150" x2="300" y2="150" stroke="#3a4453"/>
+                <line x1="170" y1="64" x2="170" y2="164" stroke="#2E9E5B" stroke-width="2"/>
+                <text x="170" y="58" fill="#7fd6a0" font-size="10" text-anchor="middle">truth</text>
+                <g fill="#e0a3a8"><circle cx="228" cy="150" r="5"/><circle cx="234" cy="150" r="5"/><circle cx="222" cy="150" r="5"/><circle cx="240" cy="150" r="5"/><circle cx="231" cy="150" r="5"/></g>
+                <circle cx="231" cy="184" r="7" fill="#C0392B"/>
+                <path d="M231 160 L231 176" stroke="#e0a3a8" stroke-width="1.4"/>
+                <text x="231" y="206" fill="#e0a3a8" font-size="10" text-anchor="middle">average is just as wrong</text>
+                <text x="40" y="232" fill="#8892a0" font-size="10">same features, same algorithm, same bias ⇒ no gain</text>
+              </g>
+              <g transform="translate(360,0)">
+                <text x="168" y="46" fill="#7fd6a0" font-size="11.5" text-anchor="middle">decorrelated models (ρ ≈ 0.2)</text>
+                <line x1="40" y1="150" x2="300" y2="150" stroke="#3a4453"/>
+                <line x1="170" y1="64" x2="170" y2="164" stroke="#2E9E5B" stroke-width="2"/>
+                <text x="170" y="58" fill="#7fd6a0" font-size="10" text-anchor="middle">truth</text>
+                <g fill="#98a0f0"><circle cx="96" cy="150" r="5"/><circle cx="140" cy="150" r="5"/><circle cx="196" cy="150" r="5"/><circle cx="240" cy="150" r="5"/><circle cx="166" cy="150" r="5"/></g>
+                <circle cx="168" cy="184" r="7" fill="#2E9E5B"/>
+                <path d="M168 160 L168 176" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="168" y="206" fill="#7fd6a0" font-size="10" text-anchor="middle">errors cancel — average lands on the truth</text>
+                <text x="40" y="232" fill="#8892a0" font-size="10">different samples, different features ⇒ variance ÷ M</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The condition, stated precisely:</b> ensembling reduces error when members are <b>individually better than chance and mutually decorrelated</b>. That single formula explains why Random Forest randomises features (to push ρ down), why stacking values <em>diversity</em> over individual strength, and why averaging ten copies of the same model trained with different seeds buys almost nothing.</figcaption>
+        </figure>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The one-liner that gets asked constantly</span>
+          <p><b>Bagging attacks variance; boosting attacks bias.</b> Bagging trains high-variance, low-bias learners <em>in parallel</em> on different bootstrap samples and averages, which shrinks variance while leaving bias roughly unchanged. Boosting trains weak, high-bias learners <em>sequentially</em>, each correcting the previous ensemble's residual error, which drives bias down — and can drive variance up, which is why boosting overfits with too many rounds and bagging does not.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why do ensembles work at all?</summary>
+              <div class="ans"><p>Because averaging <code class="ic">M</code> estimators with error variance <code class="ic">σ²</code> and average pairwise correlation <code class="ic">ρ</code> gives ensemble variance <code class="ic">ρσ² + (1−ρ)σ²/M</code>. The second term vanishes as M grows; the first doesn't. So the members must be <b>individually better than chance and mutually decorrelated</b> — and <b>ρ is the ceiling</b> on how much ensembling can help. That formula explains every design decision downstream: why RF randomises features, why stacking prizes diversity over individual strength, and why averaging ten seeds of the same model buys almost nothing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>⭐ Bagging vs boosting — what does each reduce, and why?</summary>
+              <div class="ans"><p><b>Bagging</b> trains high-variance, low-bias learners <em>in parallel</em> on bootstrap samples and averages them, so it <b>reduces variance</b> — directly, via the formula above — while leaving bias roughly where it was. <b>Boosting</b> trains weak, high-bias learners <em>sequentially</em>, each fitted to the current ensemble's errors, so systematic error shrinks: it <b>reduces bias</b>, and can increase variance, which is why it overfits with too many rounds and needs early stopping. That difference also explains their base learners: bagging uses deep trees (already low-bias), boosting uses shallow ones (deliberately high-bias).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.2 ===== -->
+      <article class="topic" id="c8-2">
+        <h3><span class="tn">8.2</span> Bagging <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Bootstrap aggregating: sample with replacement, fit in parallel, average. Simple enough that the interesting questions are all about the bootstrap itself.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Watch variance divide as trees are added</div>
+          <div class="wbody">
+            <canvas id="bgCanvas" width="720" height="290" aria-label="Individual noisy step-function tree predictions drawn faintly over a smooth true function, with their running average drawn boldly, becoming smoother and closer to the truth as the number of trees increases."></canvas>
+            <div class="wctl">
+              <label>number of trees · <b id="bgMVal">1</b>
+                <input type="range" id="bgM" min="1" max="60" value="1" step="1">
+              </label>
+              <label>feature subsampling (Random Forest) · <b id="bgFVal">on</b>
+                <input type="range" id="bgF" min="0" max="1" value="1" step="1">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="bgSingle">—</span>avg single-tree MSE</div>
+              <div class="wcell"><span class="n" id="bgEns">—</span>ensemble MSE</div>
+              <div class="wcell"><span class="n" id="bgRho">—</span>avg pairwise corr ρ</div>
+              <div class="wcell"><span class="n" id="bgOob">—</span>rows out of bag</div>
+            </div>
+            <div class="wout" id="bgOut"></div>
+            <p class="wnote">Real depth-3 regression trees fitted to real bootstrap samples. Drag the tree count and watch ensemble MSE fall while the <em>average individual</em> tree's MSE stays put — that gap <b>is</b> variance reduction, measured. Then toggle feature subsampling off to see ρ rise and the benefit shrink: that is precisely the difference between plain bagging and a Random Forest.</p>
+          </div>
+        </div>
+
+        <h4>The bootstrap, and the 63.2%</h4>
+        <p>A bootstrap sample draws <code class="ic">n</code> rows <em>with replacement</em> from <code class="ic">n</code> rows. The probability a given row is <b>never</b> picked is <code class="ic">(1 − 1/n)ⁿ → 1/e ≈ 0.368</code>. So about <b>63.2%</b> of rows appear at least once, and about <b>36.8%</b> are left out — the <b>out-of-bag</b> set for that tree. That single fact is a standard derivation question and the basis of OOB error (§8.3).</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Bagging helps unstable learners, and barely touches stable ones</span>
+          <p>Bagging reduces <em>variance</em>, so its benefit is proportional to how much variance the base learner has. Deep trees are extremely unstable ⇒ bagging transforms them. <b>Linear regression is stable</b> ⇒ bagging it buys almost nothing, because each bootstrap fit is nearly identical and ρ ≈ 1. That's a good test of whether someone understands the mechanism rather than the recipe: &ldquo;would you bag a linear model?&rdquo; — no, and you should be able to say why in one sentence.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Show that ~63.2% of rows appear in a bootstrap sample.</summary>
+              <div class="ans"><p>Each of the <code class="ic">n</code> draws misses a given row with probability <code class="ic">(1 − 1/n)</code>, and the draws are independent, so the row is missed entirely with probability <code class="ic">(1 − 1/n)ⁿ</code>. As <code class="ic">n → ∞</code> that converges to <code class="ic">e⁻¹ ≈ 0.368</code>. Therefore about <b>63.2%</b> of rows appear at least once and <b>36.8%</b> are <b>out of bag</b>. The consequence: every tree has a free, unbiased-ish validation set — the rows it never saw — which is what OOB error uses (§8.3).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Would you bag a linear regression?</summary>
+              <div class="ans"><p>No, and the reason is the mechanism. Bagging reduces <b>variance</b>, and its benefit scales with how unstable the base learner is. Linear regression is <b>stable</b> — fit it on ten bootstrap samples and you get ten nearly identical models, so ρ ≈ 1 and the variance formula says the ensemble is no better than a single fit. Deep trees are the opposite: a few rows change and the root split flips, so bagging transforms them. The general rule: <b>bag unstable, low-bias learners</b>; bagging a stable or high-bias learner is wasted compute.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.3 ===== -->
+      <article class="topic" id="c8-3">
+        <h3><span class="tn">8.3</span> Random Forest &amp; out-of-bag error <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Random Forest is bagging plus <em>one</em> extra idea — and that extra idea is the whole reason it works better. It is also the part of the answer candidates most often omit.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="Bagging architecture: the training set is bootstrap-resampled into several samples, a deep tree with random feature subsetting is fitted to each in parallel, and their predictions are averaged; the rows not selected in each bootstrap form the out-of-bag set used for free validation.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">bootstrap → parallel deep trees with √p features per split → average</text>
+              <g font-size="10">
+                <rect x="24" y="102" width="86" height="64" rx="8" fill="#252D3A" stroke="#3a4453"/>
+                <text x="67" y="130" fill="#fff" text-anchor="middle">training</text>
+                <text x="67" y="146" fill="#8892a0" text-anchor="middle">set (n rows)</text>
+                <g stroke="#3a4453" stroke-width="1.2">
+                  <path d="M110 118 L164 66"/><path d="M110 128 L164 112"/><path d="M110 142 L164 158"/><path d="M110 152 L164 204"/>
+                </g>
+                <g>
+                  <rect x="166" y="50" width="92" height="30" rx="6" fill="#1e2a3a" stroke="#3B45B5"/><text x="212" y="69" fill="#98a0f0" text-anchor="middle">bootstrap 1</text>
+                  <rect x="166" y="96" width="92" height="30" rx="6" fill="#1e2a3a" stroke="#3B45B5"/><text x="212" y="115" fill="#98a0f0" text-anchor="middle">bootstrap 2</text>
+                  <rect x="166" y="142" width="92" height="30" rx="6" fill="#1e2a3a" stroke="#3B45B5"/><text x="212" y="161" fill="#98a0f0" text-anchor="middle">bootstrap 3</text>
+                  <rect x="166" y="188" width="92" height="30" rx="6" fill="#1e2a3a" stroke="#3B45B5"/><text x="212" y="207" fill="#98a0f0" text-anchor="middle">bootstrap M</text>
+                </g>
+                <g stroke="#3a4453" stroke-width="1.2">
+                  <path d="M258 65 L300 65"/><path d="M258 111 L300 111"/><path d="M258 157 L300 157"/><path d="M258 203 L300 203"/>
+                </g>
+                <g>
+                  <rect x="302" y="50" width="120" height="30" rx="6" fill="#3a2418" stroke="#E0920C"/><text x="362" y="69" fill="#f0c274" text-anchor="middle">deep tree · √p features</text>
+                  <rect x="302" y="96" width="120" height="30" rx="6" fill="#3a2418" stroke="#E0920C"/><text x="362" y="115" fill="#f0c274" text-anchor="middle">deep tree · √p features</text>
+                  <rect x="302" y="142" width="120" height="30" rx="6" fill="#3a2418" stroke="#E0920C"/><text x="362" y="161" fill="#f0c274" text-anchor="middle">deep tree · √p features</text>
+                  <rect x="302" y="188" width="120" height="30" rx="6" fill="#3a2418" stroke="#E0920C"/><text x="362" y="207" fill="#f0c274" text-anchor="middle">deep tree · √p features</text>
+                </g>
+                <g stroke="#3a4453" stroke-width="1.2">
+                  <path d="M422 65 L470 120"/><path d="M422 111 L470 126"/><path d="M422 157 L470 132"/><path d="M422 203 L470 138"/>
+                </g>
+                <rect x="472" y="108" width="98" height="44" rx="8" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="521" y="128" fill="#7fd6a0" text-anchor="middle">average</text>
+                <text x="521" y="143" fill="#8892a0" text-anchor="middle">(or vote)</text>
+                <rect x="584" y="96" width="92" height="68" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="630" y="118" fill="#fff" text-anchor="middle">prediction</text>
+                <text x="630" y="136" fill="#8892a0" text-anchor="middle">variance ↓</text>
+                <text x="630" y="152" fill="#8892a0" text-anchor="middle">bias ≈ same</text>
+                <path d="M570 130 L582 130" stroke="#3a4453" stroke-width="1.2"/>
+                <rect x="24" y="234" width="652" height="34" rx="7" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="255" fill="#98a0f0" font-size="10.5">Each bootstrap leaves out ≈ <tspan font-weight="600">36.8%</tspan> of rows — the <tspan font-weight="600">out-of-bag</tspan> set. Averaging each row's prediction over the trees that never saw it gives free validation.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The extra idea:</b> plain bagging fits each tree on a different bootstrap sample, but if one feature is strongly predictive, <em>every</em> tree splits on it at the root and the trees end up highly correlated. Random Forest samples a <b>random subset of features at each split</b> (<code class="ic">max_features</code>, default √p for classification, p/3 for regression), forcing trees to use different structure. <b>That is what decorrelates them</b> — and it is the part most candidates leave out.</figcaption>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Hyperparameter</th><th>Effect</th><th>Guidance</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">n_estimators</code></td><td>More trees ⇒ lower variance</td><td><b>More is never worse</b>, only slower — this is <em>not</em> a regularization knob. Stop when OOB error plateaus</td></tr>
+              <tr><td><code class="ic">max_features</code></td><td><b>The decorrelation dial</b></td><td>√p classification, p/3 regression. Lower ⇒ more decorrelation, more individual bias. The single most impactful RF parameter</td></tr>
+              <tr><td><code class="ic">max_depth</code></td><td>Individual tree capacity</td><td>Usually leave unbounded — the averaging handles the variance</td></tr>
+              <tr><td><code class="ic">min_samples_leaf</code></td><td>Smooths leaf estimates</td><td>The knob to reach for on noisy data</td></tr>
+              <tr><td><code class="ic">bootstrap</code></td><td>Sample rows with replacement</td><td>Set <code class="ic">False</code> and you lose OOB entirely — and you're building Extra Trees' row strategy without its split strategy</td></tr>
+              <tr><td><b>Extra Trees</b></td><td>Random split <em>thresholds</em> too</td><td>More variance reduction, slightly more bias, noticeably faster (no threshold search)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">&ldquo;Can you overfit a Random Forest?&rdquo; — the two-clause answer</span>
+          <p><b>Adding trees does not overfit.</b> The ensemble converges as M grows; it doesn't degrade. So <code class="ic">n_estimators</code> is a compute budget, not a regularization knob. <b>But a forest can absolutely overfit:</b> fully-grown trees on noisy data will happily memorise label noise, and averaging reduces variance without removing that memorisation. The fix is therefore <code class="ic">min_samples_leaf</code> and <code class="ic">max_features</code>, <em>not</em> fewer trees. Contrast with a GBM, which overfits readily with too many rounds — hence early stopping.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ How does Random Forest differ from plain bagging? What is OOB error?</summary>
+              <div class="ans"><p>RF adds <b>random feature subsetting at each split</b> (<code class="ic">max_features</code>). Without it, a dominant feature is chosen at the root of every tree and the trees end up highly correlated — and correlation is the <b>ceiling</b> on what averaging can achieve (§8.1). Feature subsetting forces structural diversity, which is the entire improvement. <b>OOB error:</b> each bootstrap omits ~36.8% of rows, so every row can be scored by the trees that never saw it, giving a validation estimate for free without holding anything out — particularly valuable on small datasets.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Can you overfit a Random Forest by adding trees?</summary>
+              <div class="ans"><p>No — the ensemble converges rather than degrading, so <code class="ic">n_estimators</code> is a compute budget and more is never worse. <b>But the forest can still overfit</b>: deep unpruned trees on noisy data memorise label noise, and averaging reduces variance without removing that memorisation. Control it with <code class="ic">min_samples_leaf</code> and <code class="ic">max_features</code>, not with fewer trees. That contrast with boosting — which <em>does</em> overfit with too many rounds and needs early stopping — is the follow-up they're usually fishing for.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Is OOB error a valid substitute for cross-validation?</summary>
+              <div class="ans"><p>Usually a good approximation, with caveats. It's genuinely free and roughly comparable to leave-one-out CV, which makes it very attractive on small data. But: it's slightly <b>pessimistic</b>, because each row is predicted by only ~37% of the trees rather than the full ensemble; it's only available with <code class="ic">bootstrap=True</code>; and critically, it uses <b>random</b> row assignment, so it inherits every problem random splitting has — it will be <b>optimistic under grouping or temporal structure</b> just like random CV (§3.6). For grouped or time-series data I'd use a proper grouped/time CV instead.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What are Extra Trees and when would you use them?</summary>
+              <div class="ans"><p>Extremely Randomized Trees add a second source of randomness: instead of searching for the <b>best</b> threshold on each candidate feature, they pick thresholds <b>at random</b> and take the best among those. That decorrelates trees further (lower ρ, more variance reduction) at the cost of slightly more bias per tree, and it's <b>noticeably faster</b> because there's no threshold search. Use them when you have plenty of trees, noisy data where the "optimal" threshold is largely noise anyway, or when training time matters. They also, by default, use the whole dataset rather than bootstrapping.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.4 ===== -->
+      <article class="topic" id="c8-4">
+        <h3><span class="tn">8.4</span> AdaBoost</h3>
+        <p class="lead">The ancestor. Worth knowing not for its own sake but because framing it as <em>a special case of gradient boosting</em> is a strong answer.</p>
+
+        <p>AdaBoost maintains a weight per training example. Each round it fits a weak learner (classically a stump), computes its weighted error, assigns the learner a vote <code class="ic">α = ½ln((1−err)/err)</code>, then <b>increases the weights of misclassified examples</b> and decreases the rest. The final prediction is the weighted vote.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">AdaBoost <em>is</em> gradient boosting with exponential loss</span>
+          <p>The re-weighting scheme isn't an arbitrary heuristic — it falls out of forward stagewise additive modelling with the <b>exponential loss</b> <code class="ic">L = exp(−y·F(x))</code>. Saying that reframes two separate-looking algorithms as one, and it also explains AdaBoost's known weakness: exponential loss grows very fast for large negative margins, so <b>AdaBoost is unusually sensitive to label noise and outliers</b> — mislabelled points get their weights pushed up round after round until they dominate.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How does AdaBoost work, and how does it relate to gradient boosting?</summary>
+              <div class="ans"><p>It maintains per-example weights: each round fits a weak learner on the weighted data, gives it a vote based on its weighted error, then <b>up-weights the misclassified examples</b> so the next learner focuses on them. Final prediction is the weighted vote. The connection worth making: this is exactly <b>gradient boosting with the exponential loss</b> <code class="ic">exp(−y·F(x))</code> under forward stagewise additive modelling — the re-weighting is the gradient. Framing it that way turns two algorithms into one idea, and immediately explains AdaBoost's weakness: exponential loss blows up on large negative margins, so it's <b>very sensitive to label noise</b>.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.5 ===== -->
+      <article class="topic" id="c8-5">
+        <h3><span class="tn">8.5</span> Gradient boosting <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">A top-five interview question. The answer that lands is one sentence: <em>each new tree is fitted to the negative gradient of the loss with respect to the current predictions.</em></p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Boosting, one tree at a time</div>
+          <div class="wbody">
+            <canvas id="gbCanvas" width="720" height="330" aria-label="Top panel: noisy data points with the current boosted ensemble prediction drawn as a step function that improves as trees are added. Bottom panel: the current residuals, shrinking toward zero as the ensemble grows."></canvas>
+            <div class="wctl">
+              <label>boosting rounds M · <b id="gbMVal">1</b>
+                <input type="range" id="gbM" min="0" max="80" value="1" step="1">
+              </label>
+              <label>learning rate ν · <b id="gbLVal">0.30</b>
+                <input type="range" id="gbL" min="2" max="100" value="30" step="1">
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="gbTr">—</span>train MSE</div>
+              <div class="wcell"><span class="n" id="gbTe">—</span>test MSE</div>
+              <div class="wcell"><span class="n" id="gbBest">—</span>best round (early stop)</div>
+              <div class="wcell"><span class="n" id="gbRes">—</span>mean |residual|</div>
+            </div>
+            <div class="wout" id="gbOut"></div>
+            <p class="wnote">Genuine gradient boosting on squared loss with depth-2 regression stumps, fitted live. Two experiments. <b>ν = 1.0</b>: the fit locks on fast and test error climbs early — overfitting. <b>ν = 0.05</b>: slow but the test curve is flatter and bottoms out lower. That is the <b>learning-rate × n_estimators trade-off</b> in one picture, and why &ldquo;lower the learning rate and add trees&rdquo; is the standard move.</p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="The gradient boosting loop drawn as a cycle: start with a constant prediction, compute pseudo-residuals as the negative gradient of the loss, fit a small tree to those residuals, add it to the ensemble scaled by the learning rate, and repeat.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the loop — and why &ldquo;residual&rdquo; is only the special case for squared loss</text>
+              <g font-size="10.5">
+                <rect x="24" y="52" width="140" height="46" rx="8" fill="#252D3A" stroke="#3a4453"/>
+                <text x="94" y="72" fill="#fff" text-anchor="middle">F₀(x) = constant</text>
+                <text x="94" y="88" fill="#8892a0" text-anchor="middle">(the mean, for MSE)</text>
+                <path d="M164 75 L208 75" stroke="#3a4453" stroke-width="1.4" marker-end="url(#p8a)"/>
+                <rect x="210" y="48" width="178" height="54" rx="8" fill="#3a2418" stroke="#E0920C"/>
+                <text x="299" y="68" fill="#f0c274" text-anchor="middle">rᵢ = −∂L(yᵢ, F(xᵢ))/∂F</text>
+                <text x="299" y="86" fill="#8892a0" text-anchor="middle">pseudo-residuals</text>
+                <path d="M388 75 L432 75" stroke="#3a4453" stroke-width="1.4" marker-end="url(#p8a)"/>
+                <rect x="434" y="48" width="160" height="54" rx="8" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="514" y="68" fill="#98a0f0" text-anchor="middle">fit a shallow tree hₘ</text>
+                <text x="514" y="86" fill="#8892a0" text-anchor="middle">to those r values</text>
+                <path d="M514 102 L514 132" stroke="#3a4453" stroke-width="1.4" marker-end="url(#p8a)"/>
+                <rect x="404" y="134" width="220" height="46" rx="8" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="514" y="154" fill="#7fd6a0" text-anchor="middle">Fₘ(x) = Fₘ₋₁(x) + ν·hₘ(x)</text>
+                <text x="514" y="171" fill="#8892a0" text-anchor="middle">ν = learning rate (shrinkage)</text>
+                <path d="M404 157 L200 157 L200 104" stroke="#2E9E5B" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#p8b)"/>
+                <text x="272" y="150" fill="#7fd6a0" font-size="10">repeat M times</text>
+                <rect x="24" y="200" width="652" height="48" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="220" fill="#c2cad6">For <tspan font-weight="600" fill="#fff">squared loss</tspan>, −∂L/∂F = (y − F), so the pseudo-residual <tspan font-style="italic">is</tspan> the ordinary residual — which is why the textbook</text>
+                <text x="40" y="238" fill="#c2cad6">version says &ldquo;fit the next tree to the residuals&rdquo;. Saying <tspan font-weight="600" fill="#F0A81E">negative gradient</tspan> generalises it to log loss, Poisson, quantile and everything else.</text>
+              </g>
+              <defs>
+                <marker id="p8a" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#5A6472"/></marker>
+                <marker id="p8b" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#2E9E5B"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Why &ldquo;negative gradient&rdquo; is the better phrasing.</b> It is gradient descent <em>in function space</em>: treat the ensemble's predictions as the parameters, and the steepest-descent direction is <code class="ic">−∂L/∂F</code>. Fitting a tree to that direction is one step. Once you see it that way, supporting log loss, Poisson, Tweedie or quantile objectives is not a special case — it's just a different <code class="ic">L</code>.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Explain gradient boosting. What exactly is each new tree fitted to?</summary>
+              <div class="ans"><p>Start from a constant prediction. Each round, compute the <b>negative gradient of the loss with respect to the current predictions</b> — the pseudo-residuals — fit a shallow tree to those, and add it scaled by the learning rate: <code class="ic">Fₘ = Fₘ₋₁ + ν·hₘ</code>. It's <b>gradient descent in function space</b>. For squared loss the negative gradient <em>is</em> the ordinary residual, which is why textbooks say "fit to the residuals" — but saying <b>negative gradient</b> is what generalises it to log loss, Poisson, quantile and any differentiable objective. AdaBoost is the special case with exponential loss.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why does gradient boosting use shallow trees when Random Forest uses deep ones?</summary>
+              <div class="ans"><p>Because they're attacking different things. Boosting reduces <b>bias</b> by adding many weak learners, so each one should be deliberately <b>high-bias, low-variance</b> — a shallow tree (depth 3–6 typically) contributes a small correction without adding much variance. Bagging reduces <b>variance</b>, so its members should be <b>low-bias, high-variance</b> — deep trees, whose instability is exactly what averaging removes. Depth also caps interaction order (§7.4), so shallow boosting trees make the ensemble an additive model of low-order interactions, which is a good inductive bias for tabular data.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>How do the learning rate and number of trees interact?</summary>
+              <div class="ans"><p>They trade off almost directly: halve <code class="ic">ν</code> and you need roughly twice as many rounds for the same effective complexity. A <b>smaller learning rate with more trees</b> generally reaches a better optimum — each tree commits less, so the ensemble explores the loss surface more carefully — at the cost of training time. Because of that coupling, don't tune them independently: fix a modest <code class="ic">ν</code> (0.05–0.1), let <b>early stopping</b> choose the number of rounds, and only at the very end consider dropping <code class="ic">ν</code> further and refitting. Early stopping is itself a form of regularization (§4.5).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.6 ===== -->
+      <article class="topic" id="c8-6">
+        <h3><span class="tn">8.6</span> XGBoost vs LightGBM vs CatBoost <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The most reliably-asked comparison in tabular ML. Answer with <em>mechanisms</em>, then a selection rule, then the honest caveat that once tuned they are usually within noise of each other.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Level-wise tree growth expands every node at a depth before going deeper, producing balanced trees, while leaf-wise growth always expands the leaf with the largest loss reduction, producing deep asymmetric trees that fit faster but overfit small data more easily.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">level-wise (XGBoost default) vs leaf-wise (LightGBM) — the headline structural difference</text>
+              <g>
+                <text x="168" y="48" fill="#98a0f0" font-size="11.5" text-anchor="middle">level-wise / depth-wise</text>
+                <g stroke="#3a4453" stroke-width="1.2">
+                  <path d="M168 76 L112 116 M168 76 L224 116"/>
+                  <path d="M112 128 L80 168 M112 128 L144 168"/>
+                  <path d="M224 128 L192 168 M224 128 L256 168"/>
+                </g>
+                <circle cx="168" cy="70" r="11" fill="#3B45B5"/>
+                <circle cx="112" cy="122" r="11" fill="#3B45B5"/><circle cx="224" cy="122" r="11" fill="#3B45B5"/>
+                <circle cx="80" cy="174" r="11" fill="#3B45B5"/><circle cx="144" cy="174" r="11" fill="#3B45B5"/>
+                <circle cx="192" cy="174" r="11" fill="#3B45B5"/><circle cx="256" cy="174" r="11" fill="#3B45B5"/>
+                <text x="168" y="208" fill="#8892a0" font-size="10" text-anchor="middle">balanced · predictable cost</text>
+                <text x="168" y="224" fill="#8892a0" font-size="10" text-anchor="middle">splits some nodes that gain little</text>
+                <text x="168" y="242" fill="#98a0f0" font-size="10" text-anchor="middle">control with <tspan font-family="var(--mono)">max_depth</tspan></text>
+              </g>
+              <g transform="translate(360,0)">
+                <text x="168" y="48" fill="#f0c274" font-size="11.5" text-anchor="middle">leaf-wise / best-first</text>
+                <g stroke="#3a4453" stroke-width="1.2">
+                  <path d="M168 76 L120 116 M168 76 L216 116"/>
+                  <path d="M120 128 L92 168 M120 128 L152 168"/>
+                  <path d="M92 180 L70 216 M92 180 L118 216"/>
+                </g>
+                <circle cx="168" cy="70" r="11" fill="#E0920C"/>
+                <circle cx="120" cy="122" r="11" fill="#E0920C"/><circle cx="216" cy="122" r="11" fill="#3a4453"/>
+                <circle cx="92" cy="174" r="11" fill="#E0920C"/><circle cx="152" cy="174" r="11" fill="#3a4453"/>
+                <circle cx="70" cy="222" r="11" fill="#E0920C"/><circle cx="118" cy="222" r="11" fill="#E0920C"/>
+                <text x="168" y="208" fill="#8892a0" font-size="10" text-anchor="middle">grows wherever loss falls most</text>
+                <text x="168" y="242" fill="#f0c274" font-size="10" text-anchor="middle">faster &amp; often more accurate — but</text>
+                <text x="168" y="256" fill="#e0a3a8" font-size="10" text-anchor="middle">overfits small data: use <tspan font-family="var(--mono)">num_leaves</tspan>, <tspan font-family="var(--mono)">min_data_in_leaf</tspan></text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The trap inside this question:</b> in LightGBM, <code class="ic">num_leaves</code> is the real capacity control, not <code class="ic">max_depth</code>. A leaf-wise tree with <code class="ic">num_leaves = 255</code> can be extremely deep on one branch while another stays a stump. Setting <code class="ic">max_depth</code> and leaving <code class="ic">num_leaves</code> at its default is a classic misconfiguration that produces a model far more complex than intended.</figcaption>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th>XGBoost 3.4</th><th>LightGBM 4.7</th><th>CatBoost 1.2</th></tr></thead>
+            <tbody>
+              <tr><td><b>Optimisation</b></td><td><b>Second-order</b> (Newton): gradients <em>and</em> Hessians, giving a closed-form optimal leaf weight</td><td>Gradient-based, histogram binning</td><td>Gradient-based, <b>ordered boosting</b></td></tr>
+              <tr><td><b>Tree growth</b></td><td>Level-wise (leaf-wise available via <code class="ic">grow_policy</code>)</td><td><b>Leaf-wise</b> (best-first)</td><td><b>Symmetric / oblivious</b> — the same split across a whole level</td></tr>
+              <tr><td><b>Signature tricks</b></td><td>Explicit <code class="ic">λ</code>, <code class="ic">α</code>, <code class="ic">γ</code> in the objective; <b>sparsity-aware</b> learned default direction for NaN</td><td><b>GOSS</b> (keep large-gradient rows, subsample small-gradient ones) + <b>EFB</b> (bundle mutually exclusive sparse features)</td><td><b>Ordered target statistics</b> for categoricals; permutation-based to avoid target leakage</td></tr>
+              <tr><td><b>Categoricals</b></td><td>Supported; historically encode yourself</td><td>Native categorical splits</td><td><b>Best-in-class</b>, zero manual preprocessing</td></tr>
+              <tr><td><b>Missing values</b></td><td>Learned default direction per split</td><td>Same</td><td>Same</td></tr>
+              <tr><td><b>Inference speed</b></td><td>Fast</td><td>Fast</td><td><b>Very fast</b> — oblivious trees vectorise beautifully</td></tr>
+              <tr><td><b>Reach for it when</b></td><td>Maximum control, best-understood recipe, widest ecosystem</td><td>Very large data, tight training budget</td><td>Many high-cardinality categoricals, limited tuning time</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="Ordered boosting: in naive target statistics a row's encoding uses its own label, causing a prediction shift; in CatBoost's ordered scheme each row's statistics and residuals come only from rows preceding it in a random permutation.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">what CatBoost's <tspan font-style="italic">ordered boosting</tspan> actually fixes</text>
+              <g font-size="10">
+                <text x="30" y="52" fill="#e0a3a8" font-size="11">✗ naive: every row's statistics use every row — including itself</text>
+                <rect x="30" y="62" width="620" height="28" rx="5" fill="#3a1e22" stroke="#5a3036"/>
+                <g fill="#e0a3a8"><circle cx="70" cy="76" r="5"/><circle cx="130" cy="76" r="5"/><circle cx="190" cy="76" r="5"/><circle cx="250" cy="76" r="5"/><circle cx="310" cy="76" r="5"/><circle cx="370" cy="76" r="5"/><circle cx="430" cy="76" r="5"/><circle cx="490" cy="76" r="5"/><circle cx="550" cy="76" r="5"/><circle cx="610" cy="76" r="5"/></g>
+                <text x="340" y="108" fill="#e0a3a8">⇒ a systematic <tspan font-weight="600">prediction shift</tspan>: training residuals are biased, so the model is over-optimistic on data it has seen</text>
+                <text x="30" y="146" fill="#7fd6a0" font-size="11">✓ ordered: row i uses only rows before it in a random permutation</text>
+                <rect x="30" y="156" width="620" height="28" rx="5" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <g fill="#7fd6a0"><circle cx="70" cy="170" r="5"/><circle cx="130" cy="170" r="5"/><circle cx="190" cy="170" r="5"/><circle cx="250" cy="170" r="5"/><circle cx="310" cy="170" r="5"/></g>
+                <circle cx="370" cy="170" r="7" fill="#F0A81E" stroke="#fff" stroke-width="1.4"/>
+                <g fill="#3a4453"><circle cx="430" cy="170" r="5"/><circle cx="490" cy="170" r="5"/><circle cx="550" cy="170" r="5"/><circle cx="610" cy="170" r="5"/></g>
+                <path d="M70 190 L358 190" stroke="#2E9E5B" stroke-width="1.4"/>
+                <text x="214" y="204" fill="#7fd6a0" text-anchor="middle">only these inform row i</text>
+                <text x="500" y="204" fill="#6b7482" text-anchor="middle">these are invisible to it</text>
+                <text x="30" y="234" fill="#8892a0">Several permutations are used so early rows aren't starved. Same idea as the out-of-fold target encoding in §3.5 — built into the algorithm.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>The selection answer, said once and cleanly:</b> many high-cardinality categoricals and limited tuning time ⇒ <b>CatBoost</b>. Very large data with a tight training budget ⇒ <b>LightGBM</b>. Maximum ecosystem, control and a well-understood recipe ⇒ <b>XGBoost</b>. Then the caveat that earns trust: <em>once properly tuned their accuracies are usually within noise of one another, so I'd pick on operational fit and spend the time on features and validation instead.</em></figcaption>
+        </figure>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Monotonic and interaction constraints</span>
+          <p>All three libraries support <b>monotonic constraints</b> — forcing the prediction to be non-decreasing (or non-increasing) in a given feature, enforced at split time. This is how you inject a business or regulatory rule (&ldquo;risk must not fall as debt rises&rdquo;) into a boosted model, and it is close to mandatory in credit and insurance. As §4.5 notes, it's also a <b>strong regularizer</b> that often improves held-out performance. <b>Interaction constraints</b> are the related tool for &ldquo;these features may not interact&rdquo;.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ XGBoost vs LightGBM vs CatBoost — the real differences, and how do you choose?</summary>
+              <div class="ans"><p><b>XGBoost:</b> second-order (Newton) approximation using gradients <em>and</em> Hessians, so leaf values and split gains come from a closed form; explicit <code class="ic">λ</code>/<code class="ic">α</code>/<code class="ic">γ</code> regularization; sparsity-aware default direction for missing values; level-wise growth by default. <b>LightGBM:</b> leaf-wise growth plus <b>GOSS</b> (keep large-gradient rows, subsample the rest) and <b>EFB</b> (bundle mutually exclusive sparse features) — fastest at scale, native categoricals. <b>CatBoost:</b> <b>ordered boosting</b> and ordered target statistics to eliminate the prediction shift from naive target encoding; symmetric oblivious trees for very fast inference; strong defaults. <b>Choice:</b> high-cardinality categoricals + little tuning time ⇒ CatBoost; very large data ⇒ LightGBM; control and ecosystem ⇒ XGBoost. And once tuned, they're usually within noise of each other.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is leaf-wise vs level-wise growth, and what's the risk of leaf-wise?</summary>
+              <div class="ans"><p>Level-wise expands every node at a given depth before descending — balanced trees, predictable cost, and it splits some nodes that gain little. Leaf-wise always expands the <b>single leaf with the largest loss reduction</b>, so it reaches a lower loss with fewer leaves and is faster and often more accurate. The risk: it grows very deep down one branch and <b>overfits small or noisy datasets</b>. Control with <code class="ic">num_leaves</code> and <code class="ic">min_data_in_leaf</code> — and note the classic misconfiguration of setting <code class="ic">max_depth</code> while leaving <code class="ic">num_leaves</code> at default, which gives a far more complex model than intended.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What problem does CatBoost's ordered boosting solve?</summary>
+              <div class="ans"><p>The <b>prediction shift</b> caused by target leakage in naive target statistics. If a row's categorical encoding and its residual are computed using its own label, training residuals are systematically biased and the model is over-optimistic on data it has seen — the same failure as non-cross-fitted target encoding (§3.5), but occurring <em>inside</em> the boosting loop. Ordered boosting computes each row's statistics and residuals from only the rows preceding it in a <b>random permutation</b>, using several permutations so early rows aren't starved of data. It's the algorithmic version of out-of-fold encoding, which is why CatBoost needs no manual categorical preprocessing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What are GOSS and EFB?</summary>
+              <div class="ans"><p>LightGBM's two speed tricks. <b>GOSS</b> (Gradient-based One-Side Sampling): rows with <b>large gradients</b> are under-fitted and informative, so keep all of them; rows with small gradients are already well-fitted, so randomly subsample them and up-weight the survivors to keep the gradient estimate unbiased. You get most of the information from a fraction of the rows. <b>EFB</b> (Exclusive Feature Bundling): in sparse data many features are <b>mutually exclusive</b> (never non-zero together — think one-hot columns), so they can be bundled into a single feature without losing information, reducing the effective feature count. Together they're why LightGBM is dramatically faster on large sparse data.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What are symmetric/oblivious trees and why does CatBoost use them?</summary>
+              <div class="ans"><p>An oblivious tree uses the <b>same split condition across an entire level</b> — every node at depth 2 tests the same feature and threshold. That makes the tree a perfectly balanced binary structure, so evaluating it is just computing an index into a leaf array: <b>extremely fast, branch-free inference</b> that vectorises well. It's also a strong regularizer, since the tree has far fewer degrees of freedom than a free-form one. The trade-off is expressiveness per tree — CatBoost compensates by using more trees, and the net result is competitive accuracy with notably fast prediction, which matters in latency-bound serving (§15.3).</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.7 ===== -->
+      <article class="topic" id="c8-7">
+        <h3><span class="tn">8.7</span> Tuning a GBM <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Giving an <em>order</em> rather than a list of parameters is what makes this answer sound like experience rather than documentation.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Step</th><th>What you tune</th><th>Why this order</th></tr></thead>
+            <tbody>
+              <tr><td><b>1</b></td><td>Fix a modest learning rate (0.05–0.1); let <b>early stopping</b> choose <code class="ic">n_estimators</code></td><td>These two are coupled, so pinning one and deriving the other removes a whole dimension from the search</td></tr>
+              <tr><td><b>2</b></td><td>Tree complexity: <code class="ic">max_depth</code> / <code class="ic">num_leaves</code>, <code class="ic">min_child_weight</code> / <code class="ic">min_data_in_leaf</code></td><td>The biggest lever on the bias-variance balance</td></tr>
+              <tr><td><b>3</b></td><td>Sampling: <code class="ic">subsample</code>, <code class="ic">colsample_bytree</code></td><td>Cheap variance reduction and speed; also decorrelates trees</td></tr>
+              <tr><td><b>4</b></td><td>Regularization: <code class="ic">lambda</code> (L2), <code class="ic">alpha</code> (L1), <code class="ic">gamma</code> (min split gain)</td><td>Fine-tuning once the structure is right</td></tr>
+              <tr><td><b>5</b></td><td>Lower the learning rate, refit with more rounds</td><td>The final squeeze — usually worth a small gain for a large time cost</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Use <b>random or TPE search over log-uniform ranges</b>, inside the CV loop (§11.4). And check the obvious things first: is the objective right for the target (§5.8), are the categoricals handled natively, is early stopping actually monitoring the metric you care about rather than the default?</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Early stopping needs a validation set that isn't your test set</span>
+          <p>If early stopping monitors the same data you later report on, the reported score is optimistic — the stopping round was <em>selected</em> using it. Inside cross-validation this needs care: either use a nested holdout carved from each training fold, or accept that the CV score is slightly optimistic and confirm on a final untouched test set. It's a small effect, but it's the same selection bias that makes nested CV necessary (§11.3), and interviewers who ask about early stopping are often probing exactly this.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you tune a GBM? Give me your order of operations.</summary>
+              <div class="ans"><p><b>(1)</b> Fix a modest learning rate (0.05–0.1) and let <b>early stopping</b> pick the number of rounds — those two are coupled, so pinning one removes a search dimension. <b>(2)</b> Tree complexity: <code class="ic">max_depth</code>/<code class="ic">num_leaves</code> and <code class="ic">min_child_weight</code>/<code class="ic">min_data_in_leaf</code> — the biggest lever. <b>(3)</b> Sampling: <code class="ic">subsample</code>, <code class="ic">colsample_bytree</code>. <b>(4)</b> Regularization: <code class="ic">lambda</code>, <code class="ic">alpha</code>, <code class="ic">gamma</code>. <b>(5)</b> Optionally lower the learning rate and refit with more rounds. Random or TPE search over <b>log-uniform</b> ranges, inside the CV loop. And before any of it: check the objective matches the target's distribution.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What are monotonic constraints and when have you needed them?</summary>
+              <div class="ans"><p>They force the model's output to be non-decreasing (or non-increasing) in a given feature, enforced at split time so no split can violate the direction. You need them when a business or regulatory rule demands it — <em>risk must not fall as debt rises; premium must not fall as claim history worsens</em> — and they make the model dramatically easier to defend to a regulator or a domain expert. The underrated second benefit: they're a <b>strong regularizer</b> that eliminates a huge part of the hypothesis space using real domain knowledge, so on small or noisy data they often <em>improve</em> held-out performance rather than costing it.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.8 ===== -->
+      <article class="topic" id="c8-8">
+        <h3><span class="tn">8.8</span> Stacking, blending &amp; voting <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Stacking has exactly one hard part, and it is a leakage trap: the meta-learner must be trained on <strong>out-of-fold</strong> predictions.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 280" role="img" aria-label="Stacking: base models are cross-fitted so that each row's meta-feature is predicted by a model that never saw that row, those out-of-fold predictions train a simple meta-learner, and base models are then refitted on all the data for inference.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the out-of-fold requirement <tspan font-style="italic">is</tspan> stacking — get it wrong and you have built a leak</text>
+              <g font-size="10">
+                <text x="30" y="50" fill="#c2cad6">for each base model, for each fold:</text>
+                <rect x="30" y="60" width="112" height="24" rx="4" fill="#3a2418" stroke="#E0920C"/><text x="86" y="76" fill="#f0c274" text-anchor="middle">fold 1 · held out</text>
+                <rect x="146" y="60" width="112" height="24" rx="4" fill="#1e2a3a" stroke="#3B45B5"/><text x="202" y="76" fill="#98a0f0" text-anchor="middle">fold 2 · train</text>
+                <rect x="262" y="60" width="112" height="24" rx="4" fill="#1e2a3a" stroke="#3B45B5"/><text x="318" y="76" fill="#98a0f0" text-anchor="middle">fold 3 · train</text>
+                <rect x="378" y="60" width="112" height="24" rx="4" fill="#1e2a3a" stroke="#3B45B5"/><text x="434" y="76" fill="#98a0f0" text-anchor="middle">fold 4 · train</text>
+                <rect x="494" y="60" width="112" height="24" rx="4" fill="#1e2a3a" stroke="#3B45B5"/><text x="550" y="76" fill="#98a0f0" text-anchor="middle">fold 5 · train</text>
+                <path d="M300 88 C 240 106, 150 100, 92 90" fill="none" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#p8c)"/>
+                <text x="330" y="104" fill="#7fd6a0">a model trained on folds 2–5 predicts fold 1 · repeat for every fold</text>
+                <rect x="30" y="122" width="300" height="66" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="46" y="142" fill="#fff">OOF prediction matrix</text>
+                <text x="46" y="160" fill="#8892a0">one column per base model, one row per training row —</text>
+                <text x="46" y="176" fill="#8892a0">and <tspan fill="#7fd6a0" font-weight="600">no row was predicted by a model that saw it</tspan></text>
+                <path d="M330 155 L372 155" stroke="#3a4453" stroke-width="1.4" marker-end="url(#p8d)"/>
+                <rect x="374" y="122" width="150" height="66" rx="8" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="449" y="146" fill="#7fd6a0" text-anchor="middle">meta-learner</text>
+                <text x="449" y="164" fill="#8892a0" text-anchor="middle">keep it simple:</text>
+                <text x="449" y="178" fill="#8892a0" text-anchor="middle">regularized linear</text>
+                <path d="M524 155 L566 155" stroke="#3a4453" stroke-width="1.4" marker-end="url(#p8d)"/>
+                <rect x="568" y="122" width="108" height="66" rx="8" fill="#252D3A" stroke="#3a4453"/>
+                <text x="622" y="146" fill="#fff" text-anchor="middle">final</text>
+                <text x="622" y="164" fill="#8892a0" text-anchor="middle">base models</text>
+                <text x="622" y="178" fill="#8892a0" text-anchor="middle">refit on all data</text>
+                <rect x="30" y="208" width="646" height="58" rx="8" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="46" y="230" fill="#e0a3a8" font-size="10.5">The trap: train the base models on all the data, then predict that same data to build the meta-features. Every base prediction now</text>
+                <text x="46" y="250" fill="#e0a3a8" font-size="10.5">carries in-sample fit, the meta-learner learns to trust whichever base model overfits hardest, and the whole ensemble is calibrated to a fiction.</text>
+              </g>
+              <defs>
+                <marker id="p8c" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#2E9E5B"/></marker>
+                <marker id="p8d" markerWidth="7" markerHeight="7" refX="6" refY="3.2" orient="auto"><path d="M0 0 L7 3.2 L0 6.4 z" fill="#5A6472"/></marker>
+              </defs>
+            </svg>
+          </div>
+          <figcaption><b>Honest positioning, which is the part interviewers want:</b> stacking wins Kaggle competitions and rarely survives a production review. It multiplies latency by the number of base models, multiplies the retraining and monitoring surface, makes debugging much harder, and typically buys a fraction of a point. <b>Blending</b> (a single holdout instead of OOF) is simpler, weaker and less data-efficient. <b>Voting</b> — hard or soft — is the trivial ensemble and often captures most of the benefit.</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How does stacking work, and what's the leakage trap in it?</summary>
+              <div class="ans"><p>Base models' predictions become features for a <b>meta-learner</b>. The trap: those meta-features must be <b>out-of-fold</b> — each row's base prediction must come from a model that never saw that row. Train the base models on all the data and predict the same data, and you've handed the meta-learner in-sample fit, so it learns to trust whichever base model overfits hardest and the ensemble is calibrated to a fiction. Keep the meta-learner simple (regularized linear), prize <b>diversity</b> over individual strength, and be honest that stacking rarely survives a production review on latency and maintenance grounds.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Would you ship a stacked ensemble?</summary>
+              <div class="ans"><p>Usually no, and I'd say why rather than just declining. It multiplies <b>latency</b> by the number of base models, multiplies the <b>retraining and monitoring surface</b> (every base model can drift independently), makes <b>debugging</b> a specific bad prediction genuinely hard, and typically buys a fraction of a point that won't survive the practical-significance test (§11.7). Where I would: offline batch scoring with no latency constraint and a genuinely valuable margin — or as a <b>diagnostic</b>, because if stacking helps a lot it tells me my base models are making different mistakes, which is information worth having even if I then ship one model.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 8.9 ===== -->
+      <article class="topic" id="c8-9">
+        <h3><span class="tn">8.9</span> Sample weights &amp; cost-sensitive learning</h3>
+        <p class="lead">The cheapest way to encode business costs into a model — and, in modern scikit-learn, no longer awkward to route through a pipeline.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Mechanism</th><th>Where</th><th>Effect</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">sample_weight</code></td><td><code class="ic">fit()</code></td><td>Per-row importance in the loss — the general tool: recency weighting, confidence weighting, cost weighting, survey weights</td></tr>
+              <tr><td><code class="ic">class_weight='balanced'</code></td><td>Estimator param</td><td>Inverse-frequency weights; equivalent to oversampling without synthetic rows</td></tr>
+              <tr><td><code class="ic">scale_pos_weight</code></td><td>XGBoost / LightGBM</td><td>The same idea for binary imbalance, as a single ratio</td></tr>
+              <tr><td>Cost matrix + threshold</td><td>Post-hoc</td><td><b>Often better</b> — leaves the probabilities calibrated and moves only the decision (§12.7)</td></tr>
+              <tr><td><b>Metadata routing</b></td><td><code class="ic">set_config(enable_metadata_routing=True)</code>, <code class="ic">set_fit_request()</code></td><td>Makes <code class="ic">sample_weight</code> travel correctly through <code class="ic">Pipeline</code> and cross-validation</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">A currency check that will date you</span>
+          <p>If you say &ldquo;scikit-learn can't pass <code class="ic">sample_weight</code> through a <code class="ic">Pipeline</code>, so I write a manual loop over folds&rdquo;, you are describing a library from several versions ago. <b>Metadata routing</b> has been broadly available since 1.4 and was expanded through 1.7 — including routing through <code class="ic">Pipeline</code> and through bagging ensembles' <code class="ic">predict*</code> methods. Also worth knowing: weighting the positive class up <b>decalibrates</b> the output probabilities, so if you need real probabilities downstream, prefer tuning the threshold instead.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>How do you make a model cost-sensitive when a false negative costs 20× a false positive?</summary>
+              <div class="ans"><p>Two routes, and I'd prefer the second. <b>Class weights / <code class="ic">sample_weight</code></b> bake the cost into the loss so the model optimises the weighted objective directly — but this <b>decalibrates</b> the probabilities, so anything downstream that uses <code class="ic">predict_proba</code> is now wrong. <b>Threshold tuning</b> leaves the model and its probabilities intact and moves only the decision: with a calibrated model the cost-optimal threshold is around <code class="ic">c_FP/(c_FP+c_FN) = 1/21 ≈ 0.048</code>. That's cheaper, reversible, easier to explain, and separates the modelling from the policy — which matters when the cost ratio changes next quarter.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>Give a use for sample_weight that isn't about class imbalance.</summary>
+              <div class="ans"><p><b>Recency weighting</b> — weight recent rows more heavily so the model adapts to drift without discarding history entirely, which is a lighter-touch alternative to a rolling training window (§15.6). Others: <b>label confidence</b>, where human-verified labels get weight 1 and heuristic ones get 0.3; <b>survey/design weights</b>, where rows represent different population counts; and <b>economic value</b>, weighting each row by the revenue at stake so the model optimises pounds rather than counts. That last one often changes the model materially and is rarely tried.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 8 widgets ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function gauss(r){ var u=1-r(), v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+  function fitStump(xs, ys, idx, depth, r, jitter){
+    if(depth===0 || idx.length<4){
+      var m=0; idx.forEach(function(i){ m+=ys[i]; });
+      return {leaf:true, v: idx.length? m/idx.length : 0};
+    }
+    var best=null, cands=[];
+    for(var q=1;q<12;q++) cands.push(-1+2*q/12 + (jitter? 0.14*(r()-0.5):0));
+    cands.forEach(function(t){
+      var L=[], R=[];
+      idx.forEach(function(i){ (xs[i]<=t?L:R).push(i); });
+      if(L.length<2||R.length<2) return;
+      function sse(a){ var m=0; a.forEach(function(i){m+=ys[i];}); m/=a.length; var s=0; a.forEach(function(i){ var e=ys[i]-m; s+=e*e; }); return s; }
+      var v=sse(L)+sse(R);
+      if(!best||v<best.v) best={v:v,t:t,L:L,R:R};
+    });
+    if(!best){ var m=0; idx.forEach(function(i){ m+=ys[i]; }); return {leaf:true, v:m/idx.length}; }
+    return {leaf:false, t:best.t, l:fitStump(xs,ys,best.L,depth-1,r,jitter), r:fitStump(xs,ys,best.R,depth-1,r,jitter)};
+  }
+  function predStump(node,x){ while(!node.leaf) node = x<=node.t? node.l : node.r; return node.v; }
+
+  /* ---------- 8.2 bagging ---------- */
+  var bgCv=document.getElementById("bgCanvas");
+  if(bgCv){
+    function f(x){ return Math.sin(2.6*x)+0.4*x; }
+    var r0=rng(23), XS=[], YS=[], TX=[], TY=[];
+    for(var i=0;i<70;i++){ var x=-1+2*i/69; XS.push(x); YS.push(f(x)+0.45*gauss(r0)); }
+    for(var i=0;i<200;i++){ var x=-1+2*i/199; TX.push(x); TY.push(f(x)); }
+    var trees=[], MAXM=60;
+    (function build(){
+      var r=rng(77);
+      for(var m=0;m<MAXM;m++){
+        var idx=[];
+        for(var i=0;i<XS.length;i++) idx.push(Math.floor(r()*XS.length));
+        trees.push({t:fitStump(XS,YS,idx,3,r,true), tn:fitStump(XS,YS,idx,3,r,false), idx:idx});
+      }
+    })();
+    var bgM=document.getElementById("bgM"), bgF=document.getElementById("bgF");
+    function drawBG(){
+      var M=+bgM.value, sub=(+bgF.value)===1;
+      document.getElementById("bgMVal").textContent=M;
+      document.getElementById("bgFVal").textContent= sub? "on" : "off";
+      var ctx=dpr(bgCv), W=720, H=290; ctx.clearRect(0,0,W,H);
+      var L=40,R=690,T=40,B=250;
+      function px(x){ return L+(x+1)/2*(R-L); }
+      function py(y){ return B-(y+2)/4*(B-T); }
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+      ctx.fillStyle="#5560D8";
+      for(var i=0;i<XS.length;i++){ ctx.beginPath(); ctx.arc(px(XS[i]),py(YS[i]),2.6,0,6.3); ctx.fill(); }
+      var preds=[], singleErr=0;
+      for(var m=0;m<M;m++){
+        var node = sub? trees[m].t : trees[m].tn;
+        var yy=TX.map(function(x){ return predStump(node,x); });
+        preds.push(yy);
+        var e=0; for(var i=0;i<TX.length;i++){ var d=TY[i]-yy[i]; e+=d*d; } singleErr+=e/TX.length;
+        ctx.strokeStyle="rgba(224,146,12,0.16)"; ctx.lineWidth=1.2; ctx.beginPath();
+        for(var i=0;i<TX.length;i++){ var X=px(TX[i]), Y=py(yy[i]); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+        ctx.stroke();
+      }
+      singleErr = M? singleErr/M : 0;
+      var avg=TX.map(function(_,i){ var s=0; for(var m=0;m<M;m++) s+=preds[m][i]; return M? s/M : 0; });
+      ctx.strokeStyle="#5A6472"; ctx.setLineDash([5,4]); ctx.lineWidth=1.8; ctx.beginPath();
+      for(var i=0;i<TX.length;i++){ var X=px(TX[i]), Y=py(TY[i]); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle="#2E9E5B"; ctx.lineWidth=3; ctx.beginPath();
+      for(var i=0;i<TX.length;i++){ var X=px(TX[i]), Y=py(avg[i]); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+      ctx.stroke();
+      var ensErr=0; for(var i=0;i<TX.length;i++){ var d=TY[i]-avg[i]; ensErr+=d*d; } ensErr/=TX.length;
+      var rho=0, cnt=0, K=Math.min(M,12);
+      for(var a=0;a<K;a++) for(var b=a+1;b<K;b++){
+        var ma=0,mb=0;
+        for(var i=0;i<TX.length;i++){ ma+=preds[a][i]-TY[i]; mb+=preds[b][i]-TY[i]; }
+        ma/=TX.length; mb/=TX.length;
+        var num=0,da=0,db=0;
+        for(var i=0;i<TX.length;i++){ var ea=(preds[a][i]-TY[i])-ma, eb=(preds[b][i]-TY[i])-mb; num+=ea*eb; da+=ea*ea; db+=eb*eb; }
+        if(da>0&&db>0){ rho+=num/Math.sqrt(da*db); cnt++; }
+      }
+      rho = cnt? rho/cnt : 1;
+      ctx.fillStyle="#6b7482"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("— — true function", L+8, T-8);
+      ctx.fillStyle="#2E9E5B"; ctx.fillText("—— bagged average", L+140, T-8);
+      ctx.fillStyle="#E0920C"; ctx.fillText("individual trees", L+290, T-8);
+      ctx.fillStyle="#8892a0"; ctx.fillText("70 training rows · depth-3 regression trees on real bootstrap samples", L, B+24);
+      document.getElementById("bgSingle").textContent=singleErr.toFixed(3);
+      document.getElementById("bgEns").textContent=ensErr.toFixed(3);
+      document.getElementById("bgRho").textContent=(M>1? rho.toFixed(2) : "—");
+      var uniq={}; for(var m=0;m<M;m++) trees[m].idx.forEach(function(i){ uniq[i]=1; });
+      document.getElementById("bgOob").textContent = M? (100*(1-Object.keys(uniq).length/XS.length)).toFixed(0)+"%" : "—";
+      var msg;
+      if(M<=1) msg="<b>One tree.</b> A single depth-3 tree is a coarse step function with high variance — MSE <span class='v'>"+ensErr.toFixed(3)+"</span>. Add trees and watch what happens.";
+      else msg="<span class='k'>average single tree MSE</span> <span class='v'>"+singleErr.toFixed(3)+"</span> vs <span class='k'>ensemble MSE</span> <span class='v'>"+ensErr.toFixed(3)+"</span> — a <span class='good'>"+((1-ensErr/Math.max(singleErr,1e-9))*100).toFixed(0)+"% reduction</span> with no individual tree improving at all. That gap <em>is</em> variance reduction. Average pairwise error correlation ρ = <span class='v'>"+rho.toFixed(2)+"</span>"+
+        (sub? " — feature subsampling keeps it low, which is what makes a Random Forest better than plain bagging."
+            : " — <span class='warn'>with subsampling off, ρ is higher</span> and the trees repeat each other's mistakes, so averaging buys less.");
+      document.getElementById("bgOut").innerHTML=msg;
+    }
+    [bgM,bgF].forEach(function(e){ e.addEventListener("input", drawBG); });
+    drawBG();
+  }
+
+  /* ---------- 8.5 gradient boosting ---------- */
+  var gbCv=document.getElementById("gbCanvas");
+  if(gbCv){
+    function f(x){ return Math.sin(2.8*x)+0.5*x*x; }
+    var r0=rng(41), XS=[], YS=[], TX=[], TY=[];
+    for(var i=0;i<60;i++){ var x=-1+2*i/59; XS.push(x); YS.push(f(x)+0.35*gauss(r0)); }
+    for(var i=0;i<160;i++){ var x=-1+2*i/159; TX.push(x); TY.push(f(x)+0.35*gauss(r0)); }
+    var gbM=document.getElementById("gbM"), gbL=document.getElementById("gbL");
+    var cache={};
+    function boost(nu, M){
+      var key=nu+"_"+M;
+      if(cache[key]) return cache[key];
+      var r=rng(9);
+      var m0=YS.reduce(function(a,b){return a+b;},0)/YS.length;
+      var F=XS.map(function(){ return m0; }), Ft=TX.map(function(){ return m0; });
+      var idx=XS.map(function(_,i){ return i; });
+      var grid=[]; for(var i=0;i<200;i++) grid.push(-1+2*i/199);
+      var Fgrid=grid.map(function(){ return m0; });
+      for(var m=0;m<M;m++){
+        var res=XS.map(function(_,i){ return YS[i]-F[i]; });
+        var node=fitStump(XS,res,idx,2,r,false);
+        for(var i=0;i<XS.length;i++) F[i]+=nu*predStump(node,XS[i]);
+        for(var i=0;i<TX.length;i++) Ft[i]+=nu*predStump(node,TX[i]);
+        for(var i=0;i<grid.length;i++) Fgrid[i]+=nu*predStump(node,grid[i]);
+      }
+      var tr=0; for(var i=0;i<XS.length;i++){ var e=YS[i]-F[i]; tr+=e*e; } tr/=XS.length;
+      var te=0; for(var i=0;i<TX.length;i++){ var e=TY[i]-Ft[i]; te+=e*e; } te/=TX.length;
+      var resid=XS.map(function(_,i){ return YS[i]-F[i]; });
+      var out={grid:grid, Fgrid:Fgrid, tr:tr, te:te, resid:resid};
+      cache[key]=out; return out;
+    }
+    function drawGB(){
+      var M=+gbM.value, nu=(+gbL.value)/100;
+      document.getElementById("gbMVal").textContent=M;
+      document.getElementById("gbLVal").textContent=nu.toFixed(2);
+      var res=boost(nu,M);
+      var ctx=dpr(gbCv), W=720, H=330; ctx.clearRect(0,0,W,H);
+      var L=40,R=690,T=36,B=210;
+      function px(x){ return L+(x+1)/2*(R-L); }
+      function py(y){ return B-(y+1.6)/3.6*(B-T); }
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,B); ctx.lineTo(R,B); ctx.moveTo(L,T); ctx.lineTo(L,B); ctx.stroke();
+      ctx.fillStyle="#5560D8";
+      for(var i=0;i<XS.length;i++){ ctx.beginPath(); ctx.arc(px(XS[i]),py(YS[i]),3,0,6.3); ctx.fill(); }
+      ctx.strokeStyle="#F0A81E"; ctx.lineWidth=2.6; ctx.beginPath();
+      for(var i=0;i<res.grid.length;i++){ var X=px(res.grid[i]), Y=py(res.Fgrid[i]); if(i===0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y); }
+      ctx.stroke();
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("ensemble after "+M+" round"+(M===1?"":"s")+" (depth-2 trees, ν = "+nu.toFixed(2)+")", L, T-10);
+      var RT=238, RB=316, RM=(RT+RB)/2;
+      ctx.strokeStyle="#2c3542"; ctx.beginPath(); ctx.moveTo(L,RM); ctx.lineTo(R,RM); ctx.stroke();
+      var mr=0;
+      for(var i=0;i<XS.length;i++){
+        var rr=res.resid[i]; mr+=Math.abs(rr);
+        var X=px(XS[i]), Y=RM-rr*24;
+        Y=Math.max(RT,Math.min(RB,Y));
+        ctx.strokeStyle= rr>=0? "#2E9E5B" : "#C0392B"; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(X,RM); ctx.lineTo(X,Y); ctx.stroke();
+      }
+      mr/=XS.length;
+      ctx.fillStyle="#8892a0"; ctx.font="10.5px ui-monospace,Menlo,monospace";
+      ctx.fillText("current residuals — what the next tree will be fitted to", L, RT-6);
+      document.getElementById("gbTr").textContent=res.tr.toFixed(3);
+      document.getElementById("gbTe").textContent=res.te.toFixed(3);
+      document.getElementById("gbRes").textContent=mr.toFixed(3);
+      var best=1e9, bestM=0;
+      for(var m=1;m<=80;m+=2){ var rr=boost(nu,m); if(rr.te<best){ best=rr.te; bestM=m; } }
+      document.getElementById("gbBest").textContent=bestM;
+      var msg;
+      if(M===0) msg="<b>Round 0.</b> The ensemble is a single constant — the mean of y. Every residual is just the deviation from that mean, and the first tree will be fitted to exactly those values.";
+      else if(M>bestM+15) msg="<span class='warn'>Past the optimum.</span> Test MSE bottomed out at round <span class='v'>"+bestM+"</span> (<span class='v'>"+best.toFixed(3)+"</span>) and is now <span class='v'>"+res.te.toFixed(3)+"</span> while train MSE keeps falling. <b>This is why boosting needs early stopping</b> — unlike bagging, more rounds genuinely hurt.";
+      else msg="<span class='k'>train</span> <span class='v'>"+res.tr.toFixed(3)+"</span> · <span class='k'>test</span> <span class='v'>"+res.te.toFixed(3)+"</span>. Residuals shrink each round because each new tree is fitted to them — for squared loss the pseudo-gradient <em>is</em> the residual. Optimal stopping point at this ν: <span class='v'>round "+bestM+"</span>."+(nu>0.7?" <span class='warn'>ν is high</span>: fast progress, but each tree commits hard and the test curve turns up early.":"");
+      document.getElementById("gbOut").innerHTML=msg;
+    }
+    [gbM,gbL].forEach(function(e){ e.addEventListener("input", drawGB); });
+    drawGB();
+  }
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">

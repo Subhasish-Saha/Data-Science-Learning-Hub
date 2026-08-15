@@ -487,7 +487,674 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-<!--CONTENT_INSERT-->
+      <!-- ===== 9.1 ===== -->
+      <article class="topic" id="c9-1">
+        <h3><span class="tn">9.1</span> k-means <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Asked about far more than it is used. Know the algorithm, its <strong>three assumptions</strong>, and why the seed changes the answer.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> Run Lloyd's algorithm step by step</div>
+          <div class="wbody">
+            <canvas id="kmCanvas" width="720" height="310" aria-label="A scatter of points being clustered by k-means, with centroids moving between assignment and update steps, points coloured by their current assignment, and the inertia falling with each iteration."></canvas>
+            <div class="wctl">
+              <label>k · <b id="kmKVal">3</b>
+                <input type="range" id="kmK" min="2" max="7" value="3" step="1">
+              </label>
+              <label>initialisation
+                <span class="wbtns" style="margin-top:2px">
+                  <button class="wbtn on" id="kmPP">k-means++</button><button class="wbtn" id="kmRnd">random (bad seed)</button>
+                </span>
+              </label>
+            </div>
+            <div class="wbtns">
+              <button class="wbtn" id="kmStep">Step (assign → update)</button>
+              <button class="wbtn" id="kmRun">Run to convergence</button>
+              <button class="wbtn" id="kmReset">Reset</button>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="kmIter">0</span>iterations</div>
+              <div class="wcell"><span class="n" id="kmInertia">—</span>inertia</div>
+              <div class="wcell"><span class="n" id="kmSil">—</span>silhouette</div>
+              <div class="wcell"><span class="n" id="kmMoved">—</span>points reassigned</div>
+            </div>
+            <div class="wout" id="kmOut"></div>
+            <p class="wnote">Real Lloyd iterations with a real k-means++ seeding routine and a genuinely computed silhouette. Try the <b>bad seed</b> a few times: it converges to a visibly worse local optimum with higher inertia. That is exactly why <code class="ic">n_init</code> exists and why k-means++ is the default — the objective is <b>non-convex</b>, so the starting point changes the answer.</p>
+          </div>
+        </div>
+
+        <h4>The algorithm and its three assumptions</h4>
+        <p><b>Lloyd's algorithm:</b> initialise <code class="ic">k</code> centroids; <b>assign</b> each point to its nearest centroid; <b>update</b> each centroid to the mean of its assigned points; repeat until assignments stop changing. Each step can only reduce <b>inertia</b> (within-cluster sum of squares), so it always converges — to <em>a</em> local optimum.</p>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Assumption</th><th>What breaks when it fails</th></tr></thead>
+            <tbody>
+              <tr><td><b>Clusters are roughly spherical</b></td><td>Elongated or ring-shaped clusters get carved arbitrarily — k-means will cut a ring into wedges</td></tr>
+              <tr><td><b>Clusters have similar variance</b></td><td>A tight cluster next to a diffuse one: the diffuse one gets split and the tight one absorbs its neighbours</td></tr>
+              <tr><td><b>Clusters have similar size</b> (count)</td><td>Inertia is a sum, so a large cluster dominates the objective and a small one gets swallowed</td></tr>
+              <tr><td>Plus: Euclidean distance is meaningful</td><td>⇒ <b>scale-sensitive</b> (§3.4) and degraded in high dimensions (§2.7)</td></tr>
+              <tr><td>Plus: <b>every point belongs somewhere</b></td><td>There is no noise label — outliers are forced into a cluster and drag its centroid</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">k-means++ is not a minor detail</span>
+          <p>Random initialisation can place two centroids inside the same true cluster, and Lloyd's algorithm has no mechanism to fix that — it converges to a genuinely bad local optimum. <b>k-means++</b> seeds centroids one at a time, choosing each with probability proportional to its <em>squared distance from the nearest existing centroid</em>, so they start spread out. It gives an <code class="ic">O(log k)</code> approximation guarantee in expectation, and combined with <code class="ic">n_init</code> (multiple restarts, keep the lowest inertia) it makes k-means reliable in practice. The widget above lets you see the failure directly.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ How does k-means work, and what are its assumptions?</summary>
+              <div class="ans"><p><b>Lloyd's algorithm:</b> initialise centroids (k-means++), assign each point to its nearest centroid, recompute centroids as the means, repeat until assignments stabilise. It minimises <b>inertia</b> — within-cluster sum of squares — which is <b>non-convex</b>, so the seed changes the result, hence <code class="ic">n_init</code>. <b>Assumptions:</b> clusters are roughly <b>spherical</b>, of similar <b>variance</b> and similar <b>size</b>, and Euclidean distance is meaningful — so it's scale-sensitive and degrades in high dimensions. Plus every point must belong to a cluster: there's no noise label, so outliers drag centroids.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why does k-means always converge, and does it converge to the right answer?</summary>
+              <div class="ans"><p>It always converges because <b>each step can only reduce inertia</b> — the assignment step reassigns points to closer centroids, the update step moves each centroid to the mean, which is the inertia-minimising point for that assignment — and there are finitely many possible assignments, so it must terminate. But it converges to a <b>local</b> optimum, not the global one, because the objective is non-convex. That's exactly why <code class="ic">n_init</code> (multiple restarts) and k-means++ seeding exist, and why "different results each run" is expected behaviour rather than a bug.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why does k-means fail on concentric rings?</summary>
+              <div class="ans"><p>Because it assigns by <b>distance to a centroid</b>, and the centroid of a ring is at its centre — the same place as the centroid of the inner circle. So the two clusters are indistinguishable to the objective, and k-means will instead cut both rings into radial wedges, which is the <em>lower-inertia</em> solution. It isn't failing to optimise; it's optimising a criterion that doesn't match the structure. The right tool is a <b>density-based</b> method (DBSCAN/HDBSCAN, §9.4), or a spectral method that clusters in a transformed space.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.2 ===== -->
+      <article class="topic" id="c9-2">
+        <h3><span class="tn">9.2</span> Choosing k <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Every method here has a caveat, and the complete answer includes the non-technical half.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Method</th><th>What it measures</th><th>Caveat</th></tr></thead>
+            <tbody>
+              <tr><td><b>Elbow</b> on inertia</td><td>Where added clusters stop reducing WCSS much</td><td>Inertia <em>always</em> falls with k, and the elbow is often <b>absent or ambiguous</b> — the most-taught and least-reliable method</td></tr>
+              <tr><td><b>Silhouette</b></td><td><code class="ic">(b−a)/max(a,b)</code> per point: separation vs cohesion</td><td>Favours <b>spherical, well-separated</b> clusters — i.e. it rewards the shape k-means assumes. <code class="ic">O(n²)</code> distances</td></tr>
+              <tr><td>Gap statistic</td><td>Inertia vs that of uniform random reference data</td><td>Principled; needs many reference samples, so it's slow</td></tr>
+              <tr><td>Davies-Bouldin</td><td>Average similarity between each cluster and its most similar one</td><td>Lower is better; same spherical bias</td></tr>
+              <tr><td>Calinski-Harabasz</td><td>Between-cluster vs within-cluster dispersion ratio</td><td>Tends to increase with k; compare shapes, not raw values</td></tr>
+              <tr><td><b>BIC / AIC</b> (via GMM)</td><td>Likelihood penalised by parameter count</td><td>The most principled option — but requires a probabilistic model (§9.5)</td></tr>
+              <tr><td><b>Stability</b></td><td>How consistent assignments are across bootstrap resamples</td><td>Underused and genuinely informative — an unstable k is a wrong k</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The honest half of the answer</span>
+          <p><b>k is usually a business constraint.</b> How many segments can the marketing team actually build campaigns for? How many risk tiers does the pricing system support? How many groups can an analyst meaningfully name? Giving the technical methods <em>and then</em> saying &ldquo;in practice I'd narrow to a plausible range statistically and let the business pick within it, because a mathematically optimal 17 segments that nobody can act on is worth less than a defensible 5&rdquo; is the complete answer.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you choose k?</summary>
+              <div class="ans"><p>Technically: the <b>elbow</b> on inertia (subjective and often absent), the <b>silhouette</b> score, the gap statistic, Davies-Bouldin, Calinski-Harabasz, and — most principled — <b>BIC via a GMM</b>. I'd also check <b>stability</b>: re-run on bootstrap samples and see whether assignments are consistent, because an unstable k is a wrong k. And the honest half: <b>k is usually a business decision</b> — how many segments can actually be acted on. I'd narrow to a plausible range statistically and let the business choose within it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why can't you just pick the k that minimises inertia?</summary>
+              <div class="ans"><p>Because inertia is <b>monotonically decreasing in k</b> — it reaches exactly zero when k = n, with every point its own cluster. So minimising it always selects the most degenerate solution. That's the entire reason for the elbow heuristic (look for diminishing returns rather than the minimum) and for penalised criteria like BIC that explicitly charge for parameters. It's the clustering analogue of R² always increasing with more features (§5.5), and the fix is the same: penalise complexity or use held-out evidence.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.3 ===== -->
+      <article class="topic" id="c9-3">
+        <h3><span class="tn">9.3</span> Hierarchical clustering</h3>
+        <p class="lead">Gives you every k at once, in the form of a tree you can cut at any height — which is genuinely useful for exploration.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Linkage</th><th>Distance between clusters</th><th>Produces</th></tr></thead>
+            <tbody>
+              <tr><td><b>Single</b></td><td>Closest pair</td><td>Long, chained clusters; can follow non-convex shapes but suffers from <b>chaining</b> — one bridge point merges two real clusters</td></tr>
+              <tr><td><b>Complete</b></td><td>Farthest pair</td><td>Compact, roughly equal-diameter clusters; sensitive to outliers</td></tr>
+              <tr><td><b>Average</b></td><td>Mean pairwise distance</td><td>A compromise; the usual default outside Ward</td></tr>
+              <tr><td><b>Ward</b></td><td>Increase in within-cluster variance from merging</td><td><b>The common choice.</b> Minimises the same quantity as k-means, so it gives similar, compact clusters — and requires Euclidean distance</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Cost is the limiting factor: agglomerative clustering is <code class="ic">O(n²)</code> in memory for the distance matrix and <code class="ic">O(n²log n)</code> or worse in time, so it stops being practical in the tens of thousands of rows. Divisive (top-down) variants exist but are rarer.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>When would you use hierarchical clustering over k-means?</summary>
+              <div class="ans"><p>Three cases. When you want <b>every k at once</b> — the dendrogram lets you cut at any height and inspect the nesting, which is far better for exploration than refitting k-means at each k. When the data has a genuine <b>hierarchy</b> (taxonomies, org structures, product categories). And when you want to use a <b>non-Euclidean distance</b> like Gower for mixed types (§2.6), which most linkages support but Ward doesn't. The blocker is always <b>size</b>: it's <code class="ic">O(n²)</code> memory, so past tens of thousands of rows you need k-means or a sampled approach.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is the chaining effect in single linkage?</summary>
+              <div class="ans"><p>Single linkage merges the two clusters whose <b>closest pair</b> is nearest, so a thin bridge of intermediate points can chain two genuinely distinct clusters into one — the algorithm follows the chain rather than seeing the gap. It's the reason single linkage can find elongated, non-convex shapes (a real strength, similar in spirit to DBSCAN) and also why it's fragile to noise: one badly-placed point merges everything. Complete and Ward linkage don't chain, at the cost of preferring compact, roughly spherical clusters.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.4 ===== -->
+      <article class="topic" id="c9-4">
+        <h3><span class="tn">9.4</span> DBSCAN &amp; HDBSCAN <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Density-based clustering — the answer when clusters aren't spherical, when you don't know k, and when you want &ldquo;this point is noise&rdquo; to be a valid output.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 270" role="img" aria-label="Three cluster shapes tested against three algorithms: k-means succeeds on spherical blobs and fails on concentric rings and unequal density, DBSCAN handles arbitrary shapes and labels noise but struggles with varying density, and HDBSCAN handles varying density.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">pick the algorithm from the <tspan font-style="italic">shape</tspan> you expect, not from habit</text>
+              <g font-size="10">
+                <text x="120" y="46" fill="#c2cad6" text-anchor="middle">spherical blobs</text>
+                <g fill="#5560D8"><circle cx="82" cy="86" r="3.4"/><circle cx="94" cy="76" r="3.4"/><circle cx="72" cy="98" r="3.4"/><circle cx="88" cy="100" r="3.4"/></g>
+                <g fill="#E0920C"><circle cx="148" cy="76" r="3.4"/><circle cx="160" cy="90" r="3.4"/><circle cx="142" cy="96" r="3.4"/><circle cx="158" cy="66" r="3.4"/></g>
+                <text x="240" y="46" fill="#c2cad6" text-anchor="middle">concentric rings</text>
+                <circle cx="240" cy="86" r="30" fill="none" stroke="#5560D8" stroke-width="4" stroke-dasharray="2 6"/>
+                <circle cx="240" cy="86" r="12" fill="none" stroke="#E0920C" stroke-width="4" stroke-dasharray="2 5"/>
+                <text x="380" y="46" fill="#c2cad6" text-anchor="middle">unequal density</text>
+                <g fill="#5560D8"><circle cx="342" cy="86" r="3"/><circle cx="348" cy="80" r="3"/><circle cx="336" cy="92" r="3"/><circle cx="352" cy="92" r="3"/><circle cx="344" cy="72" r="3"/><circle cx="356" cy="86" r="3"/></g>
+                <g fill="#E0920C"><circle cx="398" cy="62" r="3"/><circle cx="424" cy="92" r="3"/><circle cx="410" cy="108" r="3"/><circle cx="436" cy="66" r="3"/></g>
+              </g>
+              <g font-size="10.5">
+                <rect x="24" y="134" width="212" height="122" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="156" fill="#fff">k-means</text>
+                <text x="40" y="178" fill="#7fd6a0">✓ spherical blobs</text>
+                <text x="40" y="196" fill="#e0a3a8">✗ rings · ✗ unequal density</text>
+                <text x="40" y="216" fill="#8892a0">Assumes spherical, roughly equal-</text>
+                <text x="40" y="230" fill="#8892a0">variance clusters. Scale-sensitive,</text>
+                <text x="40" y="244" fill="#8892a0">outlier-sensitive, k must be given.</text>
+
+                <rect x="244" y="134" width="212" height="122" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="260" y="156" fill="#fff">DBSCAN</text>
+                <text x="260" y="178" fill="#7fd6a0">✓ rings · ✓ arbitrary shapes</text>
+                <text x="260" y="196" fill="#e0a3a8">✗ varying density</text>
+                <text x="260" y="216" fill="#8892a0">Density-based: <tspan font-family="var(--mono)">eps</tspan> + <tspan font-family="var(--mono)">min_samples</tspan>.</text>
+                <text x="260" y="230" fill="#8892a0">No k needed, and it can label a</text>
+                <text x="260" y="244" fill="#8892a0">point as <tspan fill="#f0c274">noise</tspan> rather than forcing it.</text>
+
+                <rect x="464" y="134" width="212" height="122" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="480" y="156" fill="#7fd6a0">HDBSCAN</text>
+                <text x="480" y="178" fill="#7fd6a0">✓ rings · ✓ varying density</text>
+                <text x="480" y="196" fill="#c2cad6">the modern exploratory default</text>
+                <text x="480" y="216" fill="#8892a0">Builds a hierarchy over densities</text>
+                <text x="480" y="230" fill="#8892a0">and extracts the most stable</text>
+                <text x="480" y="244" fill="#8892a0">clusters — no <tspan font-family="var(--mono)">eps</tspan> to guess.</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>DBSCAN's vocabulary:</b> a <b>core point</b> has at least <code class="ic">min_samples</code> neighbours within <code class="ic">eps</code>; a <b>border point</b> is within <code class="ic">eps</code> of a core point but isn't one itself; a <b>noise point</b> is neither. Clusters are maximal sets of density-connected core points plus their borders. The ability to output <em>noise</em> rather than forcing every point into a cluster is a genuine feature, not a limitation.</figcaption>
+        </figure>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 16H3z" stroke="#E0920C" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.6" stroke="#E0920C" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Why DBSCAN fails on varying density — and what HDBSCAN does</span>
+          <p>DBSCAN uses a <b>single global <code class="ic">eps</code></b>. If one cluster is dense and another sparse, no single value works: small <code class="ic">eps</code> shatters the sparse cluster into noise, large <code class="ic">eps</code> merges the dense ones together. <b>HDBSCAN</b> removes <code class="ic">eps</code> entirely — it builds a hierarchy across <em>all</em> density levels (a minimum spanning tree on mutual reachability distance), then extracts the clusters that persist most stably across that hierarchy. That's why it's the sensible modern default for exploratory clustering, and it needs essentially one parameter (<code class="ic">min_cluster_size</code>) that has an interpretable meaning.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>k-means vs DBSCAN vs hierarchical — pick one for a given problem.</summary>
+              <div class="ans"><p><b>k-means</b> for large data with roughly spherical, similarly-sized clusters and a k you can justify — it's <code class="ic">O(nkd)</code> per iteration and scales. <b>DBSCAN</b> when clusters are arbitrarily shaped, you don't know k, and you want <b>noise labelled as noise</b> rather than forced into a cluster — but it struggles with varying density, which is what <b>HDBSCAN</b> fixes and why HDBSCAN is my default for exploration. <b>Hierarchical/Ward</b> when you want a dendrogram you can cut at any level, or a non-Euclidean distance, and n is small enough for <code class="ic">O(n²)</code>. And <b>GMM</b> when you want soft assignments and elliptical clusters.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>How do you choose eps for DBSCAN?</summary>
+              <div class="ans"><p>The standard heuristic: compute each point's distance to its <code class="ic">k</code>-th nearest neighbour (with <code class="ic">k = min_samples</code>), sort those distances descending, and plot them — the <b>knee</b> of that curve is a reasonable <code class="ic">eps</code>, because it's where distances start growing rapidly, i.e. where you leave dense regions. Set <code class="ic">min_samples</code> from domain knowledge (a common rule of thumb is <code class="ic">2·dim</code>). Honestly though, if you find yourself agonising over <code class="ic">eps</code>, that's the signal to use <b>HDBSCAN</b>, which eliminates the parameter by considering all density levels at once.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.5 ===== -->
+      <article class="topic" id="c9-5">
+        <h3><span class="tn">9.5</span> Gaussian mixtures and EM <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The probabilistic generalisation of k-means: soft assignments, elliptical clusters, and a likelihood you can use for model selection.</p>
+
+        <p>A GMM models the data as a mixture of <code class="ic">k</code> Gaussians with weights <code class="ic">πₖ</code>, means <code class="ic">μₖ</code> and covariances <code class="ic">Σₖ</code>. It is fitted by <b>EM</b>:</p>
+        <ul>
+          <li><b>E-step:</b> compute each point's <b>responsibility</b> <code class="ic">γᵢₖ ∝ πₖ·N(xᵢ | μₖ, Σₖ)</code> — a soft assignment summing to 1 across clusters.</li>
+          <li><b>M-step:</b> re-estimate <code class="ic">πₖ, μₖ, Σₖ</code> as responsibility-weighted averages.</li>
+        </ul>
+        <p>Each iteration cannot decrease the likelihood, so it converges — again, to a local optimum, so multiple restarts matter. <b>k-means is the limiting case</b> of a GMM with spherical, equal covariances and responsibilities hardened to 0/1, which is a satisfying connection to be able to state.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th><code class="ic">covariance_type</code></th><th>Shape</th><th>Parameters per component</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">spherical</code></td><td>Circular, one variance</td><td>1 — closest to k-means</td></tr>
+              <tr><td><code class="ic">diag</code></td><td>Axis-aligned ellipse</td><td><code class="ic">p</code></td></tr>
+              <tr><td><code class="ic">tied</code></td><td>Same ellipse shape for all components</td><td><code class="ic">p(p+1)/2</code> shared — the LDA assumption (§6.3)</td></tr>
+              <tr><td><code class="ic">full</code></td><td>Arbitrary ellipse per component</td><td><code class="ic">p(p+1)/2</code> each — most flexible, most data-hungry</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The GMM's real advantage: BIC</span>
+          <p>Because a GMM is a <b>probabilistic model</b>, it has a likelihood — so you can select <code class="ic">k</code> (and the covariance type) with <b>BIC or AIC</b>, which penalise the likelihood by parameter count. That is a genuinely principled model-selection criterion rather than a heuristic like the elbow, and it's the single strongest argument for reaching for a GMM when &ldquo;how many clusters?&rdquo; actually matters. The other advantage: <b>soft assignments</b> — &ldquo;this customer is 70% segment A, 30% segment B&rdquo; is often more useful and more honest than a hard label.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Derive the EM update for a Gaussian mixture, at a high level.</summary>
+              <div class="ans"><p><b>E-step:</b> given current parameters, compute each point's <b>responsibility</b> for each component, <code class="ic">γᵢₖ = πₖN(xᵢ|μₖ,Σₖ) / Σⱼ πⱼN(xᵢ|μⱼ,Σⱼ)</code> — the posterior probability that point <code class="ic">i</code> came from component <code class="ic">k</code>. <b>M-step:</b> re-estimate parameters as responsibility-weighted statistics: <code class="ic">πₖ = Σᵢγᵢₖ/n</code>, <code class="ic">μₖ = Σᵢγᵢₖxᵢ/Σᵢγᵢₖ</code>, and <code class="ic">Σₖ</code> the weighted covariance. Each iteration maximises a lower bound on the log-likelihood, so the likelihood cannot decrease — which guarantees convergence to a local optimum.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How does a GMM relate to k-means?</summary>
+              <div class="ans"><p><b>k-means is a limiting case of a GMM</b>: take spherical covariances, all equal, and shrink the variance toward zero — then the responsibilities harden to 0/1 and the EM steps become exactly Lloyd's assign-and-update. So a GMM generalises k-means in three ways: <b>soft</b> assignments instead of hard, <b>elliptical</b> clusters instead of spherical, and a <b>likelihood</b> that lets you use BIC for model selection. The cost is more parameters (especially with <code class="ic">full</code> covariance) and therefore more data needed.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.6 ===== -->
+      <article class="topic" id="c9-6">
+        <h3><span class="tn">9.6</span> PCA <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Two questions dominate: <em>why must you scale first</em>, and <em>how do you choose the number of components</em>. The widget answers the first one by demonstration.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">interactive</span> PCA — and what happens if you forget to scale</div>
+          <div class="wbody">
+            <canvas id="pcCanvas" width="720" height="300" aria-label="A two-dimensional point cloud with the two principal component axes drawn on it, and a bar chart of explained variance ratio, updating as one feature is rescaled to show that the first principal component swings to follow the largest-variance feature."></canvas>
+            <div class="wctl">
+              <label>units of feature x₁ (× ) · <b id="pcSVal">1</b>
+                <input type="range" id="pcS" min="1" max="30" value="1" step="1">
+              </label>
+              <label>standardise first
+                <span class="wbtns" style="margin-top:2px">
+                  <button class="wbtn" id="pcRaw">raw</button><button class="wbtn on" id="pcStd">standardised</button>
+                </span>
+              </label>
+            </div>
+            <div class="wgrid">
+              <div class="wcell"><span class="n" id="pcE1">—</span>PC1 explained var.</div>
+              <div class="wcell"><span class="n" id="pcE2">—</span>PC2 explained var.</div>
+              <div class="wcell"><span class="n" id="pcAng">—</span>PC1 angle</div>
+            </div>
+            <div class="wout" id="pcOut"></div>
+            <p class="wnote">The covariance matrix and its eigenvectors are computed exactly (closed form for 2×2). Set the mode to <b>raw</b> and stretch x₁: PC1 swings to align with it and its explained-variance share races toward 100% — <b>not because x₁ is more informative, but because it is measured in smaller units</b>. Switch to standardised and the axes stop moving.</p>
+          </div>
+        </div>
+
+        <h4>What PCA actually computes</h4>
+        <p>Centre the data, then find the direction <code class="ic">v</code> maximising the variance of the projection <code class="ic">vᵀx</code>. That variance is <code class="ic">vᵀΣv</code>, and maximising it subject to <code class="ic">‖v‖ = 1</code> gives the <b>top eigenvector of the covariance matrix Σ</b>, with the eigenvalue <em>equal to</em> the variance along it. Subsequent components are the next eigenvectors, orthogonal to those before. Equivalently — and this is how it's actually computed — they are the <b>right singular vectors of the centred data matrix</b>, because <code class="ic">X = UΣVᵀ ⇒ XᵀX = VΣ²Vᵀ</code>. SVD is preferred because forming <code class="ic">XᵀX</code> squares the condition number (§5.1).</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Choosing the number of components</th><th>Method</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr><td>Explained variance threshold</td><td>Smallest <code class="ic">k</code> with cumulative ratio ≥ 0.90/0.95</td><td>Most common; the threshold is arbitrary</td></tr>
+              <tr><td>Scree plot elbow</td><td>Where eigenvalues level off</td><td>Same subjectivity as the k-means elbow</td></tr>
+              <tr><td><b>Downstream CV</b></td><td>Treat <code class="ic">n_components</code> as a hyperparameter in the pipeline</td><td><b>The right answer</b> when PCA feeds a supervised model</td></tr>
+              <tr><td>Kaiser criterion</td><td>Keep components with eigenvalue &gt; 1 (on standardised data)</td><td>Crude; tends to over-retain</td></tr>
+              <tr><td>Parallel analysis</td><td>Compare eigenvalues against random data</td><td>More principled, less common</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">PCA is unsupervised — and that's a risk</span>
+          <p>PCA maximises <b>variance</b>, which has nothing to do with your target. A low-variance direction can be the one that separates your classes, and PCA will happily discard it — which is exactly the LDA contrast in §6.3. So using PCA before a classifier is a bet that variance and signal align; validate it by <b>cross-validating <code class="ic">n_components</code> against downstream performance</b> rather than against explained variance. And relatives worth naming: <b>TruncatedSVD/LSA</b> works on sparse matrices without centring them (so it doesn't destroy sparsity), <b>Kernel PCA</b> for non-linear structure, and <b>NMF</b> for non-negative parts-based factors that are often far more interpretable.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ Explain PCA. Why must you scale first? How do you choose the number of components?</summary>
+              <div class="ans"><p>PCA finds orthogonal directions of maximum variance — the eigenvectors of the covariance matrix, equivalently the right singular vectors of the centred data matrix, with eigenvalues giving the variance along each. <b>Scaling:</b> variance carries units, so an unscaled feature measured in smaller units dominates the first component purely by measurement convention rather than by information content. <b>Components:</b> cumulative explained-variance threshold, the scree elbow, or — best when PCA feeds a supervised model — <b>cross-validate <code class="ic">n_components</code> against downstream performance</b>. Caveat to add: components are linear mixtures of every feature, so interpretability is limited, and PCA is unsupervised so it can discard the direction that matters.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Show PCA's equivalence to the SVD of the centred data matrix.</summary>
+              <div class="ans"><p>Write the centred data as <code class="ic">X = UΣVᵀ</code>. Then <code class="ic">XᵀX = VΣᵀUᵀUΣVᵀ = VΣ²Vᵀ</code>, which is exactly an eigendecomposition of <code class="ic">(n−1)</code> times the sample covariance matrix. So the <b>right singular vectors V are the principal components</b>, and the eigenvalues are <code class="ic">σᵢ²/(n−1)</code>. Why it matters practically: computing the SVD of <code class="ic">X</code> directly is <b>numerically better</b> than forming <code class="ic">XᵀX</code>, which squares the condition number — the same argument as in §5.1 for least squares.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Would you use PCA before a gradient boosting model?</summary>
+              <div class="ans"><p>Usually <b>no</b>. PCA gives you dense linear combinations of every feature, which destroys two things a GBM is good at: <b>interpretability</b> (a split on "0.3·age − 0.7·income + …" means nothing to anyone) and its ability to handle features individually, including missing values and monotonic constraints. GBMs also aren't hurt by correlated features or moderate dimensionality the way distance-based methods are. Where PCA <em>does</em> help before a GBM: genuinely huge feature counts where training time is the binding constraint, or dense embedding blocks that you want to compress before mixing with tabular columns.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.7 ===== -->
+      <article class="topic" id="c9-7">
+        <h3><span class="tn">9.7</span> t-SNE, UMAP and the trap <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">One caveat here should be volunteered unprompted, because it separates people who have <em>read</em> about t-SNE from people who have <em>used</em> it.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="A comparison of PCA, t-SNE and UMAP: PCA is linear, deterministic and preserves global structure; t-SNE preserves local neighbourhoods only, so distances between clusters and cluster sizes are meaningless; UMAP preserves more global structure and is faster but is still stochastic.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">three tools, one trap</text>
+              <g font-size="10.5">
+                <rect x="24" y="42" width="205" height="200" rx="10" fill="#1e2a3a" stroke="#3B45B5"/>
+                <text x="40" y="66" fill="#98a0f0" font-size="12">PCA</text>
+                <text x="40" y="88" fill="#c2cad6">linear · deterministic</text>
+                <text x="40" y="110" fill="#8892a0">SVD of the centred matrix;</text>
+                <text x="40" y="124" fill="#8892a0">components are eigenvectors</text>
+                <text x="40" y="138" fill="#8892a0">of the covariance matrix</text>
+                <text x="40" y="162" fill="#7fd6a0">✓ safe as a preprocessing step</text>
+                <text x="40" y="180" fill="#7fd6a0">✓ reversible, explained variance</text>
+                <text x="40" y="200" fill="#e0a3a8">✗ must scale first</text>
+                <text x="40" y="216" fill="#e0a3a8">✗ components are mixtures, so</text>
+                <text x="40" y="230" fill="#e0a3a8">   interpretability is limited</text>
+
+                <rect x="247" y="42" width="205" height="200" rx="10" fill="#3a1e22" stroke="#5a3036"/>
+                <text x="263" y="66" fill="#e0a3a8" font-size="12">t-SNE</text>
+                <text x="263" y="88" fill="#c2cad6">non-linear · stochastic</text>
+                <text x="263" y="110" fill="#8892a0">matches neighbour probability</text>
+                <text x="263" y="124" fill="#8892a0">distributions; <tspan font-family="var(--mono)">perplexity</tspan> sets</text>
+                <text x="263" y="138" fill="#8892a0">the neighbourhood size</text>
+                <text x="263" y="162" fill="#7fd6a0">✓ beautiful local structure</text>
+                <text x="263" y="186" fill="#e0a3a8" font-weight="600">✗ distances between clusters</text>
+                <text x="263" y="200" fill="#e0a3a8" font-weight="600">   are meaningless</text>
+                <text x="263" y="216" fill="#e0a3a8" font-weight="600">✗ cluster sizes are meaningless</text>
+                <text x="263" y="232" fill="#e0a3a8">✗ different every run</text>
+
+                <rect x="470" y="42" width="205" height="200" rx="10" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="486" y="66" fill="#7fd6a0" font-size="12">UMAP</text>
+                <text x="486" y="88" fill="#c2cad6">non-linear · stochastic</text>
+                <text x="486" y="110" fill="#8892a0">fuzzy simplicial complex;</text>
+                <text x="486" y="124" fill="#8892a0"><tspan font-family="var(--mono)">n_neighbors</tspan> and <tspan font-family="var(--mono)">min_dist</tspan></text>
+                <text x="486" y="148" fill="#7fd6a0">✓ better global structure</text>
+                <text x="486" y="164" fill="#7fd6a0">✓ much faster; scales further</text>
+                <text x="486" y="188" fill="#e0a3a8">✗ still stochastic</text>
+                <text x="486" y="204" fill="#e0a3a8">✗ still a <tspan font-weight="600">visualisation</tspan> tool —</text>
+                <text x="486" y="218" fill="#e0a3a8">   feeding it to a classifier</text>
+                <text x="486" y="232" fill="#e0a3a8">   needs real care</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption><b>Why the distances are meaningless.</b> t-SNE optimises a KL divergence between neighbour-probability distributions, which heavily weights getting <em>near</em> pairs right and essentially ignores far pairs. The optimisation is also free to place well-separated clusters anywhere. Consequence: two clusters drawn adjacent may be no more similar than two drawn far apart, and a large-looking cluster may simply be more diffuse. <b>Never conclude similarity from proximity on a t-SNE plot.</b></figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>⭐ PCA vs t-SNE vs UMAP — and what's the trap with t-SNE plots?</summary>
+              <div class="ans"><p>PCA is linear, deterministic, reversible and safe as a preprocessing step. t-SNE and UMAP are non-linear, stochastic <b>visualisation</b> tools. <b>The trap:</b> in a t-SNE plot, <b>distances between clusters and the sizes of clusters are not meaningful</b> — it optimises a neighbour-probability KL divergence that weights near pairs heavily and effectively ignores far ones, and the layout depends strongly on <code class="ic">perplexity</code>. UMAP preserves more global structure and is much faster, but is still stochastic. Never say "these clusters are similar because they're close on the plot".</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Can you use UMAP output as features for a classifier?</summary>
+              <div class="ans"><p>With real care. Three problems. It's <b>stochastic</b>, so the embedding isn't reproducible without fixing seeds and it changes if you refit. It's <b>unsupervised and non-parametric</b> in spirit — you must use the fitted transformer's <code class="ic">transform</code> on new data, and doing that correctly inside a pipeline (fitted on training folds only) is essential or you've leaked. And it <b>discards information</b> that the classifier might have used. If the goal is dimensionality reduction for a supervised model, PCA inside the pipeline is safer and LDA is more targeted; if the goal is a picture for humans, UMAP is excellent and shouldn't be feeding a model at all.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.8 ===== -->
+      <article class="topic" id="c9-8">
+        <h3><span class="tn">9.8</span> Anomaly detection <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The hard part is never the algorithm. It is that you usually have no labels, so you cannot evaluate — which changes how you should design the whole system.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Method</th><th>Idea</th><th>Strength / weakness</th></tr></thead>
+            <tbody>
+              <tr><td>z-score / Mahalanobis</td><td>Distance from the centre</td><td>Fast, interpretable; assumes a (multivariate) Gaussian</td></tr>
+              <tr><td><b>Isolation Forest</b></td><td>Anomalies need <b>fewer random splits</b> to isolate</td><td>Scales well, few assumptions, no distance metric needed — <b>the practical default</b></td></tr>
+              <tr><td><b>LOF</b></td><td>Local density relative to neighbours</td><td>Finds <em>local</em> anomalies a global method misses; needs a neighbourhood size; poor in high dimensions</td></tr>
+              <tr><td>One-Class SVM</td><td>Boundary around the normal region</td><td>Sensitive to <code class="ic">ν</code> and <code class="ic">γ</code>; expensive; often outperformed by IForest</td></tr>
+              <tr><td>Autoencoder</td><td>Reconstruction error</td><td>Good for high-dimensional structured signals; needs enough clean data to learn "normal"</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3B45B5" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="#3B45B5" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Three distinctions that make this answer senior</span>
+          <p><b>(1) Novelty vs outlier detection:</b> novelty detection trains on <em>clean</em> data and flags anything new; outlier detection assumes the training data is already contaminated. Scikit-learn's API distinguishes them, and choosing the wrong one silently changes what &ldquo;normal&rdquo; means. <b>(2) The <code class="ic">contamination</code> parameter is a prior you are asserting</b>, not something the data tells you — and it directly sets your alert volume, so it's a business decision dressed as a hyperparameter. <b>(3) If you have labels, use a classifier.</b> Anomaly detection is what you do when you <em>cannot</em> frame it as highly-imbalanced classification; framing it that way when you can is throwing away supervision.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How would you detect anomalies with no labels?</summary>
+              <div class="ans"><p><b>Isolation Forest</b> as the default — anomalies require fewer random splits to isolate, it scales well, needs no distance metric and makes few assumptions. <b>LOF</b> when anomalies are <em>local</em> (unusual relative to their neighbourhood rather than globally extreme). <b>Mahalanobis</b> for a fast Gaussian baseline, and an <b>autoencoder</b> for high-dimensional structured signals. Then the three things that matter more than the algorithm: <b>contamination is a prior you're asserting</b> and it sets your alert volume; <b>novelty vs outlier detection</b> are different settings; and <b>if you have any labels, use a classifier instead</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you evaluate an anomaly detector with no labels?</summary>
+              <div class="ans"><p>You can't, directly — and saying so plainly is the right answer. What you can do: <b>have a human review the top-k flagged cases</b> and measure precision-at-k, which is expensive but real; check <b>stability</b> across time windows and resamples (a detector whose flagged set changes completely week to week isn't measuring anything); use <b>proxy labels</b> if any exist (confirmed incidents, refunds, manual escalations), even if partial and biased; and <b>inject synthetic anomalies</b> of known types to measure recall on those, while being explicit that it only covers the failure modes you thought of. In production I'd instrument the review outcome so labels accumulate and the problem gradually becomes supervised.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <!-- ===== 9.9 ===== -->
+      <article class="topic" id="c9-9">
+        <h3><span class="tn">9.9</span> Association rules &amp; matrix factorization</h3>
+        <p class="lead">Still asked in retail and e-commerce interviews, and the metric that matters is the one people forget.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 220" role="img" aria-label="The three association rule metrics defined and contrasted: support is how often the itemset occurs, confidence is the conditional probability of the consequent, and lift is confidence divided by the base rate, which is the only one that detects a genuine association.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">why <tspan font-style="italic">lift</tspan> is the one that matters — rule: {bread} → {milk}</text>
+              <g font-size="10.5">
+                <rect x="24" y="42" width="205" height="150" rx="9" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="66" fill="#fff">Support</text>
+                <text x="40" y="88" fill="#c2cad6" font-family="var(--mono)">P(bread ∧ milk)</text>
+                <text x="40" y="110" fill="#8892a0">= 20% of baskets</text>
+                <text x="40" y="140" fill="#8892a0">How often is this rule even</text>
+                <text x="40" y="154" fill="#8892a0">relevant? Prunes the search</text>
+                <text x="40" y="168" fill="#8892a0">space (Apriori).</text>
+
+                <rect x="247" y="42" width="205" height="150" rx="9" fill="#3a2418" stroke="#E0920C"/>
+                <text x="263" y="66" fill="#f0c274">Confidence</text>
+                <text x="263" y="88" fill="#c2cad6" font-family="var(--mono)">P(milk | bread)</text>
+                <text x="263" y="110" fill="#8892a0">= 40%</text>
+                <text x="263" y="140" fill="#e0a3a8">Looks convincing — but if</text>
+                <text x="263" y="154" fill="#e0a3a8">40% of ALL baskets have milk,</text>
+                <text x="263" y="168" fill="#e0a3a8">bread told you nothing.</text>
+
+                <rect x="470" y="42" width="205" height="150" rx="9" fill="#1a2a1e" stroke="#2E9E5B"/>
+                <text x="486" y="66" fill="#7fd6a0">Lift</text>
+                <text x="486" y="88" fill="#c2cad6" font-family="var(--mono)">P(milk|bread) / P(milk)</text>
+                <text x="486" y="110" fill="#8892a0">= 40% / 40% = <tspan fill="#e0a3a8" font-weight="600">1.0</tspan></text>
+                <text x="486" y="140" fill="#7fd6a0">Lift = 1 ⇒ independent.</text>
+                <text x="486" y="154" fill="#7fd6a0">&gt; 1 ⇒ genuine association.</text>
+                <text x="486" y="168" fill="#7fd6a0">&lt; 1 ⇒ substitutes.</text>
+              </g>
+              <text x="24" y="212" fill="#8892a0" font-size="10.5">Apriori prunes by downward closure (a frequent itemset's subsets are all frequent); FP-Growth avoids candidate generation with a prefix tree.</text>
+            </svg>
+          </div>
+          <figcaption><b>Matrix factorization</b> belongs in the same conversation: decompose the user × item matrix into latent factors (SVD, ALS), handle <b>implicit feedback</b> with confidence weighting because &ldquo;didn't buy&rdquo; is not &ldquo;disliked&rdquo;, and know that the <b>cold-start</b> problem is why every real system also has a content-based path (§10.4).</figcaption>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Support, confidence and lift — which matters and why?</summary>
+              <div class="ans"><p><b>Support</b> is how often the itemset occurs — it prunes the search space but says nothing about association. <b>Confidence</b> is <code class="ic">P(consequent | antecedent)</code>, which looks convincing and is <b>misleading on its own</b>: if 40% of all baskets contain milk, then 40% confidence for {bread}→{milk} means bread told you nothing. <b>Lift</b> divides confidence by the base rate, so lift = 1 means independence, &gt; 1 a genuine positive association, &lt; 1 substitutes. Lift is the one that actually detects a relationship — and it's the one people omit.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What's the difference between explicit and implicit feedback in matrix factorization?</summary>
+              <div class="ans"><p><b>Explicit</b> feedback is a stated preference — a star rating — where a missing entry genuinely means "unknown" and you fit only the observed ones. <b>Implicit</b> feedback is behaviour: views, clicks, purchases. The critical difference is that a <b>zero is not a negative</b> — not buying something usually means you never saw it. So implicit methods (ALS with confidence weighting, BPR) fit <em>all</em> entries but weight observed interactions with high confidence and unobserved ones with low confidence, rather than treating absence as dislike. Getting that backwards is the classic implicit-feedback mistake.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+<script>
+/* ============ Part 9 widgets ============ */
+(function(){
+  "use strict";
+  function rng(seed){ var s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+  function gauss(r){ var u=1-r(), v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  function dpr(cv){
+    var d=window.devicePixelRatio||1, w=cv.width, h=cv.height;
+    if(cv.dataset.scaled!=="1"){ cv.style.aspectRatio=w+" / "+h; cv.width=w*d; cv.height=h*d; cv.dataset.scaled="1"; }
+    var ctx=cv.getContext("2d"); ctx.setTransform(d,0,0,d,0,0); return ctx;
+  }
+
+  /* ---------- 9.1 k-means ---------- */
+  var kmCv=document.getElementById("kmCanvas");
+  if(kmCv){
+    var r0=rng(63), PTS=[];
+    var centres=[[-1.6,0.8],[1.4,1.0],[0.2,-1.1],[2.2,-0.9]];
+    centres.forEach(function(c){
+      for(var i=0;i<40;i++) PTS.push({x:c[0]+0.42*gauss(r0), y:c[1]+0.38*gauss(r0)});
+    });
+    var K=3, cents=[], assign=[], iter=0, pp=true, moved=0;
+    function dist2(a,bx,by){ var dx=a.x-bx, dy=a.y-by; return dx*dx+dy*dy; }
+    function init(){
+      var r=rng(pp? 5 : (Math.floor(Math.random()*1000)+1));
+      cents=[];
+      if(pp){
+        cents.push([PTS[Math.floor(r()*PTS.length)].x, PTS[Math.floor(r()*PTS.length)].y]);
+        while(cents.length<K){
+          var d=PTS.map(function(p){ var m=1e9; cents.forEach(function(c){ m=Math.min(m,dist2(p,c[0],c[1])); }); return m; });
+          var tot=d.reduce(function(a,b){return a+b;},0), t=r()*tot, acc=0, pick=0;
+          for(var i=0;i<d.length;i++){ acc+=d[i]; if(acc>=t){ pick=i; break; } }
+          cents.push([PTS[pick].x, PTS[pick].y]);
+        }
+      } else {
+        for(var k=0;k<K;k++){ var p=PTS[Math.floor(r()*8)]; cents.push([p.x+0.1*gauss(r), p.y+0.1*gauss(r)]); }
+      }
+      assign=PTS.map(function(){ return -1; }); iter=0; moved=0;
+      step(true);
+    }
+    function step(assignOnly){
+      var mv=0;
+      var na=PTS.map(function(p){
+        var b=0, bd=1e9;
+        cents.forEach(function(c,k){ var d=dist2(p,c[0],c[1]); if(d<bd){ bd=d; b=k; } });
+        return b;
+      });
+      for(var i=0;i<na.length;i++) if(na[i]!==assign[i]) mv++;
+      assign=na; moved=mv;
+      if(!assignOnly){
+        for(var k=0;k<K;k++){
+          var sx=0, sy=0, n=0;
+          PTS.forEach(function(p,i){ if(assign[i]===k){ sx+=p.x; sy+=p.y; n++; } });
+          if(n){ cents[k]=[sx/n, sy/n]; }
+        }
+        iter++;
+      }
+    }
+    function inertia(){ var s=0; PTS.forEach(function(p,i){ s+=dist2(p,cents[assign[i]][0],cents[assign[i]][1]); }); return s; }
+    function silhouette(){
+      var s=0, n=0;
+      for(var i=0;i<PTS.length;i+=2){
+        var a=0, ac=0, best=1e9;
+        for(var k=0;k<K;k++){
+          var d=0, c=0;
+          for(var j=0;j<PTS.length;j++){
+            if(assign[j]!==k) continue;
+            if(j===i) continue;
+            d+=Math.sqrt(dist2(PTS[i],PTS[j].x,PTS[j].y)); c++;
+          }
+          if(!c) continue;
+          if(k===assign[i]){ a=d/c; ac=1; } else best=Math.min(best,d/c);
+        }
+        if(ac && best<1e8){ s+=(best-a)/Math.max(a,best); n++; }
+      }
+      return n? s/n : 0;
+    }
+    function drawKM(){
+      var ctx=dpr(kmCv), W=720, H=310; ctx.clearRect(0,0,W,H);
+      var L=40,R=690,T=30,B=280;
+      function px(x){ return L+(x+3)/6*(R-L); }
+      function py(y){ return B-(y+2)/4*(B-T); }
+      var COL=["#5560D8","#E0920C","#2E9E5B","#8A5CD8","#C0392B","#e0a3a8","#7fd6a0"];
+      PTS.forEach(function(p,i){
+        ctx.fillStyle=COL[assign[i]]||"#8892a0"; ctx.globalAlpha=0.75;
+        ctx.beginPath(); ctx.arc(px(p.x),py(p.y),3.6,0,6.3); ctx.fill(); ctx.globalAlpha=1;
+      });
+      cents.forEach(function(c,k){
+        ctx.strokeStyle="#fff"; ctx.lineWidth=2.4; ctx.fillStyle=COL[k];
+        ctx.beginPath(); ctx.arc(px(c[0]),py(c[1]),9,0,6.3); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px(c[0])-14,py(c[1])); ctx.lineTo(px(c[0])+14,py(c[1]));
+        ctx.moveTo(px(c[0]),py(c[1])-14); ctx.lineTo(px(c[0]),py(c[1])+14);
+        ctx.strokeStyle="rgba(255,255,255,0.5)"; ctx.lineWidth=1; ctx.stroke();
+      });
+      ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+      ctx.fillText("160 points from 4 true blobs · k = "+K+" · "+(pp?"k-means++ seeding":"deliberately bad random seeding"), L, 20);
+      document.getElementById("kmIter").textContent=iter;
+      document.getElementById("kmInertia").textContent=inertia().toFixed(1);
+      document.getElementById("kmSil").textContent=silhouette().toFixed(3);
+      document.getElementById("kmMoved").textContent=moved;
+      var msg;
+      if(moved===0 && iter>0) msg="<span class='good'>Converged</span> after "+iter+" iterations — no point changed cluster, so the centroids will not move again. Inertia <span class='v'>"+inertia().toFixed(1)+"</span>, silhouette <span class='v'>"+silhouette().toFixed(3)+"</span>."+(K!==4? " Note k = "+K+" while the data has 4 true blobs — compare the silhouette at k = 4.":" This matches the true structure, and the silhouette is at its best.");
+      else msg="Iteration <span class='v'>"+iter+"</span> · <span class='v'>"+moved+"</span> points changed cluster on the last assignment step. Each step alternates <b>assign to nearest centroid</b> and <b>move centroid to the mean</b> — inertia can only fall, which is why it always converges (to <em>a</em> local optimum).";
+      document.getElementById("kmOut").innerHTML=msg;
+    }
+    document.getElementById("kmStep").addEventListener("click", function(){ step(false); step(true); drawKM(); });
+    document.getElementById("kmRun").addEventListener("click", function(){
+      for(var t=0;t<40;t++){ step(false); step(true); if(moved===0) break; }
+      drawKM();
+    });
+    document.getElementById("kmReset").addEventListener("click", function(){ init(); drawKM(); });
+    document.getElementById("kmK").addEventListener("input", function(){ K=+this.value; document.getElementById("kmKVal").textContent=K; init(); drawKM(); });
+    document.getElementById("kmPP").addEventListener("click", function(){ pp=true; this.classList.add("on"); document.getElementById("kmRnd").classList.remove("on"); init(); drawKM(); });
+    document.getElementById("kmRnd").addEventListener("click", function(){ pp=false; this.classList.add("on"); document.getElementById("kmPP").classList.remove("on"); init(); drawKM(); });
+    init(); drawKM();
+  }
+
+  /* ---------- 9.6 PCA ---------- */
+  var pcCv=document.getElementById("pcCanvas");
+  if(pcCv){
+    var r0=rng(97), RAW=[];
+    for(var i=0;i<160;i++){
+      var t=gauss(r0);
+      RAW.push({x: t*1.0 + 0.45*gauss(r0), y: t*0.75 + 0.45*gauss(r0)});
+    }
+    var std=true;
+    var pcS=document.getElementById("pcS");
+    function drawPC(){
+      var sc=+pcS.value;
+      document.getElementById("pcSVal").textContent=sc;
+      var P=RAW.map(function(p){ return {x:p.x*sc, y:p.y}; });
+      var mx=0,my=0; P.forEach(function(p){ mx+=p.x; my+=p.y; }); mx/=P.length; my/=P.length;
+      var sx=0,sy=0; P.forEach(function(p){ sx+=(p.x-mx)*(p.x-mx); sy+=(p.y-my)*(p.y-my); });
+      sx=Math.sqrt(sx/P.length); sy=Math.sqrt(sy/P.length);
+      var Q=P.map(function(p){ return std? {x:(p.x-mx)/sx, y:(p.y-my)/sy} : {x:p.x-mx, y:p.y-my}; });
+      var a=0,b=0,c=0;
+      Q.forEach(function(p){ a+=p.x*p.x; b+=p.x*p.y; c+=p.y*p.y; });
+      a/=Q.length; b/=Q.length; c/=Q.length;
+      var tr=a+c, det=a*c-b*b;
+      var l1=tr/2+Math.sqrt(Math.max(0,tr*tr/4-det)), l2=tr/2-Math.sqrt(Math.max(0,tr*tr/4-det));
+      var v1;
+      if(Math.abs(b)>1e-9) v1=[l1-c, b]; else v1=[1,0];
+      var n1=Math.sqrt(v1[0]*v1[0]+v1[1]*v1[1]); v1=[v1[0]/n1, v1[1]/n1];
+      var v2=[-v1[1], v1[0]];
+      var e1=l1/(l1+l2), e2=l2/(l1+l2);
+      var ctx=dpr(pcCv), W=720, H=300; ctx.clearRect(0,0,W,H);
+      var L=40,R=430,T=30,B=280, CX=(L+R)/2, CY=(T+B)/2;
+      var span=0; Q.forEach(function(p){ span=Math.max(span, Math.abs(p.x), Math.abs(p.y)); });
+      var S=Math.min((R-L),(B-T))/2/(span*1.15);
+      ctx.strokeStyle="#2c3542"; ctx.beginPath();
+      ctx.moveTo(L,CY); ctx.lineTo(R,CY); ctx.moveTo(CX,T); ctx.lineTo(CX,B); ctx.stroke();
+      ctx.fillStyle="rgba(85,96,216,0.7)";
+      Q.forEach(function(p){ ctx.beginPath(); ctx.arc(CX+p.x*S, CY-p.y*S, 2.8, 0, 6.3); ctx.fill(); });
+      function axis(v,l,col,lab){
+        var len=Math.sqrt(l)*S*2.1;
+        ctx.strokeStyle=col; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(CX-v[0]*len, CY+v[1]*len); ctx.lineTo(CX+v[0]*len, CY-v[1]*len); ctx.stroke();
+        ctx.fillStyle=col; ctx.font="11px ui-monospace,Menlo,monospace";
+        ctx.fillText(lab, CX+v[0]*len+6, CY-v[1]*len-4);
+      }
+      axis(v1,l1,"#F0A81E","PC1");
+      axis(v2,l2,"#2E9E5B","PC2");
+      ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+      ctx.fillText(std? "standardised" : "raw units", L, 20);
+      var BL=480, BT=70, BB=250;
+      ctx.fillStyle="#8892a0"; ctx.fillText("explained variance ratio", BL, 40);
+      [[e1,"#F0A81E","PC1"],[e2,"#2E9E5B","PC2"]].forEach(function(d,i){
+        var x=BL+i*110, h=(BB-BT)*d[0];
+        ctx.fillStyle="#252D3A"; ctx.fillRect(x, BT, 70, BB-BT);
+        ctx.fillStyle=d[1]; ctx.fillRect(x, BB-h, 70, h);
+        ctx.fillStyle="#fff"; ctx.font="600 13px ui-monospace,Menlo,monospace";
+        ctx.fillText((d[0]*100).toFixed(1)+"%", x+8, BB-h-8);
+        ctx.fillStyle="#8892a0"; ctx.font="11px ui-monospace,Menlo,monospace";
+        ctx.fillText(d[2], x+22, BB+18);
+      });
+      var ang=Math.atan2(v1[1],v1[0])*180/Math.PI;
+      document.getElementById("pcE1").textContent=(e1*100).toFixed(1)+"%";
+      document.getElementById("pcE2").textContent=(e2*100).toFixed(1)+"%";
+      document.getElementById("pcAng").textContent=ang.toFixed(1)+"°";
+      var msg;
+      if(!std && sc>4) msg="<span class='warn'>PC1 has collapsed onto x₁.</span> It now explains <span class='v'>"+(e1*100).toFixed(1)+"%</span> of the variance and sits at <span class='v'>"+ang.toFixed(0)+"°</span> — but x₁ is not more informative, it is just measured in units ×"+sc+" smaller. <b>PCA maximises variance, and variance has units.</b> Switch to standardised and the axes stop moving.";
+      else if(std) msg="<span class='good'>Standardised.</span> Every feature contributes on equal terms, so the components track the <em>correlation</em> structure rather than the measurement scale. Move the units slider — nothing changes, which is the point.";
+      else msg="Raw units, scale ×"+sc+". PC1 explains <span class='v'>"+(e1*100).toFixed(1)+"%</span> at <span class='v'>"+ang.toFixed(0)+"°</span>. Keep stretching x₁ and watch the first component swing to follow it.";
+      document.getElementById("pcOut").innerHTML=msg;
+    }
+    pcS.addEventListener("input", drawPC);
+    document.getElementById("pcRaw").addEventListener("click", function(){ std=false; this.classList.add("on"); document.getElementById("pcStd").classList.remove("on"); drawPC(); });
+    document.getElementById("pcStd").addEventListener("click", function(){ std=true; this.classList.add("on"); document.getElementById("pcRaw").classList.remove("on"); drawPC(); });
+    drawPC();
+  }
+})();
+</script>
+
 
             <!-- PART NAV -->
       <nav class="partnav">
