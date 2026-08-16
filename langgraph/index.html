@@ -61,38 +61,57 @@ p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
     <svg class="mark" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="8" r="4" fill="#E0920C"/><circle cx="9" cy="24" r="3.4" fill="#5560D8"/><circle cx="31" cy="24" r="3.4" fill="#5560D8"/><circle cx="20" cy="34" r="3.4" fill="#2E9E5B"/><path d="M20 8 L9 24 M20 8 L31 24 M9 24 L20 34 M31 24 L20 34" stroke="#3a4453" stroke-width="1.3"/></svg>
     <div class="eyebrow">Interview Prep · Agentic AI</div>
     <h1>LangGraph &amp; Agentic AI</h1>
-    <p>Beginner to advanced: what makes a system <em>agentic</em>, the LangGraph primitives everything is built from, workflow patterns, persistence and memory, tools and MCP, the RAG ladder, multi-agent architectures, LangSmith evaluation, and production engineering — with a 78-question interview bank.</p>
+    <p>Beginner to advanced: what makes a system <em>agentic</em>, the LangGraph primitives everything is built from, workflow patterns, persistence and memory, tools and MCP, the RAG ladder, multi-agent architectures, LangSmith evaluation, and production engineering — with a <b>125-question</b> interview bank — and a tagged Q&amp;A box after <em>every</em> topic.</p>
     <div class="chips">
-      <span class="chip"><b>6</b> parts · 11 levels</span>
-      <span class="chip"><b>210</b> topics</span>
-      <span class="chip"><b>26</b> diagrams</span>
-      <span class="chip"><b>78</b> Q&amp;A</span>
-      <span class="chip">LangGraph <b>v1</b></span>
+      <span class="chip"><b>12</b> parts · 11 levels</span>
+      <span class="chip"><b>98</b> sections · <b>210</b> tracked topics</span>
+      <span class="chip">📐 <b>29</b> diagrams</span>
+      <span class="chip">🎛 <b>9</b> interactive</span>
+      <span class="chip">💬 <b>342</b> Q&amp;A</span>
+      <span class="chip">LangGraph <b>1.2.11</b></span>
     </div>
-    <a class="cta" href="LangGraph_Complete.html">Open the full resource (all 6 parts) →</a>
+    <a class="cta" href="LangGraph_Complete.html">Open the full resource (all 12 parts) →</a>
   </header>
 
   <h2 class="sec">Read by part</h2>
   <p class="seclead">Each part is self-contained; the progress tracker at the top of each is shared across all of them on this device.</p>
   <div class="grid">
-    <a class="card" href="LangGraph_Part1_Foundations.html">
-      <div class="pk">Part 1 · Levels 0–2</div><div class="t">Foundations &amp; Core Primitives</div>
-      <div class="d">Agentic ladder, agent anatomy, when <em>not</em> to build one — then state schemas, <b>reducers</b>, edges, <code>Command</code>, and <code>Send</code>.</div><span class="go">13 sections · Open →</span></a>
-    <a class="card" href="LangGraph_Part2_State.html">
-      <div class="pk">Part 2 · Levels 3–4</div><div class="t">Patterns, State &amp; Memory</div>
-      <div class="d">The four workflow patterns, deferred nodes, checkpointers, time travel, the <b>Store</b>, context management, and HITL gates.</div><span class="go">12 sections · Open →</span></a>
-    <a class="card" href="LangGraph_Part3_Tools.html">
-      <div class="pk">Part 3 · Levels 5–6</div><div class="t">Tools, MCP &amp; RAG</div>
-      <div class="d">Tool design, the ReAct loop by hand, <code>create_agent</code> + middleware, MCP — then agentic RAG, CRAG, and Self-RAG as graphs.</div><span class="go">11 sections · Open →</span></a>
-    <a class="card" href="LangGraph_Part4_MultiAgent.html">
-      <div class="pk">Part 4 · Levels 7–8</div><div class="t">Multi-Agent &amp; Observability</div>
-      <div class="d">Topologies, subgraphs, handoffs, the capstone shape — plus LangSmith tracing and <b>trajectory evaluation</b>.</div><span class="go">9 sections · Open →</span></a>
-    <a class="card" href="LangGraph_Part5_Production.html">
-      <div class="pk">Part 5 · Levels 9–10</div><div class="t">Production Engineering</div>
-      <div class="d">Durability, <b>idempotency</b>, retries, caching, streaming, deployment, cost &amp; security, testing, and frontier topics.</div><span class="go">12 sections · Open →</span></a>
-    <a class="card" href="LangGraph_Part6_QABank.html">
-      <div class="pk">Part 6 · Q&amp;A Bank</div><div class="t">Interview Q&amp;A Bank</div>
-      <div class="d">32 high-frequency questions, the <b>7 trap questions</b>, 6 system-design scenarios, the gotchas cheat sheet, and study plans.</div><span class="go">78 Q&amp;A · Open →</span></a>
+    <a class="card" href="LangGraph_Part01_Prerequisites.html">
+      <div class="pk">Part 1 · Level 0</div><div class="t">Prerequisites &amp; the LLM Substrate</div>
+      <div class="d">The Python that's load-bearing — <code>TypedDict</code>, <code>Annotated</code>, async — plus tokens, the quadratic cost of an agent loop, structured output, and where LangChain sits relative to LangGraph.</div><span class="go">6 sections · 20 Q&amp;A · Open →</span></a>
+    <a class="card" href="LangGraph_Part02_AgenticFoundations.html">
+      <div class="pk">Part 2 · Level 1</div><div class="t">Agentic AI Foundations</div>
+      <div class="d">The capability ladder, agent anatomy, ReAct and what replaced it, planning and reflection, the autonomy dial — and the senior answer about when <em>not</em> to build an agent.</div><span class="go">8 sections · 24 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part03_CorePrimitives.html">
+      <div class="pk">Part 3 · Level 2 ★</div><div class="t">LangGraph Core Primitives</div>
+      <div class="d">StateGraph and channels, nodes, conditional edges, <b>reducers</b>, the <b>superstep model</b>, <code>Send</code> map-reduce, <code>Command</code>, subgraphs, compilation.</div><span class="go">10 sections · 29 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part04_WorkflowPatterns.html">
+      <div class="pk">Part 4 · Level 3</div><div class="t">Workflow Patterns</div>
+      <div class="d">Chaining, parallelisation (sectioning vs voting), routing, orchestrator-worker, evaluator-optimizer loops — and how to choose the least flexible pattern that works.</div><span class="go">7 sections · 19 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part05_StateMemory.html">
+      <div class="pk">Part 5 · Level 4 ★</div><div class="t">State, Persistence &amp; Memory</div>
+      <div class="d">Checkpointers and what a checkpoint contains, threads, time travel, <b>HITL with <code>interrupt</code></b>, context-window policies, the cross-thread Store, durability.</div><span class="go">8 sections · 23 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part06_Tools.html">
+      <div class="pk">Part 6 · Level 5</div><div class="t">Tools &amp; Agent Capabilities</div>
+      <div class="d">Tool design as prompt engineering, error handling the model can recover from, selection under a large catalogue, sandboxing, <b>MCP</b>, and the middleware layer.</div><span class="go">7 sections · 19 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part07_RAG.html">
+      <div class="pk">Part 7 · Level 6</div><div class="t">RAG in Agents</div>
+      <div class="d">Retrieval as a tool rather than a stage, the retrieval ladder, <b>agentic RAG</b> with grading and rewrite, CRAG and Self-RAG, grounding and citation.</div><span class="go">6 sections · 15 Q&amp;A · Open →</span></a>
+    <a class="card" href="LangGraph_Part08_MultiAgent.html">
+      <div class="pk">Part 8 · Level 7</div><div class="t">Multi-Agent Architectures</div>
+      <div class="d">When multi-agent earns its cost (rarely), supervisor, swarm and handoffs, hierarchical teams, shared state vs message passing, and the six failure modes.</div><span class="go">6 sections · 15 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part09_Observability.html">
+      <div class="pk">Part 9 · Level 8</div><div class="t">Observability &amp; Evaluation</div>
+      <div class="d">Why logs can't debug an agent, traces and spans, the four eval dimensions, <b>trajectory evaluation</b>, LLM-as-judge bias controls, CI regression gates.</div><span class="go">7 sections · 17 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part10_Production.html">
+      <div class="pk">Part 10 · Level 9 ★</div><div class="t">Production Engineering</div>
+      <div class="d">Deployment, streaming modes, idempotency, timeouts and retries, <b>cost control</b>, latency engineering, prompt injection as a privilege problem, scale, testing, incidents.</div><span class="go">10 sections · 23 Q&amp;A · 🎛 1 · Open →</span></a>
+    <a class="card" href="LangGraph_Part11_Frontier.html">
+      <div class="pk">Part 11 · Level 10</div><div class="t">Advanced &amp; Frontier</div>
+      <div class="d">Long-horizon agents, computer use, the protocol layer (MCP / A2A / AG-UI), self-improvement, <b>context engineering</b>, and defensible 2026 positions.</div><span class="go">6 sections · 13 Q&amp;A · Open →</span></a>
+    <a class="card" href="LangGraph_Part12_QABank.html">
+      <div class="pk">Part 12 · Q&amp;A Bank</div><div class="t">Interview Q&amp;A Bank</div>
+      <div class="d">The consolidated drill: 125 questions across every level, the <b>12 trap questions</b>, 6 system designs, 8 coding exercises, a gotchas sheet and an API quick reference.</div><span class="go">125 Q&amp;A · 🎛 1 · Open →</span></a>
     <a class="card combined" href="LangGraph_Complete.html">
       <div class="pk">All-in-one</div><div class="t">Complete edition ★</div>
       <div class="d">Every part stitched into one page with the master tracker at the top — print- and PDF-ready. Best for a single-scroll read.</div><span class="go">Open →</span></a>
@@ -102,16 +121,16 @@ p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
     <h3>⚠ API currency — verified August 2026</h3>
     <p>Both libraries hit <b>1.0 on 22 Oct 2025</b>, with a commitment to <b>no breaking changes until 2.0</b>. Written against the current releases:</p>
     <ul>
-      <li><b>LangChain 1.3.14</b> (16 Jul 2026) · <b>LangGraph 1.2.9</b> (10 Jul 2026) · <b>Python 3.10–3.14</b>.</li>
+      <li><b>LangChain 1.3.15</b> and <b>LangGraph 1.2.11</b> (both 11 Aug 2026) · <b>Python ≥ 3.10</b>.</li>
       <li><code>AgentExecutor</code>, <code>initialize_agent</code>, and <code>langgraph.prebuilt.create_react_agent</code> are <b>deprecated</b>. The current prebuilt entry point is <code>from langchain.agents import create_agent</code>, which runs on the LangGraph runtime.</li>
       <li><b>LangGraph is the runtime; LangChain is the layer on top</b> — "LangGraph vs LangChain" is a layering question, not a rivalry.</li>
     </ul>
-    <p><b>Covered post-1.0 additions:</b> LangGraph 1.2's per-node <b>timeouts</b> and <b>error handlers</b> (Saga compensation), <code>set_node_defaults</code>, <code>DeltaChannel</code>, and the <b>v3 streaming API</b>; LangChain 1.1–1.3's <b>model profiles</b>, built-in <b>middleware</b> (summarization, model-retry, moderation), tool <code>extras</code>, and <code>ProviderStrategy</code>; plus LangSmith's <b>composite</b> and <b>thread/multi-turn evaluators</b>.</p>
+    <p><b>Covered post-1.0 additions:</b> LangGraph 1.2's per-node <b>timeouts</b> and <b>error handlers</b> (Saga compensation), <code>set_node_defaults</code>, <code>DeltaChannel</code>, and the <b>v3 streaming API</b>; LangChain 1.1–1.3's <b>model profiles</b>, built-in <b>middleware</b> (summarization, model-retry, moderation), tool <code>extras</code>, and <code>ProviderStrategy</code>; plus LangSmith's <b>composite</b> and <b>thread/multi-turn evaluators</b>. LangGraph 1.2.10–1.2.11 added the typed <b>v3 <code>stream_events</code></b> return with native projections and per-node <code>trace_policy</code> on <code>add_node</code>.</p>
     <p>Any tutorial from 2023–24 using <code>AgentExecutor</code> is teaching deprecated syntax. Always cross-check <code>docs.langchain.com</code>.</p>
   </div>
 
   <div class="foot">
-    LangGraph &amp; Agentic AI · 6 parts · 210 tracked topics · progress saved per device (<code>lgPrepStatus_v1</code>)<br>
+    LangGraph &amp; Agentic AI · 12 parts · 98 sections · 210 tracked topics · 29 diagrams · 9 interactive widgets · 342 Q&amp;A · progress saved per device (<code>lgPrepStatus_v1</code>)<br>
     Related: <a href="../rag/index.html">RAG subject</a> — deep on chunking, hybrid search, rerankers, and RAG evaluation.
   </div>
 

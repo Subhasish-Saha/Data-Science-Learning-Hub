@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LangGraph &amp; Agentic AI — Part 4: Multi-Agent &amp; Observability</title>
+<title>LangGraph &amp; Agentic AI — Part 9: Observability &amp; Evaluation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -313,6 +313,53 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
   figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -321,7 +368,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
 <div class="topbar">
   <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
-  <div class="tt"><small>Part 4 / 6</small>Multi-Agent &amp; Observability</div>
+  <div class="tt"><small>Part 9 / 12</small>Observability &amp; Evaluation</div>
 </div>
 
 <div class="layout">
@@ -341,8 +388,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
     </div>
 
     <div class="sb-part">
-      <div class="k">Part 4 of 6</div>
-      <div class="v">Multi-Agent &amp; Observability</div>
+      <div class="k">Part 9 of 12</div>
+      <div class="v">Observability &amp; Evaluation</div>
       <div class="sb-progress">
         <div class="bar"><div class="fill" id="sbFill"></div></div>
         <div class="lab" id="sbLab">0 / 210 topics done</div>
@@ -355,22 +402,15 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
       </div>
       <div class="grp">
-        <button class="ghead" data-t><span class="num">L7</span> Multi-Agent <span class="chev">▾</span></button>
+        <button class="ghead" data-t><span class="num">L8</span> Observability &amp; Eval <span class="chev">▾</span></button>
         <ul class="links">
-          <li><a href="#g4-1">4.1 · Topologies</a></li>
-          <li><a href="#g4-2">4.2 · Subgraphs</a></li>
-          <li><a href="#g4-3">4.3 · Handoffs &amp; context isolation</a></li>
-          <li><a href="#g4-4">4.4 · Orchestrator–worker capstone</a></li>
-        </ul>
-      </div>
-      <div class="grp">
-        <button class="ghead" data-t><span class="num">L8</span> LangSmith <span class="chev">▾</span></button>
-        <ul class="links">
-          <li><a href="#g4-5">4.5 · Tracing setup</a></li>
-          <li><a href="#g4-6">4.6 · Runs, traces &amp; spans</a></li>
-          <li><a href="#g4-7">4.7 · Datasets &amp; evaluators</a></li>
-          <li><a href="#g4-8">4.8 · Trajectory evaluation ⭐</a></li>
-          <li><a href="#g4-9">4.9 · Interview focus</a></li>
+          <li><a href="#g9-1">9.1 · Why agents need tracing ⭐</a></li>
+          <li><a href="#g9-2">9.2 · Traces, runs &amp; spans ⭐</a></li>
+          <li><a href="#g9-3">9.3 · What to evaluate in an agent ⭐⭐</a></li>
+          <li><a href="#g9-4">9.4 · Trajectory evaluation ⭐</a></li>
+          <li><a href="#g9-5">9.5 · LLM-as-judge &amp; its bias controls ⭐</a></li>
+          <li><a href="#g9-6">9.6 · Datasets &amp; regression gates ⭐</a></li>
+          <li><a href="#g9-7">9.7 · Online eval &amp; feedback</a></li>
         </ul>
       </div>
       <div class="grp">
@@ -379,7 +419,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
       </div>
     </nav>
     <div class="sb-foot">
-      LangGraph &amp; Agentic AI<br>Part 4 — Multi-Agent &amp; Observability<br>© your study kit
+      LangGraph &amp; Agentic AI<br>Part 9 — Observability &amp; Evaluation<br>© your study kit
     </div>
   </aside>
 
@@ -389,16 +429,18 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
       <!-- HERO -->
       <header class="hero">
-        <div class="eyebrow">Part 4 of 6 · Multi-Agent &amp; Observability</div>
-        <h1 class="title">Teams of agents, and proving they work
-          <span class="sub">Multi-agent topologies (network, supervisor, hierarchical), subgraphs and handoffs — then LangSmith tracing, datasets, and the trajectory evaluation that senior interviews hinge on.</span>
+        <div class="eyebrow">Part 9 of 12 · Observability &amp; Evaluation</div>
+        <h1 class="title">Knowing whether it works
+          <span class="sub">Why a multi-step agent is untestable without tracing, the trace/run/span model, the four things worth evaluating in an agent, trajectory evaluation against golden paths, LLM-as-judge with bias controls, dataset-driven regression gates in CI, and online evaluation.</span>
         </h1>
-        <p class="thesis">Two topics that decide senior offers. First <strong>multi-agent architecture</strong>: the topology menu (network / supervisor / supervisor-as-tools / hierarchical / handoff), subgraphs for reuse, and what context transfers on a handoff. Then <strong>observability</strong> — reportedly the round that fails the most candidates. Final-answer accuracy is <em>not</em> enough for agents: you evaluate the <strong>trajectory</strong> (golden paths, step-level tool choice, cost and step-count as first-class metrics), and you build datasets from real production traces.</p>
+        <p class="thesis">An agent is a <strong>non-deterministic multi-step program</strong>, which means the single-number accuracy score you'd use for a classifier is close to meaningless. This part is about what replaces it. <strong>Four things are worth evaluating</strong>, and they fail independently: the <em>final answer</em>, the <em>trajectory</em> (did it take a sensible path?), <em>tool-call correctness</em>, and the <em>cost/latency budget</em>. The technique that separates senior candidates is <strong>trajectory evaluation</strong> — comparing the sequence of tool calls against a golden path — because it catches an agent that reaches the right answer by an absurd route, which is exactly the agent that will break next week.</p>
         <div class="meta-chips">
-          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 7–8</b></span>
-          <span class="chip"><b>27</b> tracked topics</span>
-          <span class="chip">⏱ <b>~6–7h</b></span>
-          <span class="chip">📊 LangSmith</span>
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 8</b></span>
+          <span class="chip"><b>7</b> sections</span>
+          <span class="chip">📐 <b>2</b> diagrams</span>
+          <span class="chip">💬 <b>17</b> Q&amp;A</span>
+          <span class="chip">🎛 <b>1</b> interactive</span>
+          <span class="chip">⏱ <b>~7h</b></span>
         </div>
       </header>
 
@@ -409,7 +451,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
             <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div>
               <h2>Master Progress Tracker</h2>
-              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
             </div>
             <div class="tk-overall">
               <div class="pct" id="ovPct">0%</div>
@@ -444,366 +486,417 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-      <!-- ============================ LEVEL 7 ============================ -->
-      <section class="phase-head" id="level7">
-        <div class="pk">Level 7 · Multi-Agent Architectures</div>
-        <h2>When one agent isn't enough</h2>
-        <p class="pd">Multi-agent isn't automatically better — it's a way to manage <em>context</em> and <em>specialisation</em>. Know the five topologies, when each fits, and the two mechanisms that implement them: <b>subgraphs</b> and <b>handoffs</b>.</p>
-      </section>
-
-      <!-- ---------- 4.1 ---------- -->
-      <article class="topic" id="g4-1">
-        <h3><span class="tn">4.1</span> The five topologies</h3>
-        <p class="lead">Pick by how much structure the flow has. Supervisor is the most common production choice; network is the most expensive.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 300" role="img" aria-label="Five multi-agent topologies drawn as graphs: network, supervisor, supervisor-as-tools, hierarchical, and custom handoff.">
-              <!-- network -->
-              <text x="90" y="24" fill="#c2cad6" font-size="10.5" text-anchor="middle">Network</text>
-              <circle cx="55" cy="52" r="13" fill="#5560D8"/><circle cx="125" cy="52" r="13" fill="#5560D8"/>
-              <circle cx="55" cy="112" r="13" fill="#5560D8"/><circle cx="125" cy="112" r="13" fill="#5560D8"/>
-              <g stroke="#3a4453" stroke-width="1.1">
-                <line x1="55" y1="52" x2="125" y2="52"/><line x1="55" y1="112" x2="125" y2="112"/>
-                <line x1="55" y1="52" x2="55" y2="112"/><line x1="125" y1="52" x2="125" y2="112"/>
-                <line x1="55" y1="52" x2="125" y2="112"/><line x1="125" y1="52" x2="55" y2="112"/>
-              </g>
-              <text x="90" y="142" fill="#8892a0" font-size="8" text-anchor="middle">all-to-all · exploratory · costly</text>
-
-              <!-- supervisor -->
-              <text x="270" y="24" fill="#c2cad6" font-size="10.5" text-anchor="middle">Supervisor ★</text>
-              <circle cx="270" cy="52" r="15" fill="#F0A81E"/><text x="270" y="56" fill="#3a2a00" font-size="8" text-anchor="middle">sup</text>
-              <circle cx="220" cy="112" r="13" fill="#5560D8"/><circle cx="270" cy="112" r="13" fill="#5560D8"/><circle cx="320" cy="112" r="13" fill="#5560D8"/>
-              <g stroke="#3a4453" stroke-width="1.1">
-                <line x1="270" y1="67" x2="220" y2="99"/><line x1="270" y1="67" x2="270" y2="99"/><line x1="270" y1="67" x2="320" y2="99"/>
-              </g>
-              <text x="270" y="142" fill="#8892a0" font-size="8" text-anchor="middle">central router · most common</text>
-
-              <!-- supervisor as tools -->
-              <text x="450" y="24" fill="#c2cad6" font-size="10.5" text-anchor="middle">Supervisor-as-tools</text>
-              <circle cx="450" cy="52" r="15" fill="#F0A81E"/><text x="450" y="56" fill="#3a2a00" font-size="8" text-anchor="middle">sup</text>
-              <g font-size="7" text-anchor="middle" fill="#fff">
-                <rect x="396" y="100" width="42" height="22" rx="4" fill="#5560D8"/><text x="417" y="115">tool A</text>
-                <rect x="444" y="100" width="42" height="22" rx="4" fill="#5560D8"/><text x="465" y="115">tool B</text>
-              </g>
-              <g stroke="#3a4453" stroke-width="1.1"><line x1="450" y1="67" x2="420" y2="98"/><line x1="450" y1="67" x2="463" y2="98"/></g>
-              <text x="450" y="142" fill="#8892a0" font-size="8" text-anchor="middle">sub-agents exposed as tools</text>
-
-              <!-- hierarchical -->
-              <text x="610" y="24" fill="#c2cad6" font-size="10.5" text-anchor="middle">Hierarchical</text>
-              <circle cx="610" cy="46" r="12" fill="#F0A81E"/>
-              <circle cx="578" cy="88" r="11" fill="#c9820f"/><circle cx="642" cy="88" r="11" fill="#c9820f"/>
-              <circle cx="558" cy="124" r="8" fill="#5560D8"/><circle cx="596" cy="124" r="8" fill="#5560D8"/>
-              <circle cx="624" cy="124" r="8" fill="#5560D8"/><circle cx="660" cy="124" r="8" fill="#5560D8"/>
-              <g stroke="#3a4453" stroke-width="1.1">
-                <line x1="610" y1="58" x2="578" y2="78"/><line x1="610" y1="58" x2="642" y2="78"/>
-                <line x1="578" y1="99" x2="558" y2="117"/><line x1="578" y1="99" x2="596" y2="117"/>
-                <line x1="642" y1="99" x2="624" y2="117"/><line x1="642" y1="99" x2="660" y2="117"/>
-              </g>
-              <text x="610" y="142" fill="#8892a0" font-size="8" text-anchor="middle">supervisors of supervisors</text>
-
-              <!-- handoff -->
-              <text x="350" y="184" fill="#c2cad6" font-size="10.5" text-anchor="middle">Custom / handoff — explicit <tspan font-family="monospace">Command(goto=…)</tspan> between peers</text>
-              <g font-size="8.5" text-anchor="middle" fill="#fff">
-                <rect x="200" y="200" width="90" height="30" rx="7" fill="#5560D8"/><text x="245" y="219">researcher</text>
-                <rect x="320" y="200" width="90" height="30" rx="7" fill="#5560D8"/><text x="365" y="219">writer</text>
-                <rect x="440" y="200" width="90" height="30" rx="7" fill="#5560D8"/><text x="485" y="219">editor</text>
-              </g>
-              <path d="M290 215 h26" stroke="#F0A81E" stroke-width="1.5" marker-end="url(#ho)"/>
-              <path d="M410 215 h26" stroke="#F0A81E" stroke-width="1.5" marker-end="url(#ho)"/>
-              <path d="M485 232 C 485 262, 245 262, 245 232" fill="none" stroke="#F0A81E" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#ho)"/>
-              <text x="365" y="278" fill="#f0c274" font-size="8.5" text-anchor="middle">peers hand off directly — known, bespoke flow</text>
-              <defs><marker id="ho" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#F0A81E"/></marker></defs>
-            </svg>
-          </div>
-          <figcaption><b>Structure ↑ = cost ↓.</b> Network (all-to-all) is flexible but burns tokens and is hard to debug; supervisor centralises routing and is the production default; hierarchical scales to large teams; explicit handoff fits a known pipeline.</figcaption>
-        </figure>
+      <article class="topic" id="g9-1">
+        <h3><span class="tn">9.1</span> Why agents need tracing <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A conventional service fails at a line of code. An agent fails at a <em>decision</em> — and no log line records why a model chose one tool over another.</p>
 
         <div class="tbl-wrap">
           <table class="data">
-            <thead><tr><th>Pattern</th><th>Shape</th><th>Use when</th></tr></thead>
+            <thead><tr><th>Question you'll need to answer</th><th>Logs</th><th>Traces</th></tr></thead>
             <tbody>
-              <tr><td><b>Network</b></td><td>Every agent can call every agent</td><td>Exploratory, flow genuinely unclear</td></tr>
-              <tr><td><b>Supervisor</b> ★</td><td>Central router delegates to specialists</td><td>Most common production choice</td></tr>
-              <tr><td><b>Supervisor-as-tools</b></td><td>Sub-agents exposed to the supervisor as tools</td><td>Clean and simple — reuses tool-calling</td></tr>
-              <tr><td><b>Hierarchical</b></td><td>Supervisors of supervisors</td><td>Large teams of agents</td></tr>
-              <tr><td><b>Custom / handoff</b></td><td>Explicit <code>Command(goto=…)</code> between peers</td><td>Known, bespoke flow</td></tr>
+              <tr><td>Which tools did it call, in what order?</td><td>Maybe, if you logged each</td><td>The trajectory, natively</td></tr>
+              <tr><td>What was the <em>exact</em> prompt at step 4?</td><td>Almost never</td><td>Yes, verbatim</td></tr>
+              <tr><td>Where did the 14 seconds go?</td><td>Total only</td><td>Per-span timings</td></tr>
+              <tr><td>Which step cost the money?</td><td>No</td><td>Per-call token counts</td></tr>
+              <tr><td>Why did it choose <code class="ic">web_search</code> over <code class="ic">kb_search</code>?</td><td>No</td><td>You can read the context it saw</td></tr>
             </tbody>
           </table>
         </div>
-      </article>
 
-      <!-- ---------- 4.2 ---------- -->
-      <article class="topic" id="g4-2">
-        <h3><span class="tn">4.2</span> Subgraphs</h3>
-        <p class="lead">Compile a graph and use it as a <em>node</em> in a parent graph. This is how you reuse an approval loop or a research module across projects — and how big agent systems stay comprehensible.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">two ways to attach a subgraph</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">sub = sub_builder.compile()
-
-# 1) SHARED schema — add the compiled subgraph directly as a node
-parent.add_node("research_module", sub)
-
-# 2) DIFFERENT schema — wrap it, translating state in and out
-def call_sub(state: ParentState) -> dict:
-    out = sub.invoke({"query": state["question"]})     # map parent -> child
-    return {"findings": out["result"]}                 # map child  -> parent
-parent.add_node("research_module", call_sub)
-</code></pre>
-        </figure>
-        <p>Checkpointing <b>propagates from parent to subgraph automatically</b> — you don't compile the child with its own checkpointer. To stream from inside a subgraph, pass <code class="ic">subgraphs=True</code> to the stream call (Part 5 §5.5).</p>
-      </article>
-
-      <!-- ---------- 4.3 ---------- -->
-      <article class="topic" id="g4-3">
-        <h3><span class="tn">4.3</span> Handoffs &amp; context isolation</h3>
-        <p class="lead">A handoff is one agent transferring control — and <em>some amount of context</em> — to another. Deciding how much context transfers is the real design question.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">handoff to a peer in the parent graph</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.types import Command
-
-def researcher(state) -> Command:
-    findings = do_research(state["question"])
-    return Command(
-        goto="writer",
-        update={"findings": findings},      # a COMPRESSED handoff, not the full transcript
-        graph=Command.PARENT,               # navigate in the parent graph
-    )
-</code></pre>
-        </figure>
-
-        <div class="callout tip">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="cl-lab">Interview tip · context isolation is <em>why</em> you go multi-agent</span>
-          <p>The strongest justification for multi-agent isn't "specialisation" — it's <b>context management</b>. A single agent doing research + writing + review accumulates every tool result in one exploding context window. Giving each sub-agent its own scratchpad, and passing only a <em>compressed summary</em> on handoff, keeps each context small and focused. Say that and you're answering at a systems level, not a buzzword level.</p>
-        </div>
-      </article>
-
-      <!-- ---------- 4.4 ---------- -->
-      <article class="topic" id="g4-4">
-        <h3><span class="tn">4.4</span> The orchestrator–worker capstone shape</h3>
-        <p class="lead">This one diagram combines almost everything in Parts 1–4: dynamic fan-out, a reducer, a critique loop, and a human gate. It's the canonical "build me a report writer" answer.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 250" role="img" aria-label="Capstone graph: a planner fans out research workers via Send, results merge into a writer, an evaluator loops back on failure or proceeds to a human approval gate and publish.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">planner → Send fan-out → writer → evaluator → HITL → publish</text>
-              <rect x="20" y="98" width="80" height="36" rx="8" fill="#F0A81E"/><text x="60" y="121" fill="#3a2a00" font-size="10" text-anchor="middle">planner</text>
-              <path d="M100 108 L152 76" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#cp)"/>
-              <path d="M100 116 L152 116" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#cp)"/>
-              <path d="M100 124 L152 156" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#cp)"/>
-              <text x="126" y="66" fill="#f0c274" font-size="8">Send</text>
-              <g font-size="8.5" text-anchor="middle" fill="#fff">
-                <rect x="154" y="62" width="94" height="26" rx="6" fill="#5560D8"/><text x="201" y="79">researcher</text>
-                <rect x="154" y="104" width="94" height="26" rx="6" fill="#5560D8"/><text x="201" y="121">researcher</text>
-                <rect x="154" y="146" width="94" height="26" rx="6" fill="#5560D8"/><text x="201" y="163">researcher</text>
-              </g>
-              <path d="M248 75 C 280 75, 288 106, 302 112" stroke="#2E9E5B" stroke-width="1.3" marker-end="url(#cpg)"/>
-              <path d="M248 117 h54" stroke="#2E9E5B" stroke-width="1.3" marker-end="url(#cpg)"/>
-              <path d="M248 159 C 280 159, 288 128, 302 122" stroke="#2E9E5B" stroke-width="1.3" marker-end="url(#cpg)"/>
-              <text x="272" y="146" fill="#7fd6a0" font-size="8">reducer</text>
-              <rect x="304" y="98" width="76" height="36" rx="8" fill="#3B45B5"/><text x="342" y="121" fill="#fff" font-size="10" text-anchor="middle">writer</text>
-              <path d="M380 116 h28" stroke="#8892a0" stroke-width="1.3" marker-end="url(#cp2)"/>
-              <rect x="410" y="98" width="84" height="36" rx="8" fill="#252D3A" stroke="#F0A81E"/><text x="452" y="121" fill="#f0c274" font-size="10" text-anchor="middle">evaluator</text>
-              <!-- fail loop -->
-              <path d="M452 134 C 452 196, 342 196, 342 136" fill="none" stroke="#C0392B" stroke-width="1.5" marker-end="url(#cpr)"/>
-              <text x="397" y="210" fill="#e0a3a8" font-size="8.5" text-anchor="middle">fail → rewrite (bounded)</text>
-              <!-- pass -->
-              <path d="M494 116 h24" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#cpg)"/>
-              <text x="506" y="108" fill="#7fd6a0" font-size="8">pass</text>
-              <rect x="520" y="98" width="66" height="36" rx="8" fill="#252D3A" stroke="#2E9E5B"/><text x="553" y="121" fill="#7fd6a0" font-size="9.5" text-anchor="middle">HITL</text>
-              <path d="M586 116 h20" stroke="#8892a0" stroke-width="1.3" marker-end="url(#cp2)"/>
-              <rect x="608" y="98" width="72" height="36" rx="8" fill="#256b3f"/><text x="644" y="121" fill="#fff" font-size="9.5" text-anchor="middle">publish</text>
-              <defs>
-                <marker id="cp" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#F0A81E"/></marker>
-                <marker id="cp2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="cpg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
-                <marker id="cpr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#C0392B"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b>Every primitive in one graph:</b> <code>Send</code> for runtime fan-out (§1.12), a reducer to merge findings (§1.9), a bounded evaluator–optimizer cycle (§2.4), an <code>interrupt()</code> approval gate (§2.11), and — if the researcher is itself a graph — a subgraph (§4.2).</figcaption>
-        </figure>
+        <p>The last row is the one that matters. Debugging an agent means reconstructing <b>what the model could see when it decided</b>, and that means capturing the full inputs and outputs of every model call — which is precisely what a trace is and a log is not. Anything OpenTelemetry-compatible works; LangSmith is the LangChain-native option and it's framework-agnostic, so it isn't a lock-in decision.</p>
 
         <div class="qbox">
           <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
           <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Design</span>When would you go multi-agent instead of one agent with many tools?</summary>
-              <div class="ans"><p>Primarily for <b>context isolation</b> and <b>specialisation</b>. One agent with 20 tools has a bloated tool schema (worse selection) and one context window accumulating every observation. Splitting into sub-agents gives each a small, focused toolset and its own scratchpad, with only a compressed summary crossing the handoff. Also: different sub-agents can use different models (cheap for classification, strong for synthesis) and be developed/tested independently. The cost is coordination overhead, more tokens on handoffs, and harder debugging — so don't reach for it until a single agent is actually straining.</p></div>
+            <details class="qa"><summary><span class="qtag">Very common</span>Why can't you debug an agent with logs?</summary>
+              <div class="ans"><p>Because an agent's failures are <b>decision</b> failures, and a log line records an event, not the context that produced it. To understand why the model called the wrong tool you need the <em>exact</em> prompt it saw at that step — system prompt, tool schemas, full message history, retrieved documents — and nobody logs that, because it's kilobytes per step and useless in aggregate.</p><p>A trace captures it natively: a tree of spans where every model call records its complete input and output, its token counts and its latency. That turns &ldquo;it gave a bad answer&rdquo; into &ldquo;at step 4 it had the right documents in context and ignored them&rdquo;, which is a fixable statement.</p><p>Add the operational point: traces also give you per-step cost and latency attribution, which logs can't, and which you need the first time someone asks why a request took 14 seconds.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Mechanics</span>How do subgraphs work, and does checkpointing carry over?</summary>
-              <div class="ans"><p>You compile a graph and add it as a node in a parent. If the schemas match, add the compiled object directly; if not, wrap it in a function that translates state in and out. Checkpointing <b>propagates automatically</b> from parent to subgraph — you don't give the child its own checkpointer. Subgraphs are how you reuse modules (an approval loop, a research pipeline) and how you keep large systems readable; for streaming from inside one, pass <code class="ic">subgraphs=True</code>.</p></div>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Is LangSmith required? What if you can't use it?</summary>
+              <div class="ans"><p>Not required — the <b>requirement is tracing</b>, not a specific product. LangSmith is the LangChain-native option (one environment variable and it captures everything, plus datasets, evaluators and feedback collection), and it's framework-agnostic so it isn't a lock-in.</p><p>Alternatives: <b>OpenTelemetry</b> with a GenAI-aware backend, or open-source options like Langfuse or Phoenix, all of which capture the same span tree. If you're in an environment where prompts and responses cannot leave your network, self-host — which is the actual constraint behind most &ldquo;can we use LangSmith&rdquo; questions, and worth naming.</p><p>What you must have either way: full inputs and outputs per model call, a span tree that reflects the graph structure, token and latency per span, and the ability to attach feedback to a run.</p></div>
             </details>
           </div>
         </div>
       </article>
 
-      <!-- ============================ LEVEL 8 ============================ -->
-      <section class="phase-head" id="level8">
-        <div class="pk">Level 8 · Observability &amp; Evaluation (LangSmith)</div>
-        <h2>The round that fails the most candidates</h2>
-        <p class="pd">Interviewers report this is where most people come apart. Everyone can build an agent; far fewer can say how they'd <em>know</em> it works, catch a regression before it ships, or evaluate a <em>trajectory</em> rather than a final answer. Do not skip this level.</p>
-      </section>
-
-      <!-- ---------- 4.5 ---------- -->
-      <article class="topic" id="g4-5">
-        <h3><span class="tn">4.5</span> Tracing setup</h3>
-        <p class="lead">Tracing is automatic for LangChain/LangGraph — three env vars and every run is captured. Arbitrary functions need one decorator.</p>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Bash / Python</span><span class="cap">turn tracing on</span><button class="copy">Copy</button></div>
-<pre><code class="language-bash">export LANGCHAIN_TRACING_V2=true
-export LANGCHAIN_API_KEY=ls__...
-export LANGCHAIN_PROJECT=my-agent
-</code></pre>
-        </figure>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">trace your own functions</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langsmith import traceable
-
-@traceable(name="custom_step")
-def my_function(x): ...
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 4.6 ---------- -->
-      <article class="topic" id="g4-6">
-        <h3><span class="tn">4.6</span> Runs, traces &amp; spans</h3>
-        <p class="lead">A <b>run</b> is one unit of work; a <b>trace</b> is the whole tree for one request. For LangGraph specifically, the trace shows each <em>superstep</em> — which is what makes it so good at catching state bugs.</p>
+      <article class="topic" id="g9-2">
+        <h3><span class="tn">9.2</span> Traces, runs and spans <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Three words used loosely everywhere. In LangSmith's model: a <b>run</b> is one unit of work, runs nest into a tree, and the whole tree for one request is a <b>trace</b>.</p>
 
         <figure class="diagram">
           <div class="dwrap">
-            <svg viewBox="0 0 700 230" role="img" aria-label="A trace tree showing nested spans for the graph run, agent node, LLM call, tool node, and their latency and token metrics.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">one trace = the whole request tree, with metrics on every span</text>
-              <g font-size="9">
-                <rect x="20" y="40" width="420" height="26" rx="5" fill="#3B45B5"/><text x="32" y="57" fill="#fff">▾ graph run · 4.2s · 3,140 tok · $0.011</text>
-                <rect x="44" y="72" width="360" height="24" rx="5" fill="#5560D8"/><text x="56" y="88" fill="#fff">▾ superstep 1 · agent node · 1.1s</text>
-                <rect x="68" y="102" width="300" height="22" rx="5" fill="#4a5568"/><text x="80" y="117" fill="#e6e9ef">llm call · 1.0s · 820 tok</text>
-                <rect x="44" y="130" width="300" height="24" rx="5" fill="#5560D8"/><text x="56" y="146" fill="#fff">▾ superstep 2 · tools node · 0.4s</text>
-                <rect x="68" y="160" width="200" height="22" rx="5" fill="#256b3f"/><text x="80" y="175" fill="#fff">search(...) · 0.4s ✓</text>
-                <rect x="44" y="188" width="360" height="24" rx="5" fill="#5560D8"/><text x="56" y="204" fill="#fff">▾ superstep 3 · agent node · 2.7s ← slow</text>
-              </g>
-              <g font-size="8.5" fill="#8892a0">
-                <text x="460" y="57">captured per span:</text>
-                <text x="460" y="74" fill="#c2cad6">· latency</text>
-                <text x="460" y="88" fill="#c2cad6">· token counts &amp; cost</text>
-                <text x="460" y="102" fill="#c2cad6">· errors</text>
-                <text x="460" y="116" fill="#c2cad6">· tags / metadata</text>
-                <text x="460" y="130" fill="#c2cad6">  (user id, version, env)</text>
-                <text x="460" y="156" fill="#7fd6a0">LangGraph-specific:</text>
-                <text x="460" y="170" fill="#c2cad6">· each superstep</text>
-                <text x="460" y="184" fill="#c2cad6">· branch taken / loops</text>
-                <text x="460" y="198" fill="#c2cad6">· state diff per node ⭐</text>
+            <svg viewBox="0 0 700 280" role="img" aria-label="A trace tree for one agent request: the root graph run contains an agent node run with a model call, a tools node run containing two parallel tool runs, a second agent node run with another model call, and a final answer, each annotated with duration and token counts.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">one request = one trace = a tree of nested runs</text>
+              <g font-size="10">
+                <rect x="24" y="34" width="500" height="26" rx="6" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                <text x="38" y="52" fill="#8fa0ff" font-weight="600">graph: support_agent</text>
+                <text x="440" y="52" fill="#8892a0">8.4s · 6.2k tok</text>
+
+                <rect x="52" y="68" width="440" height="24" rx="6" fill="#161b23" stroke="#2c3542"/>
+                <text x="66" y="85" fill="#c9d1dc">node: agent</text><text x="418" y="85" fill="#8892a0">2.1s</text>
+
+                <rect x="80" y="98" width="400" height="24" rx="6" fill="#161b23" stroke="#F0A81E"/>
+                <text x="94" y="115" fill="#F0A81E">llm: claude · 2 tool_calls</text><text x="392" y="115" fill="#8892a0">2.0s · 1.4k in / 180 out</text>
+
+                <rect x="52" y="130" width="440" height="24" rx="6" fill="#161b23" stroke="#2c3542"/>
+                <text x="66" y="147" fill="#c9d1dc">node: tools</text><text x="418" y="147" fill="#8892a0">1.9s (parallel)</text>
+
+                <rect x="80" y="160" width="196" height="24" rx="6" fill="#161b23" stroke="#7fd6a0"/>
+                <text x="94" y="177" fill="#7fd6a0">tool: search_orders</text><text x="222" y="177" fill="#8892a0">1.9s</text>
+                <rect x="284" y="160" width="196" height="24" rx="6" fill="#161b23" stroke="#7fd6a0"/>
+                <text x="298" y="177" fill="#7fd6a0">tool: get_policy</text><text x="432" y="177" fill="#8892a0">0.4s</text>
+
+                <rect x="52" y="192" width="440" height="24" rx="6" fill="#161b23" stroke="#2c3542"/>
+                <text x="66" y="209" fill="#c9d1dc">node: agent</text><text x="418" y="209" fill="#8892a0">4.3s</text>
+                <rect x="80" y="222" width="400" height="24" rx="6" fill="#161b23" stroke="#F0A81E"/>
+                <text x="94" y="239" fill="#F0A81E">llm: claude · final answer</text><text x="392" y="239" fill="#8892a0">4.3s · 4.1k in / 420 out</text>
+
+                <g stroke="#5A6472" stroke-width="1"><path d="M36 60v182" stroke-dasharray="2 3"/><path d="M64 92v130" stroke-dasharray="2 3"/></g>
+
+                <rect x="540" y="34" width="136" height="212" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="554" y="54" fill="#c9d1dc" font-weight="600">read it as</text>
+                <text x="554" y="76" fill="#8892a0">1 · the trajectory</text>
+                <text x="554" y="90" fill="#5A6472" font-size="9">agent→tools→agent</text>
+                <text x="554" y="112" fill="#8892a0">2 · the hot span</text>
+                <text x="554" y="126" fill="#5A6472" font-size="9">final llm = 4.3s of 8.4</text>
+                <text x="554" y="148" fill="#8892a0">3 · the cost</text>
+                <text x="554" y="162" fill="#5A6472" font-size="9">4.1k in — history</text>
+                <text x="554" y="176" fill="#5A6472" font-size="9">re-sent, cache it</text>
+                <text x="554" y="198" fill="#8892a0">4 · the inputs</text>
+                <text x="554" y="212" fill="#5A6472" font-size="9">open any llm span</text>
+                <text x="554" y="226" fill="#5A6472" font-size="9">to see exact prompt</text>
               </g>
             </svg>
           </div>
-          <figcaption><b>The state-diff view is the killer feature.</b> Seeing how state mutates node by node is how you spot a dropped or overwritten key — exactly the reducer bugs from §1.9 — without adding print statements.</figcaption>
-        </figure>
-      </article>
-
-      <!-- ---------- 4.7 ---------- -->
-      <article class="topic" id="g4-7">
-        <h3><span class="tn">4.7</span> Datasets &amp; evaluators</h3>
-        <p class="lead">A <b>dataset</b> is curated inputs (plus reference outputs) you test against. The highest-value ones are built from <em>production traces you flagged as interesting</em>, not invented in a vacuum.</p>
-        <ul>
-          <li><b>Heuristic / code-based</b> — exact match, JSON validity, regex. Cheap and deterministic.</li>
-          <li><b>LLM-as-judge</b> — correctness, groundedness, helpfulness (mind the biases — see the RAG subject §4.6).</li>
-          <li><b>Pairwise</b> — A/B between two versions.</li>
-          <li><b>Human annotation</b> — via annotation queues, for the cases that matter most.</li>
-        </ul>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">a custom evaluator + a run</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langsmith import Client
-from langsmith.evaluation import evaluate
-
-def correctness(run, example) -> dict:
-    return {"key": "correct", "score": run.outputs["answer"] == example.outputs["answer"]}
-
-evaluate(lambda x: agent.invoke(x), data="my-dataset", evaluators=[correctness])
-</code></pre>
-        </figure>
-        <p>Two modes worth naming: <b>online evaluation</b> (evaluators running against live production traffic) and <b>regression testing</b> (comparing experiments across prompt or model changes — the CI gate).</p>
-
-        <div class="callout note">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span class="cl-lab">LangSmith in 2026 · what's new</span>
-          <ul style="margin:.4rem 0 0;padding-left:1.1rem">
-            <li><b>Composite evaluators</b> — the legacy feedback-formula endpoints are <em>deprecated</em>; a composite score is now a code evaluator plus a run rule. If you're carrying formula-based feedback, that's the migration.</li>
-            <li><b>Thread &amp; multi-turn evaluators</b> — evaluate whole conversations, not single runs; managed thread evaluators carry a locked "trace count ≥ 2" filter, and a <b>Test action</b> lets you dry-run an evaluator against a sample thread before saving the rule. This is the natural home for evaluating <em>agentic</em> sessions.</li>
-            <li><b>Evaluator robustness</b> — code evaluators accept PEP 604 union returns (<code class="ic">-&gt; dict | None</code>), and a timing-out custom evaluator now <b>records an error on the run</b> instead of silently leaving it unscored (previously a real source of misleading "passing" dashboards).</li>
-            <li><b>Datasets</b> — multi-row selection for bulk split assignment and cross-dataset copying; interactive split chips.</li>
-            <li><b>Tracing</b> — monthly trace limits enforced per project <em>and</em> user; oversized run payloads are preserved with placeholder fields rather than rejecting the whole batch.</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- ---------- 4.8 ---------- -->
-      <article class="topic" id="g4-8">
-        <h3><span class="tn">4.8</span> Agent-specific evaluation ⭐</h3>
-        <p class="lead">The senior-level differentiator. <b>Final-answer accuracy is not enough for agents</b> — you must evaluate the <em>trajectory</em>: the sequence of steps taken to get there.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 260" role="img" aria-label="Two runs reaching the same correct answer: a golden trajectory with three efficient steps, and a wasteful trajectory with many redundant tool calls, showing why final-answer evaluation is insufficient.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">same final answer — but only one of these is a passing run</text>
-              <!-- golden -->
-              <text x="30" y="50" fill="#7fd6a0" font-size="10.5">✓ golden trajectory · 3 steps · $0.01</text>
-              <g font-size="8" text-anchor="middle" fill="#fff">
-                <rect x="30" y="60" width="76" height="24" rx="5" fill="#2E9E5B"/><text x="68" y="76" fill="#0b2016">search(q)</text>
-                <rect x="118" y="60" width="86" height="24" rx="5" fill="#2E9E5B"/><text x="161" y="76" fill="#0b2016">lookup(id)</text>
-                <rect x="216" y="60" width="76" height="24" rx="5" fill="#256b3f"/><text x="254" y="76">answer</text>
-              </g>
-              <path d="M106 72 h10" stroke="#8892a0" stroke-width="1.1" marker-end="url(#tj)"/>
-              <path d="M204 72 h10" stroke="#8892a0" stroke-width="1.1" marker-end="url(#tj)"/>
-              <text x="330" y="76" fill="#7fd6a0" font-size="9">right tools, right order, cheap</text>
-              <!-- bad -->
-              <text x="30" y="118" fill="#e0a3a8" font-size="10.5">✗ same answer · 9 steps · $0.14 · 40s</text>
-              <g font-size="7.5" text-anchor="middle" fill="#fff">
-                <rect x="30" y="128" width="62" height="22" rx="4" fill="#C0392B"/><text x="61" y="143">web(…)</text>
-                <rect x="98" y="128" width="62" height="22" rx="4" fill="#C0392B"/><text x="129" y="143">web(…)</text>
-                <rect x="166" y="128" width="62" height="22" rx="4" fill="#C0392B"/><text x="197" y="143">web(…)</text>
-                <rect x="234" y="128" width="70" height="22" rx="4" fill="#4a5568"/><text x="269" y="143">search(q)</text>
-                <rect x="310" y="128" width="62" height="22" rx="4" fill="#C0392B"/><text x="341" y="143">web(…)</text>
-                <rect x="378" y="128" width="70" height="22" rx="4" fill="#4a5568"/><text x="413" y="143">lookup</text>
-                <rect x="454" y="128" width="62" height="22" rx="4" fill="#256b3f"/><text x="485" y="143">answer</text>
-              </g>
-              <text x="560" y="143" fill="#e0a3a8" font-size="9">looping, redundant calls</text>
-              <!-- what to measure -->
-              <rect x="30" y="176" width="640" height="66" rx="10" fill="#161b23" stroke="#2c3542"/>
-              <text x="44" y="196" fill="#c2cad6" font-size="10">what to measure</text>
-              <g font-size="8.5" fill="#8892a0">
-                <text x="44" y="214" fill="#e6e9ef">· step-level accuracy</text><text x="200" y="214">right tool, right args, right time?</text>
-                <text x="44" y="228" fill="#e6e9ef">· trajectory match</text><text x="200" y="228">exact / in-order / any-order / superset</text>
-                <text x="400" y="214" fill="#e6e9ef">· cost &amp; step count</text><text x="520" y="214">first-class metrics</text>
-                <text x="400" y="228" fill="#e6e9ef">· failure taxonomy</text><text x="520" y="228">wrong tool · bad args · loop · early stop</text>
-              </g>
-              <defs><marker id="tj" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker></defs>
-            </svg>
-          </div>
-          <figcaption><b>A correct answer after 40 tool calls is a failure.</b> That sentence is the whole point of trajectory evaluation — cost and step count are first-class metrics, not footnotes, because an agent that wanders is unshippable even when it eventually gets there.</figcaption>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>root run</span><span><i style="background:#F0A81E"></i>model call</span><span><i style="background:#7fd6a0"></i>tool call</span></div>
+          <figcaption>Nesting mirrors the graph, so the trace is a readable execution history rather than a flat list of events.</figcaption>
         </figure>
 
-        <p><b>Golden trajectories</b> are reference paths a correct run should follow. Match them with varying strictness: <em>exact</em>, <em>in-order</em> (the right steps, extra ones allowed), <em>any-order</em>, or <em>superset</em>. And know the common <b>agent failure taxonomy</b>: wrong tool, malformed args, infinite loop, premature stop, context overflow.</p>
-      </article>
-
-      <!-- ---------- 4.9 ---------- -->
-      <article class="topic" id="g4-9">
-        <h3><span class="tn">4.9</span> Interview focus &amp; adjacent tooling</h3>
-        <p class="lead">Know the ecosystem by name: <b>LangSmith Prompt Hub</b> (versioned prompts decoupled from code), <b>LangGraph Studio</b> (visual debugger — step through and edit state), and the alternatives: <b>Langfuse</b>, <b>Arize Phoenix</b>, <b>W&amp;B Weave</b>, and the <b>OpenTelemetry GenAI</b> conventions.</p>
+        <p>Practical things to attach: <b>tags</b> for environment and version so you can filter; <b>metadata</b> for user, tenant and thread id so you can find a specific complaint; and a stable <b>run name</b> per node. LangGraph 1.2.11 also exposes <code class="ic">trace_policy</code> on <code class="ic">add_node</code>, which lets you turn down tracing for hot, uninteresting nodes without disabling it globally.</p>
 
         <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>The evaluation round</span></div>
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
           <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Eval ⭐</span>How do you evaluate an agent?</summary>
-              <div class="ans"><p>On two axes. <b>Outcome:</b> is the final answer correct/grounded/helpful — via heuristic checks, LLM-as-judge, or human annotation on a curated dataset. <b>Trajectory:</b> did it get there sensibly — right tools, right arguments, right order, no loops, no premature stop — scored against golden trajectories with a chosen strictness (exact / in-order / any-order / superset). Treat <b>cost and step count as first-class metrics</b>. Build datasets from real production traces you flagged, run evaluators offline as a CI regression gate and online against live traffic, and track a failure taxonomy (wrong tool, malformed args, infinite loop, early stop, context overflow) so improvements are targeted.</p></div>
+            <details class="qa"><summary><span class="qtag">Core</span>Walk me through how you'd read an agent trace.</summary>
+              <div class="ans"><p><b>Top-down, four passes.</b> First the <b>trajectory</b>: the sequence of nodes and tool calls. Most failures are visible here — a tool that shouldn't have been called, a loop, a retrieval that never happened.</p><p>Second, <b>timings</b>: find the span that owns the latency. It's usually one model call, and often the final one because its input is the whole accumulated history.</p><p>Third, <b>tokens</b>: look for the input counts growing across turns, which tells you whether prompt caching or trimming would pay.</p><p>Fourth, open the <b>suspect model span</b> and read its exact input — the full prompt including tool schemas, history and retrieved documents. That's where you find out whether the model made a bad decision or was given bad information, which are completely different bugs.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Eval ⭐</span>Why isn't final-answer accuracy sufficient? What is a golden trajectory?</summary>
-              <div class="ans"><p>Because two runs can produce the same correct answer via wildly different paths — one in 3 efficient steps, one after 40 flailing tool calls costing 14× more and 10× the latency. The second is unshippable, and outcome-only evaluation scores them identically. It also hides <em>why</em> a failure happened. A <b>golden trajectory</b> is a reference path — the tool sequence a correct run should follow — that you compare actual runs against, so you can score step-level tool choice and argument correctness, not just the destination.</p></div>
+            <details class="qa"><summary><span class="qtag">Design</span>What metadata do you attach to traces, and why?</summary>
+              <div class="ans"><p><b>Identifiers</b> so you can find a specific run when someone complains: user id (or a hash), tenant, <code class="ic">thread_id</code>, request id. <b>Versioning</b> so you can compare before and after a change: app version, prompt version, model name. <b>Environment</b> tags to keep dev noise out of production dashboards. <b>Business context</b> where it exists — plan tier, feature flag, experiment arm — because that's how you find out a regression only affects one segment.</p><p>The caveat to state: traces capture full prompts and outputs, so they contain whatever the user typed. Treat the trace store as a <b>PII surface</b> — redact where required, set retention, and control access to it the way you would a database of conversations.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Eval</span>How do you catch a regression before it ships?</summary>
-              <div class="ans"><p>Make evaluation a CI gate. Keep a versioned LangSmith dataset (seeded from production traces, including known-hard and previously-broken cases), run the evaluator suite on every prompt/model/graph change, and compare the experiment against the previous baseline — failing the build if key metrics (correctness, groundedness, trajectory match, cost, p95 latency) regress beyond a threshold. Pair that with pairwise comparison for subjective quality, and shadow/canary deployment before full rollout. Pin the judge model version so scores stay comparable across runs.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g9-3">
+        <h3><span class="tn">9.3</span> What to evaluate in an agent <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">An agent is a non-deterministic multi-step program, so a single accuracy number is close to meaningless. Four things are worth measuring, and they fail independently.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Dimension</th><th>Question</th><th>Method</th><th>Catches</th></tr></thead>
+            <tbody>
+              <tr><td><b>Final response</b></td><td>Is the answer right?</td><td>Reference match, or an LLM judge</td><td>The obvious failures</td></tr>
+              <tr><td><b>Trajectory</b></td><td>Did it take a sensible path?</td><td>Compare tool sequence to a golden path</td><td>Right answer, absurd route — the future breakage</td></tr>
+              <tr><td><b>Single step</b></td><td>Was <em>this</em> tool call correct?</td><td>Unit-test a node with a fixed input</td><td>Regressions in one component</td></tr>
+              <tr><td><b>Cost &amp; latency</b></td><td>Within budget at p95?</td><td>Trace metrics on the eval set</td><td>Quality bought with money</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 244" role="img" aria-label="Four evaluation dimensions shown as independent axes with example failure combinations: correct answer via a bad trajectory, correct trajectory with a poor final answer, both correct but over budget, and a single-step regression.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">four dimensions that fail independently — one number hides all of it</text>
+              <g font-size="10">
+                <g transform="translate(24,40)">
+                  <rect width="150" height="70" rx="10" fill="#161b23" stroke="#4B5BD6" stroke-width="1.5"/>
+                  <text x="14" y="22" fill="#8fa0ff" font-size="11" font-weight="600">final response</text>
+                  <text x="14" y="40" fill="#8892a0">is the answer right?</text>
+                  <text x="14" y="58" fill="#5A6472" font-size="9">reference match · judge</text>
+                </g>
+                <g transform="translate(188,40)">
+                  <rect width="150" height="70" rx="10" fill="#161b23" stroke="#F0A81E" stroke-width="1.6"/>
+                  <text x="14" y="22" fill="#F0A81E" font-size="11" font-weight="600">trajectory</text>
+                  <text x="14" y="40" fill="#8892a0">a sensible path?</text>
+                  <text x="14" y="58" fill="#5A6472" font-size="9">vs a golden tool sequence</text>
+                </g>
+                <g transform="translate(352,40)">
+                  <rect width="150" height="70" rx="10" fill="#161b23" stroke="#7fd6a0" stroke-width="1.5"/>
+                  <text x="14" y="22" fill="#7fd6a0" font-size="11" font-weight="600">single step</text>
+                  <text x="14" y="40" fill="#8892a0">was this call correct?</text>
+                  <text x="14" y="58" fill="#5A6472" font-size="9">unit-test a node</text>
+                </g>
+                <g transform="translate(516,40)">
+                  <rect width="160" height="70" rx="10" fill="#161b23" stroke="#c9a0e0" stroke-width="1.5"/>
+                  <text x="14" y="22" fill="#c9a0e0" font-size="11" font-weight="600">cost &amp; latency</text>
+                  <text x="14" y="40" fill="#8892a0">within budget at p95?</text>
+                  <text x="14" y="58" fill="#5A6472" font-size="9">trace metrics on the set</text>
+                </g>
+
+                <rect x="24" y="132" width="652" height="98" rx="10" fill="#1a1f28" stroke="#2c3542"/>
+                <text x="40" y="154" fill="#c9d1dc" font-size="11" font-weight="600">the combinations that matter</text>
+                <text x="40" y="176" fill="#e0929a">✗ response ✓ / trajectory ✗</text><text x="230" y="176" fill="#8892a0">right answer via six needless calls — breaks when a tool changes</text>
+                <text x="40" y="194" fill="#e0929a">✗ response ✗ / trajectory ✓</text><text x="230" y="194" fill="#8892a0">perfect path, poor synthesis — a generation-prompt problem</text>
+                <text x="40" y="212" fill="#e0929a">✗ both ✓ / cost ✗</text><text x="230" y="212" fill="#8892a0">quality bought with a 4× bill — still a regression</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>outcome</span><span><i style="background:#F0A81E"></i>process</span><span><i style="background:#7fd6a0"></i>component</span><span><i style="background:#c9a0e0"></i>budget</span></div>
+          <figcaption>&ldquo;62% success&rdquo; is undiagnostic. &ldquo;Recall unchanged, groundedness down 12 points&rdquo; tells you where to work.</figcaption>
+        </figure>
+
+        <p>The independence is the point. An agent can produce the right answer via six unnecessary tool calls (trajectory bad, response good) — that's the version that breaks next month when one of those tools changes. It can also take a perfect path and then write a poor summary (trajectory good, response bad). Reporting one number hides both.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Twenty examples beats zero</span>
+          <p>Teams delay evaluation waiting for a &ldquo;proper&rdquo; dataset and end up shipping on vibes for months. Twenty hand-written cases covering your main flows, three known failures and two edge cases will catch most regressions and takes an afternoon. Grow it from production traffic afterwards — real user queries are better test cases than anything you'd invent.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you evaluate an agent?</summary>
+              <div class="ans"><p>Along <b>four independent dimensions</b>, because a single accuracy number hides which part broke.</p><p><b>Final response</b> — is the answer correct? Reference comparison where a reference exists, an LLM judge with a rubric where it doesn't. <b>Trajectory</b> — did it take a sensible path? Compare the sequence of tool calls against a golden path; this catches an agent that reaches the right answer by an absurd route, which is exactly the one that breaks next month. <b>Single step</b> — unit-test individual nodes with fixed inputs, so a regression in one component is attributable. <b>Cost and latency</b> at p95, because quality bought with a 4× cost increase is a regression too.</p><p>Then the operational half: run these as a <b>dataset in CI</b> with thresholds that block a merge, and keep growing the dataset from real production failures.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Where do the eval examples come from?</summary>
+              <div class="ans"><p>Three sources, in this order. <b>Hand-written seeds</b> — twenty cases covering the main flows, a few known failures and a couple of edge cases. Start here today rather than waiting for something better. <b>Production traffic</b> — sample real queries, especially ones with negative feedback, and label them; these are far better test cases than anything invented. <b>Synthetic generation</b> from your documents or schemas for coverage of areas real traffic hasn't reached yet, treated as a supplement rather than the core.</p><p>Two disciplines that matter more than the source: <b>every production bug becomes a test case</b> before it's fixed, which is how the set stays relevant; and keep a <b>held-out slice</b> you don't tune against, because a dataset you've optimised on for six months stops measuring anything.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why isn't &ldquo;the answer was right&rdquo; enough?</summary>
+              <div class="ans"><p>Because it doesn't tell you <em>why</em>, and in a non-deterministic multi-step system the &ldquo;why&rdquo; is what predicts tomorrow's behaviour. An agent that reached the right answer through six unnecessary tool calls is right today and broken the moment one of those tools changes, gets slower, or starts costing more. An agent that got there by ignoring the retrieved documents and using parametric knowledge is right on questions it happens to know and confidently wrong on the rest.</p><p>Trajectory and step-level evaluation surface both. They're also what makes a failure <b>diagnosable</b> — &ldquo;response accuracy fell 8 points, trajectory match fell 30&rdquo; points straight at tool selection, whereas &ldquo;accuracy fell&rdquo; starts a week of guessing.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g9-4">
+        <h3><span class="tn">9.4</span> Trajectory evaluation <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Comparing the sequence of steps an agent took against the sequence it should have taken. The technique that most clearly separates people who have run agents in production from people who haven't.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">Interactive</span>Trajectory scorer — four matching strategies</div>
+          <div class="wbody">
+            <canvas id="lgTrajCv" width="900" height="300"></canvas>
+            <div class="wbtns">
+              <button class="wbtn on" data-lgtj="0">ideal run</button>
+              <button class="wbtn" data-lgtj="1">extra step</button>
+              <button class="wbtn" data-lgtj="2">reordered</button>
+              <button class="wbtn" data-lgtj="3">missing step</button>
+              <button class="wbtn" data-lgtj="4">wandering</button>
+            </div>
+            <div class="wout" id="lgTrajOut"></div>
+            <p class="wnote">The golden path is <code>lookup_order → check_policy → issue_refund → notify</code>. Notice that <b>exact match</b> fails on a harmless extra step while <b>superset</b> passes a wandering run that burned four extra calls — which is exactly why you pick the matcher deliberately and usually pair it with a step-count budget.</p>
+          </div>
+        </div>
+
+        <script>
+        (function(){
+          var cv=document.getElementById('lgTrajCv'); if(!cv) return;
+          var ctx=cv.getContext('2d'), sel=0;
+          function dpr(){var r=window.devicePixelRatio||1,w=cv.clientWidth||900;cv.width=w*r;cv.height=300*r;ctx.setTransform(r,0,0,r,0,0);return w;}
+          var GOLD=['lookup_order','check_policy','issue_refund','notify'];
+          var RUNS=[
+            {n:'ideal run',   t:['lookup_order','check_policy','issue_refund','notify']},
+            {n:'extra step',  t:['lookup_order','check_policy','check_policy','issue_refund','notify']},
+            {n:'reordered',   t:['check_policy','lookup_order','issue_refund','notify']},
+            {n:'missing step',t:['lookup_order','issue_refund','notify']},
+            {n:'wandering',   t:['search_kb','lookup_order','search_kb','check_policy','lookup_order','issue_refund','notify']}
+          ];
+          function score(t){
+            var exact = t.length===GOLD.length && t.every(function(x,i){return x===GOLD[i];});
+            var inorder=(function(){var i=0; for(var j=0;j<t.length;j++) if(t[j]===GOLD[i]) i++; return i===GOLD.length;})();
+            var anyorder=GOLD.every(function(g){return t.indexOf(g)>=0;});
+            var superset=anyorder;
+            var prec = t.filter(function(x){return GOLD.indexOf(x)>=0;}).length / t.length;
+            return {exact:exact,inorder:inorder,anyorder:anyorder,superset:superset,prec:prec,extra:t.length-GOLD.length};
+          }
+          function draw(){
+            var W=dpr(); ctx.clearRect(0,0,W,300); ctx.fillStyle='#14181f'; ctx.fillRect(0,0,W,300);
+            var run=RUNS[sel], s=score(run.t);
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('golden path',16,26);
+            function chips(list,y,ref){
+              var x=16;
+              for(var i=0;i<list.length;i++){
+                var ok = ref? (ref.indexOf(list[i])>=0) : true;
+                var exactpos = ref? (GOLD[i]===list[i]) : true;
+                var w=ctx.measureText(list[i]).width+22;
+                if(x+w>W-230){x=16;y+=32;}
+                ctx.fillStyle='#1a1f28'; ctx.fillRect(x,y,w,24);
+                ctx.strokeStyle= !ok? '#e0929a' : (exactpos? '#7fd6a0':'#F0A81E');
+                ctx.lineWidth=1.4; ctx.strokeRect(x,y,w,24);
+                ctx.fillStyle= !ok? '#e0929a' : (exactpos? '#7fd6a0':'#F0A81E');
+                ctx.font='10.5px ui-monospace,monospace';
+                ctx.fillText(list[i],x+11,y+16);
+                x+=w+10;
+                if(i<list.length-1){ctx.fillStyle='#5A6472'; ctx.fillText('→',x-8,y+16);}
+              }
+              return y+40;
+            }
+            ctx.font='10.5px ui-monospace,monospace';
+            var y=chips(GOLD,34,null);
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('actual trajectory — '+run.n,16,y+14);
+            ctx.font='10.5px ui-monospace,monospace';
+            chips(run.t,y+24,GOLD);
+            // verdicts
+            var px=W-210;
+            ctx.fillStyle='#1a1f28'; ctx.fillRect(px,20,196,262);
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('matcher verdicts',px+14,42);
+            var V=[['exact match',s.exact],['in-order (subseq)',s.inorder],['any-order set',s.anyorder],['superset allowed',s.superset]];
+            for(var i=0;i<V.length;i++){
+              var yy=68+i*38;
+              ctx.font='10.5px ui-monospace,monospace'; ctx.fillStyle='#c9d1dc'; ctx.fillText(V[i][0],px+14,yy);
+              ctx.fillStyle=V[i][1]?'#7fd6a0':'#e0929a'; ctx.font='600 12px ui-sans-serif,system-ui';
+              ctx.fillText(V[i][1]?'PASS':'FAIL',px+14,yy+16);
+            }
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('precision '+(s.prec*100).toFixed(0)+'%',px+14,238);
+            ctx.fillStyle=s.extra>0?'#F0A81E':'#7fd6a0';
+            ctx.fillText((s.extra>0?'+'+s.extra:'0')+' extra step(s)',px+14,256);
+            ctx.fillStyle='#5A6472'; ctx.font='9px ui-monospace,monospace';
+            ctx.fillText('cost signal, not correctness',px+14,272);
+          }
+          function out(){
+            var run=RUNS[sel], s=score(run.t);
+            var msg;
+            if(sel===0) msg='All four matchers agree. This is the case that teaches you nothing — the interesting rows are the others.';
+            else if(sel===1) msg='A duplicated call. <span class="warn">Exact match fails</span> on behaviour that is harmless but wasteful — which is why exact match is usually too strict, and why you pair a looser matcher with a step budget.';
+            else if(sel===2) msg='Same tools, different order. Exact and in-order fail; set matching passes. Ask whether the order <em>matters</em> here — checking policy before looking up the order is arguably fine, so a set matcher may be the honest choice.';
+            else if(sel===3) msg='<span class="warn">A step was skipped.</span> Every matcher fails, correctly — the agent issued a refund without checking policy. This is the failure trajectory evaluation exists to catch, and it can happen while the final answer still looks plausible.';
+            else msg='Reached the goal via four extra calls. <span class="warn">Superset matching passes it</span> — which is the trap. Precision and the extra-step count are what reveal the cost, so report them alongside the verdict.';
+            document.getElementById('lgTrajOut').innerHTML=msg;
+          }
+          function render(){draw();out();}
+          var btns=document.querySelectorAll('[data-lgtj]');
+          for(var i=0;i<btns.length;i++){(function(b){b.onclick=function(){
+            for(var j=0;j<btns.length;j++) btns[j].classList.remove('on');
+            b.classList.add('on'); sel=+b.getAttribute('data-lgtj'); render();};})(btns[i]);}
+          window.addEventListener('resize',render); render();
+        })();
+        </script>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is trajectory evaluation and how do you score it?</summary>
+              <div class="ans"><p>Comparing the <b>sequence of steps</b> an agent actually took against the sequence it should have taken, rather than only judging the final answer.</p><p>Four matchers, increasingly permissive. <b>Exact match</b> — same tools, same order, same count; usually too strict, since a harmless duplicate call fails. <b>In-order subsequence</b> — the golden steps appear in order, extras allowed; a good default when order genuinely matters. <b>Any-order set</b> — the right tools were used, order irrelevant; correct when the steps are genuinely independent. <b>Superset</b> — the golden steps happened, anything else is tolerated; the most permissive and the most dangerous.</p><p>Pick the matcher by asking whether order and extra calls actually matter for that task, and <b>always report the extra-step count and precision alongside the verdict</b> — otherwise a wandering run that burned four extra calls passes silently.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Where does the golden trajectory come from?</summary>
+              <div class="ans"><p>Three sources. <b>Hand-authored</b> by whoever knows the domain — for a refund flow, &ldquo;look up the order, check the policy, then issue&rdquo; is a business rule, not an opinion, and it should be written down anyway. <b>Harvested from good runs</b> — take traces that were rated highly, extract the tool sequence, review and promote them. <b>Derived from constraints</b> rather than a full path: often you don't need the whole sequence, just assertions like &ldquo;<code class="ic">check_policy</code> must appear before <code class="ic">issue_refund</code>&rdquo; or &ldquo;<code class="ic">delete_*</code> must never appear&rdquo;.</p><p>That last form is underrated: <b>partial-order constraints</b> are cheaper to maintain than full golden paths, survive refactors better, and encode the things you actually care about — safety ordering and forbidden actions.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Isn't trajectory evaluation too brittle? Agents legitimately vary.</summary>
+              <div class="ans"><p>Exact matching is, which is why it's rarely the right matcher. The fix isn't to abandon trajectory evaluation, it's to <b>evaluate the properties you actually care about</b>: required steps present, forbidden steps absent, safety ordering respected, step count within budget. Those are stable across legitimate variation and still catch the failures that matter.</p><p>The second answer is to <b>track the distribution rather than pass/fail per run</b>. &ldquo;Median 4 tool calls, p95 7&rdquo; is a health metric; when it moves to &ldquo;median 6, p95 14&rdquo; you have a regression, even though no single run was &ldquo;wrong&rdquo;. That framing handles non-determinism honestly instead of pretending it away.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g9-5">
+        <h3><span class="tn">9.5</span> LLM-as-judge and its bias controls <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Using a model to grade outputs is unavoidable for open-ended tasks and unreliable if you do it naively. The bias controls are the whole answer.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Bias</th><th>What happens</th><th>Control</th></tr></thead>
+            <tbody>
+              <tr><td><b>Position</b></td><td>In pairwise comparison, the first option wins more often</td><td>Run both orders; count only consistent verdicts</td></tr>
+              <tr><td><b>Verbosity</b></td><td>Longer answers score higher regardless of quality</td><td>Rubric that penalises padding; control for length</td></tr>
+              <tr><td><b>Self-preference</b></td><td>A model rates its own family's output higher</td><td>Judge with a different model than the generator</td></tr>
+              <tr><td><b>Leniency</b></td><td>Everything gets 4/5; no discrimination</td><td>Binary or 3-point scales with anchored definitions</td></tr>
+              <tr><td><b>Format</b></td><td>Confident, well-formatted answers score higher</td><td>Rubric focused on factual criteria only</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Two structural fixes beat all of the individual controls. <b>Prefer pairwise comparison to absolute scoring</b> — models are far better at &ldquo;which of these is better&rdquo; than at &ldquo;rate this 1–5&rdquo;. And <b>validate the judge against human labels</b> on a sample: if the judge disagrees with your reviewers 30% of the time, its numbers aren't measuring what you think, and no amount of prompt tuning downstream will fix that.</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#c9781f" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#c9781f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Use a judge only where you must</span>
+          <p>If a deterministic check exists — exact match, schema validation, does the SQL run, does the cited chunk id exist, did the tests pass — use it. It's free, instant, perfectly consistent and needs no validation. Reserve the judge for genuinely subjective dimensions like helpfulness, tone and groundedness.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you make LLM-as-judge reliable?</summary>
+              <div class="ans"><p>Six controls, and naming the biases by name is what makes the answer land.</p><p><b>Pairwise over absolute</b> — models compare much better than they score, so ask &ldquo;which is better&rdquo; rather than &ldquo;rate 1–5&rdquo;. <b>Swap the order</b> and count only consistent verdicts, to defeat position bias. <b>Anchored rubrics</b> — define what each level means with examples, and use a 3-point scale rather than 10, to defeat leniency. <b>A different model</b> than the generator, to defeat self-preference. <b>Structured output</b> with the reasoning field <em>before</em> the score, so it reasons before committing. <b>Validate against human labels</b> on a sample and report the agreement rate — if it's 70%, the judge's numbers aren't measuring what you think.</p><p>And the framing: <b>use a judge only where a deterministic check can't work</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Write a good judge prompt for &ldquo;is this answer grounded?&rdquo;</summary>
+              <div class="ans"><p>Make it a <b>per-claim</b> check rather than a global judgement, with structured output: give it the sources and the answer, ask it to extract each factual claim, mark each as <code class="ic">supported</code> / <code class="ic">contradicted</code> / <code class="ic">not_found</code>, and cite the supporting span for anything marked supported. The overall verdict is then computed in code from the claim list, not asked for directly.</p><p>Why this shape: a global &ldquo;is it grounded, 1–5&rdquo; invites leniency and gives you nothing to act on. Per-claim output is auditable, produces a natural score (fraction supported), and hands you the specific unsupported sentences — which you can then flag in the UI or strip.</p><p>Two additions: instruct it that <b>absence of evidence is not contradiction</b>, since conflating those inflates the failure rate; and put the reasoning field before the verdict in the schema.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your judge scores 4.2/5 on everything. What's wrong?</summary>
+              <div class="ans"><p><b>Leniency bias plus an unanchored scale.</b> A 1–5 scale with no definitions collapses to &ldquo;4 unless something is obviously broken&rdquo;, and a metric with no variance can't detect a regression — which is worse than having no metric, because it looks like coverage.</p><p>Fixes: switch to <b>binary or 3-point</b> with explicit anchored definitions and an example of each level; make the criteria <b>specific and checkable</b> (&ldquo;does it cite a source for every numeric claim&rdquo;) rather than global quality; move to <b>pairwise comparison</b> against a baseline answer, which produces discrimination automatically; and sanity-check the judge by feeding it deliberately bad answers — if they also score 4, the judge is broken, not your system.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g9-6">
+        <h3><span class="tn">9.6</span> Datasets and regression gates <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Evaluation only changes behaviour when it can <em>block a merge</em>. A dashboard nobody looks at is a cost centre; a CI gate is a control.</p>
+
+        <figure class="code">
+          <div class="chead">an eval run in CI</div>
+          <pre><code class="language-python">from langsmith import evaluate
+
+def trajectory_match(run, example) -> dict:
+    actual = [c["name"] for c in extract_tool_calls(run.outputs)]
+    gold   = example.outputs["golden_tools"]
+    return {"key": "trajectory", "score": float(is_subsequence(gold, actual))}
+
+results = evaluate(
+    lambda inputs: graph.invoke(inputs, {"configurable": {"thread_id": uuid4().hex}}),
+    data="support-agent-golden-v3",
+    evaluators=[correctness_judge, trajectory_match, cost_budget],
+    experiment_prefix=f"pr-{PR_NUMBER}",
+)
+assert results["trajectory"] >= 0.90, "trajectory regression"
+assert results["p95_cost"]   <= 0.04, "cost regression"</code></pre>
+        </figure>
+
+        <p>Set thresholds <b>relative to the current main branch</b>, not to absolute ideals — &ldquo;no more than 2 points below main&rdquo; is enforceable from day one, whereas &ldquo;95% accuracy&rdquo; either blocks everything or nothing. Gate on <b>cost and latency too</b>, because the easiest way to raise quality is to spend more, and an unwatched budget makes that invisible.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How do you stop prompt changes from silently regressing quality?</summary>
+              <div class="ans"><p><b>A dataset-backed eval gate in CI.</b> Every PR that touches a prompt, a tool, a model version or the graph runs the golden dataset and reports scores against the main branch; thresholds block the merge.</p><p>The details that make it work: <b>relative thresholds</b> (&ldquo;no more than 2 points below main&rdquo;) rather than absolute ideals, so the gate is enforceable from day one; <b>gate on cost and latency too</b>, since spending more is the easiest way to buy quality and you want that visible; <b>version the dataset</b> so results are comparable over time; and <b>keep the run cheap enough to tolerate</b> — a few dozen examples, with the full set nightly, or nobody will run it.</p><p>Plus the cultural half: every production failure becomes a dataset entry before it's fixed. That's what keeps the gate meaningful rather than measuring last quarter's problems.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your eval scores are noisy run to run. What do you do?</summary>
+              <div class="ans"><p>First accept the cause: agents are non-deterministic, so some variance is real and shouldn't be engineered away.</p><p>Reduce what you can: set <b>temperature 0</b> for eval runs; <b>fix seeds</b> where the provider supports it; and <b>stub external tools</b> with recorded responses so the world isn't changing underneath you.</p><p>Then measure honestly: <b>run each example several times</b> and report mean with a confidence interval, not one number; <b>increase dataset size</b>, since noise falls with N; and <b>set thresholds outside the noise band</b> — if run-to-run variance is ±3 points, a 2-point gate is a coin flip that will erode trust in the gate.</p><p>And if one <em>specific</em> example flips constantly, that's usually informative rather than noise: it's a genuinely ambiguous case, and it belongs in a separate bucket you inspect rather than in the pass/fail count.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g9-7">
+        <h3><span class="tn">9.7</span> Online evaluation and feedback</h3>
+        <p class="lead">Offline evals measure what you thought to test. Production measures what users actually do — and it's the only source of the failures you didn't imagine.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Signal</th><th>Cost to collect</th><th>What it tells you</th></tr></thead>
+            <tbody>
+              <tr><td>Thumbs up/down</td><td>Trivial</td><td>Sparse, biased to the annoyed — still valuable</td></tr>
+              <tr><td><b>Implicit signals</b></td><td>Free</td><td>Retries, rephrasing, abandonment, escalation to a human</td></tr>
+              <tr><td>Online judges on a sample</td><td>Small LLM spend</td><td>Continuous groundedness/quality on real traffic</td></tr>
+              <tr><td>Operational metrics</td><td>Free</td><td>Loop rate, tool error rate, p95 cost and latency</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><b>Implicit signals are the underrated ones.</b> A user rephrasing the same question, escalating to a human, or abandoning mid-conversation is a stronger negative signal than a thumbs-down and costs nothing to capture. Route those runs into a review queue, label them, and they become tomorrow's dataset entries — which closes the loop between production and CI.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How do you know your agent is degrading in production?</summary>
+              <div class="ans"><p><b>Layer four signals</b> and alert on the leading ones.</p><p><b>Operational metrics</b> first, because they move before quality does: p95 latency and cost per request, tool error rate, average tool calls per run, recursion-limit hits. A rising call count usually precedes a visible quality drop. <b>Implicit user signals</b>: retry rate, rephrasing, escalation to a human, abandonment. <b>Explicit feedback</b>, sparse but real. <b>Online judges</b> on a sampled percentage of traffic for groundedness and quality — expensive at 100%, cheap at 2%.</p><p>Then close the loop: negative-signal runs go to a review queue, get labelled, and become dataset entries. And re-run the offline eval on a schedule as well as per PR, because the world changes even when your code doesn't — model providers update, indexes drift, and upstream APIs change their responses.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How would you A/B test a prompt change?</summary>
+              <div class="ans"><p>Assign by a <b>stable hash of the user or conversation id</b>, not per request — otherwise a user gets different behaviour mid-conversation, which corrupts both the experience and the measurement. Tag every trace with the arm so all your metrics can be sliced by it.</p><p>Measure the <b>full picture</b>, not just quality: task success or feedback rate, escalation rate, cost per request, p95 latency. A variant that wins on quality and costs 60% more may still be the wrong choice, and you want that trade visible rather than discovered later.</p><p>Two disciplines: pre-register the primary metric and the minimum effect you care about, so you don't fish through slices afterwards; and run the offline eval on both arms first — if the change fails the golden dataset, don't spend production traffic finding that out.</p></div>
             </details>
           </div>
         </div>
@@ -812,14 +905,14 @@ evaluate(lambda x: agent.invoke(x), data="my-dataset", evaluators=[correctness])
 
             <!-- PART NAV -->
       <nav class="partnav">
-        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part3_Tools.html">Part 3 · Tools, MCP &amp; RAG</a></div><ul><li>create_agent, CRAG, Self-RAG</li></ul></div>
-        <div class="pcard"><div class="k">You are here</div><div class="t">Part 4 · Multi-Agent &amp; Observability</div></div>
-        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part5_Production.html">Part 5 · Production Engineering</a></div><ul><li>Durability &amp; idempotency</li><li>Streaming, deploy, security</li></ul></div>
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part08_MultiAgent.html">Part 8 · Multi-Agent</a></div><ul><li>Supervisor, swarm, handoffs</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 9 · Observability &amp; Evaluation</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part10_Production.html">Part 10 · Production Engineering</a></div><ul><li>Deployment, streaming, durability</li><li>Cost, security, reliability</li></ul></div>
       </nav>
 
       <div class="doc-foot">
-        LangGraph &amp; Agentic AI — Part 4 of 6 · Multi-Agent &amp; Observability<br>
-        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        LangGraph &amp; Agentic AI — Part 9 of 12 · Observability &amp; Evaluation<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 

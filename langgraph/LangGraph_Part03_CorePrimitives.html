@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangGraph &amp; Agentic AI — Part 3: LangGraph Core Primitives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 3 / 12</small>LangGraph Core Primitives</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">LangGraph<small>Agentic AI Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 3 of 12</div>
+      <div class="v">LangGraph Core Primitives</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 210 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L2</span> Core Primitives <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#g3-1">3.1 · Why a graph at all ⭐</a></li>
+          <li><a href="#g3-2">3.2 · StateGraph &amp; the schema ⭐⭐</a></li>
+          <li><a href="#g3-3">3.3 · Nodes ⭐</a></li>
+          <li><a href="#g3-4">3.4 · Edges &amp; conditional edges ⭐</a></li>
+          <li><a href="#g3-5">3.5 · Reducers ⭐⭐</a></li>
+          <li><a href="#g3-6">3.6 · The superstep model ⭐⭐</a></li>
+          <li><a href="#g3-7">3.7 · Send &amp; the map-reduce pattern ⭐</a></li>
+          <li><a href="#g3-8">3.8 · Command ⭐</a></li>
+          <li><a href="#g3-9">3.9 · Subgraphs</a></li>
+          <li><a href="#g3-10">3.10 · Compilation &amp; runtime config</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← LangGraph home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      LangGraph &amp; Agentic AI<br>Part 3 — LangGraph Core Primitives<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 3 of 12 · LangGraph Core Primitives</div>
+        <h1 class="title">The primitives everything else is assembled from
+          <span class="sub">StateGraph and the state schema, nodes as pure state transformers, conditional edges, reducers and why they exist, the superstep execution model, Send for dynamic fan-out, Command for combined update-and-route, subgraphs, and compilation.</span>
+        </h1>
+        <p class="thesis">This is the densest part of the subject and the one that separates people who have <em>used</em> LangGraph from people who have <em>read about</em> it. Four concepts carry it. <strong>Reducers</strong> — because the default is overwrite, and every &ldquo;my messages keep disappearing&rdquo; bug is a missing <code class="ic">add_messages</code>. The <strong>superstep model</strong>, borrowed from Pregel — nodes in a superstep run in parallel, all writes are applied together at the barrier, and that single fact explains parallel-write conflicts, why reducers are mandatory for fan-out, and what a checkpoint actually contains. <strong>Send</strong>, which is how you fan out to a number of branches you don't know until runtime. And <strong>Command</strong>, which collapses &ldquo;update the state&rdquo; and &ldquo;decide where to go&rdquo; into one return value.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 2</b></span>
+          <span class="chip"><b>10</b> sections</span>
+          <span class="chip">📐 <b>4</b> diagrams</span>
+          <span class="chip">💬 <b>29</b> Q&amp;A</span>
+          <span class="chip">🎛 <b>1</b> interactive</span>
+          <span class="chip">⏱ <b>~10h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">210</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 210 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <article class="topic" id="g3-1">
+        <h3><span class="tn">3.1</span> Why a graph at all <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">You can write an agent as a <code class="ic">while</code> loop in forty lines. The question every interviewer is really asking is: <em>what do you get by writing it as a graph instead?</em></p>
+
+        <h4>What the loop cannot do</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Requirement</th><th>In a <code class="ic">while</code> loop</th><th>In a graph</th></tr></thead>
+            <tbody>
+              <tr><td>Pause for human approval, resume tomorrow</td><td>Impossible — the stack is gone when the process ends</td><td><code class="ic">interrupt</code> + checkpointer</td></tr>
+              <tr><td>Resume after a crash mid-run</td><td>Restart from scratch, re-running side effects</td><td>Resume from the last completed node</td></tr>
+              <tr><td>Inspect state at step 4 of a failed run</td><td>Reconstruct from logs, if you logged enough</td><td><code class="ic">get_state_history()</code> — every checkpoint</td></tr>
+              <tr><td>Run three branches concurrently</td><td>Hand-rolled <code class="ic">asyncio.gather</code> + merge logic</td><td>Same superstep + reducers</td></tr>
+              <tr><td>Stream intermediate progress</td><td>Manual callback plumbing</td><td><code class="ic">stream(stream_mode=...)</code></td></tr>
+              <tr><td>Change control flow without rewriting</td><td>Edit the loop body</td><td>Add an edge</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Every row reduces to one root cause: <b>a <code class="ic">while</code> loop's state lives on the call stack, and the call stack is not persistable</b>. A graph's state lives in an explicit, serialisable object that the runtime owns, so it can be written to a database between steps. Once that's true, pause/resume, crash recovery, inspection and time travel all become available at once. They are not six features — they are one feature, seen from six angles.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Be willing to say the loop is fine</span>
+          <p>If you don't need persistence, interruption, streaming or parallelism, <b>the loop really is fine</b> — and saying so is a stronger answer than defending the framework. The graph earns its complexity precisely when the run is long enough, valuable enough, or interruptible enough that losing it matters.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why use LangGraph instead of just writing a loop?</summary>
+              <div class="ans"><p>Because a loop's state lives on the <b>call stack</b>, and a call stack can't be persisted. Everything LangGraph gives you follows from moving state into an explicit serialisable object the runtime owns and checkpoints between steps: you can <b>pause</b> for human approval and resume days later in a different process; <b>resume after a crash</b> from the last completed node instead of re-running side effects; <b>inspect</b> the exact state at any past step and even fork from it; <b>parallelise</b> branches with declared merge semantics instead of hand-rolled <code class="ic">gather</code>; and <b>stream</b> intermediate progress without callback plumbing.</p><p>Then be honest about the boundary: for a short, stateless tool-calling loop with no persistence requirement, a plain loop is genuinely simpler and easier to debug. LangGraph earns its cost when the run is long, valuable, or interruptible.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What kind of graph is a LangGraph graph?</summary>
+              <div class="ans"><p>A <b>directed graph with cycles allowed</b> — deliberately not a DAG, because agent loops are cycles by nature and a DAG framework can't express &ldquo;call a tool and go back to the model&rdquo;. Execution follows the <b>Pregel</b> model from bulk-synchronous parallel computing: rounds called <em>supersteps</em>, where all active nodes in a round execute (potentially in parallel), all their writes are applied at a barrier, and then the next round's active set is determined.</p><p>Being able to say &ldquo;it's Pregel-style BSP, not a DAG scheduler&rdquo; is a strong signal, because it explains parallel write conflicts, reducers and checkpoint boundaries in one stroke.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-2">
+        <h3><span class="tn">3.2</span> StateGraph and the state schema <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The state schema is the most consequential design decision in a LangGraph application. Get it right and nodes stay small; get it wrong and you'll be threading data through channels that shouldn't exist.</p>
+
+        <figure class="code">
+          <div class="chead">a graph, end to end</div>
+          <pre><code class="language-python">from typing import Annotated, TypedDict
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+
+class State(TypedDict):
+    messages: Annotated[list, add_messages]   # append, with id-based dedup
+    query: str                                # overwrite (default reducer)
+    docs: Annotated[list[str], operator.add]  # concatenate across branches
+
+builder = StateGraph(State)
+builder.add_node("retrieve", retrieve)        # name inferred if omitted
+builder.add_node("generate", generate)
+builder.add_edge(START, "retrieve")
+builder.add_edge("retrieve", "generate")
+builder.add_edge("generate", END)
+
+graph = builder.compile(checkpointer=saver)   # immutable, runnable</code></pre>
+        </figure>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Anatomy of a StateGraph: a state schema of independent named channels each with its own reducer, nodes that read the whole state and return partial updates, edges that decide what runs next, and compilation that attaches the checkpointer and store.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the four pieces, and what each one owns</text>
+              <g font-size="10.5">
+                <rect x="24" y="38" width="200" height="150" rx="11" fill="#161b23" stroke="#4B5BD6" stroke-width="1.6"/>
+                <text x="40" y="60" fill="#8fa0ff" font-size="12" font-weight="600">1 · State schema</text>
+                <text x="40" y="80" fill="#8892a0">a set of named channels</text>
+                <g font-family="ui-monospace,monospace" font-size="9.5">
+                  <rect x="40" y="90" width="168" height="22" rx="5" fill="#1a1f28" stroke="#2c3542"/>
+                  <text x="50" y="105" fill="#c9d1dc">messages</text><text x="150" y="105" fill="#7fd6a0">add_messages</text>
+                  <rect x="40" y="116" width="168" height="22" rx="5" fill="#1a1f28" stroke="#2c3542"/>
+                  <text x="50" y="131" fill="#c9d1dc">docs</text><text x="150" y="131" fill="#7fd6a0">operator.add</text>
+                  <rect x="40" y="142" width="168" height="22" rx="5" fill="#1a1f28" stroke="#2c3542"/>
+                  <text x="50" y="157" fill="#c9d1dc">plan</text><text x="150" y="157" fill="#e0929a">overwrite</text>
+                </g>
+                <text x="40" y="180" fill="#5A6472" font-size="9">each channel owns its merge rule</text>
+
+                <rect x="248" y="38" width="190" height="70" rx="11" fill="#161b23" stroke="#F0A81E" stroke-width="1.6"/>
+                <text x="264" y="60" fill="#F0A81E" font-size="12" font-weight="600">2 · Nodes</text>
+                <text x="264" y="78" fill="#8892a0">read the whole state,</text>
+                <text x="264" y="92" fill="#c9d1dc">return a partial update</text>
+
+                <rect x="248" y="118" width="190" height="70" rx="11" fill="#161b23" stroke="#7fd6a0" stroke-width="1.6"/>
+                <text x="264" y="140" fill="#7fd6a0" font-size="12" font-weight="600">3 · Edges</text>
+                <text x="264" y="158" fill="#8892a0">normal · fan-out ·</text>
+                <text x="264" y="172" fill="#c9d1dc">conditional (the control flow)</text>
+
+                <rect x="462" y="38" width="214" height="150" rx="11" fill="#1a1f28" stroke="#c9a0e0" stroke-width="1.6"/>
+                <text x="478" y="60" fill="#c9a0e0" font-size="12" font-weight="600">4 · compile()</text>
+                <text x="478" y="80" fill="#8892a0">freezes it, and attaches:</text>
+                <text x="478" y="100" fill="#c9d1dc">checkpointer → persistence</text>
+                <text x="478" y="118" fill="#c9d1dc">store → cross-thread memory</text>
+                <text x="478" y="136" fill="#c9d1dc">interrupt_before → breakpoints</text>
+                <text x="478" y="158" fill="#8892a0">also validates: unreachable</text>
+                <text x="478" y="172" fill="#8892a0">nodes, bad edges, no START path</text>
+
+                <g stroke="#5A6472" stroke-width="1.2" fill="none">
+                  <path d="M224 90h18"/><path d="M224 150h18"/><path d="M438 113h18"/>
+                </g>
+              </g>
+              <text x="20" y="240" fill="#c9d1dc" font-size="11">nodes never assign to state — they return a dict, and the <tspan fill="#7fd6a0">reducers</tspan> decide what that means</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>schema</span><span><i style="background:#F0A81E"></i>computation</span><span><i style="background:#7fd6a0"></i>control flow</span><span><i style="background:#c9a0e0"></i>runtime</span></div>
+          <figcaption>The schema is the contract: it declares the channels, and therefore the merge semantics and the checkpoint shape.</figcaption>
+        </figure>
+
+        <h4>State is a set of channels, not an object</h4>
+        <p>The mental model that makes everything else click: your state is not one blob that nodes overwrite. It is a <b>collection of independent named channels</b>, each with its own reducer and its own write history. When a node returns <code class="ic">{"docs": [...]}</code>, it writes to the <code class="ic">docs</code> channel and touches nothing else. When two parallel nodes both write to <code class="ic">docs</code>, the channel's reducer decides how to combine them. Checkpointing snapshots all channels together.</p>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Designing the schema</span>
+          <p>Three questions per field. <em>Who writes it?</em> If more than one node can write it concurrently, it needs a non-default reducer. <em>Does it accumulate or replace?</em> Accumulate → <code class="ic">add</code>-style reducer; replace → default. <em>Does the caller need it?</em> If not, keep it out of <code class="ic">output_schema</code>. A schema with fifteen fields is usually three schemas wearing a trench coat — consider subgraphs with their own state.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>What is state in LangGraph, and what does &ldquo;channel&rdquo; mean?</summary>
+              <div class="ans"><p>State is a <b>typed set of independent named channels</b>, declared by a schema (usually a <code class="ic">TypedDict</code>). Each channel has its own <b>reducer</b> — a function <code class="ic">(current, update) -&gt; new</code> that decides how a node's write is merged in. The default reducer is <em>overwrite</em>.</p><p>&ldquo;Channel&rdquo; matters because it's the unit of everything: nodes write to channels not to state; parallel writes are resolved per channel by that channel's reducer; a checkpoint is a snapshot of all channels; and <code class="ic">stream_mode="updates"</code> reports per-channel writes. Thinking of state as one mutable object rather than a set of channels is the root of most confusion about parallel updates.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you decide what belongs in state?</summary>
+              <div class="ans"><p>Put in state anything that (a) must survive across nodes, (b) must be checkpointed for resume, or (c) is written by more than one node. Keep out of state: things derivable on demand, large blobs better referenced by id (put the S3 key in state, not the 40 MB PDF), and anything secret — <b>state is persisted</b>, so credentials in state are credentials in your database.</p><p>Two refinements worth volunteering: use <code class="ic">input_schema</code>/<code class="ic">output_schema</code> so internal scratch channels never leave the graph; and if the schema is growing past roughly eight fields, that's a signal to factor part of it into a <b>subgraph</b> with its own private state rather than widening the parent.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Where should you <em>not</em> put large objects?</summary>
+              <div class="ans"><p>In state, if you have a checkpointer. Every superstep serialises the full state to the checkpoint store, so a 40 MB dataframe in a channel means a 40 MB write <b>per superstep</b> — plus the same cost on every resume and every <code class="ic">get_state</code>. It will look like the model is slow when it's actually the serialiser.</p><p>Store the artifact externally and put a <b>reference</b> in state: an S3 key, a row id, a cache key. The same applies to raw retrieved documents in a RAG graph — keep the text if it's small, but consider passing ids plus a lightweight summary and re-fetching in the node that needs the full text.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-3">
+        <h3><span class="tn">3.3</span> Nodes <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A node is a function from state to a partial update. Everything interesting about nodes is a consequence of taking that definition seriously.</p>
+
+        <h4>Signatures and what nodes receive</h4>
+        <p>The minimal node takes state and returns a dict. It can also take a second argument for runtime context — the config carrying <code class="ic">thread_id</code>, user identity, and anything you passed at invocation. A node can be sync or async; it can be a plain function, another graph, or any Runnable. Node names default to the function's name and must be unique.</p>
+
+        <figure class="code">
+          <div class="chead">node shapes</div>
+          <pre><code class="language-python">def simple(state: State) -> dict:
+    return {"count": state["count"] + 1}          # partial update
+
+async def with_ctx(state: State, runtime) -> dict:
+    user = runtime.context.user_id                 # per-run context
+    return {"messages": [await model.ainvoke(state["messages"])]}
+
+builder.add_node("scored", scored_node, retry_policy=RetryPolicy(max_attempts=3))
+builder.add_node("quiet", noisy_node, trace_policy=...)   # LangGraph 1.2.11+</code></pre>
+        </figure>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#c9781f" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#c9781f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Never mutate the state you were given</span>
+          <p><code class="ic">state["docs"].append(x); return {}</code> is a bug even when it appears to work. It bypasses the reducer, so parallel merges are wrong; it bypasses the checkpointer's change detection; and it makes the node non-replayable, which breaks time travel and durable resume. Always <b>return a new value</b> and let the reducer apply it.</p>
+        </div>
+
+        <h4>Nodes should be replayable</h4>
+        <p>With durable execution, a node may be <b>executed more than once</b> — after a crash, on resume, or during time travel. That makes idempotency a design property of nodes, not an ops concern: a node that charges a card must be safe to run twice. In practice this means side-effecting work goes in its own small node with an idempotency key, kept separate from the reasoning around it.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What happens if a node mutates the incoming state directly?</summary>
+              <div class="ans"><p>You get bugs that are hard to trace. Mutating <code class="ic">state["docs"]</code> in place <b>bypasses the reducer</b>, so if two nodes do it concurrently the merge semantics you declared never run and one write is silently lost or interleaved. It also bypasses the checkpointer's notion of what changed, so the persisted state may not match what your code thinks it did. And it makes the node <b>non-replayable</b> — re-running it during resume or time travel applies the mutation twice.</p><p>The rule: nodes are <b>pure with respect to state</b>. Read it, return a new partial update, let the runtime apply it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How big should a node be?</summary>
+              <div class="ans"><p>Sized by <b>checkpoint boundaries and side effects</b>, not by lines of code. A checkpoint is written after each superstep, so node boundaries are your resume points: if a node does five things and fails on the fourth, resume re-runs all five. So put <b>each side effect in its own node</b> — that's the real rule.</p><p>Beyond that: split when you want a human-in-the-loop gate between two operations, when parts could run in parallel, or when you want distinct retry policies. Don't split for aesthetics — every node boundary costs a checkpoint write, and a graph with forty trivial nodes is slower and harder to read than one with eight meaningful ones.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Can a node return nothing?</summary>
+              <div class="ans"><p>Yes — returning <code class="ic">None</code> or <code class="ic">{}</code> means &ldquo;no state change&rdquo;, and it's perfectly valid for a node that only performs a side effect like logging or emitting a metric. The graph still advances and a checkpoint is still written.</p><p>Two related points: returning a key that isn't in the schema is an error rather than a silent no-op in current versions, which is a useful guard against typos; and if you want a node to both update state <em>and</em> decide where to go next, return a <code class="ic">Command</code> instead of a plain dict.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-4">
+        <h3><span class="tn">3.4</span> Edges and conditional edges <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Edges are the control flow. There are three kinds, and the difference between a normal edge and a conditional edge is exactly the difference between a workflow and an agent.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Kind</th><th>Written as</th><th>Semantics</th></tr></thead>
+            <tbody>
+              <tr><td><b>Normal</b></td><td><code class="ic">add_edge("a", "b")</code></td><td>Always go to <code class="ic">b</code> after <code class="ic">a</code></td></tr>
+              <tr><td><b>Fan-out</b></td><td>Several <code class="ic">add_edge("a", ...)</code> calls</td><td>All targets run <b>in the same superstep</b>, concurrently</td></tr>
+              <tr><td><b>Conditional</b></td><td><code class="ic">add_conditional_edges("a", router, map)</code></td><td>A plain Python function inspects state and names the next node(s)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="code">
+          <div class="chead">the routing function is ordinary Python</div>
+          <pre><code class="language-python">def should_continue(state: State) -> str:
+    last = state["messages"][-1]
+    if state["iterations"] >= MAX:            # hard cap FIRST
+        return "finish"
+    return "tools" if last.tool_calls else "finish"
+
+builder.add_conditional_edges("model", should_continue,
+                              {"tools": "tools", "finish": END})
+builder.add_edge("tools", "model")            # the cycle</code></pre>
+        </figure>
+
+        <p>Note what the routing function <em>is</em>: a normal function, not an LLM call. The LLM's influence is indirect — it wrote something into state, and the router reads it. Keeping the router deterministic makes the branch testable in isolation, which is one of the most practical testing wins available in a LangGraph codebase.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The third argument is for the diagram</span>
+          <p>The mapping dict in <code class="ic">add_conditional_edges</code> is optional if your function returns node names directly — but supply it anyway. It's what lets LangGraph <b>draw the possible edges</b> in the rendered graph, and without it the visualisation shows a node with no visible outgoing edges, which makes reviews and debugging harder.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>How do you create a loop in LangGraph?</summary>
+              <div class="ans"><p>A <b>conditional edge that can point backwards</b>. The canonical agent loop: <code class="ic">model → should_continue → {"tools": "tools", "finish": END}</code>, plus a normal edge <code class="ic">tools → model</code>. That cycle runs until <code class="ic">should_continue</code> returns the exit branch.</p><p>Two things to add. First, the routing function is <b>ordinary Python</b> — no LLM call — which is what makes the branch unit-testable. Second, always bound the loop: check an iteration counter in the router <em>before</em> the model-driven condition, and set <code class="ic">recursion_limit</code> on the config as a backstop (the default is 25 supersteps, and hitting it raises <code class="ic">GraphRecursionError</code>).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Can a conditional edge return more than one destination?</summary>
+              <div class="ans"><p>Yes. Return a <b>list of node names</b> and all of them run in the next superstep, concurrently — that's static fan-out chosen at runtime. Return a <b>list of <code class="ic">Send</code> objects</b> and you get dynamic fan-out where each branch also receives its own private input state, which is how map-reduce is expressed.</p><p>The important consequence: as soon as more than one branch can write the same channel, that channel <b>needs a reducer</b>, or you'll get an <code class="ic">InvalidUpdateError</code> at the superstep barrier.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your graph raises <code class="ic">GraphRecursionError</code>. What's your process?</summary>
+              <div class="ans"><p>Don't start by raising the limit — that usually converts a fast failure into an expensive one. Diagnose first.</p><p><b>1. Look at the trajectory.</b> Print <code class="ic">stream_mode="updates"</code> or open the LangSmith trace and read the node sequence; a cycle is usually obvious within a few steps. <b>2. Is the exit condition reachable?</b> Often the router checks something no node ever sets — a counter that's never incremented, or a flag written to the wrong channel. <b>3. Is the model looping?</b> The same tool called repeatedly with near-identical arguments usually means uninformative tool results; fix the tool's return value, not the limit. <b>4. Is the counter increment being lost?</b> With a fan-out, two branches each writing <code class="ic">count + 1</code> to an overwrite channel results in one increment, not two.</p><p>Only raise <code class="ic">recursion_limit</code> once you've confirmed the graph legitimately needs more supersteps than the default 25.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-5">
+        <h3><span class="tn">3.5</span> Reducers <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">A reducer is a two-argument function that says how a write is merged into a channel. It is the single most misunderstood concept in LangGraph, and the source of the most common production bug: disappearing messages.</p>
+
+        <h4>The default is overwrite</h4>
+        <p>Declare <code class="ic">messages: list</code> and the channel's reducer is &ldquo;replace the old value with the new one&rdquo;. So a node returning <code class="ic">{"messages": [ai_msg]}</code> <b>throws away the entire conversation</b> and leaves one message. Declare <code class="ic">messages: Annotated[list, add_messages]</code> and the same return appends instead. Nothing else changes — one annotation is the difference between a working chatbot and one with amnesia.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">Interactive</span>Reducer playground — two parallel nodes, one channel</div>
+          <div class="wbody">
+            <canvas id="lgRedCv" width="900" height="330"></canvas>
+            <div class="wbtns">
+              <button class="wbtn on" data-lgred="none">default (overwrite)</button>
+              <button class="wbtn" data-lgred="add">operator.add</button>
+              <button class="wbtn" data-lgred="msg">add_messages</button>
+              <button class="wbtn" data-lgred="max">custom: max</button>
+              <button class="wbtn" data-lgred="dict">custom: dict merge</button>
+            </div>
+            <div class="wout" id="lgRedOut"></div>
+            <p class="wnote">Both branches run in the <em>same superstep</em> and both write to the same channel. The reducer is the only thing deciding what the state looks like afterwards — and with the default, one of the two writes raises rather than silently winning, because LangGraph refuses to guess.</p>
+          </div>
+        </div>
+
+        <script>
+        (function(){
+          var cv=document.getElementById('lgRedCv'); if(!cv) return;
+          var ctx=cv.getContext('2d'), mode='none';
+          function dpr(){var r=window.devicePixelRatio||1,w=cv.clientWidth||900;cv.width=w*r;cv.height=330*r;ctx.setTransform(r,0,0,r,0,0);return w;}
+          var CUR={none:'["a"]',add:'["a"]',msg:'[Human("hi")]',max:'3',dict:'{"x":1}'};
+          var W1={none:'["b"]',add:'["b"]',msg:'[AI("hello")]',max:'7',dict:'{"y":2}'};
+          var W2={none:'["c"]',add:'["c"]',msg:'[AI("hey")]',max:'5',dict:'{"z":3}'};
+          var RES={none:'InvalidUpdateError',add:'["a","b","c"]',msg:'[Human("hi"), AI("hello"), AI("hey")]',max:'7',dict:'{"x":1,"y":2,"z":3}'};
+          var DESC={
+            none:'No reducer declared → the channel’s reducer is <b>overwrite</b>. Two concurrent writes to one overwrite channel is ambiguous, so LangGraph raises <span class="warn">InvalidUpdateError</span> rather than silently picking a winner. With a <em>single</em> writer it would simply replace the value.',
+            add:'<code>Annotated[list, operator.add]</code> → list concatenation. Both branch writes survive. Order between concurrent branches is <b>not guaranteed</b> to be deterministic, so don’t depend on it.',
+            msg:'<code>Annotated[list, add_messages]</code> → appends, but also assigns ids, <b>de-duplicates by id</b>, and lets you overwrite a message by re-sending it with the same id (or delete with <code>RemoveMessage</code>). This is what <code>MessagesState</code> uses.',
+            max:'A reducer is just <code>(current, update) -&gt; new</code>. <code>lambda a,b: max(a,b)</code> keeps the highest score any branch produced — useful for confidence values.',
+            dict:'<code>lambda a,b: {**a, **b}</code> merges dicts. Convenient, but note the <b>last write wins per key</b>, and with concurrent branches you can’t control which is last.'
+          };
+          function draw(){
+            var W=dpr(); ctx.clearRect(0,0,W,330); ctx.fillStyle='#14181f'; ctx.fillRect(0,0,W,330);
+            var cx=W/2;
+            ctx.font='11px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('superstep N — two nodes execute concurrently, both write channel "value"',14,22);
+            // current state
+            box(cx-110,40,220,44,'#2c3542','state before','#8892a0',CUR[mode],'#c9d1dc');
+            // branches
+            box(60,120,230,50,'#4B5BD6','node A returns','#8fa0ff','{"value": '+W1[mode]+'}','#c9d1dc');
+            box(W-290,120,230,50,'#4B5BD6','node B returns','#8fa0ff','{"value": '+W2[mode]+'}','#c9d1dc');
+            ctx.strokeStyle='#5A6472'; ctx.lineWidth=1.2;
+            ctx.beginPath(); ctx.moveTo(cx-40,84); ctx.lineTo(175,120); ctx.moveTo(cx+40,84); ctx.lineTo(W-175,120); ctx.stroke();
+            // barrier
+            ctx.setLineDash([5,4]); ctx.strokeStyle='#F0A81E';
+            ctx.beginPath(); ctx.moveTo(30,196); ctx.lineTo(W-30,196); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle='#F0A81E'; ctx.font='10px ui-monospace,monospace';
+            ctx.fillText('◆ superstep barrier — reducer applied here',36,190);
+            ctx.beginPath(); ctx.moveTo(175,170); ctx.lineTo(cx-30,226); ctx.moveTo(W-175,170); ctx.lineTo(cx+30,226); ctx.strokeStyle='#5A6472'; ctx.stroke();
+            var err = (mode==='none');
+            box(cx-190,226,380,58,err?'#a33':'#7fd6a0','state after','#8892a0',RES[mode],err?'#e0929a':'#7fd6a0');
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#5A6472';
+            ctx.fillText('reducer: '+({none:'(default overwrite)',add:'operator.add',msg:'add_messages',max:'lambda a,b: max(a,b)',dict:'lambda a,b: {**a, **b}'})[mode],cx-190,306);
+          }
+          function box(x,y,w,h,stroke,lab,labc,val,valc){
+            ctx.fillStyle='#1a1f28'; ctx.fillRect(x,y,w,h);
+            ctx.strokeStyle=stroke; ctx.lineWidth=1.5; ctx.strokeRect(x,y,w,h);
+            ctx.font='9.5px ui-monospace,monospace'; ctx.fillStyle=labc; ctx.fillText(lab,x+12,y+17);
+            ctx.font='11.5px ui-monospace,monospace'; ctx.fillStyle=valc;
+            var t=val; if(t.length>44) t=t.slice(0,43)+'…';
+            ctx.fillText(t,x+12,y+h-13);
+          }
+          function out(){ document.getElementById('lgRedOut').innerHTML=DESC[mode]; }
+          var btns=document.querySelectorAll('[data-lgred]');
+          for(var i=0;i<btns.length;i++){(function(b){
+            b.onclick=function(){ for(var j=0;j<btns.length;j++) btns[j].classList.remove('on');
+              b.classList.add('on'); mode=b.getAttribute('data-lgred'); draw(); out(); };
+          })(btns[i]);}
+          window.addEventListener('resize',draw); draw(); out();
+        })();
+        </script>
+
+        <h4>What <code class="ic">add_messages</code> does beyond appending</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Behaviour</th><th>Why it exists</th></tr></thead>
+            <tbody>
+              <tr><td>Appends new messages</td><td>The obvious part</td></tr>
+              <tr><td>Assigns an <code class="ic">id</code> if missing</td><td>Gives every message a stable identity</td></tr>
+              <tr><td><b>Replaces</b> a message with a matching id</td><td>Lets you edit history — correct a message, redact a tool result</td></tr>
+              <tr><td>Handles <code class="ic">RemoveMessage</code></td><td>Deletion, which is how trimming and summarisation prune history</td></tr>
+              <tr><td>Coerces dicts to message objects</td><td>Convenience at the boundary</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is a reducer and why does LangGraph need them?</summary>
+              <div class="ans"><p>A reducer is a function <code class="ic">(current_value, update) -&gt; new_value</code> attached to a state channel, declared with <code class="ic">Annotated[T, reducer]</code>. It decides how a node's write is merged into that channel. <b>The default is overwrite.</b></p><p>LangGraph needs them for two reasons. Sequentially, most agent state <em>accumulates</em> — messages, documents, findings — and overwriting is the wrong semantics. Concurrently, when several nodes in the same superstep write the same channel, something has to decide how to combine the writes, and a reducer is that declaration. Without one, LangGraph refuses to guess and raises <code class="ic">InvalidUpdateError</code>.</p><p>The framing that lands: <b>a reducer is how you declare merge semantics up front, instead of resolving conflicts ad hoc at runtime.</b></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your chatbot only ever remembers the last message. What's wrong?</summary>
+              <div class="ans"><p>The <code class="ic">messages</code> channel has <b>no reducer</b>, so it's using the default overwrite. Each node returning <code class="ic">{"messages": [new_msg]}</code> replaces the whole list with a single-element list.</p><p>Fix: <code class="ic">messages: Annotated[list, add_messages]</code>, or just use the built-in <code class="ic">MessagesState</code>. This is the single most common LangGraph bug and it's worth being able to diagnose it from the symptom in one sentence.</p><p>Two adjacent causes worth ruling out if the annotation is already there: a node returning the <em>whole</em> message list instead of just the new messages (which duplicates history, the opposite symptom), and a missing or wrong <code class="ic">thread_id</code>, which means every turn starts a fresh conversation even though the reducer is correct.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What does <code class="ic">add_messages</code> do that <code class="ic">operator.add</code> doesn't?</summary>
+              <div class="ans"><p><code class="ic">operator.add</code> is plain list concatenation. <code class="ic">add_messages</code> is message-aware: it <b>assigns ids</b> to messages that lack them; <b>de-duplicates and replaces by id</b>, so re-sending a message with an existing id edits history rather than appending a duplicate; understands <b><code class="ic">RemoveMessage</code></b>, which is how trimming and summarisation actually delete history; and coerces dicts and strings into proper message objects.</p><p>The replace-by-id behaviour is the one people miss, and it's what makes editable history, redaction of a tool result, and message deletion possible at all.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Write a custom reducer, and say what makes a good one.</summary>
+              <div class="ans"><p><code class="ic">def keep_best(cur: float, new: float) -&gt; float: return max(cur, new)</code>, then <code class="ic">score: Annotated[float, keep_best]</code>. Or dedup-preserving concat: <code class="ic">lambda a, b: a + [x for x in b if x not in a]</code>.</p><p>What makes it good: it must be <b>pure</b> (no side effects, no I/O — it runs inside the state machinery), it must <b>not mutate</b> its arguments, it should be <b>associative</b> where possible because the order of concurrent writes isn't guaranteed, and it must handle the <b>initial call</b> where the current value may be the channel's default. A reducer that assumes <code class="ic">cur</code> is non-empty will fail on the first write.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-6">
+        <h3><span class="tn">3.6</span> The superstep model <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">LangGraph executes in rounds, not step by step. Once you understand supersteps, parallel-write conflicts, reducer necessity and checkpoint boundaries all stop being separate topics.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 320" role="img" aria-label="Three supersteps shown as horizontal bands: superstep one runs node A alone; superstep two runs nodes B, C and D concurrently and applies all their writes at a barrier; superstep three runs node E. A checkpoint is written at each barrier.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">bulk-synchronous execution — writes land at the barrier, not when the node returns</text>
+              <g font-size="10.5">
+                <g transform="translate(0,34)">
+                  <text x="20" y="26" fill="#8892a0">superstep 1</text>
+                  <rect x="110" y="8" width="120" height="30" rx="7" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                  <text x="170" y="28" fill="#8fa0ff" text-anchor="middle">plan</text>
+                  <line x1="20" y1="52" x2="680" y2="52" stroke="#F0A81E" stroke-dasharray="4 4"/>
+                  <text x="560" y="48" fill="#F0A81E" font-size="9.5">barrier → checkpoint</text>
+                </g>
+                <g transform="translate(0,100)">
+                  <text x="20" y="42" fill="#8892a0">superstep 2</text>
+                  <rect x="110" y="6" width="120" height="28" rx="7" fill="#1a1f28" stroke="#7fd6a0" stroke-width="1.5"/>
+                  <text x="170" y="25" fill="#7fd6a0" text-anchor="middle">research A</text>
+                  <rect x="250" y="6" width="120" height="28" rx="7" fill="#1a1f28" stroke="#7fd6a0" stroke-width="1.5"/>
+                  <text x="310" y="25" fill="#7fd6a0" text-anchor="middle">research B</text>
+                  <rect x="390" y="6" width="120" height="28" rx="7" fill="#1a1f28" stroke="#7fd6a0" stroke-width="1.5"/>
+                  <text x="450" y="25" fill="#7fd6a0" text-anchor="middle">research C</text>
+                  <text x="530" y="25" fill="#8892a0" font-size="9.5">all three run</text>
+                  <text x="530" y="37" fill="#8892a0" font-size="9.5">concurrently</text>
+                  <text x="110" y="54" fill="#c9a0e0" font-size="9.5">writes {docs:[x]}</text>
+                  <text x="250" y="54" fill="#c9a0e0" font-size="9.5">writes {docs:[y]}</text>
+                  <text x="390" y="54" fill="#c9a0e0" font-size="9.5">writes {docs:[z]}</text>
+                  <line x1="20" y1="66" x2="680" y2="66" stroke="#F0A81E" stroke-dasharray="4 4"/>
+                  <text x="80" y="82" fill="#F0A81E" font-size="9.5">reducer merges all three writes → docs = [x,y,z] — then one checkpoint</text>
+                </g>
+                <g transform="translate(0,200)">
+                  <text x="20" y="26" fill="#8892a0">superstep 3</text>
+                  <rect x="110" y="8" width="140" height="30" rx="7" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                  <text x="180" y="28" fill="#8fa0ff" text-anchor="middle">synthesise</text>
+                  <text x="270" y="28" fill="#8892a0" font-size="9.5">sees the merged docs — never a partial view</text>
+                  <line x1="20" y1="52" x2="680" y2="52" stroke="#F0A81E" stroke-dasharray="4 4"/>
+                </g>
+                <text x="20" y="292" fill="#c9d1dc" font-size="11">a node <tspan fill="#e0929a">never</tspan> observes another node's write from the same superstep — that is the whole point of the barrier</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#7fd6a0"></i>concurrent nodes</span><span><i style="background:#F0A81E"></i>barrier + checkpoint</span><span><i style="background:#c9a0e0"></i>pending writes</span></div>
+          <figcaption>One checkpoint per superstep — not per node. That's why node boundaries are your resume granularity.</figcaption>
+        </figure>
+
+        <h4>The three rules</h4>
+        <p><b>1.</b> All nodes active in a superstep execute together, potentially in parallel. <b>2.</b> Their writes are buffered and applied <em>at the barrier</em>, through the reducers, all at once. <b>3.</b> A checkpoint is written per superstep, and the next superstep's active set is whichever nodes the completed nodes' edges point to. The consequence that trips people up: <b>a node cannot see a sibling's write</b>, because at the time it runs, that write hasn't been applied.</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#c9781f" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#c9781f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Counters and parallel branches don't mix</span>
+          <p>Three parallel nodes each returning <code class="ic">{"count": state["count"] + 1}</code> to an <em>overwrite</em> channel raise a conflict; give it a reducer of <code class="ic">max</code> and you get <code class="ic">+1</code>, not <code class="ic">+3</code>, because all three read the same pre-barrier value. To count parallel completions, use <code class="ic">Annotated[int, operator.add]</code> and have each node return <code class="ic">{"count": 1}</code> — the reducer does the summing.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is a superstep, and why does LangGraph work this way?</summary>
+              <div class="ans"><p>A superstep is one <b>round</b> of execution in the Pregel / bulk-synchronous-parallel model. All nodes active in the round run together, their state writes are <b>buffered</b> rather than applied immediately, and at the end of the round a <b>barrier</b> applies every write through its channel's reducer at once. Then a checkpoint is written and the next round's active set is computed from the edges.</p><p>Why: it makes concurrency <b>deterministic in its merge semantics</b>. Nodes can't race on shared state because none of them can observe another's write mid-round — there's exactly one place where state changes, and it's governed by reducers you declared. It also gives a natural, consistent point to checkpoint: the barrier.</p><p>The practical corollaries: parallel siblings never see each other's writes; concurrent writes to one channel need a reducer; and <b>resume granularity is the superstep</b>, not the individual node.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Three parallel nodes each do <code class="ic">count + 1</code>. What is <code class="ic">count</code> afterwards?</summary>
+              <div class="ans"><p>With the default overwrite reducer: an <code class="ic">InvalidUpdateError</code>, because three concurrent writes to one overwrite channel are ambiguous. With a <code class="ic">max</code> or last-write-wins reducer: <b>1</b>, not 3 — all three nodes read the <em>same</em> pre-barrier value of <code class="ic">count</code>, so all three compute the same result.</p><p>The correct pattern is to let the reducer do the arithmetic: declare <code class="ic">count: Annotated[int, operator.add]</code> and have each node return <code class="ic">{"count": 1}</code>. Then the barrier sums the three writes and you get 3. This generalises — <b>in a fan-out, nodes should return their contribution, not the computed new total</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How often is a checkpoint written?</summary>
+              <div class="ans"><p><b>Once per superstep</b>, at the barrier — not once per node. So if five nodes run concurrently in one superstep, that's one checkpoint containing all five merged writes.</p><p>Two consequences. <b>Resume granularity</b> is the superstep: after a crash you re-enter at the start of the superstep that hadn't completed, and every node in it re-runs — which is exactly why side-effecting nodes must be idempotent. And <b>checkpoint cost</b> scales with state size times superstep count, which is why a large object in state is expensive: you pay to serialise it on every round, not once.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-7">
+        <h3><span class="tn">3.7</span> Send and the map-reduce pattern <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead"><code class="ic">Send</code> answers a question static edges can't: what if you don't know how many branches you need until the graph is already running?</p>
+
+        <figure class="code">
+          <div class="chead">dynamic fan-out</div>
+          <pre><code class="language-python">from langgraph.types import Send
+
+class State(TypedDict):
+    topic: str
+    subtopics: list[str]
+    sections: Annotated[list[str], operator.add]   # reducer REQUIRED
+
+def fan_out(state: State):                          # a conditional-edge function
+    return [Send("write_section", {"subtopic": s}) for s in state["subtopics"]]
+
+builder.add_conditional_edges("plan", fan_out, ["write_section"])
+builder.add_edge("write_section", "compile")        # implicit join</code></pre>
+        </figure>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Send fan-out: a planner produces a runtime-determined list of subtopics; a conditional edge emits one Send per subtopic, each carrying its own private input state; identical worker nodes run concurrently in one superstep; their writes merge through an add reducer and the graph continues to a single downstream node.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">Send — dynamic width, private input state, implicit join</text>
+              <g font-size="10.5">
+                <rect x="24" y="92" width="118" height="48" rx="10" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.6"/>
+                <text x="83" y="112" fill="#F0A81E" text-anchor="middle" font-weight="600">plan</text>
+                <text x="83" y="128" fill="#8892a0" text-anchor="middle" font-size="9">n known only now</text>
+
+                <text x="164" y="72" fill="#c9a0e0" font-size="9.5" font-family="ui-monospace,monospace">Send("worker", {"sub": s})</text>
+                <g stroke="#c9a0e0" stroke-width="1.2" fill="none" marker-end="url(#lgsend)">
+                  <path d="M142 106l106-46"/><path d="M142 114h106"/><path d="M142 122l106 46"/>
+                </g>
+                <defs><marker id="lgsend" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#c9a0e0"/></marker></defs>
+
+                <rect x="254" y="44" width="150" height="36" rx="8" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="266" y="60" fill="#7fd6a0">worker</text><text x="266" y="73" fill="#5A6472" font-size="9">state = {"sub": s₁}</text>
+                <rect x="254" y="96" width="150" height="36" rx="8" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="266" y="112" fill="#7fd6a0">worker</text><text x="266" y="125" fill="#5A6472" font-size="9">state = {"sub": s₂}</text>
+                <rect x="254" y="148" width="150" height="36" rx="8" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="266" y="164" fill="#7fd6a0">worker</text><text x="266" y="177" fill="#5A6472" font-size="9">state = {"sub": sₙ}</text>
+                <text x="254" y="202" fill="#e0929a" font-size="9.5">NOT the parent state — only what the Send carried</text>
+
+                <line x1="428" y1="34" x2="428" y2="196" stroke="#F0A81E" stroke-dasharray="4 4"/>
+                <text x="434" y="30" fill="#F0A81E" font-size="9.5">barrier</text>
+
+                <g stroke="#5A6472" stroke-width="1.2" fill="none" marker-end="url(#lgsend2)">
+                  <path d="M404 62l106 46"/><path d="M404 114h106"/><path d="M404 166l106-46"/>
+                </g>
+                <defs><marker id="lgsend2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+
+                <rect x="516" y="90" width="160" height="52" rx="10" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.6"/>
+                <text x="596" y="110" fill="#8fa0ff" text-anchor="middle" font-weight="600">compile</text>
+                <text x="596" y="126" fill="#8892a0" text-anchor="middle" font-size="9">reads the merged channel</text>
+                <text x="470" y="150" fill="#7fd6a0" font-size="9.5" font-family="ui-monospace,monospace">Annotated[list, add]</text>
+                <text x="470" y="164" fill="#e0929a" font-size="9">← required, or InvalidUpdateError</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#F0A81E"></i>plans</span><span><i style="background:#c9a0e0"></i>dispatch</span><span><i style="background:#7fd6a0"></i>workers</span><span><i style="background:#4B5BD6"></i>joins</span></div>
+          <figcaption>One superstep, one reducer merge, one checkpoint — the join is implicit.</figcaption>
+        </figure>
+
+        <h4>The three things that make <code class="ic">Send</code> different</h4>
+        <p><b>Dynamic width</b> — the number of branches comes from state at runtime, not from the graph definition. <b>Private input state</b> — each worker receives the dict you pass, not the parent state, so <code class="ic">write_section</code> sees <code class="ic">{"subtopic": ...}</code> and nothing else; that isolation is what keeps a 50-way fan-out from carrying 50 copies of a large parent state. <b>Automatic join</b> — all the sends run in one superstep and the graph continues to the next node once they've all completed and their writes have been merged.</p>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#a33" stroke-width="1.7"/><path d="M12 7.5v5M12 15.8h.01" stroke="#a33" stroke-width="1.9" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Three ways a <code class="ic">Send</code> fan-out goes wrong</span>
+          <p><b>No reducer</b> on the channel the workers write → <code class="ic">InvalidUpdateError</code> at the barrier. <b>Unbounded width</b> → 500 sub-questions means 500 concurrent LLM calls and an immediate rate-limit wall; cap it. <b>Sync nodes</b> → the fan-out is concurrent in the graph's model but serialised in wall-clock time if the nodes block.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is <code class="ic">Send</code> and when do you need it?</summary>
+              <div class="ans"><p><code class="ic">Send(node_name, state)</code> is returned from a conditional-edge function to dispatch a branch <b>dynamically</b>. You need it whenever the number of parallel branches isn't known until runtime — a planner produced <em>n</em> sub-questions, a query returned <em>n</em> rows, a document split into <em>n</em> sections.</p><p>Three properties to name. The <b>width is dynamic</b>, unlike static fan-out where every edge is in the graph definition. Each worker gets its own <b>private input state</b> — the dict you pass in the <code class="ic">Send</code>, not the parent state — which both isolates workers and keeps large parent state from being copied <em>n</em> times. And there's an <b>implicit join</b>: all sends run in one superstep, and the graph advances once they've all completed and merged.</p><p>Requirement to state unprompted: the channel the workers write <b>must have a reducer</b>, because by construction there are concurrent writes.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Write a map-reduce in LangGraph.</summary>
+              <div class="ans"><p>Three nodes and one conditional edge. <b>Map:</b> a <code class="ic">plan</code> node produces <code class="ic">subtopics: list[str]</code>. A conditional edge returns <code class="ic">[Send("worker", {"subtopic": s}) for s in state["subtopics"]]</code>. <b>Reduce:</b> the worker returns <code class="ic">{"sections": [text]}</code> into a channel declared <code class="ic">Annotated[list[str], operator.add]</code>, and a <code class="ic">compile</code> node downstream reads the merged list.</p><p>Production details worth adding: <b>cap the width</b> (<code class="ic">subtopics[:MAX]</code>) so a runaway planner can't launch 500 concurrent calls; make workers <b>async</b> or the concurrency is notional; and decide what happens if one worker fails — by default the superstep fails, so if partial results are acceptable, catch inside the worker and return a sentinel like <code class="ic">{"sections": [], "errors": [msg]}</code> instead of raising.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What does a <code class="ic">Send</code> worker actually receive as its state?</summary>
+              <div class="ans"><p><b>Exactly the dict you passed in the <code class="ic">Send</code></b> — not the parent graph's state. This surprises people: a worker that tries to read <code class="ic">state["messages"]</code> will find it missing unless you explicitly included it.</p><p>That's deliberate and useful: it isolates workers, keeps them independently testable, and avoids copying a large parent state into every branch. If a worker genuinely needs shared context, pass it explicitly in the <code class="ic">Send</code> payload — and if the payload is getting big, that's a hint to pass an id and let the worker fetch what it needs.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-8">
+        <h3><span class="tn">3.8</span> Command <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Normally a node updates state and an edge decides where to go. <code class="ic">Command</code> lets one return value do both — which is exactly what agent handoffs need.</p>
+
+        <figure class="code">
+          <div class="chead">update and route in one return</div>
+          <pre><code class="language-python">from langgraph.types import Command
+from typing import Literal
+
+def supervisor(state: State) -> Command[Literal["research", "write", "__end__"]]:
+    decision = router_model.invoke(state["messages"])
+    return Command(
+        update={"messages": [decision_msg], "assignee": decision.next},
+        goto=decision.next,                    # no conditional edge needed
+    )
+
+# from inside a subgraph, hand control back to the parent:
+return Command(goto="parent_node", graph=Command.PARENT, update={...})</code></pre>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Use</th><th>Prefer</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Route on a value the node just computed</td><td><code class="ic">Command</code></td><td>Avoids re-deriving the decision in a separate router</td></tr>
+              <tr><td>Multi-agent handoff</td><td><code class="ic">Command</code></td><td>&ldquo;Add my message and transfer to the researcher&rdquo; is one atomic act</td></tr>
+              <tr><td>Escape a subgraph to the parent</td><td><code class="ic">Command(graph=PARENT)</code></td><td>The only way to route across the boundary</td></tr>
+              <tr><td>Routing logic reused by several nodes</td><td>Conditional edge</td><td>One testable function, and it renders in the diagram</td></tr>
+              <tr><td>You want the graph picture to show the branch</td><td>Conditional edge</td><td><code class="ic">Command</code> routing is invisible unless you annotate the return type</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Annotate the return type</span>
+          <p>Writing <code class="ic">-&gt; Command[Literal["research", "write", "__end__"]]</code> isn't decoration — LangGraph reads that annotation to work out which edges the node can produce, so the compiled graph can be <b>drawn correctly</b>. Omit it and your visualisation shows a dead end.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span><code class="ic">Command</code> versus a conditional edge — when do you use which?</summary>
+              <div class="ans"><p><b><code class="ic">Command</code></b> when the node <em>computes</em> the routing decision as part of its work, so splitting it into a node plus a router would mean either re-deriving the decision or stashing it in state purely to hand it to the router. The canonical case is a <b>supervisor</b> or an agent <b>handoff</b>: &ldquo;record my message and transfer to the researcher&rdquo; is one atomic act.</p><p><b>Conditional edge</b> when the routing rule is separable from the node's work, when several nodes share the same rule, or when you want the branch to be visible in the rendered graph and unit-testable on its own.</p><p>And the case where only <code class="ic">Command</code> works: routing from a <b>subgraph to a node in the parent</b>, via <code class="ic">Command(goto=..., graph=Command.PARENT)</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you implement an agent handoff with <code class="ic">Command</code>?</summary>
+              <div class="ans"><p>Make the handoff a <b>tool</b> whose implementation returns a <code class="ic">Command</code>. The agent calls <code class="ic">transfer_to_researcher()</code>; the tool returns <code class="ic">Command(goto="researcher", update={"messages": [ToolMessage("transferring…", tool_call_id=id)]}, graph=Command.PARENT)</code>.</p><p>Why this shape is good: the handoff appears in the model's tool catalogue, so it's a first-class decision the model makes with a described purpose; the <code class="ic">ToolMessage</code> keeps the message history well-formed (an assistant tool call with no matching tool result breaks most providers); and <code class="ic">graph=Command.PARENT</code> lets a tool called inside one agent's subgraph move control to a sibling agent in the parent graph. This is exactly how the swarm pattern is built.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why does your graph diagram show a supervisor node with no outgoing edges?</summary>
+              <div class="ans"><p>Because it routes with <code class="ic">Command</code> and you didn't annotate the return type. LangGraph infers drawable edges from the type annotation <code class="ic">-&gt; Command[Literal["a", "b", "__end__"]]</code>; without it, the runtime routing still works but the compiler has no way to know the possible destinations, so nothing is drawn.</p><p>It matters more than aesthetics: the diagram is what you show in a design review, and a graph whose picture doesn't match its behaviour is a documentation bug waiting to mislead someone.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-9">
+        <h3><span class="tn">3.9</span> Subgraphs</h3>
+        <p class="lead">A compiled graph is a Runnable, so it can be a node in another graph. That's the whole mechanism — the interesting part is how state crosses the boundary.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Command versus conditional edge: on the left a node returns a plain dict and a separate router function reads state to pick the next node; on the right the node returns a Command carrying both the state update and the destination, including the option to route into the parent graph from inside a subgraph.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">two ways to decide where to go next</text>
+              <g font-size="10.5">
+                <text x="24" y="46" fill="#8892a0">conditional edge</text>
+                <rect x="24" y="58" width="120" height="42" rx="9" fill="#161b23" stroke="#4B5BD6" stroke-width="1.4"/>
+                <text x="84" y="76" fill="#8fa0ff" text-anchor="middle">node</text>
+                <text x="84" y="91" fill="#5A6472" text-anchor="middle" font-size="9">returns a dict</text>
+                <path d="M144 79h34" stroke="#5A6472" stroke-width="1.2" marker-end="url(#lgcmd)"/>
+                <defs><marker id="lgcmd" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+                <path d="M212 58l38 21-38 21-38-21z" fill="#2a2016" stroke="#F0A81E" stroke-width="1.4"/>
+                <text x="212" y="82" fill="#F0A81E" text-anchor="middle" font-size="9.5">router</text>
+                <path d="M250 70l40-14M250 88l40 14" stroke="#5A6472" stroke-width="1.2" marker-end="url(#lgcmd)"/>
+                <rect x="294" y="40" width="70" height="28" rx="7" fill="#161b23" stroke="#2c3542"/><text x="329" y="58" fill="#c9d1dc" text-anchor="middle" font-size="9.5">node A</text>
+                <rect x="294" y="92" width="70" height="28" rx="7" fill="#161b23" stroke="#2c3542"/><text x="329" y="110" fill="#c9d1dc" text-anchor="middle" font-size="9.5">node B</text>
+                <text x="24" y="132" fill="#7fd6a0" font-size="9.5">✓ separable, reusable, drawn in the graph</text>
+                <text x="24" y="146" fill="#e0929a" font-size="9.5">✗ the decision must be re-derived from state</text>
+
+                <line x1="392" y1="34" x2="392" y2="230" stroke="#2c3542"/>
+
+                <text x="412" y="46" fill="#8892a0">Command</text>
+                <rect x="412" y="58" width="150" height="52" rx="9" fill="#1a1f28" stroke="#7fd6a0" stroke-width="1.6"/>
+                <text x="487" y="78" fill="#7fd6a0" text-anchor="middle">node</text>
+                <text x="487" y="94" fill="#5A6472" text-anchor="middle" font-size="9">returns Command(update=…, goto=…)</text>
+                <path d="M562 72l42-14M562 96l42 14" stroke="#7fd6a0" stroke-width="1.2" marker-end="url(#lgcmd2)"/>
+                <defs><marker id="lgcmd2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#7fd6a0"/></marker></defs>
+                <rect x="608" y="42" width="68" height="28" rx="7" fill="#161b23" stroke="#2c3542"/><text x="642" y="60" fill="#c9d1dc" text-anchor="middle" font-size="9.5">node A</text>
+                <rect x="608" y="96" width="68" height="28" rx="7" fill="#161b23" stroke="#2c3542"/><text x="642" y="114" fill="#c9d1dc" text-anchor="middle" font-size="9.5">node B</text>
+                <text x="412" y="132" fill="#7fd6a0" font-size="9.5">✓ one atomic “update and transfer”</text>
+                <text x="412" y="146" fill="#7fd6a0" font-size="9.5">✓ the only way out of a subgraph:</text>
+                <text x="424" y="160" fill="#c9a0e0" font-size="9.5" font-family="ui-monospace,monospace">graph=Command.PARENT</text>
+                <text x="412" y="176" fill="#e0929a" font-size="9.5">✗ invisible in the diagram unless you</text>
+                <text x="424" y="190" fill="#e0929a" font-size="9.5">annotate → Command[Literal[…]]</text>
+              </g>
+              <text x="20" y="248" fill="#c9d1dc" font-size="11">rule of thumb: <tspan fill="#7fd6a0">Command</tspan> when the node computes the decision as part of its work — supervisors and handoffs</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>node</span><span><i style="background:#F0A81E"></i>router</span><span><i style="background:#7fd6a0"></i>Command</span></div>
+          <figcaption>Both are valid; the difference is whether the routing decision is separable from the node's work.</figcaption>
+        </figure>
+
+        <h4>Two ways to attach</h4>
+        <p><b>Shared schema:</b> if the subgraph's state schema shares channel names with the parent, you can add it directly — <code class="ic">builder.add_node("sub", subgraph)</code> — and matching channels flow through automatically. <b>Different schema:</b> wrap it in a function that translates in and out, which is the more common and more maintainable choice because it makes the contract explicit:</p>
+
+        <figure class="code">
+          <div class="chead">explicit translation at the boundary</div>
+          <pre><code class="language-python">def call_researcher(state: ParentState) -> dict:
+    result = researcher_graph.invoke({"query": state["question"]})
+    return {"findings": result["summary"]}      # only what the parent needs
+
+builder.add_node("research", call_researcher)</code></pre>
+        </figure>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Checkpointing and streaming across the boundary</span>
+          <p>A subgraph <b>inherits the parent's checkpointer</b> — you don't (and shouldn't) compile it with its own, or you'll get two persistence layers writing to different places. Its checkpoints are namespaced under the parent's thread, so <code class="ic">get_state</code> on the parent can reach into subgraph state with <code class="ic">subgraphs=True</code>. Streaming works the same way: pass <code class="ic">subgraphs=True</code> to <code class="ic">stream</code> or the inner nodes' events won't surface.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>When would you use a subgraph?</summary>
+              <div class="ans"><p>Three genuine reasons. <b>Reuse</b> — the same retrieval-and-grade pipeline is needed by several parent graphs. <b>Encapsulation</b> — a multi-agent system where each agent is its own graph with its own private state, so the parent's schema stays small. <b>Team boundaries</b> — different people own different subgraphs with an agreed interface.</p><p>And the reason <em>not</em> to: pure aesthetics. A subgraph adds an indirection layer to debugging (you need <code class="ic">subgraphs=True</code> to see inside when streaming or inspecting state) and a schema-translation boundary to maintain. If it's just a group of three nodes that always run together, leave them in the parent.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>How does state pass between parent and subgraph?</summary>
+              <div class="ans"><p>Two modes. If the schemas <b>share channel names</b>, you can add the compiled subgraph directly as a node and those channels flow in and out automatically — convenient, but it couples the two schemas invisibly. If they don't, you <b>wrap the subgraph in a function</b> that maps parent state to subgraph input and maps the result back to a parent update. The wrapper is usually the better choice because the contract is written down.</p><p>Two details people miss: the subgraph <b>inherits the parent's checkpointer</b> and its checkpoints are namespaced under the parent thread, so don't give it its own; and to see the subgraph's internals you must pass <code class="ic">subgraphs=True</code> to <code class="ic">stream</code> or <code class="ic">get_state</code>, otherwise it looks like a single opaque node.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g3-10">
+        <h3><span class="tn">3.10</span> Compilation and runtime config</h3>
+        <p class="lead"><code class="ic">compile()</code> is where the graph stops being editable and starts being runnable — and it's where you attach the things that turn a graph into a product.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Attached at compile</th><th>What it gives you</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">checkpointer=</code></td><td>Persistence — threads, resume, HITL, time travel</td></tr>
+              <tr><td><code class="ic">store=</code></td><td>Cross-thread long-term memory</td></tr>
+              <tr><td><code class="ic">interrupt_before=</code> / <code class="ic">interrupt_after=</code></td><td>Static breakpoints at named nodes</td></tr>
+              <tr><td><code class="ic">name=</code></td><td>A readable label in traces and when nested as a subgraph</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>At <b>invocation</b> you pass a config rather than a graph option: <code class="ic">configurable</code> carries the <code class="ic">thread_id</code> and anything your nodes need per-run; <code class="ic">recursion_limit</code> caps supersteps (default 25); <code class="ic">durability</code> selects how aggressively checkpoints are persisted. Compilation also runs <b>validation</b> — unreachable nodes, edges to names that don't exist, and a missing path from <code class="ic">START</code> are caught here rather than at runtime, which is a small but real reason to compile early in a test.</p>
+
+        <figure class="code">
+          <div class="chead">compile once, configure per call</div>
+          <pre><code class="language-python">graph = builder.compile(checkpointer=saver, store=store, name="support_agent")
+
+cfg = {"configurable": {"thread_id": conv_id, "user_id": user.id},
+       "recursion_limit": 40}
+result = await graph.ainvoke({"messages": [msg]}, config=cfg)</code></pre>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>What does <code class="ic">compile()</code> do?</summary>
+              <div class="ans"><p>It <b>freezes</b> the builder into an immutable, executable Runnable, and it's where you attach runtime infrastructure: the <code class="ic">checkpointer</code>, the <code class="ic">store</code>, static <code class="ic">interrupt_before</code>/<code class="ic">interrupt_after</code> breakpoints, and a name for traces.</p><p>It also <b>validates the graph</b> — unreachable nodes, edges pointing at names that don't exist, no path from <code class="ic">START</code>. Those become errors at compile time rather than surprises at runtime, which is why compiling in a unit test is a cheap structural check even without running anything.</p><p>The division to state clearly: <b>compile-time is infrastructure, invocation-time is per-request</b> — <code class="ic">thread_id</code>, user context and <code class="ic">recursion_limit</code> go in the config on each call, not into <code class="ic">compile()</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>What's <code class="ic">recursion_limit</code>, and what should you set it to?</summary>
+              <div class="ans"><p>It caps the number of <b>supersteps</b> in a single invocation; default 25; exceeding it raises <code class="ic">GraphRecursionError</code>. Note it counts supersteps, not LLM calls or tool calls — a fan-out of ten workers is one superstep, and one agent iteration (model, then tools) is two.</p><p>Set it from the graph's expected depth with headroom: if your agent should finish in at most eight iterations, that's roughly 16–18 supersteps, so 25 is fine and 40 is generous. Deliberately keep it low enough to <b>fail fast</b> — it's a safety net against runaway loops and cost, not a target. And treat hitting it as a bug to diagnose rather than a number to raise.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>How do you pass per-request data like a user id into nodes?</summary>
+              <div class="ans"><p>Through the config's <code class="ic">configurable</code> dict at invocation: <code class="ic">{"configurable": {"thread_id": tid, "user_id": uid}}</code>. Nodes access it via the runtime/config argument in their signature. This is the right channel for anything that varies per request but isn't conceptually part of the conversation state — user identity, tenant, feature flags, a request id for correlation.</p><p>Two rules worth stating: <b>don't put per-request identity in state</b>, because state is persisted in the checkpoint and you'd be freezing a user id into a thread's history; and <b>don't put secrets in either</b> — configs are frequently logged and state is definitely persisted.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part02_AgenticFoundations.html">Part 2 · Agentic AI Foundations</a></div><ul><li>Ladder, ReAct, autonomy</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 3 · LangGraph Core Primitives</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part04_WorkflowPatterns.html">Part 4 · Workflow Patterns</a></div><ul><li>Sequential, parallel, routing</li><li>Orchestrator-worker, evaluator loops</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        LangGraph &amp; Agentic AI — Part 3 of 12 · LangGraph Core Primitives<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 210 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · Prerequisites", "l1": "Level 1 · Agentic AI Foundations", "l2": "Level 2 · LangGraph Core Primitives", "l3": "Level 3 · Workflow Patterns", "l4": "Level 4 · State, Persistence & Memory", "l5": "Level 5 · Tools & Agent Capabilities", "l6": "Level 6 · RAG &amp; Advanced RAG", "l7": "Level 7 · Multi-Agent Architectures", "l8": "Level 8 · Observability &amp; Evaluation", "l9": "Level 9 · Production Engineering", "l10": "Level 10 · Advanced &amp; Frontier", "iv": "Interview Q&amp;A Bank", "sd": "System Design Scenarios", "pp": "Portfolio Projects"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "iv", "sd", "pp"];
+const TRACKER = [
+[1,"l0","Theory","Medium",0,"Functions, decorators, closures"],
+[2,"l0","Theory","Medium",0,"TypedDict, Annotated, Literal, Optional from typing"],
+[3,"l0","Theory","Medium",0,"Pydantic v2 \u2014 BaseModel, field validation, model_dump()"],
+[4,"l0","Theory","Medium",0,"async / await, asyncio.gather"],
+[5,"l0","Theory","Medium",0,"Generators and yield (needed to understand streaming)"],
+[6,"l0","Theory","Medium",0,"Environment management \u2014 venv / uv, .env files with python-dotenv"],
+[7,"l0","Theory","Medium",0,"Tokens, context windows, temperature, top-p"],
+[8,"l0","Theory","Medium",0,"Chat message roles: system / user / assistant / tool"],
+[9,"l0","Theory","Medium",0,"Embeddings and cosine similarity"],
+[10,"l0","Theory","Medium",0,"Function calling / tool calling at the API level"],
+[11,"l0","Theory","Medium",0,"Structured output and JSON mode"],
+[12,"l0","Theory","Medium",0,"What hallucination actually is, and why grounding reduces it"],
+[13,"l1","Theory","Medium",0,"Traditional AI \u2014 classify / predict from patterns"],
+[14,"l1","Theory","Medium",0,"Generative AI \u2014 learn a distribution, create new content"],
+[15,"l1","Theory","Medium",0,"RAG \u2014 GenAI grounded in your private data (still reactive)"],
+[16,"l1","Theory","Medium",0,"Tool-augmented \u2014 can act, but the human orchestrates"],
+[17,"l1","Theory","Medium",0,"Agentic AI \u2014 given a goal, plans and executes autonomously"],
+[18,"l1","Theory","Medium",0,"Autonomy \u2014 acts without step-by-step prompting"],
+[19,"l1","Theory","Medium",0,"Goal-orientation \u2014 persistent objective drives all actions"],
+[20,"l1","Theory","Medium",0,"Planning \u2014 decomposes goals, generates candidate plans, selects one"],
+[21,"l1","Theory","Medium",0,"Reasoning \u2014 chooses tools, handles errors, evaluates results"],
+[22,"l1","Theory","Medium",0,"Adaptability \u2014 pivots when a strategy fails"],
+[23,"l1","Theory","Medium",0,"Context awareness \u2014 uses memory to know where it is"],
+[24,"l1","Theory","Medium",0,"ReAct (Reason + Act) \u2014 interleaved thought/action/observation loop. *Read the original Yao et al. paper.*"],
+[25,"l1","Theory","Medium",0,"Plan-and-Execute \u2014 plan the whole thing upfront, then execute steps"],
+[26,"l1","Theory","Medium",0,"Reflection / Reflexion \u2014 the agent critiques and revises its own output"],
+[27,"l1","Theory","Medium",0,"Orchestrator\u2013Worker \u2014 a lead agent delegates to specialists"],
+[28,"l1","Theory","Medium",0,"Evaluator\u2013Optimizer \u2014 generator + critic in a loop"],
+[29,"l1","Theory","Medium",0,"Router \u2014 classify the request, dispatch to a specialist path"],
+[30,"l1","Theory","Medium",0,"LangGraph \u2014 graph-based, maximal control, production/enterprise default"],
+[31,"l1","Theory","Medium",0,"CrewAI \u2014 role-based, collaboration-first, faster to prototype"],
+[32,"l1","Theory","Medium",0,"AutoGen \u2014 conversational multi-agent (Microsoft)"],
+[33,"l1","Theory","Medium",0,"OpenAI Agents SDK, Mastra (TypeScript), Pydantic AI"],
+[34,"l1","Theory","Medium",0,"Be ready to defend a choice with tradeoffs, not name-drop"],
+[35,"l2","Theory","High",0,"A graph is a flowchart: nodes are Python functions, edges are control flow"],
+[36,"l2","Theory","High",0,"Nodes return partial state updates \u2014 a dict of only the keys they changed"],
+[37,"l2","Theory","High",0,"START and END are sentinels, never executed as nodes"],
+[38,"l2","Theory","High",0,"Execution happens in rounds called supersteps (Pregel model, from Google)"],
+[39,"l2","Theory","High",0,"Two nodes reachable from the same source in one step run in parallel"],
+[40,"l2","Theory","High",0,"TypedDict (most common), Pydantic BaseModel (validation), or dataclass"],
+[41,"l2","Theory","High",0,"Input / output schemas \u2014 expose a narrow public interface, keep internals private"],
+[42,"l2","Theory","High",0,"Private state keys passed between nodes but not returned to the caller"],
+[43,"l2","Theory","High",0,"Default behaviour with no reducer = overwrite"],
+[44,"l2","Theory","High",0,"Without a reducer, two parallel branches writing the same key in one superstep raise InvalidUpdateError \u2014 they do *not* silently merge"],
+[45,"l2","Theory","High",0,"add_messages is special: it appends, dedupes by message id, and understands RemoveMessage"],
+[46,"l2","Theory","High",0,"You can write custom reducers \u2014 any (current, update) -&gt; merged function"],
+[47,"l2","Theory","High",0,"Static edges \u2014 add_edge(\"a\", \"b\"), unconditional"],
+[48,"l2","Theory","High",0,"Conditional edges \u2014 add_conditional_edges(source, router_fn, path_map)"],
+[49,"l2","Theory","High",0,"The router returns a node name (or list of names), not data"],
+[50,"l2","Theory","High",0,"Also used to navigate to a node in a parent graph (graph=Command.PARENT)"],
+[51,"l2","Theory","High",0,"Also the mechanism for resuming after an interrupt \u2014 see 4.5"],
+[52,"l2","Theory","High",0,"Each Send carries its own state payload, not the whole graph state"],
+[53,"l2","Theory","High",0,"Results merge back via a reducer on the target key"],
+[54,"l2","Theory","High",0,"This is the canonical map-reduce pattern in LangGraph"],
+[55,"l3","Practical","Medium",0,"Linear graph, each node enriches state"],
+[56,"l3","Practical","Medium",0,"Practice: BMI calculator (no LLM) \u2192 outline generator \u2192 blog writer"],
+[57,"l3","Practical","Medium",0,"Multiple independent nodes in one superstep"],
+[58,"l3","Practical","Medium",0,"Must return partial updates and use reducers"],
+[59,"l3","Practical","Medium",0,"Practice: essay scored by three evaluators (language / analysis / clarity) with operator.add collecting scores, then an aggregator node averaging them"],
+[60,"l3","Practical","Medium",0,"Router function + add_conditional_edges"],
+[61,"l3","Practical","Medium",0,"Force classification with Literal[...] in a Pydantic schema"],
+[62,"l3","Practical","Medium",0,"Practice: quadratic solver branching on the discriminant \u2192 customer-review bot routing on sentiment, with a diagnosis sub-step for negative reviews"],
+[63,"l3","Practical","Medium",0,"Loop back to a previous node instead of hitting END"],
+[64,"l3","Practical","Medium",0,"Evaluator\u2013Optimizer: generate \u2192 critique \u2192 regenerate"],
+[65,"l3","Practical","Medium",0,"Always bound the loop with a max_iterations counter in state"],
+[66,"l3","Practical","Medium",0,"Know graph.invoke(..., {\"recursion_limit\": 50}) and what GraphRecursionError means"],
+[67,"l3","Practical","Medium",0,"builder.add_node(\"aggregate\", fn, defer=True) \u2014 runs only after all upstream paths complete"],
+[68,"l3","Practical","Medium",0,"Solves parallel branches of unequal length finishing at different times"],
+[69,"l3","Practical","Medium",0,"Ideal for map-reduce fan-in, consensus voting, multi-agent collaboration"],
+[70,"l4","Theory","High",0,"A checkpointer snapshots the entire state after every superstep"],
+[71,"l4","Theory","High",0,"thread_id isolates conversations \u2014 User A's memory never bleeds into User B's"],
+[72,"l4","Theory","High",0,"Dev \u2192 InMemorySaver. Prod \u2192 SqliteSaver (single node) or PostgresSaver (scale)"],
+[73,"l4","Theory","High",0,"checkpointer.setup() creates tables on first use for the DB backends"],
+[74,"l4","Theory","High",0,"Async variants exist: AsyncSqliteSaver, AsyncPostgresSaver"],
+[75,"l4","Theory","High",0,"Every superstep is a checkpoint, so you can rewind to any point"],
+[76,"l4","Theory","High",0,"Replay from a past checkpoint_id"],
+[77,"l4","Theory","High",0,"Fork \u2014 update state at a past checkpoint and run a different branch"],
+[78,"l4","Theory","High",0,"Primary use: debugging non-deterministic agent runs"],
+[79,"l4","Theory","High",0,"Know the memory *types*: semantic (facts), episodic (past events/examples), procedural (learned instructions)"],
+[80,"l4","Theory","High",0,"Know the tradeoff: hot-path writes (immediate, adds latency) vs background writes (async, eventually consistent)"],
+[81,"l4","Theory","High",0,"HITL requires a checkpointer \u2014 no persistence, no pause/resume"],
+[82,"l4","Theory","High",0,"The four HITL patterns: approve/reject, edit state, review tool calls, provide input"],
+[83,"l4","Theory","High",0,"Retrieve pending interrupts: graph.get_state(config).tasks[0].interrupts"],
+[84,"l5","Practical","Medium",0,"The docstring is the prompt. The model chooses tools based on name + description + arg schema. Vague docstrings = wrong tool selection"],
+[85,"l5","Practical","Medium",0,"Use Pydantic args_schema for complex inputs"],
+[86,"l5","Practical","Medium",0,"Prefer few, well-scoped tools over many overlapping ones"],
+[87,"l5","Practical","Medium",0,"Return strings or JSON-serialisable objects; keep outputs small"],
+[88,"l5","Practical","Medium",0,"\u26a0\ufe0f create_react_agent from langgraph.prebuilt is deprecated \u2014 it still works but emits LangGraphDeprecatedSinceV10"],
+[89,"l5","Practical","Medium",0,"create_agent adds a middleware system: composable hooks that run before/after the model call and before/after tool execution, for logging, guardrails, retries, and summarization \u2014 without rewriting the graph"],
+[90,"l5","Practical","Medium",0,"Know the tradeoff: prebuilt = fast; hand-built StateGraph = full control. Interviewers ask when you'd drop down"],
+[91,"l5","Practical","Medium",0,"Parallel tool calls \u2014 the model can emit several at once; ToolNode executes them concurrently"],
+[92,"l5","Practical","Medium",0,"Tool errors \u2014 return a ToolMessage describing the failure so the model can retry, rather than crashing"],
+[93,"l5","Practical","Medium",0,"InjectedState / InjectedStore \u2014 pass graph state into a tool without exposing it to the LLM"],
+[94,"l5","Practical","Medium",0,"Tool call review \u2014 gate sensitive tools behind HITL"],
+[95,"l5","Practical","Medium",0,"Structured output vs tool calling \u2014 when to use which"],
+[96,"l5","Practical","Medium",0,"Open standard (from Anthropic) for connecting models to tools and data sources"],
+[97,"l5","Practical","Medium",0,"Client\u2013server: your agent is the client; Drive/Slack/Postgres/etc. expose servers"],
+[98,"l5","Practical","Medium",0,"Replaces writing a bespoke wrapper per integration"],
+[99,"l5","Practical","Medium",0,"langchain-mcp-adapters converts MCP tools into LangChain tools"],
+[100,"l5","Practical","Medium",0,"Know transports: stdio (local) vs HTTP/SSE (remote)"],
+[101,"l5","Practical","Medium",0,"LangGraph can also expose an agent as an MCP tool"],
+[102,"l6","Practical","Medium",0,"Loaders: PyPDFLoader, WebBaseLoader, DirectoryLoader"],
+[103,"l6","Practical","Medium",0,"RecursiveCharacterTextSplitter \u2014 chunk size, overlap, and why both matter"],
+[104,"l6","Practical","Medium",0,"Embeddings; vector stores: FAISS (local), Chroma, Pinecone, pgvector"],
+[105,"l6","Practical","Medium",0,"Retriever config: k, MMR, metadata filtering, score thresholds"],
+[106,"l6","Practical","Medium",0,"As a step: every query goes through retrieval \u2014 simple, wasteful, and wrong for \"hi\""],
+[107,"l6","Practical","Medium",0,"As a tool: wrap the retriever in @tool and let the model decide \u2014 this is Agentic RAG"],
+[108,"l6","Practical","Medium",0,"Multi-source agents route between a PDF retriever, a SQL tool, and web search"],
+[109,"l6","Practical","Medium",0,"Solves: vector similarity returns plausible-but-wrong chunks"],
+[110,"l6","Practical","Medium",0,"The grader is an LLM scoring \"do these docs actually answer the question?\""],
+[111,"l6","Practical","Medium",0,"Fallback is usually web search"],
+[112,"l6","Practical","Medium",0,"Two graders: groundedness (supported by context?) and relevance (answers the question?)"],
+[113,"l6","Practical","Medium",0,"Bound the retry loop or you'll spin forever"],
+[114,"l6","Practical","Medium",0,"Adaptive RAG \u2014 route by query complexity (no retrieval / single-shot / multi-hop)"],
+[115,"l6","Practical","Medium",0,"HyDE \u2014 embed a hypothetical answer instead of the question"],
+[116,"l6","Practical","Medium",0,"Parent-document / small-to-big retrieval"],
+[117,"l6","Practical","Medium",0,"Reranking with a cross-encoder (Cohere Rerank, BGE)"],
+[118,"l6","Practical","Medium",0,"Hybrid search \u2014 BM25 + dense vectors"],
+[119,"l6","Practical","Medium",0,"GraphRAG \u2014 knowledge-graph-backed retrieval"],
+[120,"l6","Practical","Medium",0,"Contextual retrieval \u2014 prepend chunk-level context before embedding"],
+[121,"l7","Theory","Medium",0,"Compile a graph and use it as a node in a parent graph"],
+[122,"l7","Theory","Medium",0,"Shared schema \u2014 add the compiled subgraph directly"],
+[123,"l7","Theory","Medium",0,"Different schema \u2014 wrap it in a function that translates state in and out"],
+[124,"l7","Theory","Medium",0,"Checkpointing propagates from parent to subgraph automatically"],
+[125,"l7","Theory","Medium",0,"Enables reuse of an approval loop or research module across projects"],
+[126,"l7","Theory","Medium",0,"Command(goto=\"other_agent\", update={...}, graph=Command.PARENT)"],
+[127,"l7","Theory","Medium",0,"Decide what context transfers: full history or a compressed handoff summary?"],
+[128,"l7","Theory","Medium",0,"Context isolation \u2014 sub-agents with their own scratchpad prevent context bloat"],
+[129,"l8","Practical","High",0,"Run \u2014 a single unit of work; Trace \u2014 the full tree for one request"],
+[130,"l8","Practical","High",0,"Span hierarchy \u2014 nested parent/child runs"],
+[131,"l8","Practical","High",0,"Metrics captured: latency, token counts, cost, errors"],
+[132,"l8","Practical","High",0,"Tags and metadata for filtering (user id, version, environment)"],
+[133,"l8","Practical","High",0,"For LangGraph specifically: traces show each superstep, conditional branches taken, loops, and how state mutates node by node \u2014 invaluable for spotting a dropped or overwritten key"],
+[134,"l8","Practical","High",0,"Datasets \u2014 curated inputs (+ reference outputs) to test against"],
+[135,"l8","Practical","High",0,"Build them from production traces you flag as interesting"],
+[136,"l8","Practical","High",0,"Evaluator types:"],
+[137,"l8","Practical","High",0,"Online evaluation \u2014 run evaluators against live production traffic"],
+[138,"l8","Practical","High",0,"Regression testing \u2014 compare experiments across prompt/model changes"],
+[139,"l8","Practical","High",0,"Final-answer eval is not enough. Evaluate the trajectory \u2014 the sequence of steps taken"],
+[140,"l8","Practical","High",0,"Golden trajectories \u2014 reference paths a correct run should follow"],
+[141,"l8","Practical","High",0,"Step-level accuracy \u2014 did it pick the right tool, with the right args, at the right time?"],
+[142,"l8","Practical","High",0,"Trajectory match \u2014 exact / in-order / any-order / superset"],
+[143,"l8","Practical","High",0,"Cost and step-count as first-class metrics \u2014 a correct answer after 40 tool calls is a failure"],
+[144,"l8","Practical","High",0,"Common agent failure taxonomy: wrong tool, malformed args, infinite loop, premature stop, context overflow"],
+[145,"l8","Practical","High",0,"LangSmith Prompt Hub \u2014 versioned prompts, decoupled from code"],
+[146,"l8","Practical","High",0,"LangGraph Studio \u2014 visual graph debugger, step through and edit state"],
+[147,"l8","Practical","High",0,"Alternatives worth naming: Langfuse, Arize Phoenix, W&amp;B Weave, OpenTelemetry GenAI conventions"],
+[148,"l9","Practical","High",0,"Durability modes \u2014 trade write frequency against performance:"],
+[149,"l9","Practical","High",0,"Nodes re-execute on resume \u2014 write them as near-pure functions of state"],
+[150,"l9","Practical","High",0,"\u2b50 Checkpoints make state recoverable, but they do NOT make side effects exactly-once. Add idempotency keys so a resume can't re-charge a card or re-send an email. This is a top senior-level interview answer"],
+[151,"l9","Practical","High",0,"Pattern: have the node produce a draft (status=\"pending\"), and commit the side effect in a separate, idempotent step"],
+[152,"l9","Practical","High",0,"Retry policies \u2014 add_node(..., retry_policy=RetryPolicy(max_attempts=3))"],
+[153,"l9","Practical","High",0,"Node timeouts and error handlers"],
+[154,"l9","Practical","High",0,"set_node_defaults(...) (langgraph \u2265 1.2) to apply retry/timeout/cache/error-handler to every node at once"],
+[155,"l9","Practical","High",0,"Recursion limits to bound runaway loops"],
+[156,"l9","Practical","High",0,"Graceful degradation when a tool is down"],
+[157,"l9","Practical","High",0,"Backends: InMemoryCache, SqliteCache, RedisCache"],
+[158,"l9","Practical","High",0,"key_func customises how the cache key is derived from node input"],
+[159,"l9","Practical","High",0,"Huge for development iteration speed; also cuts production cost"],
+[160,"l9","Practical","High",0,"Stream modes: values (full state), updates (deltas), messages (LLM tokens), custom, debug"],
+[161,"l9","Practical","High",0,"astream_events for fine-grained event streams"],
+[162,"l9","Practical","High",0,"Streaming from inside tools and from subgraphs (subgraphs=True)"],
+[163,"l9","Practical","High",0,"Why it matters: perceived latency. A frozen UI reads as a broken app"],
+[164,"l9","Practical","High",0,"LangGraph Server / Platform \u2014 managed runtime with threads, cron, and a task queue"],
+[165,"l9","Practical","High",0,"Self-hosting with FastAPI + Postgres checkpointer"],
+[166,"l9","Practical","High",0,"Assistants \u2014 versioned configurations of the same graph"],
+[167,"l9","Practical","High",0,"Docker, horizontal scaling, connection pooling (psycopg_pool)"],
+[168,"l9","Practical","High",0,"Double-texting strategies (reject, enqueue, interrupt, rollback)"],
+[169,"l9","Practical","High",0,"Webhooks and background runs for long-running agents"],
+[170,"l9","Practical","High",0,"Model routing \u2014 cheap model for classification, strong model for synthesis"],
+[171,"l9","Practical","High",0,"Prompt caching; batching; semantic caching"],
+[172,"l9","Practical","High",0,"Token budgets per run; hard spend caps"],
+[173,"l9","Practical","High",0,"Prompt injection \u2014 especially via retrieved documents and tool output"],
+[174,"l9","Practical","High",0,"Least-privilege tool credentials; sandboxing code execution"],
+[175,"l9","Practical","High",0,"PII redaction before it reaches logs/traces"],
+[176,"l9","Practical","High",0,"Guardrails: input/output validation, allow-lists, HITL on destructive actions"],
+[177,"l9","Practical","High",0,"Unit-test nodes as plain functions \u2014 they are just Python"],
+[178,"l9","Practical","High",0,"Stub the LLM with a fake chat model returning scripted tool calls, so tests don't hit the API"],
+[179,"l9","Practical","High",0,"Integration-test full graph paths"],
+[180,"l9","Practical","High",0,"LangSmith datasets as the regression suite in CI"],
+[181,"l10","Theory","Medium",0,"Functional API \u2014 @entrypoint / @task decorators as an alternative to StateGraph for imperative-style durable workflows"],
+[182,"l10","Theory","Medium",0,"Pregel internals \u2014 how supersteps, channels, and the scheduler actually work"],
+[183,"l10","Theory","Medium",0,"Custom checkpointer / store implementations (BaseCheckpointSaver, BaseStore)"],
+[184,"l10","Theory","Medium",0,"Context engineering \u2014 the discipline that replaced prompt engineering: what enters the window, when, and why"],
+[185,"l10","Theory","Medium",0,"Multi-agent context isolation and compression strategies"],
+[186,"l10","Theory","Medium",0,"Reflexion and self-improving agents that update procedural memory"],
+[187,"l10","Theory","Medium",0,"LangMem / Mem0 for managed cross-session recall"],
+[188,"l10","Theory","Medium",0,"Simulation-based evaluation \u2014 agents tested against simulated users"],
+[189,"l10","Theory","Medium",0,"Computer-use / browser agents"],
+[190,"l10","Theory","Medium",0,"Agent-to-agent protocols (A2A) and MCP server authoring"],
+[191,"l10","Theory","Medium",0,"Deep Agents \u2014 planning + subagents + filesystem, layered on LangGraph"],
+[192,"iv","Interview Prep","High",0,"High-frequency: Conceptual questions (agent vs workflow, ReAct, LangChain vs LangGraph)"],
+[193,"iv","Interview Prep","High",0,"High-frequency: LangGraph mechanics (reducers, Send, Command, supersteps, loops)"],
+[194,"iv","Interview Prep","High",0,"High-frequency: State &amp; memory (checkpointer vs store, thread_id, context window)"],
+[195,"iv","Interview Prep","High",0,"High-frequency: HITL &amp; production (approval gates, crash recovery, idempotency, durability)"],
+[196,"iv","Interview Prep","High",0,"High-frequency: Tools &amp; RAG (tool choice, tool errors, MCP, the RAG ladder)"],
+[197,"iv","Interview Prep","High",0,"High-frequency: Evaluation (agent eval, golden trajectories, regression gates)"],
+[198,"iv","Interview Prep","High",0,"The 7 trap questions (answered correctly, out loud)"],
+[199,"sd","Interview Prep","High",0,"System design: Customer support triage agent"],
+[200,"sd","Interview Prep","High",0,"System design: Research assistant (parallel Send + reflection)"],
+[201,"sd","Interview Prep","High",0,"System design: SQL analytics agent (guarding destructive SQL)"],
+[202,"sd","Interview Prep","High",0,"System design: Code review agent (tool design)"],
+[203,"sd","Interview Prep","High",0,"System design: Multi-tenant chatbot at 10k users"],
+[204,"sd","Interview Prep","High",0,"System design: Long-running campaign agent (weeks, durability)"],
+[205,"pp","Project","High",0,"Project 1: Multi-pattern workflow set (sequential/parallel/conditional/iterative)"],
+[210,"pp","Project","High",0,"Project 2: Persistent chatbot (Streamlit + SQLite checkpointer + streaming)"],
+[207,"pp","Project","High",0,"Project 3: Research agent built twice (hand-rolled vs create_agent)"],
+[208,"pp","Project","High",0,"Project 4: Agentic RAG with CRAG + Self-RAG"],
+[209,"pp","Project","High",0,"Project 5: Multi-agent report writer (planner/researcher/writer/evaluator + HITL)"],
+[210,"pp","Project","High",0,"Project 6: Fully instrumented agent (LangSmith traces, trajectory evals, CI gate)"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="lgPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 210 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+</body>
+</html>

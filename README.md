@@ -26,7 +26,7 @@ runnable code, an interactive progress tracker, and an interview Q&A bank).
 │   └── build_lc.py            # regenerates shells + tracker from the blueprint .md
 ├── langgraph/                 # subject: LangGraph & Agentic AI
 │   ├── index.html
-│   ├── LangGraph_Part1_Foundations.html  … Part2 … Part6
+│   ├── LangGraph_Part01_Prerequisites.html  … Part02 … Part12
 │   ├── LangGraph_Complete.html
 │   ├── stitch_lg.py           # rebuilds the Complete file
 │   └── build_lg.py            # regenerates shells + the tracker from the blueprint .md
@@ -72,7 +72,7 @@ cd rag       && python3 stitch.py      # RAG          (6 parts)
 cd cml       && python3 stitch_cml.py  # Classical ML (17 parts)
 cd nlp       && python3 stitch_nlp.py  # NLP          (7 parts)
 cd langchain && python3 stitch_lc.py   # LangChain    (6 parts)
-cd langgraph && python3 stitch_lg.py   # LangGraph    (6 parts)
+cd langgraph && python3 stitch_lg.py   # LangGraph    (12 parts)
 ```
 
 ## Hosting (free)
@@ -103,13 +103,13 @@ Both are free and rebuild automatically whenever you `git push`.
 | Classical ML | **17** | 439 | 69 | **28** | **438** | `classical-ml-study-guide.md` |
 | NLP | 7 | 520 | 73 | — | 171 | `nlp-study-guide.md` |
 | LangChain & Prompt Engineering | 6 | 313 | 16 | — | 69 | `langchain-llm-prompt-study-guide.md` |
-| LangGraph & Agentic AI | 6 | 210 | 26 | — | 78 | `langgraph-agentic-ai-study-guide.md` |
+| LangGraph & Agentic AI | **12** | 210 | 29 | **9** | **342** | `langgraph-agentic-ai-study-guide.md` |
 
-**Classical ML is structured differently** from the other subjects: **one part per level (17 parts)**, and — following the RAG pattern — **every one of its 147 topic sections ends with its own interview Q&A box**, tagged by question type (`Conceptual`, `Gotcha`, `Debugging`, `System design`, `Deep dive`). That is why its Q&A count is an order of magnitude above the others: the questions live *with* the concept rather than only in a bank at the end. Part 17 is still a consolidated, shuffled drill.
+**Classical ML and LangGraph are structured differently** from the other subjects: **one part per level** (17 and 12 parts respectively), and — following the RAG pattern — **every topic section ends with its own interview Q&A box**, tagged by question type (`Conceptual`, `Gotcha`, `Debug`, `System design`, `Deep dive`, `Trap`). That is why their Q&A counts are an order of magnitude above the others: the questions live *with* the concept rather than only in a bank at the end. Each still has a final consolidated, shuffled drill (CML Part 17, LangGraph Part 12).
 
-**Interactive widgets** (Classical ML only, so far) are self-contained `<canvas>` + vanilla-JS
+**Interactive widgets** (Classical ML and LangGraph) are self-contained `<canvas>` + vanilla-JS
 components defined inside each content fragment, styled by the `.wdg` CSS block that
-`build_cml.py` injects before `</style>`. They compute for real in the browser — least-squares
+`build_cml.py` / `build_lg.py` inject before `</style>`. They compute for real in the browser — least-squares
 fits, coordinate-descent Lasso, Lloyd iterations, PAVA isotonic regression, exact AUC/PSI —
 rather than replaying a recorded animation, and each is wrapped in an IIFE with unique element
 IDs so they survive being concatenated into `CML_Complete.html`.

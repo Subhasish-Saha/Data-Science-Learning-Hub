@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-"""Stitch all 6 part files into one print/PDF-ready RAG_Interview_Prep_Complete.html.
+"""Stitch all 12 part files into one print/PDF-ready LangGraph_Complete.html.
 Reuses Part 1's head/CSS/tracker/script; concatenates each part's content with a part
 divider; builds a combined sidebar nav. Re-run any time after editing the parts."""
 import re, pathlib
 
 OUT = pathlib.Path(__file__).resolve().parent   # run from the langgraph/ folder
 PARTS = [
-    ("LangGraph_Part1_Foundations.html", "Foundations &amp; Core Primitives", "Agentic ladder, agent anatomy, state, reducers, Command, Send"),
-    ("LangGraph_Part2_State.html", "Patterns, State &amp; Memory", "Four workflow patterns, checkpointers, Store, HITL"),
-    ("LangGraph_Part3_Tools.html", "Tools, MCP &amp; RAG", "Tool design, create_agent, MCP, the RAG ladder"),
-    ("LangGraph_Part4_MultiAgent.html", "Multi-Agent &amp; Observability", "Topologies, subgraphs, LangSmith, trajectory eval"),
-    ("LangGraph_Part5_Production.html", "Production Engineering", "Durability, idempotency, streaming, deployment, security"),
-    ("LangGraph_Part6_QABank.html", "Interview Q&amp;A Bank", "78 questions, 7 traps, 6 system designs"),
+    ("LangGraph_Part01_Prerequisites.html", "Prerequisites &amp; the LLM Substrate", "Typing, Annotated, async, tokens, structured output, the LangChain layer"),
+    ("LangGraph_Part02_AgenticFoundations.html", "Agentic AI Foundations", "The capability ladder, agent anatomy, ReAct, planning, reflection, when not to"),
+    ("LangGraph_Part03_CorePrimitives.html", "LangGraph Core Primitives", "StateGraph, nodes, edges, reducers, supersteps, Send, Command, subgraphs"),
+    ("LangGraph_Part04_WorkflowPatterns.html", "Workflow Patterns", "Chaining, parallelisation, routing, orchestrator-worker, evaluator loops"),
+    ("LangGraph_Part05_StateMemory.html", "State, Persistence &amp; Memory", "Checkpointers, threads, time travel, HITL, context window, the Store, durability"),
+    ("LangGraph_Part06_Tools.html", "Tools &amp; Agent Capabilities", "Tool design, errors, tool choice, sandboxing, MCP, middleware"),
+    ("LangGraph_Part07_RAG.html", "RAG in Agents", "Retrieval as a tool, the ladder, agentic RAG, CRAG, Self-RAG, grounding"),
+    ("LangGraph_Part08_MultiAgent.html", "Multi-Agent Architectures", "When it pays, supervisor, swarm, hierarchy, shared state, failure modes"),
+    ("LangGraph_Part09_Observability.html", "Observability &amp; Evaluation", "Tracing, trajectory eval, LLM-as-judge, datasets, CI gates, online eval"),
+    ("LangGraph_Part10_Production.html", "Production Engineering", "Deployment, streaming, idempotency, cost, latency, security, scale, testing"),
+    ("LangGraph_Part11_Frontier.html", "Advanced &amp; Frontier", "Long-horizon agents, computer use, protocols, context engineering, 2026 positions"),
+    ("LangGraph_Part12_QABank.html", "Interview Q&amp;A Bank", "125 questions, 12 traps, 6 system designs, 8 coding exercises, cheat sheets"),
 ]
 
 def read(fn): return (OUT / fn).read_text()
@@ -35,31 +41,33 @@ top = p1[: p1.index("</section>", p1.index('id="tracker"')) + len("</section>")]
 bottom = p1[p1.index('<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js'):]
 
 # ---- swap chrome for the combined doc ----
-top = top.replace("<title>LangGraph &amp; Agentic AI — Part 1: Foundations &amp; Core Primitives</title>",
-                  "<title>LangGraph &amp; Agentic AI — Complete (All 6 Parts)</title>")
-top = top.replace('<div class="tt"><small>Part 1 / 6</small>Foundations &amp; Core Primitives</div>',
-                  '<div class="tt"><small>Complete</small>All 6 Parts</div>')
-top = top.replace('<div class="k">Part 1 of 6</div>\n      <div class="v">Foundations &amp; Core Primitives</div>',
-                  '<div class="k">Complete edition</div>\n      <div class="v">All 6 Parts</div>')
+top = top.replace("<title>LangGraph &amp; Agentic AI — Part 1: Prerequisites &amp; the LLM Substrate</title>",
+                  "<title>LangGraph &amp; Agentic AI — Complete (All 12 Parts)</title>")
+top = top.replace('<div class="tt"><small>Part 1 / 12</small>Prerequisites &amp; the LLM Substrate</div>',
+                  '<div class="tt"><small>Complete</small>All 12 Parts</div>')
+top = top.replace('<div class="k">Part 1 of 12</div>\n      <div class="v">Prerequisites &amp; the LLM Substrate</div>',
+                  '<div class="k">Complete edition</div>\n      <div class="v">All 12 Parts</div>')
 
 # combined hero
 new_hero = ('<header class="hero">\n'
-  '        <div class="eyebrow">Complete Resource · All 6 Parts</div>\n'
+  '        <div class="eyebrow">Complete Resource · All 12 Parts</div>\n'
   '        <h1 class="title">LangGraph &amp; Agentic AI, end to end\n'
-  '          <span class="sub">The full curriculum in one document — agentic foundations, LangGraph primitives, workflow '
-  'patterns, state &amp; memory, tools and MCP, the RAG ladder, multi-agent architectures, LangSmith evaluation, '
-  'production engineering, and a 78-question interview bank.</span>\n'
+  '          <span class="sub">The full curriculum in one document — prerequisites and agentic foundations, the LangGraph '
+  'primitives, workflow patterns, state and memory, tools and MCP, agentic RAG, multi-agent architectures, evaluation and '
+  'observability, production engineering, the 2026 frontier, and a consolidated 125-question interview bank.</span>\n'
   '        </h1>\n'
-  '        <p class="thesis">This is the stitched edition of all six parts, print- and PDF-ready. The master tracker below '
-  'covers every one of the 210 topics; your progress is shared with the individual part files (same browser). '
-  'Written against <b>LangGraph v1</b> — <code class="ic">create_agent</code>, not the deprecated '
-  '<code class="ic">create_react_agent</code>. Use the sidebar to jump to any part or section.</p>\n'
+  '        <p class="thesis">This is the stitched edition of all twelve parts, print- and PDF-ready. The master tracker below '
+  'covers every one of the 210 topics across 98 sections; your progress is shared with the individual part files (same browser). '
+  'API-current as of <b>Aug 2026</b> — LangGraph <b>1.2.11</b> · LangChain <b>1.3.15</b> (both 11 Aug 2026), Python ≥ 3.10; '
+  '<code class="ic">create_agent</code>, not the deprecated <code class="ic">create_react_agent</code>. '
+  'The <b>9 interactive widgets</b> compute live in your browser and work in this combined file too. '
+  'Every topic ends with its own tagged Q&amp;A box — use the sidebar to jump to any part or section.</p>\n'
   '        <div class="meta-chips">\n'
-  '          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>6 parts</b> · 11 levels</span>\n'
-  '          <span class="chip"><b>210</b> tracked topics</span>\n'
-  '          <span class="chip"><b>26</b> diagrams</span>\n'
-  '          <span class="chip"><b>78</b> Q&amp;A</span>\n'
-  '          <span class="chip">\U0001f40d LangGraph <b>v1</b></span>\n'
+  '          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>12 parts</b> · 11 levels</span>\n'
+  '          <span class="chip"><b>98</b> sections · <b>210</b> tracked topics</span>\n'
+  '          <span class="chip">📐 <b>29</b> diagrams</span>\n'
+  '          <span class="chip">🎛 <b>9</b> interactive</span>\n'
+  '          <span class="chip">💬 <b>342</b> Q&amp;A + 12 traps</span>\n'
   '        </div>\n'
   '      </header>')
 top = re.sub(r'<header class="hero">.*?</header>', lambda m: new_hero, top, count=1, flags=re.DOTALL)
@@ -85,7 +93,7 @@ top = re.sub(r'<nav class="toc" id="toc">.*?</nav>', lambda m: combined_nav, top
 # ---- body: part divider + content, for each part ----
 def divider(i, title, sub):
     return (f'\n      <div class="part-divider" id="part{i}">\n'
-            f'        <div class="pdk">Part {i} of 6</div>\n'
+            f'        <div class="pdk">Part {i} of 12</div>\n'
             f'        <div class="pdt">{title}</div>\n'
             f'        <div class="pds">{sub}</div>\n'
             f'      </div>\n')
@@ -96,8 +104,9 @@ for i, (fn, title, sub) in enumerate(PARTS, start=1):
 
 # ---- combined foot ----
 foot = ('\n      <div class="doc-foot">\n'
-  '        LangGraph &amp; Agentic AI — <b>Complete edition</b> · all 6 parts · 210 tracked topics.<br>\n'
-  '        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. '
+  '        LangGraph &amp; Agentic AI — <b>Complete edition</b> · all 12 parts · 98 sections · 210 tracked topics · '
+  '29 diagrams · 9 interactive widgets · 342 Q&amp;A.<br>\n'
+  '        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. '
   '<code style="color:#8892a0">create_agent</code> replaces the deprecated '
   '<code style="color:#8892a0">create_react_agent</code>.<br>\n'
   '        Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code>, shared with every part file.<br>\n'

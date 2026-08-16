@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LangGraph &amp; Agentic AI — Part 3: Tools, MCP &amp; RAG</title>
+<title>LangGraph &amp; Agentic AI — Part 8: Multi-Agent Architectures</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -313,6 +313,53 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
   figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -321,7 +368,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
 <div class="topbar">
   <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
-  <div class="tt"><small>Part 3 / 6</small>Tools, MCP &amp; RAG</div>
+  <div class="tt"><small>Part 8 / 12</small>Multi-Agent Architectures</div>
 </div>
 
 <div class="layout">
@@ -341,8 +388,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
     </div>
 
     <div class="sb-part">
-      <div class="k">Part 3 of 6</div>
-      <div class="v">Tools, MCP &amp; RAG</div>
+      <div class="k">Part 8 of 12</div>
+      <div class="v">Multi-Agent Architectures</div>
       <div class="sb-progress">
         <div class="bar"><div class="fill" id="sbFill"></div></div>
         <div class="lab" id="sbLab">0 / 210 topics done</div>
@@ -355,24 +402,14 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
       </div>
       <div class="grp">
-        <button class="ghead" data-t><span class="num">L5</span> Tools &amp; Agents <span class="chev">▾</span></button>
+        <button class="ghead" data-t><span class="num">L7</span> Multi-Agent <span class="chev">▾</span></button>
         <ul class="links">
-          <li><a href="#g3-1">3.1 · Defining tools</a></li>
-          <li><a href="#g3-2">3.2 · Wiring the ReAct loop</a></li>
-          <li><a href="#g3-3">3.3 · create_agent (current API)</a></li>
-          <li><a href="#g3-4">3.4 · Advanced tool topics</a></li>
-          <li><a href="#g3-5">3.5 · MCP</a></li>
-        </ul>
-      </div>
-      <div class="grp">
-        <button class="ghead" data-t><span class="num">L6</span> RAG in LangGraph <span class="chev">▾</span></button>
-        <ul class="links">
-          <li><a href="#g3-6">3.6 · Baseline RAG</a></li>
-          <li><a href="#g3-7">3.7 · RAG as a tool = Agentic RAG</a></li>
-          <li><a href="#g3-8">3.8 · Corrective RAG</a></li>
-          <li><a href="#g3-9">3.9 · Self-RAG</a></li>
-          <li><a href="#g3-10">3.10 · The RAG ladder</a></li>
-          <li><a href="#g3-11">3.11 · Interview focus</a></li>
+          <li><a href="#g8-1">8.1 · When multi-agent earns its cost ⭐⭐</a></li>
+          <li><a href="#g8-2">8.2 · Supervisor ⭐</a></li>
+          <li><a href="#g8-3">8.3 · Swarm &amp; handoffs ⭐</a></li>
+          <li><a href="#g8-4">8.4 · Hierarchical teams</a></li>
+          <li><a href="#g8-5">8.5 · Shared state vs message passing ⭐</a></li>
+          <li><a href="#g8-6">8.6 · Failure modes ⭐</a></li>
         </ul>
       </div>
       <div class="grp">
@@ -381,7 +418,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
       </div>
     </nav>
     <div class="sb-foot">
-      LangGraph &amp; Agentic AI<br>Part 3 — Tools, MCP &amp; RAG<br>© your study kit
+      LangGraph &amp; Agentic AI<br>Part 8 — Multi-Agent Architectures<br>© your study kit
     </div>
   </aside>
 
@@ -391,16 +428,18 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
       <!-- HERO -->
       <header class="hero">
-        <div class="eyebrow">Part 3 of 6 · Tools, MCP &amp; RAG</div>
-        <h1 class="title">Giving the agent hands
-          <span class="sub">Tool design (the docstring <em>is</em> the prompt), the modern <code>create_agent</code> API and its middleware, MCP for standardised integrations — then the RAG ladder from baseline to Self-RAG, built as graphs.</span>
+        <div class="eyebrow">Part 8 of 12 · Multi-Agent Architectures</div>
+        <h1 class="title">Several agents, and whether you need them
+          <span class="sub">The cost-benefit of multi-agent systems, the supervisor pattern, swarm architectures with handoffs, hierarchical teams, the shared-state-versus-message-passing decision, and the failure modes that make multi-agent systems fragile.</span>
         </h1>
-        <p class="thesis">An agent without tools is a chatbot. This part covers <strong>tool design</strong> — where the docstring is literally the prompt that drives selection — the ReAct loop wired by hand and then via <strong><code>create_agent</code></strong> (note: <code>create_react_agent</code> is deprecated in v1), error handling that returns <code>ToolMessage</code>s instead of crashing, and <strong>MCP</strong> as the emerging integration standard. Then the RAG ladder: naive → <strong>agentic</strong> (retrieval as a tool the model chooses) → <strong>CRAG</strong> (grade and correct) → <strong>Self-RAG</strong> (grade your own output), each as a LangGraph graph.</p>
+        <p class="thesis">The most valuable thing you can say about multi-agent architectures is <strong>when not to use one</strong>. Every additional agent multiplies latency, cost and the number of places a conversation can go wrong, and the honest default is that <em>one agent with well-designed tools beats three agents passing messages</em> for most problems. Multi-agent earns its cost in exactly three situations: genuinely <strong>separable expertise</strong> with different tools and prompts, a <strong>context-window</strong> problem that forces you to split work, and <strong>organisational</strong> boundaries where different teams own different agents. Anything else is usually complexity you'll be debugging at 2 a.m.</p>
         <div class="meta-chips">
-          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 5–6</b></span>
-          <span class="chip"><b>37</b> tracked topics</span>
-          <span class="chip">⏱ <b>~7–8h</b></span>
-          <span class="chip">🔧 tools · MCP · RAG</span>
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 7</b></span>
+          <span class="chip"><b>6</b> sections</span>
+          <span class="chip">📐 <b>2</b> diagrams</span>
+          <span class="chip">💬 <b>15</b> Q&amp;A</span>
+          <span class="chip">🎛 <b>1</b> interactive</span>
+          <span class="chip">⏱ <b>~6h</b></span>
         </div>
       </header>
 
@@ -411,7 +450,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
             <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div>
               <h2>Master Progress Tracker</h2>
-              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
             </div>
             <div class="tk-overall">
               <div class="pct" id="ovPct">0%</div>
@@ -446,527 +485,450 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-      <!-- ============================ LEVEL 5 ============================ -->
-      <section class="phase-head" id="level5">
-        <div class="pk">Level 5 · Tools &amp; Agent Capabilities</div>
-        <h2>Giving the agent hands</h2>
-        <p class="pd">An agent without tools is a chatbot. Tool <em>design</em> is most of the quality — the docstring is literally the prompt that drives selection — and the modern API (<code>create_agent</code>) hides the ReAct loop you should still be able to hand-write.</p>
-      </section>
-
-      <!-- ---------- 3.1 ---------- -->
-      <article class="topic" id="g3-1">
-        <h3><span class="tn">3.1</span> Defining tools — the docstring <em>is</em> the prompt</h3>
-        <p class="lead">The model never sees your implementation. It sees the tool's <b>name</b>, <b>description</b> (the docstring), and <b>argument schema</b> — and picks from those alone. Vague docstrings are the #1 cause of wrong tool selection.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">what the model actually sees</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain_core.tools import tool
-from pydantic import BaseModel, Field
-
-# ✗ WEAK — the model can't tell when to use this
-@tool
-def search(q: str) -> str:
-    """Search."""
-    ...
-
-# ✓ STRONG — name, description, and typed args all disambiguate
-@tool
-def get_stock_price(symbol: str) -> float:
-    """Return the latest closing price for a stock ticker symbol (e.g. 'AAPL').
-    Use for current/recent prices only — not for historical ranges or company news."""
-    ...
-
-# complex inputs: declare an explicit schema
-class OrderQuery(BaseModel):
-    order_id: str = Field(description="Order ID like ORD-12345")
-    include_items: bool = Field(default=False, description="Also return line items")
-
-@tool(args_schema=OrderQuery)
-def lookup_order(order_id: str, include_items: bool = False) -> dict:
-    """Look up a customer order by its ID."""
-    ...
-</code></pre>
-        </figure>
-        <ul>
-          <li>Prefer <b>few, well-scoped tools</b> over many overlapping ones — overlap is what makes the model dither.</li>
-          <li>Say what the tool is <em>not</em> for; negative guidance disambiguates better than more adjectives.</li>
-          <li>Return strings or JSON-serialisable objects, and <b>keep outputs small</b> — every tool result re-enters the context window.</li>
-        </ul>
-      </article>
-
-      <!-- ---------- 3.2 ---------- -->
-      <article class="topic" id="g3-2">
-        <h3><span class="tn">3.2</span> Wiring the ReAct loop by hand</h3>
-        <p class="lead">Build this once yourself. It's six lines, it demystifies every prebuilt agent, and interviewers ask you to draw it.</p>
+      <article class="topic" id="g8-1">
+        <h3><span class="tn">8.1</span> When multi-agent earns its cost <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The most valuable thing you can say about multi-agent architectures is when <em>not</em> to build one. The honest default in 2026 is that one well-instrumented agent with good tools beats three agents passing messages.</p>
 
         <figure class="diagram">
           <div class="dwrap">
-            <svg viewBox="0 0 700 230" role="img" aria-label="The two-node ReAct cycle: an agent node calls the LLM, a conditional edge routes to a tools node when tool calls are present, and the tools node loops back to the agent; otherwise the graph ends.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">the entire ReAct agent is two nodes and one conditional edge</text>
-              <rect x="120" y="90" width="120" height="46" rx="10" fill="#3B45B5"/><text x="180" y="110" fill="#fff" font-size="11" text-anchor="middle">agent</text><text x="180" y="125" fill="#c9cdf0" font-size="8.5" text-anchor="middle">llm.bind_tools(...)</text>
-              <path d="M60 113 h56" stroke="#8892a0" stroke-width="1.4" marker-end="url(#rl)"/>
-              <text x="40" y="117" fill="#F0A81E" font-size="10">START</text>
-              <!-- conditional -->
-              <path d="M300 113 L262 90 L262 136 Z" fill="#252D3A" stroke="#F0A81E"/>
-              <path d="M240 113 h20" stroke="#8892a0" stroke-width="1.4"/>
-              <text x="330" y="88" fill="#f0c274" font-size="9">tools_condition</text>
-              <!-- to tools -->
-              <path d="M300 104 C 340 84, 380 76, 424 76" stroke="#5560D8" stroke-width="1.5" marker-end="url(#rlb)"/>
-              <text x="360" y="70" fill="#aab2f0" font-size="8.5">has tool_calls</text>
-              <rect x="426" y="56" width="120" height="42" rx="10" fill="#5560D8"/><text x="486" y="74" fill="#fff" font-size="10.5" text-anchor="middle">tools</text><text x="486" y="88" fill="#c9cdf0" font-size="8" text-anchor="middle">ToolNode([...])</text>
-              <!-- loop back -->
-              <path d="M486 98 C 486 170, 180 176, 180 140" fill="none" stroke="#F0A81E" stroke-width="1.8" marker-end="url(#rly)"/>
-              <text x="340" y="182" fill="#f0c274" font-size="9" text-anchor="middle">ToolMessage appended → agent decides again (the loop)</text>
-              <!-- to end -->
-              <path d="M300 122 C 350 146, 400 150, 440 150" stroke="#2E9E5B" stroke-width="1.5" marker-end="url(#rlg)"/>
-              <text x="360" y="142" fill="#7fd6a0" font-size="8.5">no tool_calls</text>
-              <rect x="442" y="132" width="90" height="36" rx="9" fill="#256b3f"/><text x="487" y="155" fill="#fff" font-size="10" text-anchor="middle">END</text>
-              <defs>
-                <marker id="rl" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="rlb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#5560D8"/></marker>
-                <marker id="rly" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#F0A81E"/></marker>
-                <marker id="rlg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
-              </defs>
+            <svg viewBox="0 0 700 250" role="img" aria-label="Four architectures side by side: a single agent with many tools; a supervisor routing to three specialists and receiving control back; a swarm of four agents with any-to-any handoffs; and a hierarchy with a lead routing to two team supervisors each owning two specialists.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the four shapes — read left to right as increasing coordination cost</text>
+              <g font-size="9.5">
+                <g transform="translate(20,34)">
+                  <text x="70" y="12" fill="#7fd6a0" text-anchor="middle" font-size="11" font-weight="600">single agent</text>
+                  <circle cx="70" cy="66" r="22" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.7"/><text x="70" y="70" fill="#8fa0ff" text-anchor="middle">agent</text>
+                  <g stroke="#5A6472" stroke-width="1"><path d="M70 88v20M52 80l-24 22M88 80l24 22"/></g>
+                  <circle cx="28" cy="114" r="11" fill="#161b23" stroke="#7fd6a0"/><circle cx="70" cy="118" r="11" fill="#161b23" stroke="#7fd6a0"/><circle cx="112" cy="114" r="11" fill="#161b23" stroke="#7fd6a0"/>
+                  <text x="70" y="150" fill="#8892a0" text-anchor="middle">n+1 calls · 0 handoffs</text>
+                  <text x="70" y="164" fill="#7fd6a0" text-anchor="middle">the baseline you must measure</text>
+                </g>
+                <g transform="translate(190,34)">
+                  <text x="70" y="12" fill="#F0A81E" text-anchor="middle" font-size="11" font-weight="600">supervisor</text>
+                  <circle cx="70" cy="42" r="19" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.7"/><text x="70" y="46" fill="#F0A81E" text-anchor="middle" font-size="9">super</text>
+                  <g stroke="#5A6472" stroke-width="1"><path d="M56 56l-26 44M70 61v39M84 56l26 44"/></g>
+                  <g stroke="#4B5BD6" stroke-width="1" stroke-dasharray="3 3"><path d="M34 100l24-42M74 100v-39M106 100l-24-42"/></g>
+                  <circle cx="28" cy="112" r="12" fill="#161b23" stroke="#7fd6a0"/><circle cx="70" cy="112" r="12" fill="#161b23" stroke="#7fd6a0"/><circle cx="112" cy="112" r="12" fill="#161b23" stroke="#7fd6a0"/>
+                  <text x="70" y="150" fill="#8892a0" text-anchor="middle">2n+1 calls · n handoffs</text>
+                  <text x="70" y="164" fill="#F0A81E" text-anchor="middle">central control, easy to bound</text>
+                </g>
+                <g transform="translate(360,34)">
+                  <text x="70" y="12" fill="#e0929a" text-anchor="middle" font-size="11" font-weight="600">swarm</text>
+                  <circle cx="70" cy="40" r="15" fill="#161b23" stroke="#7fd6a0"/><circle cx="26" cy="86" r="15" fill="#161b23" stroke="#7fd6a0"/>
+                  <circle cx="114" cy="86" r="15" fill="#161b23" stroke="#7fd6a0"/><circle cx="70" cy="128" r="15" fill="#161b23" stroke="#7fd6a0"/>
+                  <g stroke="#2f3a4a" stroke-width="1"><path d="M58 50L38 76M82 50l20 26M40 92h60M60 52l-2 62M80 52l2 62M36 96l24 22M104 96l-24 22"/></g>
+                  <path d="M58 50L38 76" stroke="#e0929a" stroke-width="1.5"/><path d="M40 92h60" stroke="#e0929a" stroke-width="1.5"/>
+                  <text x="70" y="164" fill="#8892a0" text-anchor="middle">2n−1 calls · direct handoffs</text>
+                  <text x="70" y="150" fill="#e0929a" text-anchor="middle">nothing watches for ping-pong</text>
+                </g>
+                <g transform="translate(530,34)">
+                  <text x="72" y="12" fill="#c9a0e0" text-anchor="middle" font-size="11" font-weight="600">hierarchical</text>
+                  <circle cx="72" cy="36" r="16" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.6"/><text x="72" y="40" fill="#F0A81E" text-anchor="middle" font-size="8.5">lead</text>
+                  <g stroke="#5A6472" stroke-width="1"><path d="M60 46L36 70M84 46l24 24"/></g>
+                  <circle cx="32" cy="82" r="14" fill="#1a1f28" stroke="#4B5BD6"/><circle cx="112" cy="82" r="14" fill="#1a1f28" stroke="#4B5BD6"/>
+                  <g stroke="#5A6472" stroke-width="1"><path d="M24 94l-8 22M40 94l8 22M104 94l-8 22M120 94l8 22"/></g>
+                  <circle cx="12" cy="126" r="10" fill="#161b23" stroke="#7fd6a0"/><circle cx="52" cy="126" r="10" fill="#161b23" stroke="#7fd6a0"/>
+                  <circle cx="92" cy="126" r="10" fill="#161b23" stroke="#7fd6a0"/><circle cx="132" cy="126" r="10" fill="#161b23" stroke="#7fd6a0"/>
+                  <text x="72" y="150" fill="#8892a0" text-anchor="middle">2n+3 calls · two routing levels</text>
+                  <text x="72" y="164" fill="#c9a0e0" text-anchor="middle">context isolation at scale</text>
+                </g>
+              </g>
+              <text x="20" y="238" fill="#c9d1dc" font-size="11">each step right adds calls, latency and context boundaries — the question is always what the split buys</text>
             </svg>
           </div>
-          <figcaption><b>That cycle is the whole agent.</b> <code>tools_condition</code> just checks whether the last <code>AIMessage</code> carries <code>tool_calls</code>. The <code>add_messages</code> reducer accumulates the growing transcript, and the loop terminates when the model answers without requesting a tool.</figcaption>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>coordinator / agent</span><span><i style="background:#7fd6a0"></i>specialist / tool</span><span><i style="background:#e0929a"></i>uncontrolled handoffs</span><span><i style="background:#F0A81E"></i>routing</span></div>
+          <figcaption>The single-agent column is not a strawman — it is the design most production systems should ship.</figcaption>
         </figure>
 
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">hand-built ReAct — know this cold</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.prebuilt import ToolNode, tools_condition
-from langgraph.graph import StateGraph, START, END
-from langgraph.graph.message import add_messages
-from typing import Annotated, TypedDict
-
-class State(TypedDict):
-    messages: Annotated[list, add_messages]
-
-tools = [get_stock_price, search]
-llm_with_tools = llm.bind_tools(tools)
-
-builder = StateGraph(State)
-builder.add_node("agent", lambda s: {"messages": [llm_with_tools.invoke(s["messages"])]})
-builder.add_node("tools", ToolNode(tools))
-builder.add_edge(START, "agent")
-builder.add_conditional_edges("agent", tools_condition)   # tool_calls? -> "tools" : END
-builder.add_edge("tools", "agent")                         # ← the ReAct loop
-graph = builder.compile()
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 3.3 ---------- -->
-      <article class="topic" id="g3-3">
-        <h3><span class="tn">3.3</span> <code class="ic">create_agent</code> — the current API</h3>
-        <p class="lead">The same loop, prebuilt. Note the deprecation: <code class="ic">create_react_agent</code> from <code class="ic">langgraph.prebuilt</code> still runs but emits <code class="ic">LangGraphDeprecatedSinceV10</code>. The current entry point lives in <code class="ic">langchain.agents</code>.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">the v1 prebuilt agent + middleware</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain.agents import create_agent          # ✓ current
-# from langgraph.prebuilt import create_react_agent  # ✗ deprecated in v1
-
-agent = create_agent(
-    model="openai:gpt-4o-mini",
-    tools=[get_stock_price, search],
-    system_prompt="You are a financial research assistant.",
-)
-agent.invoke({"messages": [{"role": "user", "content": "How did AAPL close today?"}]})
-</code></pre>
-        </figure>
-
-        <p><code class="ic">create_agent</code>'s headline addition is a <b>middleware system</b>: composable hooks that run before/after the model call and before/after tool execution — for logging, guardrails, retries, and summarization — without rewriting the graph.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 200" role="img" aria-label="Middleware hooks wrapping the agent loop: before-model and after-model hooks around the LLM call, before-tool and after-tool hooks around tool execution.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">middleware: hooks around the model and tool calls</text>
-              <rect x="150" y="52" width="400" height="112" rx="12" fill="none" stroke="#F0A81E" stroke-dasharray="6 4"/>
-              <text x="350" y="46" fill="#f0c274" font-size="10" text-anchor="middle">middleware wraps the loop — no graph rewrite</text>
-              <g font-size="8.5" text-anchor="middle">
-                <rect x="166" y="70" width="86" height="30" rx="6" fill="#252D3A" stroke="#F0A81E"/><text x="209" y="89" fill="#f0c274">before_model</text>
-                <rect x="266" y="70" width="86" height="30" rx="6" fill="#3B45B5"/><text x="309" y="89" fill="#fff">LLM call</text>
-                <rect x="366" y="70" width="86" height="30" rx="6" fill="#252D3A" stroke="#F0A81E"/><text x="409" y="89" fill="#f0c274">after_model</text>
-                <rect x="466" y="70" width="70" height="30" rx="6" fill="#252D3A" stroke="#2E9E5B"/><text x="501" y="89" fill="#7fd6a0">route</text>
-                <rect x="196" y="118" width="86" height="30" rx="6" fill="#252D3A" stroke="#F0A81E"/><text x="239" y="137" fill="#f0c274">before_tool</text>
-                <rect x="296" y="118" width="86" height="30" rx="6" fill="#5560D8"/><text x="339" y="137" fill="#fff">tool exec</text>
-                <rect x="396" y="118" width="86" height="30" rx="6" fill="#252D3A" stroke="#F0A81E"/><text x="439" y="137" fill="#f0c274">after_tool</text>
-              </g>
-              <g stroke="#8892a0" stroke-width="1.1">
-                <path d="M252 85 h12" marker-end="url(#mw)"/><path d="M352 85 h12" marker-end="url(#mw)"/><path d="M452 85 h12" marker-end="url(#mw)"/>
-                <path d="M282 133 h12" marker-end="url(#mw)"/><path d="M382 133 h12" marker-end="url(#mw)"/>
-              </g>
-              <text x="600" y="89" fill="#8892a0" font-size="9">use for:</text>
-              <text x="600" y="105" fill="#8892a0" font-size="8.5">logging · guardrails</text>
-              <text x="600" y="118" fill="#8892a0" font-size="8.5">retries · summarization</text>
-              <defs><marker id="mw" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker></defs>
-            </svg>
-          </div>
-          <figcaption><b>Prebuilt = fast; hand-built <code>StateGraph</code> = full control.</b> Interviewers ask when you'd drop down: custom control flow, multi-agent topologies, bespoke state beyond <code>messages</code>, or non-ReAct patterns like plan-and-execute.</figcaption>
-        </figure>
-
-        <h4>What LangChain 1.1 → 1.3 added (Nov 2025 – May 2026)</h4>
-        <p>Most of the post-1.0 investment went into <code class="ic">create_agent</code>. Knowing these signals you're current:</p>
+        <h4>The three cases where it genuinely pays</h4>
         <div class="tbl-wrap">
           <table class="data">
-            <thead><tr><th>Feature</th><th>What it does</th><th>Ver.</th></tr></thead>
+            <thead><tr><th>Case</th><th>What makes it real</th><th>The test</th></tr></thead>
             <tbody>
-              <tr><td><b>Built-in middleware</b></td><td><b>Summarization</b> (flexible trigger points), <b>model retry</b> with exponential backoff, <b>OpenAI content moderation</b> — composable, no graph rewrite</td><td>1.1</td></tr>
-              <tr><td><b>Model profiles</b></td><td><code>model.profile</code> exposes capabilities (from models.dev) so you can branch on what a model actually supports instead of hard-coding</td><td>1.1</td></tr>
-              <tr><td><code>SystemMessage</code> in <code>system_prompt</code></td><td>Pass a full message object, not just a string</td><td>1.1</td></tr>
-              <tr><td><b>Tool <code>extras</code></b></td><td>An <code>extras</code> attribute on tools carries provider-specific parameters — replaces per-provider branching in your own code</td><td>1.2</td></tr>
-              <tr><td><b>Provider tool features</b></td><td>Anthropic programmatic tool calling &amp; tool search; built-in client-side tools for Anthropic and OpenAI</td><td>1.2</td></tr>
-              <tr><td><code>ProviderStrategy</code></td><td>Strict schema adherence in <code>response_format</code>, inferred from the model profile</td><td>1.1–1.2</td></tr>
-              <tr><td><b>v3 event streaming</b></td><td><code>version="v3"</code> in <code>stream_events</code>/<code>astream_events</code> — typed projections (Part 5 §5.5)</td><td>1.3</td></tr>
+              <tr><td><b>Separable expertise</b></td><td>Different prompts, different tools, different models</td><td>Would the system prompts actually differ, or just say &ldquo;you are the X agent&rdquo;?</td></tr>
+              <tr><td><b>Context pressure</b></td><td>One agent's context can't hold the whole job</td><td>Are you actually near the window, or is it aesthetic?</td></tr>
+              <tr><td><b>Organisational boundaries</b></td><td>Different teams own, deploy and version different agents</td><td>Is there a real ownership boundary, or one team drawing boxes?</td></tr>
             </tbody>
           </table>
         </div>
 
+        <p>Notice what's absent: &ldquo;the task has several steps&rdquo; is <em>not</em> a reason — that's a workflow. &ldquo;It feels more modular&rdquo; is not a reason — nodes are already modular. And &ldquo;the tasks are different in kind&rdquo; is usually satisfied by <b>different tools on one agent</b>, which costs nothing extra.</p>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#a33" stroke-width="1.7"/><path d="M12 7.5v5M12 15.8h.01" stroke="#a33" stroke-width="1.9" stroke-linecap="round"/></svg>
+          <span class="cl-lab">What every extra agent costs you</span>
+          <p>An <b>extra LLM call per hop</b> (latency and tokens, sequentially); <b>context loss</b> at every boundary, because the receiving agent sees a summary rather than the full history; a <b>new failure mode</b> — agents ping-ponging or each assuming the other did the work; and a <b>harder trace</b>, since debugging now means reconstructing a conversation between programs. Three agents is not 3× the complexity, it's closer to 3² — the interactions are the hard part.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>When would you use a multi-agent architecture?</summary>
+              <div class="ans"><p>Lead with restraint: <b>most of the time I wouldn't</b> — one agent with well-designed tools handles the majority of what people reach for multi-agent to do, at a fraction of the latency, cost and debugging burden.</p><p>Three cases where it earns its keep. <b>Genuinely separable expertise</b> — the sub-agents need materially different system prompts, tool sets, and possibly different models; a &ldquo;research agent&rdquo; and a &ldquo;writing agent&rdquo; whose prompts differ only in the first sentence don't qualify. <b>Context pressure</b> — the work genuinely doesn't fit one context window, so splitting is a compression strategy. <b>Organisational boundaries</b> — different teams own, version and deploy different agents, and the seam is a real one.</p><p>Then name the costs: an extra LLM call per hop, context loss at every boundary, coordination failure modes, and traces that are much harder to read.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Someone proposes five agents for a document pipeline: research, outline, write, edit, format. What do you say?</summary>
+              <div class="ans"><p>That's a <b>workflow, not a multi-agent system</b> — the steps are known, fixed and sequential, so encode them as five nodes in one graph. You get the same modularity, and you keep a single state, one trace, no handoff protocol, and no coordination failures. Nodes can even use different models and prompts, which is most of what people actually want from &ldquo;separate agents&rdquo;.</p><p>Then find the part that <em>is</em> agentic, if any: the research step, where the number and order of searches depends on what's found, is a genuine agent loop. So the answer is usually &ldquo;a workflow with one agentic node&rdquo;, plus a parallel fan-out for section writing.</p><p>Volunteering the distinction — separate <em>agents</em> versus separate <em>nodes</em> — is what makes this a strong answer rather than a contrarian one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What's the difference between a multi-agent system and a graph with several nodes?</summary>
+              <div class="ans"><p><b>Autonomy at the boundary.</b> In a multi-node graph, <em>you</em> wrote the edges — control moves where the graph says. In a multi-agent system, each agent has its own loop, its own prompt, its own tools, and the transfer of control is itself a decision an LLM makes (a supervisor routing, or an agent calling a handoff tool).</p><p>The practical implication is which failure modes you own. A multi-node graph can't ping-pong, can't lose context at a boundary you didn't define, and can't have two components each assume the other did the work. A multi-agent system can do all three, which is why the bar for choosing it should be high.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g8-2">
+        <h3><span class="tn">8.2</span> Supervisor <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">One coordinator decides which specialist runs next; specialists report back to it. The most common architecture, and the easiest to reason about — because control always returns to one place.</p>
+
         <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">middleware &amp; model profiles in practice</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain.agents import create_agent
-from langchain.agents.middleware import SummarizationMiddleware, ModelRetryMiddleware
+          <div class="chead">a supervisor with <code class="ic">Command</code></div>
+          <pre><code class="language-python">MEMBERS = ["researcher", "analyst", "writer"]
 
-agent = create_agent(
-    model="openai:gpt-4o-mini",
-    tools=[search_policy_docs],
-    system_prompt="You are a support assistant.",
-    middleware=[
-        SummarizationMiddleware(max_tokens_before_summary=4000),  # context mgmt, no graph change
-        ModelRetryMiddleware(max_retries=3),                       # exponential backoff
-    ],
-)
+class Decision(BaseModel):
+    next: Literal["researcher", "analyst", "writer", "FINISH"]
+    instruction: str = Field(description="What the chosen agent should do now")
 
-# model profiles: branch on real capabilities instead of hard-coding model names
-if model.profile.supports_structured_output:
-    model = model.with_structured_output(Schema)
-</code></pre>
+def supervisor(state: State) -> Command[Literal[*MEMBERS, "__end__"]]:
+    if state["hops"] >= MAX_HOPS:                      # bound it
+        return Command(goto="__end__")
+    d = model.with_structured_output(Decision).invoke(state["messages"])
+    if d.next == "FINISH":
+        return Command(goto="__end__")
+    return Command(goto=d.next,
+                   update={"task": d.instruction, "hops": state["hops"] + 1})
+
+for m in MEMBERS:
+    builder.add_edge(m, "supervisor")                  # always report back</code></pre>
         </figure>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Strength</th><th>Weakness</th></tr></thead>
+            <tbody>
+              <tr><td>One place holds the plan — easy to reason about and audit</td><td>The supervisor is a <b>bottleneck</b>: every hop costs a supervisor call</td></tr>
+              <tr><td>Adding a specialist is a local change</td><td>Latency is <code class="ic">2 × hops</code> model calls, all sequential</td></tr>
+              <tr><td>Termination is centralised and easy to bound</td><td>The supervisor must summarise well or context is lost each hop</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>Describe the supervisor pattern and how you'd implement it.</summary>
+              <div class="ans"><p>A coordinator agent decides which specialist runs next; each specialist does its work and returns control to the supervisor, which decides again, until it decides to finish.</p><p>Implementation: the supervisor is a node returning <code class="ic">Command(goto=chosen, update={...})</code> — with the return type annotated <code class="ic">Command[Literal[...]]</code> so the graph can be drawn — driven by a structured-output call returning <code class="ic">{next, instruction}</code>. Each specialist has a normal edge back to <code class="ic">supervisor</code>.</p><p>Two things to add that show experience: <b>bound the hops</b> with a counter checked before the model call, because a supervisor can bounce between two specialists indefinitely; and be deliberate about <b>what each specialist sees</b> — passing the whole message history is simple but expensive and noisy, while passing a summary risks losing detail. That choice is the supervisor pattern's main design decision.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What's the main weakness of a supervisor, and how do you mitigate it?</summary>
+              <div class="ans"><p>It's a <b>sequential bottleneck</b>. Every transition costs a supervisor LLM call, so <em>n</em> specialist steps means roughly <code class="ic">2n</code> model calls, all sequential — latency adds up fast and the supervisor's own context grows with every hop.</p><p>Mitigations: let the supervisor <b>dispatch several specialists in parallel</b> when the subtasks are independent, by returning multiple <code class="ic">Send</code>s instead of one <code class="ic">goto</code>; use a <b>cheap fast model</b> for the supervisor, since routing is an easy task; let specialists <b>hand off directly</b> for common adjacent pairs (a swarm edge inside a supervisor architecture); and cap hops so a degenerate loop is bounded.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g8-3">
+        <h3><span class="tn">8.3</span> Swarm and handoffs <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">No coordinator. Each agent can transfer control directly to another by calling a handoff tool. Lower latency, and considerably harder to keep under control.</p>
+
+        <figure class="code">
+          <div class="chead">a handoff is a tool that returns a <code class="ic">Command</code></div>
+          <pre><code class="language-python">def make_handoff(target: str, why: str):
+    @tool(f"transfer_to_{target}", description=f"Hand off to the {target} agent. {why}")
+    def _handoff(reason: str, tool_call_id: Annotated[str, InjectedToolCallId]) -> Command:
+        return Command(
+            goto=target,
+            graph=Command.PARENT,                 # escape this agent's subgraph
+            update={"messages": [ToolMessage(f"Transferred to {target}: {reason}",
+                                             tool_call_id=tool_call_id)],
+                    "active_agent": target, "hops": 1},   # hops has an add reducer
+        )
+    return _handoff</code></pre>
+        </figure>
+
+        <p>Three details in that snippet are the ones interviewers look for. <code class="ic">graph=Command.PARENT</code> — without it you can only route inside the current subgraph. The <code class="ic">ToolMessage</code> — every tool call needs a matching result or the provider rejects the next request. And <code class="ic">active_agent</code> in state — with a checkpointer, that's what lets the conversation resume with the <em>right</em> agent tomorrow rather than restarting at the entry point.</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#c9781f" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#c9781f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Swarms ping-pong</span>
+          <p>Agent A decides this is really B's problem; B decides it's really A's. Without a coordinator there's nothing to notice. Guards: a <b>hop counter</b> with a hard cap; recording the <b>handoff history</b> in state and refusing a transfer back to an agent that just handed off; requiring a <code class="ic">reason</code> string, which measurably reduces reflexive transfers; and a <b>default agent</b> that must resolve or escalate rather than transfer.</p>
+        </div>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">Interactive</span>Architecture comparator — topology, latency, cost</div>
+          <div class="wbody">
+            <canvas id="lgMaCv" width="900" height="330"></canvas>
+            <div class="wbtns">
+              <button class="wbtn on" data-lgma="single">Single agent</button>
+              <button class="wbtn" data-lgma="super">Supervisor</button>
+              <button class="wbtn" data-lgma="swarm">Swarm</button>
+              <button class="wbtn" data-lgma="hier">Hierarchical</button>
+            </div>
+            <div class="wctl">
+              <label>Specialist steps needed <b><span id="lgMaSv">4</span></b>
+                <input type="range" id="lgMaS" min="1" max="10" step="1" value="4"></label>
+            </div>
+            <div class="wout" id="lgMaOut"></div>
+            <p class="wnote">Model calls counted sequentially; a supervisor pays one routing call per hop, a swarm pays a handoff tool call instead (cheaper, but with no central place to bound the loop), and a hierarchy pays two levels of routing. The single-agent row is the baseline you should always compute before choosing anything else.</p>
+          </div>
+        </div>
+
+        <script>
+        (function(){
+          var cv=document.getElementById('lgMaCv'); if(!cv) return;
+          var ctx=cv.getContext('2d'), mode='single';
+          function dpr(){var r=window.devicePixelRatio||1,w=cv.clientWidth||900;cv.width=w*r;cv.height=330*r;ctx.setTransform(r,0,0,r,0,0);return w;}
+          var S=document.getElementById('lgMaS');
+          function metrics(n){
+            return {
+              single:{calls:n+1, hops:0, ctxloss:0,   ctl:'high',   name:'Single agent'},
+              super :{calls:2*n+1, hops:n, ctxloss:n, ctl:'high',   name:'Supervisor'},
+              swarm :{calls:n+Math.max(0,n-1), hops:n-1, ctxloss:n-1, ctl:'low', name:'Swarm'},
+              hier  :{calls:2*n+3, hops:n+2, ctxloss:n+2, ctl:'medium', name:'Hierarchical'}
+            };
+          }
+          function node(x,y,r,label,col,sub){
+            ctx.beginPath(); ctx.arc(x,y,r,0,6.29);
+            ctx.fillStyle='#1a1f28'; ctx.fill();
+            ctx.strokeStyle=col; ctx.lineWidth=1.8; ctx.stroke();
+            ctx.fillStyle=col; ctx.font='10.5px ui-sans-serif,system-ui'; ctx.textAlign='center';
+            ctx.fillText(label,x,y+(sub?-2:4));
+            if(sub){ctx.fillStyle='#5A6472'; ctx.font='8.5px ui-monospace,monospace'; ctx.fillText(sub,x,y+10);}
+            ctx.textAlign='left';
+          }
+          function arrow(x1,y1,x2,y2,col,dash){
+            var a=Math.atan2(y2-y1,x2-x1), r=26;
+            x1+=Math.cos(a)*r; y1+=Math.sin(a)*r; x2-=Math.cos(a)*r; y2-=Math.sin(a)*r;
+            ctx.strokeStyle=col; ctx.lineWidth=1.3; ctx.setLineDash(dash||[]);
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.setLineDash([]);
+            ctx.fillStyle=col; ctx.beginPath();
+            ctx.moveTo(x2,y2); ctx.lineTo(x2-8*Math.cos(a-0.4),y2-8*Math.sin(a-0.4));
+            ctx.lineTo(x2-8*Math.cos(a+0.4),y2-8*Math.sin(a+0.4)); ctx.closePath(); ctx.fill();
+          }
+          function draw(){
+            var W=dpr(), n=+S.value, M=metrics(n)[mode];
+            document.getElementById('lgMaSv').textContent=n;
+            ctx.clearRect(0,0,W,330); ctx.fillStyle='#14181f'; ctx.fillRect(0,0,W,330);
+            var cx=Math.min(300,W*0.34), cy=160;
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('topology',18,22);
+            if(mode==='single'){
+              node(cx,cy,34,'agent','#4B5BD6','loop');
+              node(cx-110,cy-70,24,'tools','#7fd6a0'); node(cx+110,cy-70,24,'tools','#7fd6a0');
+              node(cx-110,cy+70,24,'tools','#7fd6a0'); node(cx+110,cy+70,24,'tools','#7fd6a0');
+              arrow(cx,cy,cx-110,cy-70,'#5A6472'); arrow(cx,cy,cx+110,cy-70,'#5A6472');
+              arrow(cx,cy,cx-110,cy+70,'#5A6472'); arrow(cx,cy,cx+110,cy+70,'#5A6472');
+            } else if(mode==='super'){
+              node(cx,cy-78,30,'super','#F0A81E','router');
+              node(cx-105,cy+62,27,'research','#7fd6a0'); node(cx,cy+62,27,'analyse','#7fd6a0'); node(cx+105,cy+62,27,'write','#7fd6a0');
+              arrow(cx,cy-78,cx-105,cy+62,'#5A6472'); arrow(cx,cy-78,cx,cy+62,'#5A6472'); arrow(cx,cy-78,cx+105,cy+62,'#5A6472');
+              arrow(cx-105,cy+62,cx,cy-78,'#4B5BD6',[3,3]); arrow(cx,cy+62,cx,cy-78,'#4B5BD6',[3,3]); arrow(cx+105,cy+62,cx,cy-78,'#4B5BD6',[3,3]);
+              ctx.fillStyle='#8892a0'; ctx.font='9.5px ui-monospace,monospace';
+              ctx.fillText('every hop returns to the supervisor',cx-120,cy+118);
+            } else if(mode==='swarm'){
+              node(cx,cy-72,27,'triage','#7fd6a0'); node(cx-100,cy+40,27,'billing','#7fd6a0');
+              node(cx+100,cy+40,27,'tech','#7fd6a0'); node(cx,cy+108,27,'account','#7fd6a0');
+              var P=[[cx,cy-72],[cx-100,cy+40],[cx+100,cy+40],[cx,cy+108]];
+              for(var i=0;i<4;i++)for(var j=0;j<4;j++) if(i!==j) arrow(P[i][0],P[i][1],P[j][0],P[j][1],'#2f3a4a');
+              arrow(P[0][0],P[0][1],P[1][0],P[1][1],'#F0A81E'); arrow(P[1][0],P[1][1],P[2][0],P[2][1],'#F0A81E');
+              ctx.fillStyle='#e0929a'; ctx.font='9.5px ui-monospace,monospace';
+              ctx.fillText('any-to-any handoffs — nothing watches for ping-pong',cx-140,cy+150);
+            } else {
+              node(cx,cy-92,26,'lead','#F0A81E');
+              node(cx-90,cy-8,24,'team A','#4B5BD6'); node(cx+90,cy-8,24,'team B','#4B5BD6');
+              node(cx-135,cy+86,20,'a1','#7fd6a0'); node(cx-45,cy+86,20,'a2','#7fd6a0');
+              node(cx+45,cy+86,20,'b1','#7fd6a0'); node(cx+135,cy+86,20,'b2','#7fd6a0');
+              arrow(cx,cy-92,cx-90,cy-8,'#5A6472'); arrow(cx,cy-92,cx+90,cy-8,'#5A6472');
+              arrow(cx-90,cy-8,cx-135,cy+86,'#5A6472'); arrow(cx-90,cy-8,cx-45,cy+86,'#5A6472');
+              arrow(cx+90,cy-8,cx+45,cy+86,'#5A6472'); arrow(cx+90,cy-8,cx+135,cy+86,'#5A6472');
+              ctx.fillStyle='#8892a0'; ctx.font='9.5px ui-monospace,monospace';
+              ctx.fillText('two levels of routing before any work happens',cx-130,cy+126);
+            }
+            // metrics panel
+            var px=Math.max(cx+200, W*0.62);
+            ctx.fillStyle='#1a1f28'; ctx.fillRect(px,34,W-px-16,268);
+            ctx.font='11px ui-sans-serif,system-ui'; ctx.fillStyle='#c9d1dc';
+            ctx.fillText(M.name+' — '+n+' specialist steps',px+16,58);
+            var rows=[['sequential model calls',M.calls,'#8fa0ff'],
+                      ['control transfers',M.hops,'#F0A81E'],
+                      ['context-loss boundaries',M.ctxloss,'#e0929a']];
+            for(var i=0;i<rows.length;i++){
+              var y=90+i*52;
+              ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0'; ctx.fillText(rows[i][0],px+16,y);
+              ctx.font='600 22px ui-sans-serif,system-ui'; ctx.fillStyle=rows[i][2];
+              ctx.fillText(rows[i][1],px+16,y+26);
+              var base=metrics(n).single;
+              var b=[base.calls,base.hops,base.ctxloss][i];
+              if(rows[i][1]>b){ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#5A6472';
+                ctx.fillText('vs '+b+' single-agent',px+70,y+26);}
+            }
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('loop controllability: ',px+16,262);
+            ctx.fillStyle=M.ctl==='high'?'#7fd6a0':(M.ctl==='medium'?'#F0A81E':'#e0929a');
+            ctx.fillText(M.ctl,px+136,262);
+          }
+          function out(){
+            var n=+S.value, all=metrics(n), M=all[mode], b=all.single;
+            var ov = b.calls? Math.round(100*(M.calls-b.calls)/b.calls):0;
+            document.getElementById('lgMaOut').innerHTML=
+              '<span class="k">'+M.name+'</span> at '+n+' steps: <span class="v">'+M.calls+' sequential model calls</span>'+
+              (ov>0? ' — <span class="warn">'+ov+'% more than a single agent</span>':' — <span class="good">the baseline</span>')+
+              '<br><span class="k">ask</span> does the split buy you enough to justify '+M.ctxloss+' context boundaries and '+M.hops+' control transfers?';
+          }
+          function render(){draw();out();}
+          var btns=document.querySelectorAll('[data-lgma]');
+          for(var i=0;i<btns.length;i++){(function(b){b.onclick=function(){
+            for(var j=0;j<btns.length;j++) btns[j].classList.remove('on');
+            b.classList.add('on'); mode=b.getAttribute('data-lgma'); render();};})(btns[i]);}
+          S.oninput=render;
+          window.addEventListener('resize',render); render();
+        })();
+        </script>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>Supervisor or swarm — how do you choose?</summary>
+              <div class="ans"><p><b>Supervisor</b> when you want <em>control</em>: one place holds the plan, termination is centralised and easy to bound, the trace is linear and auditable, and adding a specialist is a local change. The cost is a routing call per hop, so it's slower and pricier.</p><p><b>Swarm</b> when you want <em>directness</em>: agents hand off to each other via tools, so there's no coordinator round trip, which suits customer-support-style flows where triage transfers to a specialist who mostly finishes the job. The cost is that nothing is watching — no central place to detect ping-pong or enforce a hop budget.</p><p>My default is supervisor, because the debuggability is worth the extra calls, and I'd add direct handoff edges for the two or three transitions that are common and obviously one-directional. With a swarm, I'd insist on a hop cap and handoff history in state from day one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>How is a handoff actually implemented?</summary>
+              <div class="ans"><p>As a <b>tool whose implementation returns a <code class="ic">Command</code></b>. The agent calls <code class="ic">transfer_to_billing(reason=...)</code>; the tool returns <code class="ic">Command(goto="billing", graph=Command.PARENT, update={...})</code>.</p><p>Three details that matter. <b><code class="ic">graph=Command.PARENT</code></b>, because the tool executes inside the calling agent's subgraph and without it you can only route within that subgraph. <b>A <code class="ic">ToolMessage</code> in the update</b> carrying the same <code class="ic">tool_call_id</code>, because an assistant tool call with no matching result is a protocol error at the next model call. And <b><code class="ic">active_agent</code> written into state</b>, so that with a checkpointer the conversation resumes with the correct agent rather than at the entry point.</p><p>Making the handoff a tool rather than an edge is deliberate: it appears in the model's catalogue with a description, so &ldquo;when should I transfer&rdquo; becomes a documented decision rather than an implicit one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Two agents keep transferring the conversation back and forth. Fix it.</summary>
+              <div class="ans"><p>Immediate stop: a <b>hop counter</b> in state with an <code class="ic">operator.add</code> reducer, checked before any handoff; past the cap, route to a default agent that must resolve or escalate to a human.</p><p>Then fix the cause. Keep a <b>handoff history</b> in state and refuse a transfer back to the agent that just handed off. Require a <b>reason</b> argument on the handoff tool — being forced to articulate why measurably reduces reflexive transfers. Sharpen the handoff tool descriptions with explicit &ldquo;transfer only if…&rdquo; conditions, and check whether the two agents' scopes genuinely overlap, in which case <b>merge them</b>. Finally, make sure the receiving agent gets enough context: ping-pong is often two agents each concluding &ldquo;I don't have what I need for this&rdquo; because the handoff dropped the history.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g8-4">
+        <h3><span class="tn">8.4</span> Hierarchical teams</h3>
+        <p class="lead">Supervisors of supervisors. Occasionally the right answer at genuine scale, and much more often a sign that someone enjoyed drawing the org chart.</p>
+
+        <p>The structure: a top-level lead routes to team supervisors, each of which routes to its own specialists. Each team is a subgraph with its own state, so the top level's context stays small. That's the real benefit — <b>context isolation at scale</b> — and it's why the pattern appears in systems with, say, twenty specialists where a flat supervisor's prompt would list twenty options and its history would accumulate all of their outputs.</p>
+
+        <p>The cost is bluntly arithmetic: <b>two levels of routing before any work happens</b>, so a single specialist step costs three model calls before the specialist even starts. Adopt it when a flat supervisor is demonstrably struggling — not in anticipation.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>When is a hierarchy actually justified?</summary>
+              <div class="ans"><p>When a <b>flat supervisor is measurably failing</b> — its routing accuracy has dropped because it's choosing between twenty specialists, or its context has grown unmanageable because every specialist's output accumulates in one message list. Both are real problems at scale, and hierarchy solves them by <b>context isolation</b>: each team is a subgraph with its own state, so the lead only ever sees team-level summaries.</p><p>It's not justified by organisational aesthetics. The cost is two routing calls before any work starts, plus a second layer of context loss at the team boundary. If you can't point at a specific metric a flat supervisor is failing on, you're paying that for nothing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>How do you build a hierarchy in LangGraph?</summary>
+              <div class="ans"><p>Each team is a <b>compiled subgraph</b> containing its own supervisor and specialists, added as a node in the top-level graph. The top-level lead routes between team nodes with <code class="ic">Command</code>; each team subgraph internally routes among its own members and returns a result to the parent.</p><p>Details worth stating: subgraphs <b>inherit the parent's checkpointer</b> and are namespaced under the parent thread, so don't compile them with their own; pass <code class="ic">subgraphs=True</code> to <code class="ic">stream</code> and <code class="ic">get_state</code> or the inner steps are invisible; and translate state explicitly at the boundary — a wrapper function mapping parent state to team input and back — rather than letting the two schemas share channel names by accident.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g8-5">
+        <h3><span class="tn">8.5</span> Shared state versus message passing <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The most consequential decision in a multi-agent design, and the one candidates most often skip: what exactly does the next agent see?</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th>Shared state</th><th>Message passing</th></tr></thead>
+            <tbody>
+              <tr><td>Mechanism</td><td>All agents read/write the same channels</td><td>Each agent gets a constructed input; returns a result</td></tr>
+              <tr><td>Context</td><td>Full — nothing is lost</td><td>Only what you chose to pass</td></tr>
+              <tr><td>Token cost</td><td>Grows with every agent's output</td><td>Bounded by the handoff payload</td></tr>
+              <tr><td>Coupling</td><td>High — a schema change touches every agent</td><td>Low — agents are independently testable</td></tr>
+              <tr><td>Failure mode</td><td>Context bloat; agents distracted by irrelevant history</td><td><b>Lost context</b> — the receiver lacks something it needed</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 254" role="img" aria-label="Shared state versus message passing: on the left every agent reads and writes the same channels so nothing is lost but context and cost grow; on the right each agent receives a constructed payload and returns a structured result, keeping contexts small at the risk of dropping something the receiver needed.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">what does the next agent actually see?</text>
+              <g font-size="10">
+                <text x="24" y="44" fill="#4B5BD6" font-size="11" font-weight="600">shared state</text>
+                <rect x="24" y="54" width="280" height="34" rx="8" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                <text x="164" y="75" fill="#8fa0ff" text-anchor="middle">one message list · all channels visible to all</text>
+                <g>
+                  <rect x="24" y="106" width="84" height="34" rx="8" fill="#161b23" stroke="#7fd6a0"/><text x="66" y="127" fill="#7fd6a0" text-anchor="middle">research</text>
+                  <rect x="122" y="106" width="84" height="34" rx="8" fill="#161b23" stroke="#7fd6a0"/><text x="164" y="127" fill="#7fd6a0" text-anchor="middle">analyse</text>
+                  <rect x="220" y="106" width="84" height="34" rx="8" fill="#161b23" stroke="#7fd6a0"/><text x="262" y="127" fill="#7fd6a0" text-anchor="middle">write</text>
+                  <g stroke="#5A6472" stroke-width="1"><path d="M66 106V88M164 106V88M262 106V88"/></g>
+                </g>
+                <text x="24" y="164" fill="#7fd6a0" font-size="9.5">✓ nothing lost · one readable trace</text>
+                <text x="24" y="180" fill="#e0929a" font-size="9.5">✗ every agent pays for every other’s output</text>
+                <text x="24" y="196" fill="#e0929a" font-size="9.5">✗ schema change touches everything</text>
+
+                <line x1="342" y1="34" x2="342" y2="222" stroke="#2c3542"/>
+
+                <text x="368" y="44" fill="#F0A81E" font-size="11" font-weight="600">message passing</text>
+                <g>
+                  <rect x="368" y="60" width="84" height="34" rx="8" fill="#161b23" stroke="#7fd6a0"/><text x="410" y="81" fill="#7fd6a0" text-anchor="middle">research</text>
+                  <rect x="492" y="60" width="84" height="34" rx="8" fill="#161b23" stroke="#7fd6a0"/><text x="534" y="81" fill="#7fd6a0" text-anchor="middle">analyse</text>
+                  <rect x="592" y="112" width="84" height="34" rx="8" fill="#161b23" stroke="#7fd6a0"/><text x="634" y="133" fill="#7fd6a0" text-anchor="middle">write</text>
+                  <path d="M452 77h34" stroke="#F0A81E" stroke-width="1.3" marker-end="url(#lgmsg)"/>
+                  <path d="M576 88l32 20" stroke="#F0A81E" stroke-width="1.3" marker-end="url(#lgmsg)"/>
+                  <defs><marker id="lgmsg" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#F0A81E"/></marker></defs>
+                  <rect x="368" y="112" width="200" height="52" rx="8" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.3"/>
+                  <text x="380" y="130" fill="#F0A81E" font-size="9.5">the payload is a designed artefact</text>
+                  <text x="380" y="145" fill="#c9d1dc" font-family="ui-monospace,monospace" font-size="9">{findings, sources,</text>
+                  <text x="380" y="157" fill="#c9d1dc" font-family="ui-monospace,monospace" font-size="9"> open_questions, confidence}</text>
+                </g>
+                <text x="368" y="184" fill="#7fd6a0" font-size="9.5">✓ small contexts · independently testable</text>
+                <text x="368" y="200" fill="#e0929a" font-size="9.5">✗ lost context — the classic failure</text>
+              </g>
+              <text x="20" y="242" fill="#c9d1dc" font-size="11">production answer: shared <tspan fill="#8fa0ff">messages</tspan> for coherence + <tspan fill="#F0A81E">private channels</tspan> per agent for scratch work</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>shared</span><span><i style="background:#F0A81E"></i>passed</span><span><i style="background:#7fd6a0"></i>agents</span></div>
+          <figcaption>The handoff payload is a design artefact. Free-text summaries lose exactly the specifics the next agent needs.</figcaption>
+        </figure>
+
+        <p>The pragmatic answer is usually <b>hybrid</b>: a shared <code class="ic">messages</code> channel so the conversation is coherent and auditable, plus <b>private working channels per agent</b> that others never see. That gives you a single readable trace without every agent's scratchpad polluting every other agent's context. When you do pass summaries instead of history, make the summary a <b>structured artefact</b> — findings, sources, open questions — rather than free prose, because prose summaries lose exactly the details the next agent needs.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>Should agents share state or pass messages?</summary>
+              <div class="ans"><p><b>Hybrid, in practice.</b> A shared <code class="ic">messages</code> channel keeps the conversation coherent and gives you one readable trace; private per-agent channels keep each agent's scratchpad out of everyone else's context.</p><p>The trade if you go pure either way: <b>full shared state</b> means nothing is lost but every agent pays tokens for every other agent's output and gets distracted by irrelevant history, and a schema change touches everything. <b>Pure message passing</b> keeps agents decoupled and independently testable, but you must decide exactly what to pass — and the classic failure is a receiving agent missing a detail the sender didn't think to include.</p><p>When you do pass a summary, make it <b>structured</b> — <code class="ic">{findings, sources, open_questions, confidence}</code> — rather than prose. Free-text summaries lose precisely the specifics the next agent needs.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>The writer agent keeps missing details the researcher found. Why?</summary>
+              <div class="ans"><p><b>Context loss at the handoff</b>, almost certainly. Either the researcher's output is being summarised before the writer sees it, or the writer receives only the last message rather than the findings channel.</p><p>Diagnose by reading the trace and looking at the <em>exact</em> input to the writer's first model call — not what you think it receives. Then fix by structuring the handoff: the researcher writes to a typed <code class="ic">findings</code> channel (claims with sources and confidence), and the writer reads that channel directly rather than inferring from conversation text.</p><p>Also consider whether the split is worth it at all: if the writer needs everything the researcher found, the boundary is providing no context savings and you may be better off with one agent that does both.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g8-6">
+        <h3><span class="tn">8.6</span> Failure modes <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Multi-agent systems fail in ways single agents can't. Being able to name these — and their guards — is what a senior answer sounds like.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Failure</th><th>Looks like</th><th>Guard</th></tr></thead>
+            <tbody>
+              <tr><td><b>Ping-pong</b></td><td>A→B→A→B until the recursion limit</td><td>Hop cap; handoff history; a default agent that must resolve</td></tr>
+              <tr><td><b>Diffusion of responsibility</b></td><td>Each agent assumes another handled it; nothing gets done</td><td>Explicit ownership in the task payload; a completion check</td></tr>
+              <tr><td><b>Context loss</b></td><td>Later agents contradict or repeat earlier ones</td><td>Structured handoff artefacts; shared messages channel</td></tr>
+              <tr><td><b>Cost explosion</b></td><td>A 4-agent run costs 12× the single-agent baseline</td><td>Per-run token budget checked between hops</td></tr>
+              <tr><td><b>Conflicting writes</b></td><td>Two agents write the same channel with no reducer</td><td>Reducers, or per-agent private channels</td></tr>
+              <tr><td><b>Untraceable failure</b></td><td>&ldquo;It gave a bad answer&rdquo; with no obvious culprit</td><td>Per-agent spans; a trajectory you can read end to end</td></tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="callout tip">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="cl-lab">Interview tip · middleware is the "how do you add X without rewriting the graph" answer</span>
-          <p>When asked how you'd add summarization, guardrails, retries, or logging to an existing agent, the current answer is <b>middleware</b> — composable hooks around the model and tool calls — not "I'd restructure the graph." Naming the built-ins (summarization, model-retry, moderation) shows you're on 1.1+ rather than quoting 1.0 docs.</p>
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Always compute the single-agent baseline</span>
+          <p>Before shipping a multi-agent design, build the one-agent version and measure it. Surprisingly often it's within a few points on quality at a third of the cost and latency — and if it isn't, you now have a number that justifies the complexity to whoever asks. Either outcome is worth the day it takes.</p>
         </div>
-      </article>
-
-      <!-- ---------- 3.4 ---------- -->
-      <article class="topic" id="g3-4">
-        <h3><span class="tn">3.4</span> Advanced tool topics</h3>
-        <p class="lead">Five things that separate a demo agent from one that survives real traffic.</p>
-        <ul>
-          <li><b>Parallel tool calls</b> — a model can emit several calls at once; <code class="ic">ToolNode</code> executes them concurrently. Big latency win for independent lookups.</li>
-          <li><b>Tool errors</b> — never let an exception crash the graph. Return a <code class="ic">ToolMessage</code> describing the failure so the model can read it and retry or change approach.</li>
-          <li><b><code class="ic">InjectedState</code> / <code class="ic">InjectedStore</code></b> — pass graph state or the Store into a tool <em>without exposing it to the LLM</em> (it won't appear in the tool schema the model sees).</li>
-          <li><b>Tool-call review</b> — gate sensitive tools behind HITL (Part 2 §2.11): interrupt before execution and let a human approve the arguments.</li>
-          <li><b>Structured output vs tool calling</b> — use structured output when you want <em>data in a shape</em>; use tools when you want an <em>action performed</em>.</li>
-        </ul>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">error handling + injected state</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain_core.tools import tool
-from langgraph.prebuilt import InjectedState
-from typing import Annotated
-
-@tool
-def charge_card(amount: float) -> str:
-    """Charge the customer's saved card. Amounts are in USD."""
-    try:
-        return f"charged ${amount:.2f}, ref {payments.charge(amount)}"
-    except PaymentError as e:
-        # return a readable failure — the model sees this and can react
-        return f"ERROR: payment failed ({e}). Do not retry without new card details."
-
-@tool
-def summarise_history(state: Annotated[dict, InjectedState]) -> str:
-    """Summarise the conversation so far."""
-    return llm.invoke(f"Summarise: {state['messages']}").content
-    # `state` is injected by the runtime — the LLM never sees it as an argument
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 3.5 ---------- -->
-      <article class="topic" id="g3-5">
-        <h3><span class="tn">3.5</span> Model Context Protocol (MCP)</h3>
-        <p class="lead">An open standard (from Anthropic) for connecting models to tools and data sources — replacing the bespoke wrapper you'd otherwise write per integration.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 210" role="img" aria-label="MCP client-server architecture: the agent is a client connecting over stdio or HTTP to MCP servers for filesystem, Postgres, Slack, and Drive.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">write one client, connect to any MCP server</text>
-              <rect x="30" y="80" width="130" height="52" rx="10" fill="#3B45B5"/><text x="95" y="102" fill="#fff" font-size="11" text-anchor="middle">your agent</text><text x="95" y="117" fill="#c9cdf0" font-size="8.5" text-anchor="middle">MCP client</text>
-              <path d="M162 96 L268 66" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#mc)"/>
-              <path d="M162 104 L268 104" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#mc)"/>
-              <path d="M162 112 L268 142" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#mc)"/>
-              <text x="215" y="80" fill="#f0c274" font-size="8">stdio</text>
-              <text x="215" y="136" fill="#f0c274" font-size="8">HTTP/SSE</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="270" y="52" width="140" height="30" rx="7" fill="#5560D8"/><text x="340" y="71">filesystem server</text>
-                <rect x="270" y="90" width="140" height="30" rx="7" fill="#5560D8"/><text x="340" y="109">Postgres server</text>
-                <rect x="270" y="128" width="140" height="30" rx="7" fill="#5560D8"/><text x="340" y="147">Slack / Drive server</text>
-              </g>
-              <rect x="450" y="72" width="220" height="66" rx="10" fill="#161b23" stroke="#2E9E5B"/>
-              <text x="560" y="92" fill="#7fd6a0" font-size="9.5" text-anchor="middle">why it matters</text>
-              <text x="560" y="109" fill="#c2cad6" font-size="8.5" text-anchor="middle">no bespoke wrapper per integration;</text>
-              <text x="560" y="122" fill="#c2cad6" font-size="8.5" text-anchor="middle">LangGraph can also EXPOSE an agent</text>
-              <text x="560" y="134" fill="#c2cad6" font-size="8.5" text-anchor="middle">as an MCP tool for other clients</text>
-              <defs><marker id="mc" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#F0A81E"/></marker></defs>
-            </svg>
-          </div>
-          <figcaption><b>Client–server, with two transports:</b> <code>stdio</code> for local processes and <code>HTTP/SSE</code> for remote services. <code>langchain-mcp-adapters</code> converts MCP tools into ordinary LangChain tools, so they drop straight into any graph.</figcaption>
-        </figure>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">MCP tools → LangChain tools</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain_mcp_adapters.client import MultiServerMCPClient
-
-client = MultiServerMCPClient({
-    "filesystem": {"command": "npx",
-                   "args": ["-y", "@modelcontextprotocol/server-filesystem", "/data"],
-                   "transport": "stdio"},
-})
-tools = await client.get_tools()        # now ordinary LangChain tools
-agent = create_agent(model="openai:gpt-4o-mini", tools=tools)
-</code></pre>
-        </figure>
 
         <div class="qbox">
           <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
           <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Tools</span>How does the model decide which tool to call, and how do you improve that?</summary>
-              <div class="ans"><p>It sees only the tool <b>name</b>, <b>description/docstring</b>, and <b>argument schema</b> — never your implementation — and selects via the provider's function-calling mechanism. Improve it by: writing precise docstrings that state both what the tool is for <em>and what it isn't</em>; using typed Pydantic schemas with per-field descriptions; keeping the toolset small and non-overlapping (overlap causes dithering); giving tools distinct, unambiguous names; and few-shot examples in the system prompt for tricky cases. If selection is still wrong, that's a prompt-engineering problem in the docstring, not a model problem.</p></div>
+            <details class="qa"><summary><span class="qtag">System design</span>What goes wrong in multi-agent systems, and how do you guard against it?</summary>
+              <div class="ans"><p>Six, with guards. <b>Ping-pong</b> — agents transferring back and forth; guard with a hop cap, handoff history, and a default agent that must resolve or escalate. <b>Diffusion of responsibility</b> — each assumes another did the work; guard with explicit ownership in the task payload and a completion check before finishing. <b>Context loss</b> at handoffs — guard with structured handoff artefacts rather than prose summaries. <b>Cost explosion</b> — guard with a per-run token budget checked between hops, not just an iteration cap. <b>Conflicting writes</b> to shared channels — guard with reducers or private per-agent channels. <b>Untraceable failures</b> — guard with per-agent spans so you can attribute a bad answer to a specific step.</p><p>And the meta-guard: always build and measure the <b>single-agent baseline</b> first, so the complexity is a decision with a number behind it.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Tools</span>A tool throws an exception. What should happen?</summary>
-              <div class="ans"><p>It should become a <code class="ic">ToolMessage</code> the model can read — not an unhandled crash. Catch the exception inside the tool (or configure <code class="ic">ToolNode</code>'s error handling) and return a clear, actionable message: what failed, and whether retrying is sensible. The model then adapts — retries with different args, tries another tool, or reports the failure to the user. Crashing the graph loses the whole run; a readable error keeps the agent's recovery loop intact. Guard against infinite retry with an attempt counter.</p></div>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your multi-agent system costs 12× what you estimated. Where do you look?</summary>
+              <div class="ans"><p>Get the per-agent, per-run token breakdown from traces first — the answer is almost always visible there and rarely where people guess.</p><p>Common causes: <b>full history passed to every agent</b>, so each hop re-sends everything before it, making cost quadratic in hops rather than linear. <b>Supervisor overhead</b> — a routing call per hop that you didn't count. <b>Ping-pong</b> inflating the hop count. <b>Redundant work</b> — two agents independently doing the same retrieval because neither can see the other's results. <b>No prompt caching</b>, so the stable system prompt and tool schemas are billed at full rate every call.</p><p>Fixes in order of impact: pass structured summaries instead of full history at boundaries; enable prompt caching; cap hops; cache the tool layer so duplicate retrievals are free; and re-run the single-agent baseline to check whether the architecture is buying anything at all.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Modern</span>What is MCP and why does it matter?</summary>
-              <div class="ans"><p>Model Context Protocol — an open, provider-neutral standard (originating at Anthropic) for exposing tools and data sources to LLM applications over a client–server interface. Your agent is the client; services like a filesystem, Postgres, Slack, or Drive run MCP servers. It matters because it kills the N×M integration problem: instead of writing a bespoke wrapper per tool per framework, any MCP-speaking client can use any MCP server. Transports are <code class="ic">stdio</code> (local) and HTTP/SSE (remote); <code class="ic">langchain-mcp-adapters</code> converts MCP tools into LangChain tools, and LangGraph can also expose an agent <em>as</em> an MCP server.</p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-      <!-- ============================ LEVEL 6 ============================ -->
-      <section class="phase-head" id="level6">
-        <div class="pk">Level 6 · RAG and Advanced RAG</div>
-        <h2>The RAG ladder, built as graphs</h2>
-        <p class="pd">Retrieval is the most common agent capability, and its variants are a graded interview ladder: <b>naive</b> → <b>agentic</b> → <b>corrective</b> → <b>self-reflective</b>. Each rung adds one node to the graph — which is exactly how to explain them.</p>
-        <p class="pd" style="margin-top:10px"><em>Deep on retrieval itself?</em> The <a href="../rag/index.html">RAG subject</a> covers chunking, hybrid search, rerankers, and evaluation in full. Here we focus on <b>how each variant is wired in LangGraph</b>.</p>
-      </section>
-
-      <!-- ---------- 3.6 ---------- -->
-      <article class="topic" id="g3-6">
-        <h3><span class="tn">3.6</span> Baseline RAG</h3>
-        <p class="lead">Six stages: <code class="ic">Load → Split → Embed → Store → Retrieve → Generate</code>. The first four are offline; the last two run per query.</p>
-        <ul>
-          <li><b>Loaders:</b> <code class="ic">PyPDFLoader</code>, <code class="ic">WebBaseLoader</code>, <code class="ic">DirectoryLoader</code></li>
-          <li><b>Splitting:</b> <code class="ic">RecursiveCharacterTextSplitter</code> — chunk size <em>and</em> overlap both matter</li>
-          <li><b>Vector stores:</b> FAISS (local), Chroma, Pinecone, pgvector</li>
-          <li><b>Retriever config:</b> <code class="ic">k</code>, MMR, metadata filtering, score thresholds</li>
-        </ul>
-      </article>
-
-      <!-- ---------- 3.7 ---------- -->
-      <article class="topic" id="g3-7">
-        <h3><span class="tn">3.7</span> RAG as a <em>step</em> vs RAG as a <em>tool</em> = Agentic RAG</h3>
-        <p class="lead">One design decision separates naive RAG from agentic RAG: is retrieval a fixed pipeline stage, or a tool the model <em>chooses</em> to call?</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 240" role="img" aria-label="Top: RAG as a fixed step where every query retrieves, including a greeting. Bottom: RAG as a tool where the agent decides whether to retrieve and can pick between multiple sources.">
-              <text x="20" y="20" fill="#8892a0" font-size="12">as a STEP — every query retrieves, even "hi"</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="20" y="34" width="60" height="28" rx="6" fill="#F0A81E"/><text x="50" y="52" fill="#3a2a00">query</text>
-                <rect x="100" y="34" width="80" height="28" rx="6" fill="#5560D8"/><text x="140" y="52">retrieve</text>
-                <rect x="200" y="34" width="80" height="28" rx="6" fill="#3B45B5"/><text x="240" y="52">generate</text>
-              </g>
-              <path d="M80 48 h16" stroke="#8892a0" stroke-width="1.2" marker-end="url(#ar)"/>
-              <path d="M180 48 h16" stroke="#8892a0" stroke-width="1.2" marker-end="url(#ar)"/>
-              <text x="300" y="52" fill="#e0a3a8" font-size="9">✗ wasteful · no source choice · can't skip</text>
-
-              <text x="20" y="102" fill="#8892a0" font-size="12">as a TOOL — the model decides (Agentic RAG)</text>
-              <rect x="20" y="118" width="60" height="28" rx="6" fill="#F0A81E"/><text x="50" y="136" fill="#3a2a00" font-size="9" text-anchor="middle">query</text>
-              <path d="M80 132 h20" stroke="#8892a0" stroke-width="1.2" marker-end="url(#ar)"/>
-              <rect x="102" y="112" width="96" height="40" rx="9" fill="#3B45B5"/><text x="150" y="130" fill="#fff" font-size="10" text-anchor="middle">agent</text><text x="150" y="143" fill="#c9cdf0" font-size="8" text-anchor="middle">needs retrieval?</text>
-              <!-- branches -->
-              <path d="M198 122 L258 96" stroke="#5560D8" stroke-width="1.3" marker-end="url(#arb)"/>
-              <path d="M198 132 L258 132" stroke="#5560D8" stroke-width="1.3" marker-end="url(#arb)"/>
-              <path d="M198 142 L258 168" stroke="#5560D8" stroke-width="1.3" marker-end="url(#arb)"/>
-              <g font-size="8.5" text-anchor="middle" fill="#fff">
-                <rect x="260" y="82" width="104" height="26" rx="6" fill="#5560D8"/><text x="312" y="99">PDF retriever</text>
-                <rect x="260" y="119" width="104" height="26" rx="6" fill="#5560D8"/><text x="312" y="136">SQL tool</text>
-                <rect x="260" y="156" width="104" height="26" rx="6" fill="#5560D8"/><text x="312" y="173">web search</text>
-              </g>
-              <path d="M150 152 C 150 200, 430 200, 430 150" fill="none" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#arg)"/>
-              <text x="290" y="212" fill="#7fd6a0" font-size="8.5" text-anchor="middle">…or answer directly with no retrieval at all ("hi")</text>
-              <rect x="392" y="112" width="76" height="38" rx="9" fill="#256b3f"/><text x="430" y="136" fill="#fff" font-size="9.5" text-anchor="middle">answer</text>
-              <path d="M364 95 C 392 95, 396 112, 400 112" stroke="#8892a0" stroke-width="1.1" marker-end="url(#ar)"/>
-              <path d="M364 132 h26" stroke="#8892a0" stroke-width="1.1" marker-end="url(#ar)"/>
-              <rect x="500" y="100" width="180" height="62" rx="9" fill="#161b23" stroke="#2E9E5B"/>
-              <text x="590" y="120" fill="#7fd6a0" font-size="9.5" text-anchor="middle">✓ skips retrieval when useless</text>
-              <text x="590" y="136" fill="#7fd6a0" font-size="9.5" text-anchor="middle">✓ routes between sources</text>
-              <text x="590" y="152" fill="#7fd6a0" font-size="9.5" text-anchor="middle">✓ can retrieve repeatedly</text>
-              <defs>
-                <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="arb" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#5560D8"/></marker>
-                <marker id="arg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b>Agentic RAG = wrap the retriever in <code>@tool</code>.</b> That one change lets the model skip retrieval for chit-chat, choose between a PDF retriever / SQL / web search, and retrieve <em>again</em> after reading results — all for free, because it's just the ReAct loop from §3.2.</figcaption>
-        </figure>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">the whole change: retriever → tool</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain_core.tools import tool
-
-@tool
-def search_policy_docs(query: str) -> str:
-    """Search internal HR and benefits policy documents.
-    Use for questions about leave, payroll, benefits, or company policy."""
-    docs = retriever.invoke(query)
-    return "\n\n".join(f"[{d.metadata['source']}] {d.page_content}" for d in docs)
-
-agent = create_agent(model="openai:gpt-4o-mini",
-                     tools=[search_policy_docs, run_sql, web_search])
-# the model now decides IF, WHICH, and HOW MANY TIMES to retrieve
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 3.8 ---------- -->
-      <article class="topic" id="g3-8">
-        <h3><span class="tn">3.8</span> Corrective RAG (CRAG)</h3>
-        <p class="lead">Adds one node — a <b>grader after retrieval</b> — that asks "do these documents actually answer the question?" and takes corrective action when they don't.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 200" role="img" aria-label="CRAG graph: retrieve, then grade documents; relevant documents go to generate, irrelevant ones trigger query rewriting or web search before generating.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">CRAG: grade the retrieval, correct it before generating</text>
-              <g font-size="9.5" text-anchor="middle" fill="#fff">
-                <rect x="20" y="80" width="86" height="34" rx="8" fill="#5560D8"/><text x="63" y="101">retrieve</text>
-                <rect x="130" y="76" width="100" height="42" rx="8" fill="#252D3A" stroke="#F0A81E"/><text x="180" y="93" fill="#f0c274">grade docs</text><text x="180" y="107" fill="#8892a0" font-size="8">LLM: relevant?</text>
-              </g>
-              <path d="M106 97 h20" stroke="#8892a0" stroke-width="1.3" marker-end="url(#cg)"/>
-              <path d="M230 88 L300 62" stroke="#2E9E5B" stroke-width="1.5" marker-end="url(#cgg)"/>
-              <text x="262" y="60" fill="#7fd6a0" font-size="8">relevant</text>
-              <path d="M230 108 L300 146" stroke="#C0392B" stroke-width="1.5" marker-end="url(#cgr)"/>
-              <text x="248" y="140" fill="#e0a3a8" font-size="8">irrelevant</text>
-              <rect x="302" y="126" width="150" height="40" rx="8" fill="#252D3A" stroke="#C0392B"/>
-              <text x="377" y="143" fill="#e0a3a8" font-size="9" text-anchor="middle">rewrite query /</text><text x="377" y="156" fill="#e0a3a8" font-size="9" text-anchor="middle">web search fallback</text>
-              <path d="M452 140 C 500 140, 505 108, 520 100" stroke="#8892a0" stroke-width="1.3" marker-end="url(#cg)"/>
-              <rect x="302" y="44" width="120" height="36" rx="8" fill="#3B45B5"/><text x="362" y="66" fill="#fff" font-size="9.5" text-anchor="middle">(docs kept)</text>
-              <path d="M422 62 C 480 62, 500 82, 520 90" stroke="#8892a0" stroke-width="1.3" marker-end="url(#cg)"/>
-              <rect x="522" y="78" width="96" height="38" rx="9" fill="#256b3f"/><text x="570" y="102" fill="#fff" font-size="10" text-anchor="middle">generate</text>
-              <defs>
-                <marker id="cg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="cgg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
-                <marker id="cgr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#C0392B"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b>Solves:</b> vector similarity happily returns plausible-but-wrong chunks, and naive RAG generates from them anyway. The grader is a cheap LLM call; the fallback is usually web search.</figcaption>
-        </figure>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">the grader node + corrective routing</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from pydantic import BaseModel, Field
-from typing import Literal
-
-class Grade(BaseModel):
-    relevant: Literal["yes", "no"] = Field(description="do the docs answer the question?")
-
-grader = llm.with_structured_output(Grade)
-
-def grade_docs(state):
-    joined = "\n---\n".join(state["docs"])
-    verdict = grader.invoke(f"Question: {state['question']}\nDocs:\n{joined}")
-    return {"grade": verdict.relevant}
-
-def route_after_grade(state) -> Literal["generate", "correct"]:
-    return "generate" if state["grade"] == "yes" else "correct"
-
-builder.add_conditional_edges("grade_docs", route_after_grade,
-                              {"generate": "generate", "correct": "web_search"})
-builder.add_edge("web_search", "generate")
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 3.9 ---------- -->
-      <article class="topic" id="g3-9">
-        <h3><span class="tn">3.9</span> Self-RAG</h3>
-        <p class="lead">Where CRAG grades the <em>retrieval</em>, Self-RAG grades the <em>generation</em> — twice: is it grounded in the context, and does it actually answer the question?</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 220" role="img" aria-label="Self-RAG graph: generate, then a hallucination grader; grounded answers go to a relevance grader and then return, hallucinated ones loop back to regenerate.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">Self-RAG: two graders on the OUTPUT, with bounded retries</text>
-              <rect x="24" y="86" width="92" height="36" rx="8" fill="#3B45B5"/><text x="70" y="109" fill="#fff" font-size="10" text-anchor="middle">generate</text>
-              <path d="M116 104 h24" stroke="#8892a0" stroke-width="1.3" marker-end="url(#sf)"/>
-              <path d="M196 78 L232 104 L196 130 L160 104 Z" fill="#252D3A" stroke="#F0A81E"/>
-              <text x="196" y="100" fill="#f0c274" font-size="8" text-anchor="middle">grounded</text><text x="196" y="112" fill="#f0c274" font-size="8" text-anchor="middle">in context?</text>
-              <!-- hallucinated loop -->
-              <path d="M196 130 C 196 178, 70 178, 70 124" fill="none" stroke="#C0392B" stroke-width="1.5" marker-end="url(#sfr)"/>
-              <text x="132" y="172" fill="#e0a3a8" font-size="8">no → regenerate</text>
-              <!-- to relevance -->
-              <path d="M232 104 h30" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#sfg)"/>
-              <text x="247" y="96" fill="#7fd6a0" font-size="8">yes</text>
-              <path d="M328 78 L364 104 L328 130 L292 104 Z" fill="#252D3A" stroke="#F0A81E"/>
-              <text x="328" y="100" fill="#f0c274" font-size="8" text-anchor="middle">answers the</text><text x="328" y="112" fill="#f0c274" font-size="8" text-anchor="middle">question?</text>
-              <path d="M364 104 h30" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#sfg)"/>
-              <rect x="396" y="86" width="86" height="36" rx="8" fill="#256b3f"/><text x="439" y="109" fill="#fff" font-size="10" text-anchor="middle">return ✓</text>
-              <path d="M328 130 C 328 160, 250 164, 200 164" stroke="#F0A81E" stroke-width="1.4" stroke-dasharray="3 3" marker-end="url(#sfy)"/>
-              <text x="300" y="180" fill="#f0c274" font-size="8">no → rewrite query &amp; re-retrieve</text>
-              <rect x="512" y="72" width="168" height="66" rx="9" fill="#14181f" stroke="#C0392B"/>
-              <text x="596" y="92" fill="#e0a3a8" font-size="9.5" text-anchor="middle">⚠ bound the loop</text>
-              <text x="596" y="110" fill="#c2cad6" font-size="8.5" text-anchor="middle">two graders + retries can spin</text>
-              <text x="596" y="124" fill="#c2cad6" font-size="8.5" text-anchor="middle">forever — cap iterations (§2.4)</text>
-              <defs>
-                <marker id="sf" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="sfg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
-                <marker id="sfr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#C0392B"/></marker>
-                <marker id="sfy" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#F0A81E"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b>Two graders, two different failures.</b> <em>Groundedness</em> catches hallucination (claims not supported by the retrieved context); <em>relevance</em> catches the grounded-but-useless answer. Each has its own corrective path — regenerate vs re-retrieve.</figcaption>
-        </figure>
-      </article>
-
-      <!-- ---------- 3.10 ---------- -->
-      <article class="topic" id="g3-10">
-        <h3><span class="tn">3.10</span> The full RAG ladder</h3>
-        <p class="lead">Interviewers ask you to "explain the ladder." Here it is as one table — each rung adds a specific node and solves a specific failure.</p>
-
-        <div class="tbl-wrap">
-          <table class="data">
-            <thead><tr><th>Rung</th><th>What it adds</th><th>Failure it fixes</th></tr></thead>
-            <tbody>
-              <tr><td><b>Naive RAG</b></td><td>Retrieve → generate, always</td><td>—  (baseline; ungrounded LLM)</td></tr>
-              <tr><td><b>Agentic RAG</b></td><td>Retriever wrapped as a <em>tool</em></td><td>Retrieving when pointless; can't pick a source; can't re-retrieve</td></tr>
-              <tr><td><b>CRAG</b></td><td>Grader <em>after retrieval</em> + fallback</td><td>Plausible-but-wrong chunks used anyway</td></tr>
-              <tr><td><b>Self-RAG</b></td><td>Graders <em>after generation</em> (grounded? relevant?)</td><td>Hallucinated or off-target answers</td></tr>
-              <tr><td><b>Adaptive RAG</b></td><td>Router on query complexity</td><td>Spending multi-hop effort on trivial queries</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Also worth naming: <b>HyDE</b> (embed a hypothetical answer), <b>parent-document / small-to-big</b>, <b>reranking</b> with a cross-encoder, <b>hybrid search</b> (BM25 + dense), <b>GraphRAG</b>, and <b>contextual retrieval</b> — all covered in depth in the <a href="../rag/index.html">RAG subject</a>.</p>
-      </article>
-
-      <!-- ---------- 3.11 ---------- -->
-      <article class="topic" id="g3-11">
-        <h3><span class="tn">3.11</span> Interview focus</h3>
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">RAG ⭐</span>Naive RAG vs Agentic RAG vs CRAG vs Self-RAG — explain the ladder.</summary>
-              <div class="ans"><p><b>Naive:</b> every query goes retrieve → generate. Simple, but it retrieves for "hi", can't choose a source, and generates from bad chunks. <b>Agentic:</b> the retriever becomes a <em>tool</em>, so the model decides whether to retrieve, which source (docs / SQL / web), and can retrieve repeatedly — it's the ReAct loop. <b>CRAG:</b> adds a grader <em>after retrieval</em> that scores document relevance and triggers a correction (query rewrite or web search) when they're insufficient. <b>Self-RAG:</b> adds reflection <em>after generation</em> — one grader for groundedness (are claims supported by context?) and one for answer relevance — regenerating or re-retrieving on failure. Each rung adds a node and costs latency, so climb only as far as your failure modes require, and bound every retry loop.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Debugging</span>Your RAG system returns confident wrong answers. Debug it.</summary>
-              <div class="ans"><p>Localise before fixing. First, <b>log and read the retrieved chunks</b> for the failing queries: if the right chunk isn't there, it's a retrieval bug (chunking too big/small, embedding truncation, missing exact-term matching → add hybrid search); if it <em>is</em> there, the bug moved to generation. For generation, check the prompt actually instructs "answer only from context" and that temperature is low. Then add the structural fixes: a CRAG-style relevance grader so bad retrievals don't reach the generator, a groundedness check (Self-RAG) so unsupported claims are caught, and an abstention path so the system says "I don't know" instead of inventing. Finally, measure — faithfulness and context-relevance metrics on a fixed eval set — so you know the fix worked.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Design</span>Why wrap a retriever as a tool instead of making it a graph step?</summary>
-              <div class="ans"><p>Because retrieval isn't always the right move. As a fixed step, every query pays retrieval latency and cost — including greetings and pure-reasoning questions — and the pipeline can only ever consult one source, once. As a tool, the model decides <em>if</em> to retrieve, <em>which</em> source to use (PDF retriever vs SQL vs web), and can retrieve <em>again</em> after reading the first results (multi-hop). The cost is non-determinism: the model might skip retrieval when it shouldn't, so you evaluate tool-choice accuracy as part of trajectory eval (Part 4).</p></div>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How do you debug a multi-agent system?</summary>
+              <div class="ans"><p><b>Trajectory first, per-agent spans second.</b> Read the sequence of agents and handoffs before looking at any individual output — most failures are coordination failures, and they're only visible at that level: an unnecessary transfer, a loop, a specialist invoked with the wrong task.</p><p>Then per agent: what was its <em>exact</em> input (not what you assume it receives), what did it output, how long and how much did it cost. Tag every span with the agent name so you can attribute.</p><p>Two techniques that help specifically here: <b>replay from a checkpoint</b> just before the suspect handoff, so you can iterate on one boundary without re-running everything; and <b>test agents in isolation</b> with recorded inputs, which separates &ldquo;this agent is bad at its job&rdquo; from &ldquo;this agent was given a bad task&rdquo;. Those two failures look identical end-to-end and have completely different fixes.</p></div>
             </details>
           </div>
         </div>
@@ -975,14 +937,14 @@ builder.add_edge("web_search", "generate")
 
             <!-- PART NAV -->
       <nav class="partnav">
-        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part2_State.html">Part 2 · Patterns, State &amp; Memory</a></div><ul><li>Checkpointers, Store, HITL</li></ul></div>
-        <div class="pcard"><div class="k">You are here</div><div class="t">Part 3 · Tools, MCP &amp; RAG</div></div>
-        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part4_MultiAgent.html">Part 4 · Multi-Agent &amp; Observability</a></div><ul><li>Supervisor, subgraphs, handoffs</li><li>LangSmith + trajectory eval</li></ul></div>
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part07_RAG.html">Part 7 · RAG in Agents</a></div><ul><li>Agentic RAG, CRAG, Self-RAG</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 8 · Multi-Agent Architectures</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part09_Observability.html">Part 9 · Observability &amp; Evaluation</a></div><ul><li>Tracing, LangSmith</li><li>Trajectory evals, LLM judges</li></ul></div>
       </nav>
 
       <div class="doc-foot">
-        LangGraph &amp; Agentic AI — Part 3 of 6 · Tools, MCP &amp; RAG<br>
-        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        LangGraph &amp; Agentic AI — Part 8 of 12 · Multi-Agent Architectures<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 

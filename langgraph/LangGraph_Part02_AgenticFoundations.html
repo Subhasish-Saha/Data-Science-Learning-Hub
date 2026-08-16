@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangGraph &amp; Agentic AI — Part 2: Agentic AI Foundations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 2 / 12</small>Agentic AI Foundations</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">LangGraph<small>Agentic AI Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 2 of 12</div>
+      <div class="v">Agentic AI Foundations</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 210 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L1</span> Agentic AI Foundations <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#g2-1">2.1 · The capability ladder ⭐⭐</a></li>
+          <li><a href="#g2-2">2.2 · Anatomy of an agent</a></li>
+          <li><a href="#g2-3">2.3 · ReAct and its descendants ⭐</a></li>
+          <li><a href="#g2-4">2.4 · Planning &amp; decomposition</a></li>
+          <li><a href="#g2-5">2.5 · Reflection &amp; self-critique</a></li>
+          <li><a href="#g2-6">2.6 · Autonomy vs control ⭐</a></li>
+          <li><a href="#g2-7">2.7 · When NOT to build an agent ⭐⭐</a></li>
+          <li><a href="#g2-8">2.8 · The 2026 agent landscape</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← LangGraph home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      LangGraph &amp; Agentic AI<br>Part 2 — Agentic AI Foundations<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 2 of 12 · Agentic AI Foundations</div>
+        <h1 class="title">What an agent is, and when you shouldn't build one
+          <span class="sub">The capability ladder from a single LLM call to a full agent, the anatomy of the agent loop, ReAct and what replaced it, planning and reflection patterns, the autonomy-versus-control trade-off — and the senior answer about when a workflow beats an agent.</span>
+        </h1>
+        <p class="thesis">Almost every agentic-AI interview opens here, and the two highest-value answers are both about <em>restraint</em>. The first is the <strong>capability ladder</strong>: a single call, then a chain, then a router, then a workflow, then an agent — and you climb it only as far as the problem forces you, because every rung adds non-determinism, latency and cost. The second is <strong>&ldquo;when would you not build an agent?&rdquo;</strong>, where the correct answer is that if the control flow is knowable in advance you should <em>encode</em> it rather than ask an LLM to rediscover it on every request. Candidates who lead with an agent for a problem a switch statement solves are the ones who don't get hired.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 1</b></span>
+          <span class="chip"><b>8</b> sections</span>
+          <span class="chip">📐 <b>3</b> diagrams</span>
+          <span class="chip">💬 <b>24</b> Q&amp;A</span>
+          <span class="chip">🎛 <b>1</b> interactive</span>
+          <span class="chip">⏱ <b>~7h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">210</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 210 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <article class="topic" id="g2-1">
+        <h3><span class="tn">2.1</span> The capability ladder <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">There are five rungs between &ldquo;one LLM call&rdquo; and &ldquo;an agent&rdquo;. Every rung buys flexibility and pays for it in determinism, latency, cost and debuggability. The senior instinct is to climb no higher than the problem forces you.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 320" role="img" aria-label="A five-rung ladder from a single LLM call, to a chain, to a router, to a workflow, to an agent; each rung annotated with what it adds and what it costs, with determinism decreasing and flexibility increasing as you climb.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the capability ladder — climb only as far as the problem forces you</text>
+              <g font-size="10.5">
+                <g transform="translate(30,264)">
+                  <rect width="440" height="40" rx="8" fill="#161b23" stroke="#7fd6a0" stroke-width="1.5"/>
+                  <text x="14" y="18" fill="#7fd6a0" font-size="12" font-weight="600">1 · Single LLM call</text>
+                  <text x="14" y="33" fill="#8892a0">one prompt in, one answer out — fully deterministic control flow</text>
+                </g>
+                <g transform="translate(30,212)">
+                  <rect width="440" height="40" rx="8" fill="#161b23" stroke="#7fd6a0" stroke-width="1.3" opacity=".92"/>
+                  <text x="14" y="18" fill="#a8e0c0" font-size="12" font-weight="600">2 · Chain</text>
+                  <text x="14" y="33" fill="#8892a0">fixed sequence of calls — still fully deterministic, just longer</text>
+                </g>
+                <g transform="translate(30,160)">
+                  <rect width="440" height="40" rx="8" fill="#161b23" stroke="#F0A81E" stroke-width="1.3"/>
+                  <text x="14" y="18" fill="#F0A81E" font-size="12" font-weight="600">3 · Router</text>
+                  <text x="14" y="33" fill="#8892a0">the LLM picks <tspan fill="#c9d1dc">one of N</tspan> known branches — first non-determinism, bounded</text>
+                </g>
+                <g transform="translate(30,108)">
+                  <rect width="440" height="40" rx="8" fill="#161b23" stroke="#F0A81E" stroke-width="1.5"/>
+                  <text x="14" y="18" fill="#F0A81E" font-size="12" font-weight="600">4 · Workflow</text>
+                  <text x="14" y="33" fill="#8892a0">branches, loops and parallelism — but <tspan fill="#c9d1dc">you wrote the control flow</tspan></text>
+                </g>
+                <g transform="translate(30,56)">
+                  <rect width="440" height="40" rx="8" fill="#1a1f28" stroke="#e0929a" stroke-width="1.7"/>
+                  <text x="14" y="18" fill="#e0929a" font-size="12" font-weight="600">5 · Agent</text>
+                  <text x="14" y="33" fill="#8892a0">the <tspan fill="#c9d1dc">LLM decides the control flow at runtime</tspan> — unbounded path space</text>
+                </g>
+                <g transform="translate(500,56)">
+                  <line x1="20" y1="0" x2="20" y2="248" stroke="#5A6472" stroke-width="1.2"/>
+                  <path d="M20 0l-5 9h10z" fill="#5A6472"/><path d="M20 248l-5-9h10z" fill="#5A6472"/>
+                  <text x="36" y="28" fill="#e0929a" font-size="10.5">flexibility ↑</text>
+                  <text x="36" y="44" fill="#e0929a" font-size="10.5">cost ↑ latency ↑</text>
+                  <text x="36" y="60" fill="#e0929a" font-size="10.5">paths to test ↑</text>
+                  <text x="36" y="212" fill="#7fd6a0" font-size="10.5">determinism ↑</text>
+                  <text x="36" y="228" fill="#7fd6a0" font-size="10.5">testability ↑</text>
+                  <text x="36" y="244" fill="#7fd6a0" font-size="10.5">cost predictable</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#7fd6a0"></i>deterministic</span><span><i style="background:#F0A81E"></i>bounded non-determinism</span><span><i style="background:#e0929a"></i>unbounded</span></div>
+          <figcaption>The line that matters is between rungs 4 and 5: <b>who decides the control flow</b> — you, at build time, or the model, at runtime.</figcaption>
+        </figure>
+
+        <h4>The dividing line</h4>
+        <p>Everything below rung 5 has a control flow you can draw before the program runs. At rung 5 you cannot: the model decides what to do next, so the set of possible execution paths is only bounded by your iteration cap. That is the entire trade. An agent can handle inputs you never anticipated; it can also take a path you never anticipated, and you will find out in production.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The one-sentence distinction</span>
+          <p><b>A workflow's control flow is written by a developer; an agent's control flow is decided by an LLM at runtime.</b> Everything else — tools, memory, loops — appears on both sides of the line.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is the difference between a workflow and an agent?</summary>
+              <div class="ans"><p><b>Who decides the control flow.</b> In a workflow, a developer wrote the path at build time — the branches, loops and parallel steps are all in the code, and an LLM may fill in content or pick between <em>known</em> options, but it can't invent a new route. In an agent, the <b>LLM decides at runtime</b> what to do next, typically by choosing tools in a loop, so the execution path isn't known until the run happens.</p><p>The trade follows directly: workflows are predictable, testable, cheap to reason about, and bounded in cost; agents handle open-ended inputs but have an unbounded path space, variable cost and latency, and failure modes you can't enumerate in advance. Adding the ladder — call, chain, router, workflow, agent — shows you think in gradations rather than a binary.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Is a router an agent?</summary>
+              <div class="ans"><p>No — it's the rung below. A router lets the LLM make <b>one bounded decision</b>: pick one of N branches the developer defined. The path space is exactly N, every branch is enumerable and testable, and cost is predictable. An agent's decision is unbounded and repeated: it chooses <em>and then chooses again</em> based on what it observed, so the number of possible paths grows with the iteration limit. A router is a classifier with a nice API; an agent is a loop with judgement in it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>What actually gets worse as you climb the ladder?</summary>
+              <div class="ans"><p>Four things, and being able to list them is the point. <b>Testability</b>: you can enumerate a workflow's paths; you cannot enumerate an agent's. <b>Cost predictability</b>: a workflow's token spend is roughly fixed per request, an agent's is a distribution with a long tail. <b>Latency</b>: each extra LLM decision adds a round trip, and they're sequential. <b>Debuggability</b>: when a workflow breaks you know which node; when an agent breaks you have to reconstruct a trajectory and work out <em>why</em> it chose what it chose.</p><p>What gets better is exactly one thing: the ability to handle inputs you didn't anticipate. If you don't have those inputs, you're paying four costs for no benefit.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g2-2">
+        <h3><span class="tn">2.2</span> Anatomy of an agent</h3>
+        <p class="lead">Strip away the frameworks and every agent is the same four components wrapped in a loop. Being able to draw it from memory is worth more than knowing any specific API.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 290" role="img" aria-label="Agent anatomy diagram: a central model brain reading from a memory store and a tool catalogue, emitting either a tool call that goes to an executor and returns an observation, or a final answer that exits the loop; a termination check guards the loop.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the loop that every agent framework implements</text>
+              <g font-size="10.5">
+                <rect x="264" y="96" width="170" height="72" rx="12" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.8"/>
+                <text x="349" y="126" fill="#8fa0ff" font-size="13" font-weight="600" text-anchor="middle">MODEL</text>
+                <text x="349" y="145" fill="#8892a0" text-anchor="middle">decides the next step</text>
+                <text x="349" y="159" fill="#8892a0" text-anchor="middle">given everything so far</text>
+
+                <rect x="34" y="58" width="150" height="60" rx="10" fill="#161b23" stroke="#F0A81E" stroke-width="1.4"/>
+                <text x="48" y="80" fill="#F0A81E" font-weight="600">Instructions</text>
+                <text x="48" y="96" fill="#8892a0">system prompt, role,</text><text x="48" y="109" fill="#8892a0">constraints, output rules</text>
+
+                <rect x="34" y="140" width="150" height="60" rx="10" fill="#161b23" stroke="#F0A81E" stroke-width="1.4"/>
+                <text x="48" y="162" fill="#F0A81E" font-weight="600">Memory</text>
+                <text x="48" y="178" fill="#8892a0">messages this run +</text><text x="48" y="191" fill="#8892a0">long-term facts</text>
+
+                <rect x="514" y="58" width="152" height="60" rx="10" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="528" y="80" fill="#7fd6a0" font-weight="600">Tools</text>
+                <text x="528" y="96" fill="#8892a0">schemas the model reads;</text><text x="528" y="109" fill="#8892a0">your code executes</text>
+
+                <rect x="514" y="140" width="152" height="60" rx="10" fill="#161b23" stroke="#e0929a" stroke-width="1.4"/>
+                <text x="528" y="162" fill="#e0929a" font-weight="600">Termination</text>
+                <text x="528" y="178" fill="#8892a0">no tool call · max iters</text><text x="528" y="191" fill="#8892a0">budget · explicit done</text>
+
+                <g stroke="#5A6472" stroke-width="1.3" fill="none">
+                  <path d="M184 88h50v34h26" marker-end="url(#lgar2)"/>
+                  <path d="M184 170h50v-34h26" marker-end="url(#lgar2)"/>
+                  <path d="M434 118h50V88h26" marker-end="url(#lgar2)"/>
+                  <path d="M434 146h50v24h26" marker-end="url(#lgar2)"/>
+                </g>
+                <defs><marker id="lgar2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+
+                <path d="M349 168v42h-160v-42" stroke="#7fd6a0" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+                <text x="240" y="228" fill="#7fd6a0" font-size="10">observation appended to memory → loop</text>
+                <text x="349" y="262" fill="#c9d1dc" font-size="11" text-anchor="middle">no tool call in the response → the loop ends and the last message is the answer</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>the decider</span><span><i style="background:#F0A81E"></i>what it reads</span><span><i style="background:#7fd6a0"></i>what it can do</span><span><i style="background:#e0929a"></i>when it stops</span></div>
+          <figcaption>Four components: instructions, memory, tools, termination. The loop is: model → tool call → observation → model.</figcaption>
+        </figure>
+
+        <p>The component people forget is <b>termination</b>. Everything else is present in every tutorial; the stopping condition is what the tutorial leaves at its default and production reveals as inadequate. In practice you need at least three simultaneously: <em>natural</em> termination (the model returns no tool call), a <em>hard iteration cap</em>, and a <em>budget cap</em> on tokens or wall-clock. Without the second and third, a confused agent will happily loop until your bill notices.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>Draw the anatomy of an agent from memory.</summary>
+              <div class="ans"><p>A <b>model</b> at the centre, reading three inputs — <b>instructions</b> (system prompt, role, constraints), <b>memory</b> (the message history for this run plus any long-term facts retrieved), and a <b>tool catalogue</b> (schemas, not implementations). Its output is one of two things: a <b>tool call</b>, which your runtime executes and appends the result of as an observation before looping back to the model; or a <b>final answer</b>, which exits.</p><p>Guarding the loop is <b>termination</b>: natural (no tool call), a hard iteration cap, and a budget cap. Naming termination as a first-class component rather than an afterthought is the part that reads as production experience.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>How does an agent know when it's finished?</summary>
+              <div class="ans"><p>Primarily by <b>omission</b>: the model returns a response with no tool call in it, and the runtime interprets that as &ldquo;done&rdquo;. That's the default in <code class="ic">create_agent</code> and in the standard ReAct loop.</p><p>The reason it's a gotcha is that this is a <em>fragile</em> signal. A confused model can keep calling tools forever, alternate between two tools indefinitely, or call the same search repeatedly with slightly different queries. So production agents add: a <b>hard <code class="ic">recursion_limit</code></b>, a <b>token or cost budget</b> checked between iterations, a <b>wall-clock timeout</b>, and sometimes an explicit <code class="ic">finish</code> tool so termination is a positive decision rather than an absence.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Where does the &ldquo;scratchpad&rdquo; live in a modern agent?</summary>
+              <div class="ans"><p>In the <b>message list itself</b>. Older frameworks kept a separate string scratchpad that was formatted into the prompt; the modern shape is that each assistant turn containing a tool call, and each corresponding <code class="ic">ToolMessage</code>, <em>is</em> the scratchpad. That's why <code class="ic">MessagesState</code> with an <code class="ic">add_messages</code> reducer is the default state for an agent — the accumulating message list is simultaneously the memory, the scratchpad and the trace.</p><p>The consequence is the cost curve: the scratchpad is re-sent to the model every turn, which is exactly why the loop's token spend is quadratic and why trimming and summarisation are cost levers.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g2-3">
+        <h3><span class="tn">2.3</span> ReAct and its descendants <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">ReAct — <em>Reason + Act</em> — is the pattern everyone names. The interesting part is what has changed since the 2022 paper, because the version you'd implement today looks quite different from the one people describe.</p>
+
+        <h4>The original and the modern form</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th>Original ReAct (2022)</th><th>What you'd build in 2026</th></tr></thead>
+            <tbody>
+              <tr><td>Interleaving</td><td>Explicit <code class="ic">Thought:</code> / <code class="ic">Action:</code> / <code class="ic">Observation:</code> text</td><td>Native tool-call messages; reasoning is implicit or in a reasoning block</td></tr>
+              <tr><td>Parsing</td><td>Regex over free text — brittle, the main failure source</td><td>Structured tool-call objects from the provider — no parsing</td></tr>
+              <tr><td>Calls per step</td><td>One action at a time</td><td><b>Parallel tool calls</b> — several independent calls in one response</td></tr>
+              <tr><td>Why it worked</td><td>Forcing visible reasoning before acting improved tool choice</td><td>Same insight, now baked into instruction tuning and reasoning models</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>So the honest 2026 answer to &ldquo;do you use ReAct?&rdquo; is: <b>the loop, yes; the text format, no</b>. The paper's contribution was the insight that interleaving reasoning with acting beats doing either alone — reasoning-only agents hallucinate facts they could have looked up, action-only agents flail without a plan. That insight survived; the string protocol did not.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">Interactive</span>ReAct trace stepper — watch the context grow</div>
+          <div class="wbody">
+            <canvas id="lgReactCv" width="900" height="380"></canvas>
+            <div class="wbtns">
+              <button class="wbtn on" id="lgReactStep">Step ▸</button>
+              <button class="wbtn" id="lgReactAuto">Auto-run</button>
+              <button class="wbtn" id="lgReactReset">Reset</button>
+              <button class="wbtn" id="lgReactTrim">Toggle trimming</button>
+            </div>
+            <div class="wout" id="lgReactOut"></div>
+            <p class="wnote">Each step appends to the message list, and the <em>whole list</em> is re-sent on the next model call. Watch cumulative billed tokens climb faster than step count. &ldquo;Toggle trimming&rdquo; keeps only the system prompt plus the last four messages — the same trade every production agent makes between memory and cost.</p>
+          </div>
+        </div>
+
+        <script>
+        (function(){
+          var cv=document.getElementById('lgReactCv'); if(!cv) return;
+          var ctx=cv.getContext('2d');
+          function dpr(){var r=window.devicePixelRatio||1,w=cv.clientWidth||900;cv.width=w*r;cv.height=380*r;ctx.setTransform(r,0,0,r,0,0);return w;}
+          var TRACE=[
+            {k:'sys',  t:'System prompt + 4 tool schemas', n:520},
+            {k:'user', t:'"Which of our EU customers churned last quarter, and why?"', n:60},
+            {k:'think',t:'Reason: I need the churn list first, then the reasons.', n:90},
+            {k:'tool', t:'sql_query(region="EU", period="2026Q2", status="churned")', n:70},
+            {k:'obs',  t:'→ 148 rows returned (truncated to 40)', n:820},
+            {k:'think',t:'Reason: I have the list. Now look for support signals.', n:85},
+            {k:'tool', t:'search_tickets(customer_ids=[...], sentiment="negative")', n:95},
+            {k:'obs',  t:'→ 61 tickets, 3 recurring themes', n:940},
+            {k:'think',t:'Reason: two themes dominate. Check pricing changes.', n:80},
+            {k:'tool', t:'get_pricing_changes(region="EU", period="2026Q2")', n:60},
+            {k:'obs',  t:'→ 1 tier restructure on 12 May', n:180},
+            {k:'ans',  t:'Final answer: 148 churned; drivers = onboarding gap + May repricing.', n:260}
+          ];
+          var COL={sys:'#8892a0',user:'#8fa0ff',think:'#F0A81E',tool:'#7fd6a0',obs:'#c9a0e0',ans:'#7fd6a0'};
+          var LAB={sys:'SYSTEM',user:'USER',think:'THOUGHT',tool:'ACTION',obs:'OBSERVATION',ans:'ANSWER'};
+          var step=0,trim=false,timer=null;
+          function visible(){
+            var msgs=TRACE.slice(0,step);
+            if(!trim&&msgs.length) return msgs;
+            if(msgs.length<=5) return msgs;
+            return [msgs[0]].concat(msgs.slice(msgs.length-4));
+          }
+          function billed(){
+            var tot=0;
+            for(var s=1;s<=step;s++){
+              var msgs=TRACE.slice(0,s), sub;
+              if(trim&&msgs.length>5){sub=[msgs[0]].concat(msgs.slice(msgs.length-4));}else{sub=msgs;}
+              if(TRACE[s-1].k==='tool'||TRACE[s-1].k==='ans'||TRACE[s-1].k==='think'){
+                for(var i=0;i<sub.length;i++) tot+=sub[i].n;
+              }
+            }
+            return tot;
+          }
+          function draw(){
+            var W=dpr();
+            ctx.clearRect(0,0,W,380);
+            ctx.fillStyle='#14181f';ctx.fillRect(0,0,W,380);
+            var left=Math.min(560,W*0.63);
+            ctx.font='11px ui-monospace,monospace';ctx.fillStyle='#8892a0';
+            ctx.fillText('message list sent to the model on the next call'+(trim?'  ·  TRIMMED':''),14,20);
+            var vis=visible(), y=36, rowH=26;
+            for(var i=0;i<vis.length;i++){
+              var m=vis[i];
+              if(trim&&i===1&&step>5){
+                ctx.fillStyle='#5A6472';ctx.font='10px ui-monospace,monospace';
+                ctx.fillText('⋯ '+(step-5)+' earlier message(s) dropped by trimming ⋯',20,y+14); y+=24;
+              }
+              ctx.fillStyle='#1a1f28';ctx.beginPath();ctx.rect(14,y,left-28,rowH-5);ctx.fill();
+              ctx.fillStyle=COL[m.k];ctx.fillRect(14,y,3,rowH-5);
+              ctx.font='9.5px ui-monospace,monospace';ctx.fillStyle=COL[m.k];
+              ctx.fillText(LAB[m.k],24,y+12);
+              ctx.font='10.5px ui-monospace,monospace';ctx.fillStyle='#c9d1dc';
+              var txt=m.t; if(txt.length>58) txt=txt.slice(0,57)+'…';
+              ctx.fillText(txt,104,y+14);
+              ctx.fillStyle='#5A6472';ctx.textAlign='right';ctx.font='9.5px ui-monospace,monospace';
+              ctx.fillText(m.n+'t',left-20,y+14);ctx.textAlign='left';
+              y+=rowH;
+            }
+            if(step===0){ctx.fillStyle='#5A6472';ctx.font='11px ui-monospace,monospace';ctx.fillText('press Step to begin the run',20,50);}
+            // right panel: cumulative cost
+            var rx=left+10, rw=W-rx-16;
+            ctx.fillStyle='#1a1f28';ctx.fillRect(rx,30,rw,330);
+            ctx.font='10px ui-monospace,monospace';ctx.fillStyle='#8892a0';
+            ctx.fillText('cumulative billed input tokens',rx+12,50);
+            var b=billed(), maxB=6500;
+            var bh=Math.min(230,230*b/maxB);
+            ctx.fillStyle=trim?'#7fd6a0':'#4B5BD6';
+            ctx.fillRect(rx+16,300-bh,34,bh);
+            ctx.fillStyle='#5A6472';ctx.fillRect(rx+16,300,34,2);
+            ctx.font='600 18px ui-sans-serif,system-ui';ctx.fillStyle=trim?'#7fd6a0':'#8fa0ff';
+            ctx.fillText(b.toLocaleString(),rx+62,300);
+            ctx.font='10px ui-monospace,monospace';ctx.fillStyle='#8892a0';
+            ctx.fillText('tokens',rx+62,316);
+            ctx.fillText('model calls: '+TRACE.slice(0,step).filter(function(m){return m.k==='tool'||m.k==='ans'||m.k==='think';}).length,rx+12,340);
+            ctx.fillText('step '+step+' / '+TRACE.length,rx+12,356);
+          }
+          function out(){
+            var b=billed(), naive=0;
+            for(var s=1;s<=step;s++){var msgs=TRACE.slice(0,s);
+              if(TRACE[s-1].k==='tool'||TRACE[s-1].k==='ans'||TRACE[s-1].k==='think'){for(var i=0;i<msgs.length;i++)naive+=msgs[i].n;}}
+            var save=naive?Math.round(100*(1-b/naive)):0;
+            document.getElementById('lgReactOut').innerHTML=
+              '<span class="k">mode</span> <span class="v">'+(trim?'trimmed (system + last 4)':'full history')+'</span> &nbsp;·&nbsp; '+
+              '<span class="k">billed input tokens</span> <span class="v">'+b.toLocaleString()+'</span>'+
+              (trim&&save>0?' &nbsp;·&nbsp; <span class="good">'+save+'% saved vs full history</span>':'')+
+              '<br><span class="k">note</span> the message list is re-sent in full on every model call — that is why the total grows faster than the step count.';
+          }
+          function render(){draw();out();}
+          document.getElementById('lgReactStep').onclick=function(){if(step<TRACE.length)step++;render();};
+          document.getElementById('lgReactReset').onclick=function(){step=0;if(timer){clearInterval(timer);timer=null;document.getElementById('lgReactAuto').classList.remove('on');}render();};
+          document.getElementById('lgReactTrim').onclick=function(){trim=!trim;this.classList.toggle('on',trim);render();};
+          document.getElementById('lgReactAuto').onclick=function(){
+            var self=this;
+            if(timer){clearInterval(timer);timer=null;self.classList.remove('on');return;}
+            self.classList.add('on');
+            timer=setInterval(function(){if(step<TRACE.length){step++;render();}else{clearInterval(timer);timer=null;self.classList.remove('on');}},700);
+          };
+          window.addEventListener('resize',render);render();
+        })();
+        </script>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Explain ReAct.</summary>
+              <div class="ans"><p><b>Reason + Act</b>: interleave reasoning steps with tool actions, so the model thinks about what it needs, takes an action, observes the result, and thinks again. The 2022 paper's contribution was showing that this beats either half alone — chain-of-thought without tools hallucinates facts it could have looked up, and tool use without reasoning flails at tool selection.</p><p>The part that gets you credit: say what's <b>changed</b>. The original used a parsed text protocol (<code class="ic">Thought:/Action:/Observation:</code>) that was brittle — regex parsing was the dominant failure mode. Modern implementations use <b>native structured tool calls</b>, so there's no parsing, and support <b>parallel tool calls</b> in a single response. The loop survived; the string format didn't.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>Is ReAct still state of the art?</summary>
+              <div class="ans"><p>As a <em>protocol</em>, no; as a <em>loop shape</em>, it's still the default. What's moved on: reasoning is now native — reasoning models produce internal thinking without a text scaffold, so you don't prompt for <code class="ic">Thought:</code>. Tool calls are structured and can be issued in parallel, which the original's one-action-at-a-time format couldn't express. And the loop is usually wrapped in things ReAct never specified: persistence, interruption, reflection passes, budget caps.</p><p>The honest framing is that ReAct named a pattern that turned out to be right, and the industry absorbed it so thoroughly that it stopped being a technique and became the baseline. Descendants worth naming: <b>Plan-and-Execute</b> (plan up front, then execute, fewer LLM calls), <b>Reflexion</b> (add a self-critique step and retry), and <b>Tree-of-Thoughts</b> (branch and evaluate multiple reasoning paths — powerful but expensive and rarely worth it in production).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your ReAct agent keeps calling the same tool with nearly identical arguments. Why, and what do you do?</summary>
+              <div class="ans"><p>Almost always one of four causes. <b>The observation isn't informative</b> — the tool returned an empty result or an opaque error, so the model has no new information and retries with a nudge. <b>The tool description is ambiguous</b>, so the model isn't sure it used it correctly. <b>The result was truncated</b> and the model thinks it's missing something. Or <b>the goal isn't achievable</b> with the available tools and the model has nothing better to do.</p><p>Fixes in order: make tool results <b>explicit</b> — return &ldquo;no results found for X&rdquo; rather than <code class="ic">[]</code>; return <b>actionable error strings</b> the model can correct against; sharpen the tool description; add a <b>loop detector</b> that inspects recent tool calls and injects a message when it sees repetition; and always have a <code class="ic">recursion_limit</code> so it terminates regardless.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g2-4">
+        <h3><span class="tn">2.4</span> Planning and decomposition</h3>
+        <p class="lead">Should the agent plan first, or figure it out as it goes? The answer depends on whether the steps are knowable in advance — and that's a property of the task, not a preference.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th>Plan-and-Execute</th><th>ReAct (interleaved)</th></tr></thead>
+            <tbody>
+              <tr><td>Shape</td><td>One planning call produces a step list; a cheap executor runs each step</td><td>Decide one step at a time, informed by the last observation</td></tr>
+              <tr><td>LLM calls</td><td><b>Fewer</b> — planning is amortised across steps</td><td>One decision call per step</td></tr>
+              <tr><td>Adaptability</td><td>Poor — a stale plan keeps executing after reality diverges</td><td><b>High</b> — every step sees the latest evidence</td></tr>
+              <tr><td>Parallelism</td><td><b>Easy</b> — independent plan steps fan out with <code class="ic">Send</code></td><td>Hard — the next step depends on the last</td></tr>
+              <tr><td>Best when</td><td>Steps are knowable up front and mostly independent</td><td>Each step's result changes what's sensible next</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The pragmatic middle is <b>re-planning</b>: produce a plan, execute a step, then let a re-planner revise the remaining steps in light of what happened. You pay one extra call per step but keep both the parallelism of planning and the adaptability of ReAct. A close cousin is <b>plan caching</b> — for a task type you see repeatedly, the plan is nearly always the same, so store it and skip the planning call entirely, which quietly converts your agent back into a workflow for the common case.</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#c9781f" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#c9781f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">A plan is a hypothesis, not a contract</span>
+          <p>The failure mode of Plan-and-Execute is an agent that dutifully executes steps 3 through 7 of a plan that step 2 already invalidated. If you use planning, you need <em>either</em> a re-planning step <em>or</em> an explicit validity check before each step — otherwise you've built something less adaptive than a hand-written workflow, at higher cost.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>Plan-and-Execute or ReAct — how do you choose?</summary>
+              <div class="ans"><p>Ask one question: <b>are the steps knowable before you start?</b> If yes — &ldquo;research these six companies and produce a comparison&rdquo; — plan first. You get fewer LLM calls because planning is amortised, and the independent steps can run <b>in parallel</b> with <code class="ic">Send</code>, which is often a 5× latency win. If no — &ldquo;debug why this job is failing&rdquo; — interleave, because each observation changes what's sensible next and a plan written in ignorance is worthless.</p><p>Then add the middle option: <b>plan with re-planning</b>, where a re-planner revises remaining steps after each execution. It costs one extra call per step but keeps parallelism <em>and</em> adaptability, and it's what most serious systems converge on.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What's the specific failure mode of Plan-and-Execute?</summary>
+              <div class="ans"><p><b>Stale-plan execution.</b> The plan is generated once, before any evidence exists. If step 2 reveals that the whole premise was wrong — the data source is empty, the customer doesn't exist, the API changed — steps 3 through 7 execute anyway, burning tokens on work that can't be useful, and often producing a confident wrong answer built on nothing.</p><p>Guards: a <b>re-planning node</b> after each step; an explicit <b>validity check</b> before executing each step; and making the executor able to signal &ldquo;this step is no longer applicable&rdquo; back to the planner rather than only succeeding or failing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>How would you make a research agent 5× faster?</summary>
+              <div class="ans"><p><b>Turn the sequential loop into a plan-then-fan-out.</b> Concretely: one planning call decomposes the question into <em>k</em> independent sub-questions; a conditional edge returns <code class="ic">[Send("research", {"sub_q": q}) for q in sub_questions]</code>, so all <em>k</em> researchers run in the same superstep, concurrently; each writes into a channel with an <code class="ic">operator.add</code> reducer; a synthesis node reads the merged findings.</p><p>Wall clock goes from <em>k</em> × step-time to roughly one step-time plus planning and synthesis. Three caveats to mention: you need <b>async</b> end-to-end or the fan-out serialises; you'll hit <b>provider rate limits</b> before you hit any framework limit, so bound the fan-out width; and the sub-questions must be genuinely independent — if question 3 needs question 1's answer, you need two waves, not one.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g2-5">
+        <h3><span class="tn">2.5</span> Reflection and self-critique</h3>
+        <p class="lead">Have the model check its own work and try again. It genuinely helps — for a specific class of task — and it is also the pattern most likely to produce an infinite loop and a large bill.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Reflection loop: a generator node produces a draft, a critic node evaluates it against criteria and returns either accept or a revision request, and the loop is bounded by a maximum iteration counter that forces acceptance.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the reflection loop — and the counter that keeps it finite</text>
+              <g font-size="10.5">
+                <rect x="60" y="70" width="140" height="58" rx="10" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.6"/>
+                <text x="130" y="94" fill="#8fa0ff" font-size="12" font-weight="600" text-anchor="middle">GENERATE</text>
+                <text x="130" y="112" fill="#8892a0" text-anchor="middle">produce / revise draft</text>
+
+                <rect x="290" y="70" width="140" height="58" rx="10" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.6"/>
+                <text x="360" y="94" fill="#F0A81E" font-size="12" font-weight="600" text-anchor="middle">CRITIQUE</text>
+                <text x="360" y="112" fill="#8892a0" text-anchor="middle">score vs criteria</text>
+
+                <rect x="520" y="70" width="140" height="58" rx="10" fill="#161b23" stroke="#7fd6a0" stroke-width="1.6"/>
+                <text x="590" y="94" fill="#7fd6a0" font-size="12" font-weight="600" text-anchor="middle">ACCEPT</text>
+                <text x="590" y="112" fill="#8892a0" text-anchor="middle">return the draft</text>
+
+                <g stroke="#5A6472" stroke-width="1.4" fill="none">
+                  <path d="M200 99h84" marker-end="url(#lgar3)"/>
+                  <path d="M430 99h84" marker-end="url(#lgar3)"/>
+                </g>
+                <text x="470" y="90" fill="#7fd6a0" font-size="10">good enough</text>
+                <defs><marker id="lgar3" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+
+                <path d="M360 128v40H130v-34" stroke="#e0929a" stroke-width="1.5" fill="none" marker-end="url(#lgar4)"/>
+                <defs><marker id="lgar4" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#e0929a"/></marker></defs>
+                <text x="200" y="184" fill="#e0929a" font-size="10.5">needs work → revise with the critique attached</text>
+
+                <rect x="290" y="196" width="230" height="30" rx="8" fill="#2a2016" stroke="#c9781f" stroke-width="1.3"/>
+                <text x="405" y="215" fill="#F0A81E" font-size="10.5" text-anchor="middle">iterations ≥ max → force ACCEPT</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>generator</span><span><i style="background:#F0A81E"></i>critic</span><span><i style="background:#e0929a"></i>revision edge</span></div>
+          <figcaption>The forced-accept branch is not optional. Without it, a critic that is never satisfied loops forever.</figcaption>
+        </figure>
+
+        <h4>When reflection actually helps</h4>
+        <p>It helps when the critic has access to something the generator didn't — <b>an external signal</b>. Test results, a compiler error, a schema validation failure, retrieved documents to check claims against: these are real information, and a revision informed by them is genuinely better. It helps far less when the critic is the same model looking at the same context with a different prompt, because the model's blind spots are correlated between the two calls. &ldquo;Are you sure?&rdquo; produces a hedge, not an insight.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Does self-critique actually improve output?</summary>
+              <div class="ans"><p><b>It depends entirely on whether the critic has new information.</b> When the critique is grounded in an <em>external signal</em> — unit tests that failed, a compiler error, a JSON-schema validation error, retrieved documents to check claims against — reflection works well, because the revision is responding to evidence.</p><p>When it's the same model re-reading its own output with an &ldquo;are you sure?&rdquo; prompt, gains are small and sometimes negative: the model's errors and its blind spots are <b>correlated across the two calls</b>, so it tends to either rubber-stamp or make confident cosmetic edits. Research on unaided self-correction has repeatedly found this. The design implication is concrete: <b>give the critic a tool or a signal, not just an opinion.</b></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What breaks in a reflection loop?</summary>
+              <div class="ans"><p><b>Non-termination</b>, in three flavours. The critic is never satisfied and the loop runs to your recursion limit. The generator <b>oscillates</b> between two drafts, each fixing what the other broke. Or quality genuinely <b>degrades</b> with iteration — over-revised text often gets worse after round two.</p><p>Every reflection loop therefore needs: a <b>hard iteration cap</b> with a forced-accept branch; a <b>score threshold</b> so &ldquo;good enough&rdquo; is defined rather than aspirational; ideally <b>keeping the best draft seen so far</b> rather than the last one, so degradation can't cost you; and a critic prompted with explicit, checkable criteria instead of &ldquo;is this good?&rdquo;.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you implement reflection in LangGraph?</summary>
+              <div class="ans"><p>Two nodes and a conditional edge. <code class="ic">generate</code> writes a draft to state; <code class="ic">critique</code> uses <code class="ic">with_structured_output</code> to return <code class="ic">{score: int, issues: list[str], accept: bool}</code>; a conditional edge from <code class="ic">critique</code> returns <code class="ic">"generate"</code> or <code class="ic">END</code>.</p><p>The details that matter: keep an <code class="ic">iterations</code> counter in state and increment it in the generator, with the conditional edge checking <code class="ic">iterations &gt;= MAX</code> <em>before</em> it checks the score; store <code class="ic">best_draft</code> and <code class="ic">best_score</code> alongside the current one so you return the best rather than the last; and feed the critique text back into the generator's prompt so the revision is targeted. Set <code class="ic">recursion_limit</code> on the config as a final backstop — it's a safety net, not the design.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g2-6">
+        <h3><span class="tn">2.6</span> Autonomy versus control <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Autonomy is not a binary and not a virtue. It is a dial, and where you set it should be a function of <em>blast radius</em>, not of how impressive the demo looks.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Level</th><th>The model decides…</th><th>Appropriate when</th></tr></thead>
+            <tbody>
+              <tr><td>L0 · Fixed</td><td>Nothing about flow — it generates content only</td><td>The process is known and compliance matters</td></tr>
+              <tr><td>L1 · Routing</td><td>Which of N known branches</td><td>Input types vary, handling is standard</td></tr>
+              <tr><td>L2 · Tool selection</td><td>Which tools to call, in what order</td><td>Read-only tools; wrong choices are cheap</td></tr>
+              <tr><td>L3 · Gated action</td><td>What to do — but a human approves before it happens</td><td><b>Writes, spends, sends</b> — irreversible effects</td></tr>
+              <tr><td>L4 · Full autonomy</td><td>Everything, including when it's done</td><td>Sandboxed, reversible, low-value-per-error</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The useful reframing: <b>set autonomy per action, not per agent</b>. One agent can read freely at L2, draft at L2, and require approval at L3 for the single tool that sends an email. That is a far better design than choosing a single autonomy level for the whole system, and it's what <code class="ic">interrupt</code> exists to express.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The blast-radius question</span>
+          <p>For every tool, ask: <em>if the model calls this wrongly, what's the worst outcome, and can we undo it?</em> Reversible and cheap → let it run. Irreversible or expensive → gate it behind approval. That single question generates your entire autonomy policy, and it's a much better answer than &ldquo;we'd add a guardrail prompt&rdquo;.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How much autonomy would you give a production agent?</summary>
+              <div class="ans"><p>Reframe it: <b>autonomy is set per action, not per agent</b>, and the deciding question is blast radius — <em>if this call is wrong, how bad is it and can we undo it?</em></p><p>Concretely, in one support agent: reading the knowledge base and querying order history are free (wrong answers are cheap and reversible); drafting a reply is free; <b>issuing a refund, sending the email, or modifying a record requires an <code class="ic">interrupt</code> and human approval</b>. Above some value threshold you might require a second approver.</p><p>The additional point that lands well: gating is enforced <b>in your tool layer, not in the prompt</b>. The model can be talked out of a prompt instruction; it cannot be talked past a code path that requires an approval token.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Isn't a heavily gated agent just a workflow with extra steps?</summary>
+              <div class="ans"><p>Sometimes, and noticing that is a good sign — but not always. The distinction is <b>where the flexibility lives</b>. A gated agent still <em>chooses</em> which tools to use and in what order, and it handles inputs you didn't enumerate; the gate only constrains the small number of actions with real-world consequences. That's genuinely different from a workflow where the path is fixed.</p><p>That said, if you find that every meaningful action is gated <em>and</em> the sequence is always the same, you have discovered that your problem was a workflow all along — and you should rewrite it as one. That realisation is worth acting on, not defending against.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Where do you enforce a &ldquo;never do X&rdquo; rule?</summary>
+              <div class="ans"><p><b>In code, in the tool layer — never only in the prompt.</b> A system-prompt rule is a strong suggestion that a sufficiently unusual input, or a deliberate injection, can override. A check inside the tool function, or a wrapper that refuses before dispatch, cannot be argued with.</p><p>The layered version, best to state in full: <b>capability</b> limits first (the agent's DB credentials are read-only, so &ldquo;never DROP a table&rdquo; is enforced by permissions rather than intent); <b>validation</b> in the tool second (parse the SQL, reject anything that isn't a SELECT); <b>approval gates</b> third for the actions that survive; and the prompt last, as a hint that reduces how often you hit the other three. The prompt is UX; the code is the control.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g2-7">
+        <h3><span class="tn">2.7</span> When NOT to build an agent <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The highest-scoring answer in most agentic-AI interviews is a well-argued <em>no</em>. Candidates who reach for an agent by default are demonstrating exactly the instinct that produces expensive, unreliable production systems.</p>
+
+        <h4>The four disqualifiers</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>If…</th><th>Then build…</th><th>Because</th></tr></thead>
+            <tbody>
+              <tr><td>The steps are always the same</td><td>A chain or workflow</td><td>You're paying an LLM to rediscover a sequence you already know</td></tr>
+              <tr><td>Latency budget is under a second</td><td>A single call, or no LLM</td><td>Each agent iteration is a round trip; 5 steps is 5–20 s</td></tr>
+              <tr><td>Errors are expensive and hard to detect</td><td>A gated workflow, or a human</td><td>Non-determinism plus high stakes is the worst combination</td></tr>
+              <tr><td>You can't evaluate the output</td><td>Nothing yet — build the eval first</td><td>An agent you can't measure will silently degrade</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>There is a fifth, less often stated: <b>if a well-written SQL query, a regex, or a lookup table solves it, do that.</b> A surprising share of &ldquo;agent&rdquo; projects are deterministic data problems wearing a chat interface. Saying this out loud in an interview signals that you optimise for the business outcome rather than for using the interesting technology.</p>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#a33" stroke-width="1.7"/><path d="M12 7.5v5M12 15.8h.01" stroke="#a33" stroke-width="1.9" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The interview trap</span>
+          <p>You'll be given a scenario that <em>sounds</em> agentic — &ldquo;classify incoming tickets and route them&rdquo; — and the expected answer is a <b>router</b>, not an agent. If you launch into supervisor architectures and tool catalogues for a problem one structured-output call solves, you've failed the judgement test regardless of how good the rest of the answer is.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>When would you <em>not</em> build an agent?</summary>
+              <div class="ans"><p>Four clear cases. <b>The steps are knowable in advance</b> — then encode them; paying an LLM to rediscover a fixed sequence on every request adds cost, latency and failure modes for nothing. <b>The latency budget is tight</b> — each iteration is a round trip, so a five-step agent is a 5–20 second experience and no amount of engineering fixes that. <b>Errors are expensive and hard to detect</b> — non-determinism plus high stakes is the worst combination; use a gated workflow or a human. <b>You have no way to evaluate the output</b> — an unmeasurable agent degrades silently, so build the eval before the agent.</p><p>And the fifth: <b>if SQL, a regex or a lookup table solves it, do that.</b> The honest default is that most problems that look agentic are workflows, and most that look like they need multi-agent need one agent.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>&ldquo;We want an agent that classifies support tickets and routes them.&rdquo; Design it.</summary>
+              <div class="ans"><p>Push back first, then design. That's <b>not an agent</b> — it's a single classification call. One LLM call with <code class="ic">with_structured_output</code> returning a <code class="ic">Literal</code> category plus a confidence, then a deterministic route. One model call, ~500 ms, fully testable against a labelled dataset, trivially cheap, and you can measure accuracy directly.</p><p>Then show where it <em>would</em> become an agent: if routing requires <b>looking things up</b> — checking the customer's plan, their open tickets, whether the reported bug is known — and the number and order of those lookups depends on what you find, then you have genuine dynamic control flow and an agent (or at minimum a tool-calling loop) is justified. Volunteering the boundary condition is what makes this a strong answer rather than a contrarian one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How do you justify agent cost to a sceptical stakeholder?</summary>
+              <div class="ans"><p>By making the comparison concrete rather than architectural. Establish the <b>baseline</b>: what does the task cost today in human minutes, and what's the error rate? Then measure the agent on the same terms — cost per successful completion, not cost per call, because failed runs and retries are part of the price. Include the <b>tail</b>: p95 cost and latency, since agent spend is a distribution with a long right tail, and a stakeholder surprised by that tail will lose trust in the whole project.</p><p>And be willing to conclude against the agent. &ldquo;We measured it; a workflow gets 94% of the value at 20% of the cost, so we shipped the workflow&rdquo; is a stronger answer than any defence of the agent.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g2-8">
+        <h3><span class="tn">2.8</span> The 2026 agent landscape</h3>
+        <p class="lead">Enough orientation to sound current: who is building what, where the frameworks differ, and which claims to be sceptical about.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Framework</th><th>Core idea</th><th>Where it fits</th></tr></thead>
+            <tbody>
+              <tr><td><b>LangGraph</b></td><td>Explicit graph, durable state, low-level control</td><td>Production systems needing persistence, HITL, custom flow</td></tr>
+              <tr><td>Agent SDKs (provider-native)</td><td>A thin loop close to the model's own tool protocol</td><td>Fast single-agent builds, tightly coupled to one provider</td></tr>
+              <tr><td>CrewAI</td><td>Role-based crews with tasks and delegation</td><td>Rapid prototyping of role-playing multi-agent setups</td></tr>
+              <tr><td>AutoGen</td><td>Conversational multi-agent, agents talk to each other</td><td>Research and exploratory multi-agent work</td></tr>
+              <tr><td>Plain SDK + a loop</td><td>No framework at all</td><td>Genuinely viable for simple agents — say so</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Two positions worth holding. First, <b>&ldquo;no framework&rdquo; is a legitimate answer</b> for a simple tool-calling loop — the provider SDKs handle tool calling natively, and a 60-line loop is easier to debug than a framework you half-understand. The argument for LangGraph is specifically persistence, interruption, streaming and durable execution; if you don't need those, say so. Second, be sceptical of <b>benchmark claims</b> on agent leaderboards: many are single-task, many are contaminated, and the gap between benchmark performance and behaviour on your data is usually large.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>Why LangGraph over CrewAI, AutoGen, or a provider SDK?</summary>
+              <div class="ans"><p>Name the axis: <b>how much control you need over the control flow, and whether you need durability.</b> CrewAI and AutoGen give you high-level abstractions — roles, crews, conversations — which are excellent for getting something running quickly and awkward when you need a specific flow. Provider SDKs give you a clean loop tightly coupled to one vendor.</p><p>LangGraph's specific value is being <b>low-level and durable</b>: you write the graph explicitly, so there's no hidden control flow; and checkpointing gives you resumability, human-in-the-loop, time travel and crash recovery, which the others largely don't. The cost is more code for simple cases.</p><p>Finish with the honest caveat: for a straightforward tool-calling agent with no persistence requirement, <b>a plain SDK loop is perfectly reasonable</b> and easier to debug. Choosing a framework you don't need is its own mistake.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What's actually changed in agent engineering over the last two years?</summary>
+              <div class="ans"><p>Four things. <b>Tool calling became native and structured</b>, which killed the text-parsing failure mode that dominated early ReAct implementations, and added parallel tool calls. <b>Persistence became a framework concern</b> — memory moved from prompt-stuffing wrappers to checkpointers and stores, which is what made long-running and interruptible agents practical. <b>Evaluation matured</b>: trajectory evaluation and LLM-as-judge with bias controls replaced eyeballing outputs. And <b>the industry got more conservative</b> — the 2023 enthusiasm for fully autonomous multi-agent swarms gave way to the observation that most production value comes from <em>one</em> well-instrumented agent with well-designed tools and tight gates.</p><p>The meta-point: the trend is toward <b>less autonomy and more engineering</b>, which is the opposite of what the early hype predicted.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How do you evaluate a claim like &ldquo;our agent scores 78% on this benchmark&rdquo;?</summary>
+              <div class="ans"><p>With three questions. <b>What's the task distribution?</b> Most agent benchmarks are narrow — a single domain, a fixed tool set — and performance rarely transfers. <b>Is there contamination?</b> Public benchmarks leak into training data, and a model that has seen the test set is not being evaluated. <b>What was the cost and latency?</b> A score achieved with 50 model calls and a tree search is not comparable to one achieved in three calls, and almost no leaderboard reports that.</p><p>The practical conclusion: benchmarks are useful for <em>ruling out</em> candidates, not for selecting one. The only number that matters is performance on <b>your</b> data with <b>your</b> tools, which is why you build a small golden dataset before you pick a model.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part01_Prerequisites.html">Part 1 · Prerequisites</a></div><ul><li>Typing, async, structured output</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 2 · Agentic AI Foundations</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part03_CorePrimitives.html">Part 3 · LangGraph Core Primitives</a></div><ul><li>StateGraph, nodes, edges</li><li>Reducers, Send, Command</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        LangGraph &amp; Agentic AI — Part 2 of 12 · Agentic AI Foundations<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 210 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · Prerequisites", "l1": "Level 1 · Agentic AI Foundations", "l2": "Level 2 · LangGraph Core Primitives", "l3": "Level 3 · Workflow Patterns", "l4": "Level 4 · State, Persistence & Memory", "l5": "Level 5 · Tools & Agent Capabilities", "l6": "Level 6 · RAG &amp; Advanced RAG", "l7": "Level 7 · Multi-Agent Architectures", "l8": "Level 8 · Observability &amp; Evaluation", "l9": "Level 9 · Production Engineering", "l10": "Level 10 · Advanced &amp; Frontier", "iv": "Interview Q&amp;A Bank", "sd": "System Design Scenarios", "pp": "Portfolio Projects"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "iv", "sd", "pp"];
+const TRACKER = [
+[1,"l0","Theory","Medium",0,"Functions, decorators, closures"],
+[2,"l0","Theory","Medium",0,"TypedDict, Annotated, Literal, Optional from typing"],
+[3,"l0","Theory","Medium",0,"Pydantic v2 \u2014 BaseModel, field validation, model_dump()"],
+[4,"l0","Theory","Medium",0,"async / await, asyncio.gather"],
+[5,"l0","Theory","Medium",0,"Generators and yield (needed to understand streaming)"],
+[6,"l0","Theory","Medium",0,"Environment management \u2014 venv / uv, .env files with python-dotenv"],
+[7,"l0","Theory","Medium",0,"Tokens, context windows, temperature, top-p"],
+[8,"l0","Theory","Medium",0,"Chat message roles: system / user / assistant / tool"],
+[9,"l0","Theory","Medium",0,"Embeddings and cosine similarity"],
+[10,"l0","Theory","Medium",0,"Function calling / tool calling at the API level"],
+[11,"l0","Theory","Medium",0,"Structured output and JSON mode"],
+[12,"l0","Theory","Medium",0,"What hallucination actually is, and why grounding reduces it"],
+[13,"l1","Theory","Medium",0,"Traditional AI \u2014 classify / predict from patterns"],
+[14,"l1","Theory","Medium",0,"Generative AI \u2014 learn a distribution, create new content"],
+[15,"l1","Theory","Medium",0,"RAG \u2014 GenAI grounded in your private data (still reactive)"],
+[16,"l1","Theory","Medium",0,"Tool-augmented \u2014 can act, but the human orchestrates"],
+[17,"l1","Theory","Medium",0,"Agentic AI \u2014 given a goal, plans and executes autonomously"],
+[18,"l1","Theory","Medium",0,"Autonomy \u2014 acts without step-by-step prompting"],
+[19,"l1","Theory","Medium",0,"Goal-orientation \u2014 persistent objective drives all actions"],
+[20,"l1","Theory","Medium",0,"Planning \u2014 decomposes goals, generates candidate plans, selects one"],
+[21,"l1","Theory","Medium",0,"Reasoning \u2014 chooses tools, handles errors, evaluates results"],
+[22,"l1","Theory","Medium",0,"Adaptability \u2014 pivots when a strategy fails"],
+[23,"l1","Theory","Medium",0,"Context awareness \u2014 uses memory to know where it is"],
+[24,"l1","Theory","Medium",0,"ReAct (Reason + Act) \u2014 interleaved thought/action/observation loop. *Read the original Yao et al. paper.*"],
+[25,"l1","Theory","Medium",0,"Plan-and-Execute \u2014 plan the whole thing upfront, then execute steps"],
+[26,"l1","Theory","Medium",0,"Reflection / Reflexion \u2014 the agent critiques and revises its own output"],
+[27,"l1","Theory","Medium",0,"Orchestrator\u2013Worker \u2014 a lead agent delegates to specialists"],
+[28,"l1","Theory","Medium",0,"Evaluator\u2013Optimizer \u2014 generator + critic in a loop"],
+[29,"l1","Theory","Medium",0,"Router \u2014 classify the request, dispatch to a specialist path"],
+[30,"l1","Theory","Medium",0,"LangGraph \u2014 graph-based, maximal control, production/enterprise default"],
+[31,"l1","Theory","Medium",0,"CrewAI \u2014 role-based, collaboration-first, faster to prototype"],
+[32,"l1","Theory","Medium",0,"AutoGen \u2014 conversational multi-agent (Microsoft)"],
+[33,"l1","Theory","Medium",0,"OpenAI Agents SDK, Mastra (TypeScript), Pydantic AI"],
+[34,"l1","Theory","Medium",0,"Be ready to defend a choice with tradeoffs, not name-drop"],
+[35,"l2","Theory","High",0,"A graph is a flowchart: nodes are Python functions, edges are control flow"],
+[36,"l2","Theory","High",0,"Nodes return partial state updates \u2014 a dict of only the keys they changed"],
+[37,"l2","Theory","High",0,"START and END are sentinels, never executed as nodes"],
+[38,"l2","Theory","High",0,"Execution happens in rounds called supersteps (Pregel model, from Google)"],
+[39,"l2","Theory","High",0,"Two nodes reachable from the same source in one step run in parallel"],
+[40,"l2","Theory","High",0,"TypedDict (most common), Pydantic BaseModel (validation), or dataclass"],
+[41,"l2","Theory","High",0,"Input / output schemas \u2014 expose a narrow public interface, keep internals private"],
+[42,"l2","Theory","High",0,"Private state keys passed between nodes but not returned to the caller"],
+[43,"l2","Theory","High",0,"Default behaviour with no reducer = overwrite"],
+[44,"l2","Theory","High",0,"Without a reducer, two parallel branches writing the same key in one superstep raise InvalidUpdateError \u2014 they do *not* silently merge"],
+[45,"l2","Theory","High",0,"add_messages is special: it appends, dedupes by message id, and understands RemoveMessage"],
+[46,"l2","Theory","High",0,"You can write custom reducers \u2014 any (current, update) -&gt; merged function"],
+[47,"l2","Theory","High",0,"Static edges \u2014 add_edge(\"a\", \"b\"), unconditional"],
+[48,"l2","Theory","High",0,"Conditional edges \u2014 add_conditional_edges(source, router_fn, path_map)"],
+[49,"l2","Theory","High",0,"The router returns a node name (or list of names), not data"],
+[50,"l2","Theory","High",0,"Also used to navigate to a node in a parent graph (graph=Command.PARENT)"],
+[51,"l2","Theory","High",0,"Also the mechanism for resuming after an interrupt \u2014 see 4.5"],
+[52,"l2","Theory","High",0,"Each Send carries its own state payload, not the whole graph state"],
+[53,"l2","Theory","High",0,"Results merge back via a reducer on the target key"],
+[54,"l2","Theory","High",0,"This is the canonical map-reduce pattern in LangGraph"],
+[55,"l3","Practical","Medium",0,"Linear graph, each node enriches state"],
+[56,"l3","Practical","Medium",0,"Practice: BMI calculator (no LLM) \u2192 outline generator \u2192 blog writer"],
+[57,"l3","Practical","Medium",0,"Multiple independent nodes in one superstep"],
+[58,"l3","Practical","Medium",0,"Must return partial updates and use reducers"],
+[59,"l3","Practical","Medium",0,"Practice: essay scored by three evaluators (language / analysis / clarity) with operator.add collecting scores, then an aggregator node averaging them"],
+[60,"l3","Practical","Medium",0,"Router function + add_conditional_edges"],
+[61,"l3","Practical","Medium",0,"Force classification with Literal[...] in a Pydantic schema"],
+[62,"l3","Practical","Medium",0,"Practice: quadratic solver branching on the discriminant \u2192 customer-review bot routing on sentiment, with a diagnosis sub-step for negative reviews"],
+[63,"l3","Practical","Medium",0,"Loop back to a previous node instead of hitting END"],
+[64,"l3","Practical","Medium",0,"Evaluator\u2013Optimizer: generate \u2192 critique \u2192 regenerate"],
+[65,"l3","Practical","Medium",0,"Always bound the loop with a max_iterations counter in state"],
+[66,"l3","Practical","Medium",0,"Know graph.invoke(..., {\"recursion_limit\": 50}) and what GraphRecursionError means"],
+[67,"l3","Practical","Medium",0,"builder.add_node(\"aggregate\", fn, defer=True) \u2014 runs only after all upstream paths complete"],
+[68,"l3","Practical","Medium",0,"Solves parallel branches of unequal length finishing at different times"],
+[69,"l3","Practical","Medium",0,"Ideal for map-reduce fan-in, consensus voting, multi-agent collaboration"],
+[70,"l4","Theory","High",0,"A checkpointer snapshots the entire state after every superstep"],
+[71,"l4","Theory","High",0,"thread_id isolates conversations \u2014 User A's memory never bleeds into User B's"],
+[72,"l4","Theory","High",0,"Dev \u2192 InMemorySaver. Prod \u2192 SqliteSaver (single node) or PostgresSaver (scale)"],
+[73,"l4","Theory","High",0,"checkpointer.setup() creates tables on first use for the DB backends"],
+[74,"l4","Theory","High",0,"Async variants exist: AsyncSqliteSaver, AsyncPostgresSaver"],
+[75,"l4","Theory","High",0,"Every superstep is a checkpoint, so you can rewind to any point"],
+[76,"l4","Theory","High",0,"Replay from a past checkpoint_id"],
+[77,"l4","Theory","High",0,"Fork \u2014 update state at a past checkpoint and run a different branch"],
+[78,"l4","Theory","High",0,"Primary use: debugging non-deterministic agent runs"],
+[79,"l4","Theory","High",0,"Know the memory *types*: semantic (facts), episodic (past events/examples), procedural (learned instructions)"],
+[80,"l4","Theory","High",0,"Know the tradeoff: hot-path writes (immediate, adds latency) vs background writes (async, eventually consistent)"],
+[81,"l4","Theory","High",0,"HITL requires a checkpointer \u2014 no persistence, no pause/resume"],
+[82,"l4","Theory","High",0,"The four HITL patterns: approve/reject, edit state, review tool calls, provide input"],
+[83,"l4","Theory","High",0,"Retrieve pending interrupts: graph.get_state(config).tasks[0].interrupts"],
+[84,"l5","Practical","Medium",0,"The docstring is the prompt. The model chooses tools based on name + description + arg schema. Vague docstrings = wrong tool selection"],
+[85,"l5","Practical","Medium",0,"Use Pydantic args_schema for complex inputs"],
+[86,"l5","Practical","Medium",0,"Prefer few, well-scoped tools over many overlapping ones"],
+[87,"l5","Practical","Medium",0,"Return strings or JSON-serialisable objects; keep outputs small"],
+[88,"l5","Practical","Medium",0,"\u26a0\ufe0f create_react_agent from langgraph.prebuilt is deprecated \u2014 it still works but emits LangGraphDeprecatedSinceV10"],
+[89,"l5","Practical","Medium",0,"create_agent adds a middleware system: composable hooks that run before/after the model call and before/after tool execution, for logging, guardrails, retries, and summarization \u2014 without rewriting the graph"],
+[90,"l5","Practical","Medium",0,"Know the tradeoff: prebuilt = fast; hand-built StateGraph = full control. Interviewers ask when you'd drop down"],
+[91,"l5","Practical","Medium",0,"Parallel tool calls \u2014 the model can emit several at once; ToolNode executes them concurrently"],
+[92,"l5","Practical","Medium",0,"Tool errors \u2014 return a ToolMessage describing the failure so the model can retry, rather than crashing"],
+[93,"l5","Practical","Medium",0,"InjectedState / InjectedStore \u2014 pass graph state into a tool without exposing it to the LLM"],
+[94,"l5","Practical","Medium",0,"Tool call review \u2014 gate sensitive tools behind HITL"],
+[95,"l5","Practical","Medium",0,"Structured output vs tool calling \u2014 when to use which"],
+[96,"l5","Practical","Medium",0,"Open standard (from Anthropic) for connecting models to tools and data sources"],
+[97,"l5","Practical","Medium",0,"Client\u2013server: your agent is the client; Drive/Slack/Postgres/etc. expose servers"],
+[98,"l5","Practical","Medium",0,"Replaces writing a bespoke wrapper per integration"],
+[99,"l5","Practical","Medium",0,"langchain-mcp-adapters converts MCP tools into LangChain tools"],
+[100,"l5","Practical","Medium",0,"Know transports: stdio (local) vs HTTP/SSE (remote)"],
+[101,"l5","Practical","Medium",0,"LangGraph can also expose an agent as an MCP tool"],
+[102,"l6","Practical","Medium",0,"Loaders: PyPDFLoader, WebBaseLoader, DirectoryLoader"],
+[103,"l6","Practical","Medium",0,"RecursiveCharacterTextSplitter \u2014 chunk size, overlap, and why both matter"],
+[104,"l6","Practical","Medium",0,"Embeddings; vector stores: FAISS (local), Chroma, Pinecone, pgvector"],
+[105,"l6","Practical","Medium",0,"Retriever config: k, MMR, metadata filtering, score thresholds"],
+[106,"l6","Practical","Medium",0,"As a step: every query goes through retrieval \u2014 simple, wasteful, and wrong for \"hi\""],
+[107,"l6","Practical","Medium",0,"As a tool: wrap the retriever in @tool and let the model decide \u2014 this is Agentic RAG"],
+[108,"l6","Practical","Medium",0,"Multi-source agents route between a PDF retriever, a SQL tool, and web search"],
+[109,"l6","Practical","Medium",0,"Solves: vector similarity returns plausible-but-wrong chunks"],
+[110,"l6","Practical","Medium",0,"The grader is an LLM scoring \"do these docs actually answer the question?\""],
+[111,"l6","Practical","Medium",0,"Fallback is usually web search"],
+[112,"l6","Practical","Medium",0,"Two graders: groundedness (supported by context?) and relevance (answers the question?)"],
+[113,"l6","Practical","Medium",0,"Bound the retry loop or you'll spin forever"],
+[114,"l6","Practical","Medium",0,"Adaptive RAG \u2014 route by query complexity (no retrieval / single-shot / multi-hop)"],
+[115,"l6","Practical","Medium",0,"HyDE \u2014 embed a hypothetical answer instead of the question"],
+[116,"l6","Practical","Medium",0,"Parent-document / small-to-big retrieval"],
+[117,"l6","Practical","Medium",0,"Reranking with a cross-encoder (Cohere Rerank, BGE)"],
+[118,"l6","Practical","Medium",0,"Hybrid search \u2014 BM25 + dense vectors"],
+[119,"l6","Practical","Medium",0,"GraphRAG \u2014 knowledge-graph-backed retrieval"],
+[120,"l6","Practical","Medium",0,"Contextual retrieval \u2014 prepend chunk-level context before embedding"],
+[121,"l7","Theory","Medium",0,"Compile a graph and use it as a node in a parent graph"],
+[122,"l7","Theory","Medium",0,"Shared schema \u2014 add the compiled subgraph directly"],
+[123,"l7","Theory","Medium",0,"Different schema \u2014 wrap it in a function that translates state in and out"],
+[124,"l7","Theory","Medium",0,"Checkpointing propagates from parent to subgraph automatically"],
+[125,"l7","Theory","Medium",0,"Enables reuse of an approval loop or research module across projects"],
+[126,"l7","Theory","Medium",0,"Command(goto=\"other_agent\", update={...}, graph=Command.PARENT)"],
+[127,"l7","Theory","Medium",0,"Decide what context transfers: full history or a compressed handoff summary?"],
+[128,"l7","Theory","Medium",0,"Context isolation \u2014 sub-agents with their own scratchpad prevent context bloat"],
+[129,"l8","Practical","High",0,"Run \u2014 a single unit of work; Trace \u2014 the full tree for one request"],
+[130,"l8","Practical","High",0,"Span hierarchy \u2014 nested parent/child runs"],
+[131,"l8","Practical","High",0,"Metrics captured: latency, token counts, cost, errors"],
+[132,"l8","Practical","High",0,"Tags and metadata for filtering (user id, version, environment)"],
+[133,"l8","Practical","High",0,"For LangGraph specifically: traces show each superstep, conditional branches taken, loops, and how state mutates node by node \u2014 invaluable for spotting a dropped or overwritten key"],
+[134,"l8","Practical","High",0,"Datasets \u2014 curated inputs (+ reference outputs) to test against"],
+[135,"l8","Practical","High",0,"Build them from production traces you flag as interesting"],
+[136,"l8","Practical","High",0,"Evaluator types:"],
+[137,"l8","Practical","High",0,"Online evaluation \u2014 run evaluators against live production traffic"],
+[138,"l8","Practical","High",0,"Regression testing \u2014 compare experiments across prompt/model changes"],
+[139,"l8","Practical","High",0,"Final-answer eval is not enough. Evaluate the trajectory \u2014 the sequence of steps taken"],
+[140,"l8","Practical","High",0,"Golden trajectories \u2014 reference paths a correct run should follow"],
+[141,"l8","Practical","High",0,"Step-level accuracy \u2014 did it pick the right tool, with the right args, at the right time?"],
+[142,"l8","Practical","High",0,"Trajectory match \u2014 exact / in-order / any-order / superset"],
+[143,"l8","Practical","High",0,"Cost and step-count as first-class metrics \u2014 a correct answer after 40 tool calls is a failure"],
+[144,"l8","Practical","High",0,"Common agent failure taxonomy: wrong tool, malformed args, infinite loop, premature stop, context overflow"],
+[145,"l8","Practical","High",0,"LangSmith Prompt Hub \u2014 versioned prompts, decoupled from code"],
+[146,"l8","Practical","High",0,"LangGraph Studio \u2014 visual graph debugger, step through and edit state"],
+[147,"l8","Practical","High",0,"Alternatives worth naming: Langfuse, Arize Phoenix, W&amp;B Weave, OpenTelemetry GenAI conventions"],
+[148,"l9","Practical","High",0,"Durability modes \u2014 trade write frequency against performance:"],
+[149,"l9","Practical","High",0,"Nodes re-execute on resume \u2014 write them as near-pure functions of state"],
+[150,"l9","Practical","High",0,"\u2b50 Checkpoints make state recoverable, but they do NOT make side effects exactly-once. Add idempotency keys so a resume can't re-charge a card or re-send an email. This is a top senior-level interview answer"],
+[151,"l9","Practical","High",0,"Pattern: have the node produce a draft (status=\"pending\"), and commit the side effect in a separate, idempotent step"],
+[152,"l9","Practical","High",0,"Retry policies \u2014 add_node(..., retry_policy=RetryPolicy(max_attempts=3))"],
+[153,"l9","Practical","High",0,"Node timeouts and error handlers"],
+[154,"l9","Practical","High",0,"set_node_defaults(...) (langgraph \u2265 1.2) to apply retry/timeout/cache/error-handler to every node at once"],
+[155,"l9","Practical","High",0,"Recursion limits to bound runaway loops"],
+[156,"l9","Practical","High",0,"Graceful degradation when a tool is down"],
+[157,"l9","Practical","High",0,"Backends: InMemoryCache, SqliteCache, RedisCache"],
+[158,"l9","Practical","High",0,"key_func customises how the cache key is derived from node input"],
+[159,"l9","Practical","High",0,"Huge for development iteration speed; also cuts production cost"],
+[160,"l9","Practical","High",0,"Stream modes: values (full state), updates (deltas), messages (LLM tokens), custom, debug"],
+[161,"l9","Practical","High",0,"astream_events for fine-grained event streams"],
+[162,"l9","Practical","High",0,"Streaming from inside tools and from subgraphs (subgraphs=True)"],
+[163,"l9","Practical","High",0,"Why it matters: perceived latency. A frozen UI reads as a broken app"],
+[164,"l9","Practical","High",0,"LangGraph Server / Platform \u2014 managed runtime with threads, cron, and a task queue"],
+[165,"l9","Practical","High",0,"Self-hosting with FastAPI + Postgres checkpointer"],
+[166,"l9","Practical","High",0,"Assistants \u2014 versioned configurations of the same graph"],
+[167,"l9","Practical","High",0,"Docker, horizontal scaling, connection pooling (psycopg_pool)"],
+[168,"l9","Practical","High",0,"Double-texting strategies (reject, enqueue, interrupt, rollback)"],
+[169,"l9","Practical","High",0,"Webhooks and background runs for long-running agents"],
+[170,"l9","Practical","High",0,"Model routing \u2014 cheap model for classification, strong model for synthesis"],
+[171,"l9","Practical","High",0,"Prompt caching; batching; semantic caching"],
+[172,"l9","Practical","High",0,"Token budgets per run; hard spend caps"],
+[173,"l9","Practical","High",0,"Prompt injection \u2014 especially via retrieved documents and tool output"],
+[174,"l9","Practical","High",0,"Least-privilege tool credentials; sandboxing code execution"],
+[175,"l9","Practical","High",0,"PII redaction before it reaches logs/traces"],
+[176,"l9","Practical","High",0,"Guardrails: input/output validation, allow-lists, HITL on destructive actions"],
+[177,"l9","Practical","High",0,"Unit-test nodes as plain functions \u2014 they are just Python"],
+[178,"l9","Practical","High",0,"Stub the LLM with a fake chat model returning scripted tool calls, so tests don't hit the API"],
+[179,"l9","Practical","High",0,"Integration-test full graph paths"],
+[180,"l9","Practical","High",0,"LangSmith datasets as the regression suite in CI"],
+[181,"l10","Theory","Medium",0,"Functional API \u2014 @entrypoint / @task decorators as an alternative to StateGraph for imperative-style durable workflows"],
+[182,"l10","Theory","Medium",0,"Pregel internals \u2014 how supersteps, channels, and the scheduler actually work"],
+[183,"l10","Theory","Medium",0,"Custom checkpointer / store implementations (BaseCheckpointSaver, BaseStore)"],
+[184,"l10","Theory","Medium",0,"Context engineering \u2014 the discipline that replaced prompt engineering: what enters the window, when, and why"],
+[185,"l10","Theory","Medium",0,"Multi-agent context isolation and compression strategies"],
+[186,"l10","Theory","Medium",0,"Reflexion and self-improving agents that update procedural memory"],
+[187,"l10","Theory","Medium",0,"LangMem / Mem0 for managed cross-session recall"],
+[188,"l10","Theory","Medium",0,"Simulation-based evaluation \u2014 agents tested against simulated users"],
+[189,"l10","Theory","Medium",0,"Computer-use / browser agents"],
+[190,"l10","Theory","Medium",0,"Agent-to-agent protocols (A2A) and MCP server authoring"],
+[191,"l10","Theory","Medium",0,"Deep Agents \u2014 planning + subagents + filesystem, layered on LangGraph"],
+[192,"iv","Interview Prep","High",0,"High-frequency: Conceptual questions (agent vs workflow, ReAct, LangChain vs LangGraph)"],
+[193,"iv","Interview Prep","High",0,"High-frequency: LangGraph mechanics (reducers, Send, Command, supersteps, loops)"],
+[194,"iv","Interview Prep","High",0,"High-frequency: State &amp; memory (checkpointer vs store, thread_id, context window)"],
+[195,"iv","Interview Prep","High",0,"High-frequency: HITL &amp; production (approval gates, crash recovery, idempotency, durability)"],
+[196,"iv","Interview Prep","High",0,"High-frequency: Tools &amp; RAG (tool choice, tool errors, MCP, the RAG ladder)"],
+[197,"iv","Interview Prep","High",0,"High-frequency: Evaluation (agent eval, golden trajectories, regression gates)"],
+[198,"iv","Interview Prep","High",0,"The 7 trap questions (answered correctly, out loud)"],
+[199,"sd","Interview Prep","High",0,"System design: Customer support triage agent"],
+[200,"sd","Interview Prep","High",0,"System design: Research assistant (parallel Send + reflection)"],
+[201,"sd","Interview Prep","High",0,"System design: SQL analytics agent (guarding destructive SQL)"],
+[202,"sd","Interview Prep","High",0,"System design: Code review agent (tool design)"],
+[203,"sd","Interview Prep","High",0,"System design: Multi-tenant chatbot at 10k users"],
+[204,"sd","Interview Prep","High",0,"System design: Long-running campaign agent (weeks, durability)"],
+[205,"pp","Project","High",0,"Project 1: Multi-pattern workflow set (sequential/parallel/conditional/iterative)"],
+[210,"pp","Project","High",0,"Project 2: Persistent chatbot (Streamlit + SQLite checkpointer + streaming)"],
+[207,"pp","Project","High",0,"Project 3: Research agent built twice (hand-rolled vs create_agent)"],
+[208,"pp","Project","High",0,"Project 4: Agentic RAG with CRAG + Self-RAG"],
+[209,"pp","Project","High",0,"Project 5: Multi-agent report writer (planner/researcher/writer/evaluator + HITL)"],
+[210,"pp","Project","High",0,"Project 6: Fully instrumented agent (LangSmith traces, trajectory evals, CI gate)"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="lgPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 210 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+</body>
+</html>

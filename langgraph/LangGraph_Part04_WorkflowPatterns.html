@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LangGraph &amp; Agentic AI — Part 6: Interview Q&amp;A Bank</title>
+<title>LangGraph &amp; Agentic AI — Part 4: Workflow Patterns</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -313,6 +313,53 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
   figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -321,7 +368,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
 <div class="topbar">
   <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
-  <div class="tt"><small>Part 6 / 6</small>Interview Q&amp;A Bank</div>
+  <div class="tt"><small>Part 4 / 12</small>Workflow Patterns</div>
 </div>
 
 <div class="layout">
@@ -341,8 +388,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
     </div>
 
     <div class="sb-part">
-      <div class="k">Part 6 of 6</div>
-      <div class="v">Interview Q&amp;A Bank</div>
+      <div class="k">Part 4 of 12</div>
+      <div class="v">Workflow Patterns</div>
       <div class="sb-progress">
         <div class="bar"><div class="fill" id="sbFill"></div></div>
         <div class="lab" id="sbLab">0 / 210 topics done</div>
@@ -355,18 +402,15 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
       </div>
       <div class="grp">
-        <button class="ghead" data-t><span class="num">QA</span> Interview Q&amp;A <span class="chev">▾</span></button>
+        <button class="ghead" data-t><span class="num">L3</span> Workflow Patterns <span class="chev">▾</span></button>
         <ul class="links">
-          <li><a href="#g6-1">6.1 · Conceptual</a></li>
-          <li><a href="#g6-2">6.2 · LangGraph mechanics</a></li>
-          <li><a href="#g6-3">6.3 · State &amp; memory</a></li>
-          <li><a href="#g6-4">6.4 · HITL &amp; production</a></li>
-          <li><a href="#g6-5">6.5 · Tools &amp; RAG</a></li>
-          <li><a href="#g6-6">6.6 · Evaluation</a></li>
-          <li><a href="#g6-7">6.7 · The trap questions ⭐</a></li>
-          <li><a href="#g6-8">6.8 · System design scenarios</a></li>
-          <li><a href="#g6-9">6.9 · Gotchas cheat sheet</a></li>
-          <li><a href="#g6-10">6.10 · Portfolio &amp; study plan</a></li>
+          <li><a href="#g4-1">4.1 · Prompt chaining</a></li>
+          <li><a href="#g4-2">4.2 · Parallelisation ⭐</a></li>
+          <li><a href="#g4-3">4.3 · Routing ⭐</a></li>
+          <li><a href="#g4-4">4.4 · Orchestrator-worker ⭐</a></li>
+          <li><a href="#g4-5">4.5 · Evaluator-optimizer loops ⭐</a></li>
+          <li><a href="#g4-6">4.6 · The agent loop as a pattern</a></li>
+          <li><a href="#g4-7">4.7 · Choosing a pattern ⭐⭐</a></li>
         </ul>
       </div>
       <div class="grp">
@@ -375,7 +419,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
       </div>
     </nav>
     <div class="sb-foot">
-      LangGraph &amp; Agentic AI<br>Part 6 — Interview Q&amp;A Bank<br>© your study kit
+      LangGraph &amp; Agentic AI<br>Part 4 — Workflow Patterns<br>© your study kit
     </div>
   </aside>
 
@@ -385,16 +429,18 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
       <!-- HERO -->
       <header class="hero">
-        <div class="eyebrow">Part 6 of 6 · Interview Q&amp;A Bank</div>
-        <h1 class="title">The question bank
-          <span class="sub">Every high-frequency LangGraph interview question with a model answer — conceptual, mechanics, state, HITL, tools, evaluation — plus the seven trap questions, six system-design scenarios, and the gotchas cheat sheet.</span>
+        <div class="eyebrow">Part 4 of 12 · Workflow Patterns</div>
+        <h1 class="title">The six shapes almost every system is made of
+          <span class="sub">Prompt chaining, parallelisation (sectioning and voting), routing, orchestrator-worker, evaluator-optimizer loops, and the agent loop — each with the LangGraph construct that implements it and the failure mode that kills it.</span>
         </h1>
-        <p class="thesis">The consolidated <strong>drill</strong>. Read the question, answer out loud, <em>then</em> expand the model answer and compare. The <strong>trap questions</strong> (§6.7) deserve special attention — they're designed to separate people who've read about LangGraph from people who've shipped it, and each has a naive answer that sounds right and a correct answer that doesn't. Every answer links back to the section in Parts 1–5 where it's derived.</p>
+        <p class="thesis">Anthropic's <em>Building Effective Agents</em> put names to a small set of shapes, and interviewers now use those names as shared vocabulary — so being able to say &ldquo;that's an orchestrator-worker with an evaluator gate&rdquo; is worth a surprising amount. The section that matters most is the last one: <strong>choosing</strong>. Every pattern here trades determinism for flexibility, and the senior move is to pick the <em>least</em> flexible pattern that solves the problem, because determinism is what makes a system testable, debuggable and cheap. An evaluator-optimizer loop with no iteration cap is the most common way to turn a working demo into a runaway bill.</p>
         <div class="meta-chips">
-          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Q&amp;A Bank</b></span>
-          <span class="chip"><b>60+</b> questions</span>
-          <span class="chip">7 <b>traps</b></span>
-          <span class="chip">⏱ <b>~4–5h</b> drill</span>
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 3</b></span>
+          <span class="chip"><b>7</b> sections</span>
+          <span class="chip">📐 <b>2</b> diagrams</span>
+          <span class="chip">💬 <b>19</b> Q&amp;A</span>
+          <span class="chip">🎛 <b>1</b> interactive</span>
+          <span class="chip">⏱ <b>~6h</b></span>
         </div>
       </header>
 
@@ -405,7 +451,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
             <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div>
               <h2>Master Progress Tracker</h2>
-              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
             </div>
             <div class="tk-overall">
               <div class="pct" id="ovPct">0%</div>
@@ -440,361 +486,410 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-      <!-- ============================ Q&A BANK ============================ -->
-      <section class="phase-head" id="qabank">
-        <div class="pk">Interview Q&amp;A Bank</div>
-        <h2>Answer out loud, then compare</h2>
-        <p class="pd">Written answers aren't enough — 2026 hiring reports are explicit that candidates fail on <em>explaining trajectory evaluation out loud</em>, <em>designing tool schemas live</em>, and <em>defending framework choices under pushback</em>. Cover the answer, respond aloud, then expand and compare.</p>
-      </section>
+      <article class="topic" id="g4-1">
+        <h3><span class="tn">4.1</span> Prompt chaining</h3>
+        <p class="lead">The simplest pattern: decompose a task into a fixed sequence of calls, where each step's output feeds the next. Boring, deterministic, and correct far more often than people expect.</p>
 
-      <!-- ---------- 6.1 ---------- -->
-      <article class="topic" id="g6-1">
-        <h3><span class="tn">6.1</span> Conceptual</h3>
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Conceptual · 6 questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Core</span>What distinguishes an agent from a workflow? When would you deliberately choose a workflow?</summary>
-              <div class="ans"><p>Who controls the flow. In a <b>workflow</b> the developer fixes the steps; the LLM fills in content. In an <b>agent</b> the LLM decides what to do next — which tool, whether to loop, when to stop. Choose a workflow deliberately whenever the path is enumerable: it's cheaper, faster, deterministic, testable, and debuggable. Agents buy adaptability to unpredictable paths at the cost of latency, tokens, and non-determinism. <em>(§1.5)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Core</span>Explain ReAct. Where does it break down?</summary>
-              <div class="ans"><p>Interleaved <em>Thought → Action → Observation</em> until the model can answer — a two-node LangGraph cycle (agent ⇄ tools). It breaks on long horizons: the agent wanders or repeats calls, context grows with every observation until it overflows, and errors compound step to step. Mitigate with iteration caps, a planner (plan-and-execute) or critic (reflection), observation compression, and trajectory evaluation. <em>(§1.4, §3.2)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Core</span>Why is LangGraph a graph rather than a chain?</summary>
-              <div class="ans"><p>Because agentic control flow needs <b>cycles, branches, and parallelism</b> — a chain is a straight line. Agents loop (retry, refine, re-retrieve), branch (route by classification), and fan out (research N topics at once). A graph expresses all three natively, plus it gives explicit state with defined merge semantics, and a natural checkpoint boundary (the superstep) for persistence, resume, and HITL. <em>(§1.7)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Core</span>LangChain vs LangGraph in 2026?</summary>
-              <div class="ans"><p>Layers, not rivals. LangGraph is the <b>runtime</b> — graph engine, state, checkpointing, streaming, durability. LangChain is the batteries-included layer on top — model/tool abstractions and <code class="ic">create_agent</code>, which runs <em>on</em> the LangGraph runtime. Use the prebuilt for standard ReAct agents; drop to a hand-built <code class="ic">StateGraph</code> for custom control flow, multi-agent topologies, or bespoke state. <em>(§1.6)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Core</span>Walk me through an agentic system you built end to end.</summary>
-              <div class="ans"><p>Structure it: <b>problem &amp; why agentic</b> (the path couldn't be enumerated) → <b>state design</b> (what keys, which reducers) → <b>graph shape</b> (nodes, routing, loops, and their bounds) → <b>tools</b> (schemas and why those) → <b>memory</b> (checkpointer for threads, Store for user facts) → <b>HITL</b> (what's gated and why) → <b>observability &amp; eval</b> (traces, dataset, trajectory metrics, CI gate) → <b>production</b> (durability, idempotency, cost controls) → <b>results and what you'd change</b>. Naming a concrete failure you hit and fixed is what makes it credible.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Core</span>When is an agent the <em>wrong</em> solution?</summary>
-              <div class="ans"><p>When steps are known (write a workflow), when latency is tight (each loop is an LLM round-trip), when determinism is required (audit/compliance paths), when the task is a single classification or transformation, or when a cheaper tool fits — a SQL query beats an agent for "total revenue by region." Also when you can't evaluate it: shipping an agent you can't measure is how teams end up with expensive, unfixable systems. <em>(§1.5)</em></p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-
-      <!-- ---------- 6.2 ---------- -->
-      <article class="topic" id="g6-2">
-        <h3><span class="tn">6.2</span> LangGraph mechanics</h3>
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Mechanics · 7 questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Core ⭐</span>What is a reducer and why does it exist?</summary>
-              <div class="ans"><p>A function <code class="ic">(current, update) → merged</code> attached to a state key via <code class="ic">Annotated[T, reducer]</code>, telling LangGraph how to combine a node's write with the existing value instead of overwriting. It exists because nodes return <em>partial</em> updates and multiple nodes in one superstep may write the same key — the framework needs explicit merge semantics rather than guessing. <em>(§1.9)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap ⭐</span>Two parallel nodes write the same key with no reducer — what happens?</summary>
-              <div class="ans"><p><b><code class="ic">InvalidUpdateError</code></b>. Not "it merges," not "last write wins." LangGraph refuses to guess. Fix with a reducer on that key, or write to different keys. <em>(§1.9)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Mechanics</span><code>Send</code> vs conditional edges?</summary>
-              <div class="ans"><p>A conditional edge picks among a <em>fixed, build-time-known</em> set of next nodes. <code class="ic">Send</code> spawns <em>N</em> parallel instances where N is only known at runtime, each with its <b>own payload</b> rather than the shared state — the map-reduce primitive. Results merge back via a reducer. <em>(§1.12)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Mechanics</span>What does <code>Command</code> let you do that a conditional edge can't?</summary>
-              <div class="ans"><p>Return a state update <em>and</em> a routing hop together from inside the node. Plus two things edges can't do: navigate into a <b>parent graph</b> (<code class="ic">graph=Command.PARENT</code> — the multi-agent handoff mechanism) and <b>resume</b> a paused graph via <code class="ic">Command(resume=value)</code>. <em>(§1.11)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Mechanics</span>Explain supersteps.</summary>
-              <div class="ans"><p>Execution rounds (the Pregel model). Each superstep runs all currently-scheduled nodes — possibly in parallel — against the state as it stood at the round's start; their partial updates are merged (applying reducers) at the round's end, then the next round is scheduled. That's why parallel siblings can't see each other's writes, why reducers apply at the boundary, and why checkpoints happen once per superstep. <em>(§1.7)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Mechanics</span>How do you prevent an infinite loop in a cyclic graph?</summary>
-              <div class="ans"><p>Two guards. <b>Semantic:</b> an iteration counter in state, incremented in the loop, with the router exiting at a max (and on success). <b>Framework:</b> <code class="ic">recursion_limit</code> raising <code class="ic">GraphRecursionError</code> — a safety net, not a design. Return the best-so-far result on exhaustion rather than failing hard. <em>(§2.4)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Mechanics</span>What is a deferred node and what problem does it solve?</summary>
-              <div class="ans"><p><code class="ic">defer=True</code> makes a node wait until <b>all</b> upstream paths reach it. It solves parallel branches of unequal length — without it an aggregator fires when the first (short) branch arrives, on partial data. Ideal for map-reduce fan-in, consensus voting, and multi-agent collaboration. <em>(§2.5)</em></p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-
-      <!-- ---------- 6.3 ---------- -->
-      <article class="topic" id="g6-3">
-        <h3><span class="tn">6.3</span> State &amp; memory</h3>
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>State &amp; memory · 5 questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Trap ⭐</span>Checkpointer vs Store?</summary>
-              <div class="ans"><p><b>Checkpointer</b> = within-thread memory, keyed by <code class="ic">thread_id</code>, snapshotting state every superstep; enables resume, time travel, HITL. <b>Store</b> = cross-thread memory, keyed by namespace (usually <code class="ic">user_id</code>), optionally vector-indexed for semantic search. "What happened in <em>this chat</em>?" → checkpointer. "What do I know about <em>this user</em>?" → Store. User preferences go in the Store — thread state dies with the thread. Compile with both. <em>(§2.8)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">State</span>How does <code>thread_id</code> work, and what breaks without it?</summary>
-              <div class="ans"><p>It's the key the checkpointer stores state under, passed in <code class="ic">config["configurable"]</code>. It partitions conversations so users don't see each other's history and returning users resume their own thread. Without it you get no useful memory, every call looks fresh, and HITL/time travel have nothing to target — and it fails <b>silently</b>. <em>(§2.6)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">State</span>Managing a conversation that exceeds the context window — compare three strategies.</summary>
-              <div class="ans"><p><b>Trimming</b> (<code class="ic">trim_messages</code>): high token efficiency, high context loss, low complexity — watch <code class="ic">start_on</code>/<code class="ic">end_on</code> so you don't orphan a tool call. <b>Deletion</b> (<code class="ic">RemoveMessage</code>): targeted, moderate efficiency, needs real message ids. <b>Summarization</b>: high efficiency and low context loss, but costs an LLM call and can drift. Production answer: summarize old turns, keep recent ones verbatim, and push durable facts to the Store so they survive independently. <em>(§2.10)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Design</span>Design a long-term memory system for a personal assistant.</summary>
-              <div class="ans"><p>Four stages. <b>Extraction:</b> an LLM pulls durable facts from conversational noise (background or hot-path). <b>Storage:</b> write to a Store namespaced by <code class="ic">user_id</code>, vector-indexed, typed as semantic (facts) / episodic (past events) / procedural (learned instructions). <b>Retrieval:</b> semantic search at session start or per turn. <b>Injection:</b> splice retrieved facts into the system prompt. Add: deduplication and conflict resolution when facts change, TTLs for stale ones, and user-visible controls to view/delete memories. Trade-off to name: hot-path writes are immediate but add latency; background writes are async but eventually consistent. <em>(§2.9)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Debugging</span>What is time travel and when have you used it?</summary>
-              <div class="ans"><p>Every superstep is a checkpoint, so you can list history, replay from a past <code class="ic">checkpoint_id</code>, or <b>fork</b> — patch state at a past checkpoint and run a different branch. Main use is debugging non-deterministic agents: instead of re-running an expensive trajectory hoping to reproduce a bug, rewind to just before it went wrong, change one value, and replay. Also useful for A/B-ing two prompts from an identical mid-run state. <em>(§2.7)</em></p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-
-      <!-- ---------- 6.4 ---------- -->
-      <article class="topic" id="g6-4">
-        <h3><span class="tn">6.4</span> HITL &amp; production</h3>
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>HITL &amp; production · 5 questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">HITL</span>How do you implement an approval gate before a destructive action?</summary>
-              <div class="ans"><p>Compile with a checkpointer, then call <code class="ic">interrupt({...})</code> inside a gate node before the destructive step, passing a payload describing the pending action. The graph pauses and durably checkpoints; you read pending interrupts via <code class="ic">graph.get_state(config).tasks[0].interrupts</code>, show them to a human, and resume with <code class="ic">graph.invoke(Command(resume="yes"), config)</code>. Make the gate conditional (only high-value/irreversible actions), and pair it with idempotency so the resumed run can't double-execute. <em>(§2.11, §5.2)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">HITL</span><code>interrupt()</code> vs <code>interrupt_before</code>?</summary>
-              <div class="ans"><p><code class="ic">interrupt()</code> is dynamic — inside a node, can pause conditionally, and passes a structured payload to the human. <code class="ic">interrupt_before=["node"]</code> is static, set at compile time, and always pauses. Prefer <code class="ic">interrupt()</code> in production; use <code class="ic">interrupt_before</code> for debugging or blanket gates. Both need a checkpointer; both resume with <code class="ic">Command(resume=…)</code>. <em>(§2.11)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap ⭐</span>Your agent crashes mid-run. What happens on restart?</summary>
-              <div class="ans"><p>It resumes from the last completed superstep — state is recoverable. But the interrupted node <b>re-executes</b>, so any side effect it already performed happens again. Checkpointing gives you recoverable <em>state</em>, not exactly-once <em>effects</em>. <em>(§5.1–5.2)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap ⭐</span>How do you ensure a resumed run doesn't send the same email twice?</summary>
-              <div class="ans"><p>Idempotency keys. Derive a stable key from the thread + logical action (e.g. <code class="ic">thread-42:send:order-9</code>), check "already processed" before acting, and pass the key to providers that support idempotent requests. Better still, two-phase it: the node produces a <em>draft</em> (<code class="ic">status="pending"</code>) and a separate, idempotent commit step performs the send. Write nodes as near-pure functions of state so replay is safe by construction. <em>(§5.2)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Current ⭐</span>What did LangGraph 1.2 add for fault tolerance?</summary>
-              <div class="ans"><p>Three things, all per-node. <b>Timeouts:</b> <code class="ic">TimeoutPolicy(run_timeout=…, idle_timeout=…)</code> — a hard wall-clock cap per attempt, and an idle cap that resets on progress signals (catches stalled streams); either raises a retriable <code class="ic">NodeTimeoutError</code>. <b>Error handlers:</b> <code class="ic">error_handler=</code> runs <em>after</em> retries are exhausted with a <code class="ic">NodeError</code>, enabling graceful degradation and <b>Saga-style compensation</b> via <code class="ic">Command(goto="compensate")</code>. <b><code class="ic">set_node_defaults()</code>:</b> apply retry/timeout/cache/error-handler to every node at once — per-node values still win, defaults apply at <code class="ic">compile()</code>, and they are <em>not</em> inherited by subgraphs. <em>(§5.3)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Current</span>What is <code>DeltaChannel</code> and when would you use it?</summary>
-              <div class="ans"><p>A LangGraph 1.2 (beta) channel type that stores <b>incremental deltas</b> instead of the full value on each checkpoint, cutting write overhead for long-running threads with growing state. Use <code class="ic">snapshot_frequency</code> to periodically write a full snapshot so replay doesn't fold an unbounded delta chain. Reach for it when checkpoint cost — not model latency — dominates a long thread. <em>(§5.1)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Production</span>What are durability modes and how would you choose one?</summary>
-              <div class="ans"><p><code class="ic">"exit"</code> (persist at the end — fastest, least safe), <code class="ic">"async"</code> (background — balanced default), <code class="ic">"sync"</code> (before continuing — safest, slowest). Choose by how expensive the work is to redo and how costly it is to lose: short cheap runs can use exit; long agents with expensive steps or HITL pauses want sync. <em>(§5.1)</em></p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-
-      <!-- ---------- 6.5 ---------- -->
-      <article class="topic" id="g6-5">
-        <h3><span class="tn">6.5</span> Tools &amp; RAG</h3>
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Tools &amp; RAG · 5 questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Tools</span>How does the model decide which tool to call? How do you improve that?</summary>
-              <div class="ans"><p>From the tool <b>name</b>, <b>docstring</b>, and <b>argument schema</b> only. Improve by writing precise docstrings stating what the tool is <em>and isn't</em> for, typed Pydantic schemas with per-field descriptions, few non-overlapping tools with distinct names, and few-shot examples for ambiguous cases. Wrong selection is a docstring problem, not a model problem. <em>(§3.1)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Tools</span>A tool throws an exception. What should happen?</summary>
-              <div class="ans"><p>It becomes a <code class="ic">ToolMessage</code> the model can read — never an unhandled crash. Return a clear, actionable failure message so the agent can retry with different args, try another tool, or report honestly. Guard against infinite retry with an attempt counter. <em>(§3.4)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Modern</span>What is MCP and why does it matter?</summary>
-              <div class="ans"><p>Model Context Protocol — an open client–server standard for exposing tools and data to LLM apps. Your agent is the client; filesystem/Postgres/Slack/Drive run servers. It kills the N×M integration problem: any MCP client can use any MCP server, instead of a bespoke wrapper per tool per framework. Transports: <code class="ic">stdio</code> (local), HTTP/SSE (remote). <code class="ic">langchain-mcp-adapters</code> converts them to LangChain tools; LangGraph can also expose an agent as an MCP server. <em>(§3.5)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">RAG ⭐</span>Naive vs Agentic vs CRAG vs Self-RAG — explain the ladder.</summary>
-              <div class="ans"><p><b>Naive:</b> always retrieve → generate. <b>Agentic:</b> retriever as a <em>tool</em> — the model decides if/which/how many times, and can route between sources. <b>CRAG:</b> a grader <em>after retrieval</em> scores document relevance and triggers correction (rewrite or web search). <b>Self-RAG:</b> graders <em>after generation</em> — groundedness and answer relevance — regenerating or re-retrieving on failure. Each rung adds a node and latency; climb only as far as your failure modes require, and bound the loops. <em>(§3.10)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Debugging</span>Your RAG system returns confident wrong answers. Debug it.</summary>
-              <div class="ans"><p>Localise first: log and read the retrieved chunks. Missing right chunk → retrieval bug (chunk size, truncation, need hybrid search for exact terms). Right chunk present but bad answer → generation (prompt not enforcing "only from context", temperature too high). Then add structure: a CRAG relevance grader before generation, a groundedness check after it, and an abstention path so it says "I don't know." Finally measure faithfulness/context-relevance on a fixed set to confirm the fix. <em>(§3.11)</em></p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-
-      <!-- ---------- 6.6 ---------- -->
-      <article class="topic" id="g6-6">
-        <h3><span class="tn">6.6</span> Evaluation</h3>
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Evaluation · 4 questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Eval ⭐</span>How do you evaluate an agent?</summary>
-              <div class="ans"><p>Outcome <em>and</em> trajectory. Outcome: correctness/groundedness/helpfulness via heuristics, LLM-judge, or human annotation on a curated dataset. Trajectory: right tools, right args, right order, no loops or premature stops — scored against golden trajectories (exact / in-order / any-order / superset). Treat cost and step count as first-class metrics. Build datasets from flagged production traces; run offline as a CI gate and online against live traffic; track a failure taxonomy. <em>(§4.8)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Eval ⭐</span>What is a golden trajectory? Why isn't final-answer accuracy sufficient?</summary>
-              <div class="ans"><p>A golden trajectory is the reference tool sequence a correct run should follow. Final-answer accuracy is insufficient because two runs can produce the same right answer via wildly different paths — 3 efficient steps vs 40 flailing calls at 14× the cost. Outcome-only scoring rates them equally, and hides <em>why</em> failures happen. <b>A correct answer after 40 tool calls is a failure.</b> <em>(§4.8)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Eval</span>How do you catch a regression before it ships?</summary>
-              <div class="ans"><p>Evaluation as a CI gate: a versioned dataset (seeded from production traces plus known-hard and previously-broken cases), the evaluator suite run on every prompt/model/graph change, compared against the prior baseline, failing the build if correctness, groundedness, trajectory match, cost, or p95 latency regress. Then shadow/canary before full rollout. Pin the judge model version so scores stay comparable. <em>(§4.9)</em></p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Eval</span>What does a LangSmith trace show you for a LangGraph run specifically?</summary>
-              <div class="ans"><p>Each <b>superstep</b> as a span, which conditional branches were taken, how many times loops ran, and — the killer feature — <b>how state mutates node by node</b>. That state-diff view is how you spot a dropped or overwritten key (the reducer bugs from §1.9) without adding print statements. Plus the usual per-span latency, token counts, cost, errors, and filterable tags/metadata. <em>(§4.6)</em></p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-      <!-- ---------- 6.7 ---------- -->
-      <article class="topic" id="g6-7">
-        <h3><span class="tn">6.7</span> The trap questions ⭐</h3>
-        <p class="lead">Specifically designed to separate people who've <em>read about</em> LangGraph from people who've <em>shipped</em> it. Each has a naive answer that sounds right — and is wrong.</p>
+        <h4>Why splitting one prompt into three helps</h4>
+        <p>A single prompt asking the model to research, outline, draft and edit does all four badly, because attention is split and there's no point at which any one sub-task gets the model's full effort. Chaining gives each step a focused instruction and a clean context. It also gives you something a monolithic prompt can't: <b>a place to put a gate</b>. Between step 2 and step 3 you can validate, filter, retry that step alone, or stop early — none of which is possible inside one generation.</p>
 
         <figure class="diagram">
           <div class="dwrap">
-            <svg viewBox="0 0 700 250" role="img" aria-label="Seven trap questions with their naive wrong answers on the left and correct answers on the right.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">the seven traps — naive answer vs correct answer</text>
-              <text x="250" y="44" fill="#e0a3a8" font-size="10" text-anchor="middle">✗ naive</text>
-              <text x="520" y="44" fill="#7fd6a0" font-size="10" text-anchor="middle">✓ correct</text>
-              <g font-size="8.5">
-                <text x="24" y="66" fill="#c2cad6">LangGraph vs LangChain?</text>
-                <text x="250" y="66" fill="#e0a3a8" text-anchor="middle">picks a side</text>
-                <text x="380" y="66" fill="#7fd6a0">they're layers — LC's create_agent runs on LG</text>
-                <text x="24" y="92" fill="#c2cad6">Concurrent writes to one key?</text>
-                <text x="250" y="92" fill="#e0a3a8" text-anchor="middle">"it merges" / "last wins"</text>
-                <text x="380" y="92" fill="#7fd6a0">InvalidUpdateError unless a reducer exists</text>
-                <text x="24" y="118" fill="#c2cad6">User prefs: checkpointer or Store?</text>
-                <text x="250" y="118" fill="#e0a3a8" text-anchor="middle">checkpointer</text>
-                <text x="380" y="118" fill="#7fd6a0">Store — prefs must survive across threads</text>
-                <text x="24" y="144" fill="#c2cad6">Checkpointing = exactly-once?</text>
-                <text x="250" y="144" fill="#e0a3a8" text-anchor="middle">"yes"</text>
-                <text x="380" y="144" fill="#7fd6a0">no — state recovers, side effects don't</text>
-                <text x="24" y="170" fill="#c2cad6">Is create_react_agent standard?</text>
-                <text x="250" y="170" fill="#e0a3a8" text-anchor="middle">"yes"</text>
-                <text x="380" y="170" fill="#7fd6a0">deprecated in v1 — use create_agent</text>
-                <text x="24" y="196" fill="#c2cad6">How do you eval an agent?</text>
-                <text x="250" y="196" fill="#e0a3a8" text-anchor="middle">"check the final answer"</text>
-                <text x="380" y="196" fill="#7fd6a0">trajectory eval — golden paths, cost, steps</text>
-                <text x="24" y="222" fill="#c2cad6">Just use an agent for everything?</text>
-                <text x="250" y="222" fill="#e0a3a8" text-anchor="middle">enthusiastic yes</text>
-                <text x="380" y="222" fill="#7fd6a0">workflow when the path is known</text>
+            <svg viewBox="0 0 700 200" role="img" aria-label="A four-step prompt chain: outline, then draft, then a validation gate that can either continue to polish or loop back to draft, then the final output. Each step is a separate LLM call with its own focused prompt.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">a chain with a gate — the gate is the reason to chain at all</text>
+              <g font-size="10.5">
+                <rect x="24" y="60" width="120" height="46" rx="9" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                <text x="84" y="80" fill="#8fa0ff" text-anchor="middle" font-weight="600">outline</text>
+                <text x="84" y="96" fill="#8892a0" text-anchor="middle" font-size="9.5">structure only</text>
+
+                <rect x="182" y="60" width="120" height="46" rx="9" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                <text x="242" y="80" fill="#8fa0ff" text-anchor="middle" font-weight="600">draft</text>
+                <text x="242" y="96" fill="#8892a0" text-anchor="middle" font-size="9.5">prose from outline</text>
+
+                <path d="M340 60l52 23-52 23-52-23z" fill="#2a2016" stroke="#F0A81E" stroke-width="1.5"/>
+                <text x="340" y="87" fill="#F0A81E" text-anchor="middle" font-size="10">gate</text>
+
+                <rect x="432" y="60" width="120" height="46" rx="9" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                <text x="492" y="80" fill="#8fa0ff" text-anchor="middle" font-weight="600">polish</text>
+                <text x="492" y="96" fill="#8892a0" text-anchor="middle" font-size="9.5">tone and length</text>
+
+                <rect x="590" y="60" width="86" height="46" rx="9" fill="#161b23" stroke="#7fd6a0" stroke-width="1.5"/>
+                <text x="633" y="87" fill="#7fd6a0" text-anchor="middle" font-weight="600">output</text>
+
+                <g stroke="#5A6472" stroke-width="1.3" fill="none" marker-end="url(#lgar41)">
+                  <path d="M144 83h32"/><path d="M302 83h-14 0"/><path d="M392 83h34"/><path d="M552 83h32"/>
+                </g>
+                <defs><marker id="lgar41" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+                <path d="M340 106v34H242v-30" stroke="#e0929a" stroke-width="1.4" fill="none" stroke-dasharray="4 3"/>
+                <text x="250" y="156" fill="#e0929a" font-size="9.5">fails the check → retry just this step</text>
+                <text x="20" y="184" fill="#c9d1dc" font-size="11">a single mega-prompt can’t be gated, retried in part, or measured per step</text>
               </g>
-              <line x1="330" y1="52" x2="330" y2="232" stroke="#2c3542" stroke-dasharray="3 4"/>
-              <line x1="370" y1="52" x2="370" y2="232" stroke="#2c3542" stroke-dasharray="3 4"/>
             </svg>
           </div>
-          <figcaption><b>Memorise the right-hand column.</b> Each of these is a one-line answer that instantly signals hands-on experience — and each naive answer instantly signals the opposite.</figcaption>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>LLM step</span><span><i style="background:#F0A81E"></i>deterministic gate</span></div>
+          <figcaption>In LangGraph: three nodes, two normal edges, and one conditional edge for the gate.</figcaption>
         </figure>
 
         <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#F0A81E" stroke-width="2"/><path d="M12 8v5M12 16h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round"/></svg><span>The traps, expanded</span></div>
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
           <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Trap 1</span>"LangGraph vs LangChain — which is better?"</summary>
-              <div class="ans"><p>Reject the premise politely: they're <b>layers, not rivals</b>. LangGraph is the runtime (graph engine, state, checkpointing, streaming); LangChain is the batteries-included layer whose <code class="ic">create_agent</code> <em>runs on</em> that runtime. You use both — prebuilt for standard cases, hand-built <code class="ic">StateGraph</code> when you need control.</p></div>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why split one prompt into a chain of three?</summary>
+              <div class="ans"><p>Three reasons. <b>Focus</b>: each call gets one job and a clean context, which measurably improves quality over a prompt that asks for four things at once. <b>Gates</b>: you can validate, filter or branch between steps — impossible inside a single generation. <b>Observability and cost control</b>: you can see which step failed, retry <em>only</em> that step, and use a cheap model for the mechanical steps and an expensive one for the hard step.</p><p>The cost: more round trips, so higher latency. If quality is already fine with one call, chaining is over-engineering — the pattern earns its keep when a step needs to be checked or when different steps want different models.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Trap 2</span>"What happens with concurrent writes to one state key?"</summary>
-              <div class="ans"><p><b><code class="ic">InvalidUpdateError</code></b> unless a reducer is defined. It does not silently merge and it is not last-write-wins — LangGraph deliberately refuses to guess merge semantics.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap 3</span>"Checkpointer or Store for user preferences?"</summary>
-              <div class="ans"><p><b>Store.</b> The checkpointer is thread-scoped — preferences saved there vanish when the user starts a new conversation. The Store is namespaced by user and survives across all threads.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap 4</span>"Checkpointing gives you exactly-once execution, right?"</summary>
-              <div class="ans"><p><b>No.</b> State is recoverable; <b>side effects are not idempotent</b>. A node re-executes on resume, so a charge or email can fire twice. You add idempotency keys yourself, and ideally separate producing a draft from committing the effect.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap 5</span>"Is <code>create_react_agent</code> the standard?"</summary>
-              <div class="ans"><p><b>Deprecated in LangGraph v1.</b> It still runs but emits <code class="ic">LangGraphDeprecatedSinceV10</code>. The current entry point is <code class="ic">from langchain.agents import create_agent</code>, which adds a middleware system. Also deprecated: <code class="ic">AgentExecutor</code>, <code class="ic">initialize_agent</code>.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap 6</span>"How do you eval an agent?"</summary>
-              <div class="ans"><p>Not "check the final answer." <b>Trajectory evaluation</b> — golden paths, step-level tool-choice and argument accuracy, trajectory match strictness, and cost/step-count as first-class metrics. A correct answer after 40 tool calls is a failure.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Trap 7</span>"Just use an agent for everything?"</summary>
-              <div class="ans"><p>No — agents add latency, cost, and non-determinism. <b>Use a workflow when the path is known.</b> Reach for agency only when the steps genuinely can't be enumerated in advance.</p></div>
+            <details class="qa"><summary><span class="qtag">Design</span>Where would you put a gate in a chain, and what should it check?</summary>
+              <div class="ans"><p>Immediately after any step whose failure would waste the remaining steps or produce a confidently wrong result. The check should be <b>deterministic wherever possible</b> — schema validation, a length or format check, a regex, &ldquo;did retrieval return anything at all&rdquo; — because a deterministic gate is free, instant and testable.</p><p>Use an LLM gate only for judgements that genuinely need one (relevance, tone, factual grounding), and when you do, use <code class="ic">with_structured_output</code> so the gate returns a typed verdict rather than prose. And give the gate an escape: retry the failed step at most <em>k</em> times, then either continue with a flag or fail cleanly — never loop unbounded.</p></div>
             </details>
           </div>
         </div>
       </article>
 
-      <!-- ---------- 6.8 ---------- -->
-      <article class="topic" id="g6-8">
-        <h3><span class="tn">6.8</span> System design scenarios</h3>
-        <p class="lead">Whiteboard these and <em>say the tradeoffs out loud</em>. A reusable structure: clarify → state design → graph shape → tools → memory → HITL → eval → production concerns.</p>
+      <article class="topic" id="g4-2">
+        <h3><span class="tn">4.2</span> Parallelisation <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Two distinct patterns share this name, and conflating them is a common slip. <b>Sectioning</b> splits a task into independent parts; <b>voting</b> runs the same task several times and aggregates.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th>Sectioning</th><th>Voting</th></tr></thead>
+            <tbody>
+              <tr><td>What runs in parallel</td><td>Different sub-tasks</td><td>The <em>same</em> task, repeated</td></tr>
+              <tr><td>Why</td><td>Latency — <em>n</em> steps in one step's time</td><td>Reliability — reduce variance</td></tr>
+              <tr><td>Aggregation</td><td>Concatenate / synthesise</td><td>Majority vote, best-of-n, or a judge</td></tr>
+              <tr><td>Cost</td><td>Same total tokens, less wall-clock</td><td><b><em>n</em>× the tokens</b> for one answer</td></tr>
+              <tr><td>Example</td><td>Research six companies at once</td><td>Three independent safety checks; any flag blocks</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Sectioning is nearly always worth it when the parts are independent — you're spending the same tokens in less time. Voting is a deliberate purchase of reliability with money: three-way self-consistency on a hard classification is a real accuracy gain, and it costs exactly 3×. Use it where the error is expensive, not everywhere.</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#c9781f" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#c9781f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">&ldquo;Independent&rdquo; has to be true</span>
+          <p>Sectioning only works if the sections genuinely don't depend on each other. If section 3 needs section 1's finding, running them in parallel produces a section 3 written in ignorance — which reads fine and is wrong. Where there are dependencies, use <b>waves</b>: parallelise within a wave, sequence between waves.</p>
+        </div>
 
         <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Six scenarios</span></div>
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
           <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Design</span>Customer support triage agent</summary>
-              <div class="ans"><p>Classify intent → RAG the knowledge base → draft a reply → HITL approve → escalate on low confidence. <b>Graph:</b> classifier node with <code class="ic">Literal</code>-constrained output routing to specialist paths; retrieval as a tool so trivial intents skip it; a confidence check routing to human escalation. <b>Checkpoints:</b> a Postgres checkpointer keyed by conversation <code class="ic">thread_id</code>, plus a Store for customer history across tickets. <b>HITL:</b> <code class="ic">interrupt()</code> before sending any customer-facing reply (or only for low-confidence/refund cases). <b>Eval set:</b> historical tickets with known correct resolutions — measure intent-classification accuracy, retrieval relevance, draft quality (LLM-judge + human sample), and escalation precision/recall. <b>Production:</b> idempotent send, PII redaction before traces, cost caps.</p></div>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What are the two kinds of parallelisation?</summary>
+              <div class="ans"><p><b>Sectioning</b> — split a task into independent sub-tasks and run them concurrently, then synthesise. You buy <em>latency</em>: the same total tokens in roughly one step's wall-clock. <b>Voting</b> — run the <em>same</em> task several times (different temperatures, prompts or models) and aggregate by majority, best-of-n, or a judge. You buy <em>reliability</em>, and you pay <em>n</em>× the tokens for one answer.</p><p>Both are implemented the same way in LangGraph — a fan-out into one superstep with a reducer on the shared channel — but they're chosen for opposite reasons, and mixing up which one you're doing leads to paying 3× for a latency win you didn't get.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Design</span>Research assistant</summary>
-              <div class="ans"><p>Decompose the question → parallel web search via <code class="ic">Send</code> → synthesise with citations → reflect and re-search on gaps. <b>Graph:</b> planner emits one <code class="ic">Send</code> per sub-question; workers write into an <code class="ic">Annotated[list, operator.add]</code> findings key; a deferred aggregator waits for all; a reflection node checks coverage and can loop back (bounded). <b>Tradeoffs:</b> parallelism cuts wall-clock but multiplies token spend; cap the fan-out width. Cite by carrying source URLs in the findings payloads. Evaluate with trajectory metrics — did it search the right sub-questions? — plus citation-grounding checks.</p></div>
+            <details class="qa"><summary><span class="qtag">System design</span>When is voting worth 3× the cost?</summary>
+              <div class="ans"><p>When the <b>cost of an error clearly exceeds the cost of two extra calls</b>, and the errors are at least partly independent. Good cases: safety and moderation checks where a false negative is serious and you take the union of flags; a high-stakes classification feeding an irreversible action; extraction from a noisy document where you can take the modal value per field.</p><p>Bad cases: creative generation, where there's no ground truth to vote on; anything where the model's errors are <em>systematic</em>, since three runs of the same model with the same blind spot vote unanimously for the same wrong answer — which is why diversity (different prompts or different models) matters more than raw repetition. And always compare against the cheaper alternative: one call to a stronger model is often better than three to a weak one.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Design</span>SQL analytics agent — how do you prevent <code>DROP TABLE</code>?</summary>
-              <div class="ans"><p>Defence in depth, not prompt-begging. <b>Database layer:</b> connect as a <em>read-only role</em> — the strongest guarantee, because it holds even if the model is fully hijacked. <b>Query layer:</b> allow only <code class="ic">SELECT</code>, reject multi-statement input, enforce row limits and statement timeouts, and dry-run/<code class="ic">EXPLAIN</code> before executing. <b>Graph layer:</b> a validation node between generation and execution; HITL approval for anything unusual. <b>Schema handling:</b> retrieve only relevant tables into the prompt rather than dumping the whole schema. Flow: NL → SQL → validate → dry-run → execute → interpret.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Design</span>Code review agent — tool design is the whole game</summary>
-              <div class="ans"><p>Read a diff → run tests → propose fixes → iterate. The quality lives in the <b>tool schemas</b>: <code class="ic">get_diff(pr_id)</code>, <code class="ic">read_file(path, line_range)</code> (bounded output!), <code class="ic">run_tests(pattern)</code>, <code class="ic">post_comment(path, line, body)</code>. Keep outputs small — a whole repo won't fit in context, so tools must support targeted reads. Bound the iterate loop, gate <code class="ic">post_comment</code> behind HITL initially, and evaluate on a corpus of PRs with known issues (did it find the real bug, and how many irrelevant comments did it leave?).</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Design</span>Multi-tenant chatbot at 10k concurrent users</summary>
-              <div class="ans"><p><b>Checkpointer:</b> Postgres with connection pooling (<code class="ic">psycopg_pool</code>) and async variants; namespace <code class="ic">thread_id</code> by tenant. <b>Isolation:</b> per-tenant namespaces in the Store, and tenant-scoped filters on any retrieval — never rely on the prompt. <b>Scale:</b> stateless graph workers behind a load balancer (state lives in Postgres), horizontal autoscaling, background runs for long tasks. <b>Cost:</b> model routing (cheap classifier, strong synthesiser), semantic caching, per-tenant token budgets and hard caps. <b>Ops:</b> double-texting strategy, durability <code class="ic">"async"</code>, and per-tenant observability so one noisy tenant is diagnosable.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Design</span>Long-running campaign agent (runs for weeks)</summary>
-              <div class="ans"><p><b>Durability:</b> <code class="ic">"sync"</code> mode with a Postgres checkpointer — you cannot afford to lose weeks of state. <b>Idempotency</b> is non-negotiable: every external action (email sent, ad spend) needs a key so a resume can't duplicate it. <b>HITL:</b> <code class="ic">interrupt()</code> for approval gates that may sit pending for days — the durable pause is exactly the feature. <b>Scheduling:</b> cron/background runs rather than a held-open request; webhooks to resume. <b>Observability:</b> traces spanning a month need aggregation — track per-step cost, cumulative spend against a cap, and alert on stalls. Also plan for version drift: the graph may be redeployed mid-run, so version your assistants.</p></div>
+            <details class="qa"><summary><span class="qtag">Coding</span>How do you implement each in LangGraph?</summary>
+              <div class="ans"><p><b>Sectioning with known parts</b>: several <code class="ic">add_edge("plan", worker)</code> calls, so all workers activate in the same superstep. <b>Sectioning with dynamic parts</b>: a conditional edge returning <code class="ic">[Send("worker", {...}) for ...]</code>. <b>Voting</b>: fan out to the same node <em>n</em> times with <code class="ic">Send</code>, varying a seed or prompt in the payload.</p><p>In all three cases the result channel needs a reducer — <code class="ic">Annotated[list, operator.add]</code> — and a downstream node performs the aggregation. Two production notes: make the workers <code class="ic">async</code> or the parallelism is only notional, and cap the fan-out width so a runaway plan can't launch hundreds of concurrent calls into a rate limit.</p></div>
             </details>
           </div>
         </div>
       </article>
 
-      <!-- ---------- 6.9 ---------- -->
-      <article class="topic" id="g6-9">
-        <h3><span class="tn">6.9</span> Gotchas cheat sheet</h3>
-        <p class="lead">Last-minute review. Every one of these is a real bug people ship.</p>
-        <div class="tbl-wrap">
-          <table class="data">
-            <thead><tr><th style="width:50%">Gotcha</th><th>Consequence</th></tr></thead>
-            <tbody>
-              <tr><td>Nodes must return <b>partial</b> updates, not the whole state</td><td>Returning everything trips concurrent-write errors</td></tr>
-              <tr><td>Parallel node returning full state</td><td><code>InvalidUpdateError</code></td></tr>
-              <tr><td>No reducer on a concurrently-written key</td><td><code>InvalidUpdateError</code></td></tr>
-              <tr><td>No checkpointer</td><td>No memory, no HITL, no time travel</td></tr>
-              <tr><td>No <code>thread_id</code> in config</td><td>Checkpointer silently does nothing useful</td></tr>
-              <tr><td><code>InMemorySaver</code> in production</td><td>Everything lost on process restart</td></tr>
-              <tr><td>Cycle without a counter</td><td><code>GraphRecursionError</code> (after burning tokens)</td></tr>
-              <tr><td>Vague tool docstrings</td><td>Model picks the wrong tool</td></tr>
-              <tr><td>Tool exceptions crashing instead of returning <code>ToolMessage</code></td><td>Whole run dies; no recovery</td></tr>
-              <tr><td>Streaming raw tool JSON to the UI</td><td>Looks broken — filter to <code>AIMessage</code></td></tr>
-              <tr><td><code>RemoveMessage</code> without a real message <code>id</code></td><td>Silently does nothing</td></tr>
-              <tr><td>Postgres store semantic search without <b>pgvector</b></td><td>Search fails</td></tr>
-              <tr><td>Async graph with a sync checkpointer</td><td>Needs <code>AsyncPostgresSaver</code> / <code>AsyncSqliteSaver</code></td></tr>
-              <tr><td><code>create_react_agent</code></td><td>Deprecated — migrate to <code>create_agent</code></td></tr>
-              <tr><td>Python &lt; 3.10</td><td>LangChain packages won't install</td></tr>
-            </tbody>
-          </table>
+      <article class="topic" id="g4-3">
+        <h3><span class="tn">4.3</span> Routing <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Classify the input, send it to a specialist handler. It is the highest value-per-unit-complexity pattern in the whole catalogue, and it is very often the correct answer to a question that sounded like it needed an agent.</p>
+
+        <h4>Why routing beats one big prompt</h4>
+        <p>A single prompt that must handle billing, technical support and account changes carries instructions for all three, most of which are irrelevant to any given request — that's wasted context and diluted attention. Routing gives each branch a <b>focused prompt, its own tools, and its own model tier</b>. Billing questions can go to a cheap model with the pricing table; technical escalations to a strong model with the diagnostics tools. You also get per-branch metrics, which is what lets you find out that one category is quietly performing badly.</p>
+
+        <figure class="code">
+          <div class="chead">a router is one structured-output call plus a conditional edge</div>
+          <pre><code class="language-python">class Route(BaseModel):
+    destination: Literal["billing", "technical", "account", "other"]
+    confidence: float = Field(ge=0, le=1)
+
+def classify(state: State) -> dict:
+    r = cheap_model.with_structured_output(Route).invoke(state["query"])
+    return {"destination": r.destination, "confidence": r.confidence}
+
+def pick(state: State) -> str:
+    if state["confidence"] < 0.6:        # low confidence → safe fallback
+        return "general"
+    return state["destination"]
+
+builder.add_conditional_edges("classify", pick,
+    {"billing": "billing", "technical": "technical",
+     "account": "account", "other": "general", "general": "general"})</code></pre>
+        </figure>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Always have a fallback branch</span>
+          <p>Two things will happen in production: an input that fits none of your categories, and a low-confidence classification. Both need a <b>general handler</b> — never let the router pick the nearest wrong specialist. Returning a confidence score alongside the label, and routing below a threshold to the fallback, costs nothing and prevents the worst routing failures.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>How do you build a reliable router?</summary>
+              <div class="ans"><p>Five things. <b>Structured output with a <code class="ic">Literal</code></b> so the model can't invent a category. <b>A confidence score</b> in the same schema, with a threshold below which you route to a general fallback. <b>An explicit fallback branch</b> for inputs that fit nothing. <b>A cheap fast model</b> — classification is easy and the router is on every request's critical path. And <b>a labelled dataset</b>, because a router is a classifier and you should be able to state its accuracy and see its confusion matrix.</p><p>The last point is what separates a real answer from a plausible one: routing is the one agentic pattern that's <em>trivially</em> evaluable, so there's no excuse for not measuring it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your router sends 30% of requests to the wrong branch. What do you do?</summary>
+              <div class="ans"><p>Get the <b>confusion matrix</b> first — &ldquo;30% wrong&rdquo; is uninformative; &ldquo;billing is being misread as account 80% of the time&rdquo; tells you what to fix. Then, in order: are the <b>categories genuinely distinguishable</b>? Frequently two categories overlap semantically and the fix is to merge them or add a disambiguating question rather than to tune the prompt. Are the <b>category descriptions</b> in the schema clear, with examples of edge cases? Would <b>few-shot examples</b> of the confusable pairs help? Is the model too small for the distinctions you're asking for?</p><p>And check the cheap structural fix: if two categories route to handlers that behave almost identically, the misclassification may not matter — measure the downstream impact before optimising the classifier.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Router or agent — how do you tell which a problem needs?</summary>
+              <div class="ans"><p>Ask whether <b>one decision</b> is enough. If the input can be classified and handed to a handler that completes the job, it's a router: one call, bounded, testable, cheap. If choosing the right handler <em>itself</em> requires looking things up — check the customer's plan, then their ticket history, then whether the bug is known — and the number and order of lookups depends on what you find, then the control flow is dynamic and you need a tool-calling loop.</p><p>The practical test: <b>can you draw the complete decision tree?</b> If yes, build the tree. If the tree's depth depends on runtime data, build the agent.</p></div>
+            </details>
+          </div>
         </div>
       </article>
 
-      <!-- ---------- 6.10 ---------- -->
-      <article class="topic" id="g6-10">
-        <h3><span class="tn">6.10</span> Portfolio projects &amp; study plan</h3>
-        <p class="lead">Reading won't get you past the eval round. Build in this order, and <b>ship at least one to a public URL with cost tracking and trajectory logging</b> — that artifact is what you reference in interviews.</p>
+      <article class="topic" id="g4-4">
+        <h3><span class="tn">4.4</span> Orchestrator-worker <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A planner decides what needs doing and dispatches workers to do it. The distinguishing feature versus plain parallelisation is that the <em>number and nature</em> of the subtasks is decided at runtime.</p>
 
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Orchestrator-worker pattern: an orchestrator node decomposes a task into a runtime-determined number of subtasks, dispatches them via Send to identical worker nodes running concurrently, and a synthesiser node merges their outputs from a reduced channel.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the number of workers is decided at runtime — that is what makes it orchestration</text>
+              <g font-size="10.5">
+                <rect x="30" y="96" width="130" height="52" rx="10" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.7"/>
+                <text x="95" y="118" fill="#F0A81E" text-anchor="middle" font-weight="600">orchestrator</text>
+                <text x="95" y="134" fill="#8892a0" text-anchor="middle" font-size="9.5">decomposes → n tasks</text>
+
+                <g stroke="#5A6472" stroke-width="1.2" fill="none" marker-end="url(#lgar42)">
+                  <path d="M160 112l100-52"/><path d="M160 122h100"/><path d="M160 132l100 52"/>
+                </g>
+                <defs><marker id="lgar42" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+                <text x="176" y="76" fill="#c9a0e0" font-size="9">Send(...)</text>
+
+                <rect x="268" y="38" width="130" height="42" rx="9" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="333" y="64" fill="#7fd6a0" text-anchor="middle">worker · task 1</text>
+                <rect x="268" y="100" width="130" height="42" rx="9" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="333" y="126" fill="#7fd6a0" text-anchor="middle">worker · task 2</text>
+                <rect x="268" y="162" width="130" height="42" rx="9" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="333" y="188" fill="#7fd6a0" text-anchor="middle">worker · task n</text>
+                <text x="268" y="222" fill="#8892a0" font-size="9.5">identical node, different private input state</text>
+
+                <g stroke="#5A6472" stroke-width="1.2" fill="none" marker-end="url(#lgar42)">
+                  <path d="M398 59l100 52"/><path d="M398 121h100"/><path d="M398 183l100-52"/>
+                </g>
+                <rect x="506" y="96" width="150" height="52" rx="10" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.6"/>
+                <text x="581" y="118" fill="#8fa0ff" text-anchor="middle" font-weight="600">synthesise</text>
+                <text x="581" y="134" fill="#8892a0" text-anchor="middle" font-size="9.5">reads the reduced channel</text>
+                <text x="410" y="240" fill="#c9d1dc" font-size="11">one superstep for all workers · one reducer merge · one checkpoint</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#F0A81E"></i>plans</span><span><i style="background:#7fd6a0"></i>executes</span><span><i style="background:#4B5BD6"></i>merges</span></div>
+          <figcaption>Structurally this is map-reduce with an LLM writing the map keys.</figcaption>
+        </figure>
+
+        <p>The three failure modes are worth memorising because they're what an interviewer probes: the orchestrator produces <b>too many</b> subtasks (cap the width); the subtasks <b>overlap</b>, so you pay three times for the same research and the synthesiser has to dedupe; and the subtasks <b>don't cover</b> the question, which no amount of good worker output can fix. All three are prompt-and-validation problems at the orchestrator, not worker problems.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>How is orchestrator-worker different from parallelisation?</summary>
+              <div class="ans"><p>In parallelisation the branches are <b>fixed at design time</b> — you wrote three edges to three nodes. In orchestrator-worker an LLM <b>decides at runtime how many subtasks there are and what they are</b>, and identical workers are dispatched dynamically with <code class="ic">Send</code>.</p><p>That's a real difference in kind, not degree: it means the graph's shape depends on the input, you can't enumerate the execution paths, and you now own new failure modes — too many subtasks, overlapping subtasks, and subtasks that don't cover the question. Parallelisation has none of those, which is why you should prefer it when the decomposition <em>is</em> knowable.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your orchestrator generates overlapping subtasks and you're paying three times for the same work. Fix it.</summary>
+              <div class="ans"><p>Attack it at the orchestrator, in this order. <b>Constrain the schema</b>: make it return a list of subtasks with an explicit instruction that they must be non-overlapping and collectively exhaustive, and require a one-line <code class="ic">scope</code> per subtask so overlap is visible. <b>Cap the count</b> in the schema (<code class="ic">max_length</code>) and in code. <b>Add a validation node</b> between plan and dispatch that dedupes near-identical subtasks — cheap string or embedding similarity is usually enough. <b>Cache at the tool layer</b>, so even if two workers issue the same search, you pay once.</p><p>And measure it: log the number of workers and the total cost per request, because &ldquo;the orchestrator got chatty&rdquo; is a regression that's invisible without that metric.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Design a document-generation system with this pattern.</summary>
+              <div class="ans"><p><b>Orchestrator</b>: one call with structured output producing <code class="ic">sections: list[{title, brief, target_words}]</code>, capped at say 12. <b>Validate</b>: dedupe overlapping sections, check total length against the target. <b>Dispatch</b>: conditional edge returning one <code class="ic">Send("write_section", s)</code> per section, so all sections write concurrently in a single superstep. <b>Collect</b>: each worker returns <code class="ic">{"sections": [{"idx": i, "text": ...}]}</code> into an <code class="ic">operator.add</code> channel — note the index, because concurrent write order isn't guaranteed and you need to restore document order. <b>Synthesise</b>: sort by index, then a final pass for transitions and consistent voice.</p><p>Extras that show production thinking: a checkpointer so a 12-section document survives a crash without regenerating everything; an <code class="ic">interrupt</code> after the outline so a human can approve the structure before you spend twelve calls on it; and per-worker error capture so one failed section doesn't lose the other eleven.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g4-5">
+        <h3><span class="tn">4.5</span> Evaluator-optimizer loops <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Generate, evaluate, revise, repeat. The most powerful pattern here and the one most likely to produce a runaway bill, because its natural termination condition is &ldquo;when the critic is happy&rdquo; and the critic may never be.</p>
+
+        <h4>The four guards</h4>
         <div class="tbl-wrap">
           <table class="data">
-            <thead><tr><th>#</th><th>Project</th><th>Demonstrates</th></tr></thead>
+            <thead><tr><th>Guard</th><th>Implementation</th><th>Prevents</th></tr></thead>
             <tbody>
-              <tr><td>1</td><td><b>Multi-pattern workflow set</b> (sequential / parallel / conditional / iterative)</td><td>Core primitives, reducers</td></tr>
-              <tr><td>2</td><td><b>Persistent chatbot</b> — Streamlit UI, SQLite checkpointer, thread sidebar, streaming</td><td>State, persistence, UX</td></tr>
-              <tr><td>3</td><td><b>Research agent — built twice</b>, hand-rolled and with <code>create_agent</code></td><td>You understand what the framework buys you</td></tr>
-              <tr><td>4</td><td><b>Agentic RAG with CRAG + Self-RAG</b> over your own docs</td><td>Advanced retrieval, self-correction</td></tr>
-              <tr><td>5</td><td><b>Multi-agent report writer</b> — planner, researcher, writer, evaluator, HITL</td><td>Orchestration, subgraphs, <code>Send</code></td></tr>
-              <tr><td>6</td><td><b>Fully instrumented agent</b> — LangSmith traces, dataset, trajectory evaluators, CI gate ⭐</td><td>Production maturity</td></tr>
+              <tr><td>Hard iteration cap</td><td>Counter in state, checked <em>first</em> in the router</td><td>Infinite loops</td></tr>
+              <tr><td>Score threshold</td><td>Structured critic returning a numeric score</td><td>Endless polishing of adequate work</td></tr>
+              <tr><td>Keep the best draft</td><td><code class="ic">best_draft</code>/<code class="ic">best_score</code> channels</td><td>Returning a worse round-4 draft than round-2</td></tr>
+              <tr><td>Improvement floor</td><td>Stop if score gain &lt; ε</td><td>Paying for cosmetic rewrites</td></tr>
             </tbody>
           </table>
         </div>
 
-        <h4>Study plans</h4>
-        <div class="tbl-wrap">
-          <table class="data">
-            <thead><tr><th>Week</th><th>Focus (4-week interview sprint, ~2 hrs/day)</th><th>Deliverable</th></tr></thead>
-            <tbody>
-              <tr><td><b>1</b></td><td>Parts 1–2 — primitives + all four workflow patterns</td><td>Project 1</td></tr>
-              <tr><td><b>2</b></td><td>Part 2 (state) + Part 3 — persistence, memory, HITL, tools, MCP</td><td>Project 2</td></tr>
-              <tr><td><b>3</b></td><td>Part 3 (RAG) + Part 4 — RAG ladder, subgraphs, multi-agent</td><td>Projects 3 &amp; 4</td></tr>
-              <tr><td><b>4</b></td><td>Parts 4–5 + interview drills</td><td>Projects 5 &amp; 6, all 7 traps answered aloud</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p><b>8-week deep track (~1 hr/day):</b> Weeks 1–2 Part 1 · Weeks 3–4 Part 2 · Week 5 Part 3 · Week 6 Part 4 (multi-agent) · Week 7 Part 4 (LangSmith) · Week 8 Part 5 + capstone.</p>
-        <p><b>Weekly revision ritual:</b> (1) re-derive the reducer rules from memory; (2) draw one graph on paper before coding it; (3) answer five interview questions out loud, timed; (4) read one LangSmith trace of your own agent and find one inefficiency.</p>
+        <p>The best version of this pattern gives the evaluator <b>something objective to look at</b>: unit test results, a linter, a schema validation, a retrieval check against sources. Code generation is the canonical fit precisely because &ldquo;the tests pass&rdquo; is a real signal, not an opinion. When the evaluator is just the same model asked whether it likes the output, expect much smaller gains — see §2.5.</p>
 
-        <div class="callout tip">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 21h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" stroke="#3B45B5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span class="cl-lab">Canonical resources — the most-cited in 2026 interview loops</span>
-          <p><b>Read:</b> Anthropic's <em>Building Effective Agents</em> (the single most-referenced piece) · <em>ReAct</em> (Yao et al.) · <em>Reflexion</em> (Shinn et al.) · the <em>MCP specification</em> · the <em>CRAG</em> and <em>Self-RAG</em> papers · the Berkeley Function Calling Leaderboard (model-specific tool-use failure patterns).<br>
-          <b>Docs (always prefer over tutorials):</b> <code class="ic">docs.langchain.com/oss/python/langgraph</code> · the v1 migration guide · <code class="ic">reference.langchain.com</code> · <code class="ic">docs.smith.langchain.com</code> · LangChain Academy (free structured course).<br>
-          <b>Practice:</b> the official <code class="ic">langgraph</code> examples repo, and LangGraph Studio to step through your own graphs visually.</p>
+        <div class="wdg">
+          <div class="wh"><span class="wtag">Interactive</span>Pattern cost &amp; latency simulator</div>
+          <div class="wbody">
+            <canvas id="lgPatCv" width="900" height="300"></canvas>
+            <div class="wctl">
+              <label>Sub-tasks / iterations <b><span id="lgPatNv">4</span></b>
+                <input type="range" id="lgPatN" min="1" max="10" step="1" value="4"></label>
+              <label>Seconds per LLM call <b><span id="lgPatLv">2.5</span>s</b>
+                <input type="range" id="lgPatL" min="5" max="60" step="1" value="25"></label>
+              <label>Cost per call <b>$<span id="lgPatCv2">0.02</span></b>
+                <input type="range" id="lgPatC" min="1" max="50" step="1" value="20"></label>
+            </div>
+            <div class="wout" id="lgPatOut"></div>
+            <p class="wnote">Latency assumes perfect concurrency where the pattern allows it; cost counts every call regardless. Note how orchestrator-worker and evaluator-optimizer cost roughly the same but differ enormously in wall-clock — the fan-out spends its calls <em>simultaneously</em>, the loop spends them <em>in sequence</em>.</p>
+          </div>
         </div>
+
+        <script>
+        (function(){
+          var cv=document.getElementById('lgPatCv'); if(!cv) return;
+          var ctx=cv.getContext('2d');
+          function dpr(){var r=window.devicePixelRatio||1,w=cv.clientWidth||900;cv.width=w*r;cv.height=300*r;ctx.setTransform(r,0,0,r,0,0);return w;}
+          var els={n:document.getElementById('lgPatN'),l:document.getElementById('lgPatL'),c:document.getElementById('lgPatC')};
+          function calc(n,lat,cost){
+            return [
+              {name:'Single call',        calls:1,           seq:1,          det:1.0},
+              {name:'Chain',              calls:n,           seq:n,          det:1.0},
+              {name:'Router',             calls:2,           seq:2,          det:0.85},
+              {name:'Parallel sectioning',calls:n+1,         seq:2,          det:0.8},
+              {name:'Voting (n-way)',     calls:n+1,         seq:2,          det:0.75},
+              {name:'Orchestrator-worker',calls:n+2,         seq:3,          det:0.5},
+              {name:'Evaluator loop',     calls:2*n,         seq:2*n,        det:0.45},
+              {name:'Agent loop',         calls:2*n,         seq:2*n,        det:0.25}
+            ].map(function(p){p.time=p.seq*lat;p.cost=p.calls*cost;return p;});
+          }
+          function draw(){
+            var W=dpr(), n=+els.n.value, lat=+els.l.value/10, cost=+els.c.value/1000;
+            document.getElementById('lgPatNv').textContent=n;
+            document.getElementById('lgPatLv').textContent=lat.toFixed(1);
+            document.getElementById('lgPatCv2').textContent=cost.toFixed(3);
+            var P=calc(n,lat,cost);
+            ctx.clearRect(0,0,W,300); ctx.fillStyle='#14181f'; ctx.fillRect(0,0,W,300);
+            var maxT=0,maxC=0; P.forEach(function(p){maxT=Math.max(maxT,p.time);maxC=Math.max(maxC,p.cost);});
+            var rowH=30, x0=150, barW=(W-x0-230);
+            ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#8892a0';
+            ctx.fillText('wall-clock latency (bar) · total cost and determinism at right',14,18);
+            for(var i=0;i<P.length;i++){
+              var p=P[i], y=32+i*rowH;
+              ctx.font='11px ui-sans-serif,system-ui'; ctx.fillStyle='#c9d1dc';
+              ctx.fillText(p.name,14,y+15);
+              var w=maxT?barW*p.time/maxT:0;
+              var hue = p.det>0.75?'#7fd6a0':(p.det>0.45?'#F0A81E':'#e0929a');
+              ctx.fillStyle='#1a1f28'; ctx.fillRect(x0,y+3,barW,16);
+              ctx.fillStyle=hue; ctx.fillRect(x0,y+3,Math.max(2,w),16);
+              ctx.font='10px ui-monospace,monospace'; ctx.fillStyle='#14181f';
+              if(w>66) ctx.fillText(p.time.toFixed(1)+'s',x0+6,y+15);
+              else {ctx.fillStyle='#8892a0'; ctx.fillText(p.time.toFixed(1)+'s',x0+w+6,y+15);}
+              ctx.textAlign='right';
+              ctx.font='11px ui-monospace,monospace'; ctx.fillStyle='#8fa0ff';
+              ctx.fillText('$'+p.cost.toFixed(3),W-140,y+15);
+              ctx.fillStyle='#8892a0'; ctx.font='10px ui-monospace,monospace';
+              ctx.fillText(p.calls+' calls',W-74,y+15);
+              ctx.textAlign='left';
+              ctx.fillStyle=hue; ctx.fillRect(W-64,y+7,Math.max(2,44*p.det),8);
+              ctx.strokeStyle='#2c3542'; ctx.strokeRect(W-64,y+7,44,8);
+            }
+            ctx.font='9.5px ui-monospace,monospace'; ctx.fillStyle='#5A6472';
+            ctx.fillText('determinism →',W-64,296);
+          }
+          function out(){
+            var n=+els.n.value, lat=+els.l.value/10, cost=+els.c.value/1000, P=calc(n,lat,cost);
+            var sect=P[3], loop=P[6];
+            document.getElementById('lgPatOut').innerHTML=
+              '<span class="k">at n = '+n+'</span> &nbsp; parallel sectioning finishes in <span class="v">'+sect.time.toFixed(1)+'s</span> for <span class="v">$'+sect.cost.toFixed(3)+'</span>; '+
+              'the evaluator loop takes <span class="warn">'+loop.time.toFixed(1)+'s</span> for <span class="warn">$'+loop.cost.toFixed(3)+'</span>.<br>'+
+              '<span class="k">read</span> similar spend, <span class="v">'+(sect.time? (loop.time/sect.time).toFixed(1):'—')+'×</span> the wall-clock — sequential dependence is what costs you time, not the number of calls.';
+          }
+          function render(){draw();out();}
+          for(var k in els) els[k].oninput=render;
+          window.addEventListener('resize',render); render();
+        })();
+        </script>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>How do you stop an evaluator-optimizer loop from running forever?</summary>
+              <div class="ans"><p>Four guards, and you want all of them. A <b>hard iteration cap</b> in state, checked <em>before</em> the quality condition in the routing function. A <b>score threshold</b> so &ldquo;good enough&rdquo; is a defined number from a structured critic, not a vibe. <b>Keep the best draft</b> in its own channel and return that rather than the last one, because quality genuinely degrades on over-revision. An <b>improvement floor</b>: stop when the score gain between rounds is below ε, since you're paying for cosmetic edits at that point.</p><p>Plus <code class="ic">recursion_limit</code> on the config as a backstop — but treat hitting it as a bug, not a design.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What makes a good evaluator?</summary>
+              <div class="ans"><p><b>Access to something the generator didn't have.</b> Test results, compiler output, a schema validation error, retrieved sources to check claims against — objective signals produce real improvements. An evaluator that is the same model re-reading the same context with &ldquo;is this good?&rdquo; shares the generator's blind spots and mostly produces hedging.</p><p>Beyond that: <b>explicit checkable criteria</b> rather than a global quality judgement; <b>structured output</b> so you get a numeric score and a list of specific issues, not prose; and the issues fed back into the generator's prompt so the revision is targeted. If you can make the evaluator a <em>tool call</em> rather than a judgement — run the tests, validate the JSON — do that instead.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your loop's output gets worse after round two. What's happening?</summary>
+              <div class="ans"><p><b>Over-revision.</b> A critic asked to find issues will always find issues, so each round the generator makes changes that address increasingly marginal critiques, often damaging things that were fine. Text gets hedged and bloated; code accumulates defensive branches.</p><p>Three fixes: <b>track and return the best-scoring draft</b>, not the final one — this alone makes degradation harmless; give the critic an explicit <b>&ldquo;accept&rdquo; option</b> and a rubric where a good draft genuinely scores well, rather than a prompt that implies something must be wrong; and stop on <b>marginal improvement</b>. Two rounds is usually the sweet spot, and it's worth measuring rather than assuming.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g4-6">
+        <h3><span class="tn">4.6</span> The agent loop as a pattern</h3>
+        <p class="lead">Listed last among the patterns deliberately: the agent loop is the most flexible shape and therefore the one you reach for when the others don't fit — not first.</p>
+
+        <p>As a pattern it is simply: <em>model decides → tool executes → observation returns → repeat until no tool call</em>. What distinguishes it from everything above is that the <b>sequence and count of steps are not in your code</b>. The other six patterns all have a shape you drew; this one's shape is drawn at runtime by the model.</p>
+
+        <p>In LangGraph it's two nodes and one conditional edge, or one line with <code class="ic">create_agent</code>. The engineering is not in building the loop — it's in the <b>bounds</b> you put around it: iteration cap, budget cap, tool gates, and a trace you can read afterwards.</p>
 
         <div class="callout note">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span class="cl-lab">Final advice</span>
-          <p>From 2026 hiring reports: reading won't get you past the eval round. You need reps <em>explaining trajectory evaluation out loud</em>, <em>designing tool schemas live</em>, and <em>defending framework choices under pushback</em>. Build the projects. Ship one. Instrument it.</p>
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Patterns compose</span>
+          <p>Real systems are rarely one pattern. A production research system is typically <b>router → orchestrator-worker → evaluator gate → agent loop</b> for the one branch that genuinely needs open-ended tool use. Recognising the composition — and keeping the agentic part as small as possible — is the design skill being tested.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>Can you mix patterns in one system?</summary>
+              <div class="ans"><p>You almost always should — real systems are compositions. A representative shape: a <b>router</b> classifies the request; simple categories go to a single call; one category goes to an <b>orchestrator-worker</b> fan-out for parallel research; its output passes an <b>evaluator gate</b>; and only the genuinely open-ended branch runs an <b>agent loop</b>.</p><p>The principle is to <b>keep the agentic part as small as possible</b>. Every request that can be answered by a deterministic branch should be, so the expensive, unpredictable path handles only the cases that need it. That's also what makes the system evaluable: you can measure the router's accuracy, the workers' coverage, and the agent branch separately.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Where does the engineering effort go in an agent loop?</summary>
+              <div class="ans"><p>Not into the loop — that's two nodes and an edge, or one <code class="ic">create_agent</code> call. It goes into the <b>bounds and the surroundings</b>: tool design (descriptions, schemas, error strings the model can recover from), the iteration and budget caps, approval gates on destructive tools, context management as history grows, and tracing good enough to reconstruct why the model chose what it chose.</p><p>A candidate who describes building the loop is describing the easy 10%. A candidate who describes the caps, the gates, the tool ergonomics and the trace is describing the part that determines whether it works in production.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g4-7">
+        <h3><span class="tn">4.7</span> Choosing a pattern <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The section that actually gets tested. Given a scenario, name the pattern and justify it in two sentences — and be willing to name the simplest one.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Scenario</th><th>Pattern</th><th>The one-line justification</th></tr></thead>
+            <tbody>
+              <tr><td>Classify and hand off support tickets</td><td><b>Router</b></td><td>One bounded decision; testable against labels</td></tr>
+              <tr><td>Translate, then localise, then check tone</td><td><b>Chain</b></td><td>Fixed sequence, each step needs a focused prompt</td></tr>
+              <tr><td>Summarise 40 documents</td><td><b>Parallel sectioning</b></td><td>Independent work; buy latency at the same token cost</td></tr>
+              <tr><td>Moderate content for four policy types</td><td><b>Voting / parallel checks</b></td><td>Errors are expensive; take the union of flags</td></tr>
+              <tr><td>Write a report whose sections depend on the topic</td><td><b>Orchestrator-worker</b></td><td>Decomposition isn't knowable until you see the topic</td></tr>
+              <tr><td>Generate code that must pass tests</td><td><b>Evaluator-optimizer</b></td><td>There's an objective signal to iterate against</td></tr>
+              <tr><td>Debug a production incident from logs and metrics</td><td><b>Agent loop</b></td><td>Each finding changes what to look at next</td></tr>
+              <tr><td>Extract five fields from an invoice</td><td><b>Single call</b></td><td>Structured output; no orchestration needed at all</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The selection heuristic, in one question</span>
+          <p><b>Can you draw the control flow before the program runs?</b> If yes → chain, router, parallel or orchestrator-worker, in ascending order of how late the shape is decided. If no → an agent loop, kept as small as you can make it. Everything else is detail.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>&ldquo;Summarise these 40 documents into one brief.&rdquo; What's your design?</summary>
+              <div class="ans"><p><b>Parallel sectioning with a reduce</b> — map-reduce, essentially. Fan out one summariser per document with <code class="ic">Send</code>, each writing into an <code class="ic">operator.add</code> channel, then a synthesis node produces the brief. Latency is roughly one summarisation plus one synthesis rather than 40 sequential calls.</p><p>The details that show experience: <b>cap concurrency</b> (batch in waves of ~10) because 40 simultaneous calls will hit a rate limit; if 40 summaries don't fit the synthesiser's context, add a <b>hierarchical reduce</b> — summarise groups of 8, then summarise the summaries; <b>keep document ids</b> alongside each summary so the brief can cite sources; and attach a <b>checkpointer</b>, so a failure at document 37 doesn't discard 36 completed summaries.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>&ldquo;Our support bot should handle refunds.&rdquo; Which pattern?</summary>
+              <div class="ans"><p>A <b>router</b> into a small tool-calling agent, with an <b>approval gate</b> on the refund itself.</p><p>Concretely: classify the request; the refund branch runs an agent with read-only tools (order lookup, policy retrieval, prior refunds) so it can gather what it needs in a dynamic number of steps; the refund tool itself is behind an <code class="ic">interrupt</code> that surfaces the proposed amount and reason to a human — or auto-approves below a threshold under an explicit policy.</p><p>What earns the point: recognising that the <em>investigation</em> is genuinely agentic (you don't know in advance how many lookups it takes) while the <em>action</em> must be gated, and that the gate is enforced in the tool layer rather than by prompting the model to be careful.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What's your default when you're unsure?</summary>
+              <div class="ans"><p><b>The simplest pattern that could work, plus measurement.</b> Start with a single call or a router, build a small golden dataset, measure, and only add structure where the data shows a specific failure. Complexity added speculatively is complexity you'll never be able to justify removing.</p><p>This matters as an interview answer because the failure mode being tested is over-engineering. &ldquo;I'd start with one call and see where it breaks&rdquo; is a stronger answer than a multi-agent architecture diagram — and if the interviewer wants the complex design, they'll push, at which point you can produce it.</p></div>
+            </details>
+          </div>
         </div>
       </article>
 
 
             <!-- PART NAV -->
       <nav class="partnav">
-        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part5_Production.html">Part 5 · Production Engineering</a></div><ul><li>Durability, streaming, security</li></ul></div>
-        <div class="pcard"><div class="k">You are here</div><div class="t">Part 6 · Interview Q&amp;A Bank</div></div>
-        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="index.html">Learning Hub</a></div><ul></ul></div>
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part03_CorePrimitives.html">Part 3 · Core Primitives</a></div><ul><li>Reducers, supersteps, Send</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 4 · Workflow Patterns</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part05_StateMemory.html">Part 5 · State, Persistence &amp; Memory</a></div><ul><li>Checkpointers, threads, HITL</li><li>Short vs long-term memory</li></ul></div>
       </nav>
 
       <div class="doc-foot">
-        LangGraph &amp; Agentic AI — Part 6 of 6 · Interview Q&amp;A Bank<br>
-        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        LangGraph &amp; Agentic AI — Part 4 of 12 · Workflow Patterns<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 

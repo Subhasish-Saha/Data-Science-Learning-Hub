@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LangGraph &amp; Agentic AI — Part 5: Production Engineering</title>
+<title>LangGraph &amp; Agentic AI — Part 11: Advanced &amp; Frontier</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -313,6 +313,53 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
   figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -321,7 +368,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
 <div class="topbar">
   <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
-  <div class="tt"><small>Part 5 / 6</small>Production Engineering</div>
+  <div class="tt"><small>Part 11 / 12</small>Advanced &amp; Frontier</div>
 </div>
 
 <div class="layout">
@@ -341,8 +388,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
     </div>
 
     <div class="sb-part">
-      <div class="k">Part 5 of 6</div>
-      <div class="v">Production Engineering</div>
+      <div class="k">Part 11 of 12</div>
+      <div class="v">Advanced &amp; Frontier</div>
       <div class="sb-progress">
         <div class="bar"><div class="fill" id="sbFill"></div></div>
         <div class="lab" id="sbLab">0 / 210 topics done</div>
@@ -355,25 +402,14 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
       </div>
       <div class="grp">
-        <button class="ghead" data-t><span class="num">L9</span> Production <span class="chev">▾</span></button>
-        <ul class="links">
-          <li><a href="#g5-1">5.1 · Durability &amp; recovery</a></li>
-          <li><a href="#g5-2">5.2 · Idempotency ⭐</a></li>
-          <li><a href="#g5-3">5.3 · Reliability primitives</a></li>
-          <li><a href="#g5-4">5.4 · Node caching</a></li>
-          <li><a href="#g5-5">5.5 · Streaming</a></li>
-          <li><a href="#g5-6">5.6 · Deployment</a></li>
-          <li><a href="#g5-7">5.7 · Cost, latency &amp; security</a></li>
-          <li><a href="#g5-8">5.8 · Testing</a></li>
-        </ul>
-      </div>
-      <div class="grp">
         <button class="ghead" data-t><span class="num">L10</span> Frontier <span class="chev">▾</span></button>
         <ul class="links">
-          <li><a href="#g5-9">5.9 · Functional API &amp; Pregel</a></li>
-          <li><a href="#g5-10">5.10 · Context engineering</a></li>
-          <li><a href="#g5-11">5.11 · Frontier topics</a></li>
-          <li><a href="#g5-12">5.12 · Interview focus</a></li>
+          <li><a href="#g11-1">11.1 · Long-horizon agents ⭐</a></li>
+          <li><a href="#g11-2">11.2 · Computer use &amp; browser agents</a></li>
+          <li><a href="#g11-3">11.3 · Agent protocols — MCP, A2A, AG-UI ⭐</a></li>
+          <li><a href="#g11-4">11.4 · Self-improving agents</a></li>
+          <li><a href="#g11-5">11.5 · Context engineering ⭐⭐</a></li>
+          <li><a href="#g11-6">11.6 · The 2026 positions ⭐</a></li>
         </ul>
       </div>
       <div class="grp">
@@ -382,7 +418,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
       </div>
     </nav>
     <div class="sb-foot">
-      LangGraph &amp; Agentic AI<br>Part 5 — Production Engineering<br>© your study kit
+      LangGraph &amp; Agentic AI<br>Part 11 — Advanced &amp; Frontier<br>© your study kit
     </div>
   </aside>
 
@@ -392,16 +428,17 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
       <!-- HERO -->
       <header class="hero">
-        <div class="eyebrow">Part 5 of 6 · Production Engineering</div>
-        <h1 class="title">Shipping agents that survive contact with production
-          <span class="sub">Durability modes, the idempotency answer that lands senior offers, retries and caching, streaming, deployment, cost and security — plus the frontier topics worth naming.</span>
+        <div class="eyebrow">Part 11 of 12 · Advanced &amp; Frontier</div>
+        <h1 class="title">The positions that make you sound current
+          <span class="sub">Long-horizon agents that run for days, computer-use and browser agents, the protocol layer (MCP, A2A, AG-UI), self-improving agents, context engineering as the discipline that replaced prompt engineering, and defensible positions on the open debates.</span>
         </h1>
-        <p class="thesis">The gap between a demo and a system you'd put on-call for. <strong>Checkpoints make state recoverable — they do not make side effects exactly-once</strong>; knowing that, and adding idempotency keys so a resumed run can't re-charge a card, is one of the strongest answers you can give. Also: durability modes, retry policies and node caching, the five streaming modes (perceived latency <em>is</em> latency), deployment and double-texting, cost routing, prompt-injection defence, and how to unit-test a graph by stubbing the LLM.</p>
+        <p class="thesis">This part exists to give you <em>positions</em> rather than facts. The reframing that lands hardest is <strong>context engineering</strong>: the job is no longer writing a clever prompt, it is deciding — for every single LLM call — what goes into a finite context window and what gets summarised, retrieved, or dropped. Once you see agent design that way, memory management, RAG, tool selection and message trimming stop being separate topics and become one problem. The other positions worth holding: <strong>MCP won the tool-interface layer</strong>, agent-to-agent protocols have not settled, and the honest answer to &ldquo;are multi-agent systems the future?&rdquo; is that most production systems in 2026 are still <em>one</em> well-instrumented agent with good tools.</p>
         <div class="meta-chips">
-          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 9–10</b></span>
-          <span class="chip"><b>44</b> tracked topics</span>
-          <span class="chip">⏱ <b>~7–8h</b></span>
-          <span class="chip">🚀 production</span>
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 10</b></span>
+          <span class="chip"><b>6</b> sections</span>
+          <span class="chip">📐 <b>2</b> diagrams</span>
+          <span class="chip">💬 <b>13</b> Q&amp;A</span>
+          <span class="chip">⏱ <b>~5h</b></span>
         </div>
       </header>
 
@@ -412,7 +449,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
             <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div>
               <h2>Master Progress Tracker</h2>
-              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
             </div>
             <div class="tk-overall">
               <div class="pct" id="ovPct">0%</div>
@@ -447,430 +484,290 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-      <!-- ============================ LEVEL 9 ============================ -->
-      <section class="phase-head" id="level9">
-        <div class="pk">Level 9 · Production Engineering</div>
-        <h2>Surviving contact with production</h2>
-        <p class="pd">Durability, idempotency, retries, caching, streaming, deployment, cost, security, testing. This level contains the single strongest senior answer in the whole subject — the one about side effects (§5.2).</p>
-      </section>
-
-      <!-- ---------- 5.1 ---------- -->
-      <article class="topic" id="g5-1">
-        <h3><span class="tn">5.1</span> Durability &amp; failure recovery</h3>
-        <p class="lead">Checkpointing isn't free — every write costs latency. <b>Durability modes</b> let you trade write frequency against performance.</p>
+      <article class="topic" id="g11-1">
+        <h3><span class="tn">11.1</span> Long-horizon agents <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Agents that run for hours, days or weeks. Everything that is merely annoying in a 30-second agent becomes structural here — and LangGraph's persistence model is why it's the framework people reach for.</p>
 
         <div class="tbl-wrap">
           <table class="data">
-            <thead><tr><th>Mode</th><th>Persists</th><th>Trade-off</th></tr></thead>
+            <thead><tr><th>Problem</th><th>At 30 seconds</th><th>At 3 weeks</th></tr></thead>
             <tbody>
-              <tr><td><code>"exit"</code></td><td>Only at the end of the run</td><td>Fastest · least safe — a crash loses everything</td></tr>
-              <tr><td><code>"async"</code></td><td>In the background</td><td>Balanced — small window of loss</td></tr>
-              <tr><td><code>"sync"</code></td><td>Before continuing</td><td>Safest · slowest — nothing is lost</td></tr>
+              <tr><td>Context growth</td><td>Ignorable</td><td><b>Structural</b> — needs summarisation and external memory from day one</td></tr>
+              <tr><td>Crash recovery</td><td>Retry the request</td><td><b>Mandatory</b> — the process <em>will</em> restart several times</td></tr>
+              <tr><td>Goal drift</td><td>Rare</td><td>Common — periodically re-read the objective</td></tr>
+              <tr><td>Cost</td><td>Cents</td><td>Real money — needs a running budget, not a per-request cap</td></tr>
+              <tr><td>Human oversight</td><td>Optional</td><td><b>Required</b> — checkpoints for review at milestones</td></tr>
+              <tr><td>The world changing</td><td>Doesn't</td><td>Facts gathered on day 1 may be false by day 10</td></tr>
             </tbody>
           </table>
         </div>
-        <p>The consequence you must internalise: <b>nodes re-execute on resume.</b> When a run recovers from a checkpoint, the interrupted node runs again from the start. So write nodes as <em>near-pure functions of state</em> — which leads directly to the next section.</p>
 
-        <div class="callout note">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span class="cl-lab">New in LangGraph 1.2 · <code class="ic">DeltaChannel</code> and graceful shutdown</span>
-          <p><b><code class="ic">DeltaChannel</code></b> (beta) stores <em>incremental deltas</em> instead of re-serialising the full value on every checkpoint — a large win for long-running threads whose state grows (message history, accumulated findings). Pair it with <code class="ic">snapshot_frequency</code> to periodically write a full snapshot so replay doesn't have to fold thousands of deltas. Reach for it when checkpoint write cost, not model latency, starts dominating a long thread.</p>
-          <p><b>Graceful shutdown:</b> <code class="ic">RunControl.request_drain()</code> asks an in-flight run to stop at the next safe boundary and persist a <em>resumable</em> checkpoint — the clean way to handle deploys and autoscaling events without abandoning work mid-run.</p>
-        </div>
-      </article>
+        <p>The design that follows: <b>externalise the plan</b> into state or a store rather than keeping it in the message history, since history will be summarised away; <b>work in bounded episodes</b> — each waking period does a chunk of work and writes a durable summary; <b>re-anchor</b> to the original objective at the start of each episode; and put <b>human checkpoints at milestones</b> using <code class="ic">interrupt</code>, so a three-week run doesn't discover on day 20 that day 3 went wrong.</p>
 
-      <!-- ---------- 5.2 ---------- -->
-      <article class="topic" id="g5-2">
-        <h3><span class="tn">5.2</span> Idempotency — the senior answer ⭐</h3>
-        <p class="lead"><b>Checkpoints make state recoverable. They do NOT make side effects exactly-once.</b> If a node charged a card and then crashed before checkpointing, resuming charges the card <em>again</em>. LangGraph will not save you — you add idempotency yourself.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 260" role="img" aria-label="Top: a node charges a card then crashes before checkpointing, so resume charges twice. Bottom: with an idempotency key, the retry detects the existing charge and skips it.">
-              <text x="20" y="20" fill="#8892a0" font-size="12">a run crashes right after a side effect but before the checkpoint</text>
-              <!-- naive -->
-              <text x="30" y="46" fill="#e0a3a8" font-size="10.5">✗ naive</text>
-              <g font-size="8.5" text-anchor="middle" fill="#fff">
-                <rect x="30" y="56" width="92" height="28" rx="6" fill="#5560D8"/><text x="76" y="74">charge $99</text>
-                <rect x="140" y="56" width="70" height="28" rx="6" fill="#C0392B"/><text x="175" y="74">💥 crash</text>
-                <rect x="228" y="56" width="92" height="28" rx="6" fill="#5560D8"/><text x="274" y="74">resume</text>
-                <rect x="338" y="56" width="110" height="28" rx="6" fill="#C0392B"/><text x="393" y="74">charge $99 AGAIN</text>
-              </g>
-              <g stroke="#8892a0" stroke-width="1.1">
-                <path d="M122 70 h14" marker-end="url(#id1)"/><path d="M210 70 h14" marker-end="url(#id1)"/><path d="M320 70 h14" marker-end="url(#id1)"/>
-              </g>
-              <text x="470" y="74" fill="#e0a3a8" font-size="9">customer charged twice</text>
-
-              <!-- idempotent -->
-              <text x="30" y="126" fill="#bfe3cc" font-size="10.5">✓ with an idempotency key</text>
-              <g font-size="8.5" text-anchor="middle" fill="#fff">
-                <rect x="30" y="136" width="128" height="28" rx="6" fill="#5560D8"/><text x="94" y="154">charge(key=run-42)</text>
-                <rect x="176" y="136" width="66" height="28" rx="6" fill="#C0392B"/><text x="209" y="154">💥 crash</text>
-                <rect x="260" y="136" width="80" height="28" rx="6" fill="#5560D8"/><text x="300" y="154">resume</text>
-                <rect x="358" y="136" width="130" height="28" rx="6" fill="#252D3A" stroke="#2E9E5B"/><text x="423" y="154" fill="#7fd6a0">key seen → skip</text>
-              </g>
-              <g stroke="#8892a0" stroke-width="1.1">
-                <path d="M158 150 h14" marker-end="url(#id1)"/><path d="M242 150 h14" marker-end="url(#id1)"/><path d="M340 150 h14" marker-end="url(#id1)"/>
-              </g>
-              <text x="510" y="154" fill="#7fd6a0" font-size="9">charged exactly once ✓</text>
-
-              <!-- pattern -->
-              <rect x="30" y="192" width="640" height="52" rx="10" fill="#161b23" stroke="#F0A81E"/>
-              <text x="46" y="212" fill="#f0c274" font-size="10">the two-phase pattern</text>
-              <text x="46" y="230" fill="#c2cad6" font-size="9">node produces a <tspan font-family="monospace" fill="#e6e9ef">draft (status="pending")</tspan> → a separate, idempotent commit step performs the side effect, keyed so a replay is a no-op</text>
-              <defs><marker id="id1" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker></defs>
-            </svg>
-          </div>
-          <figcaption><b>This is a top senior-level interview answer.</b> The naive response to "checkpointing gives exactly-once execution, right?" is "yes." The correct one: state is recoverable, side effects are not — you add idempotency keys, and you separate <em>producing</em> a result from <em>committing</em> it.</figcaption>
-        </figure>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">an idempotent side effect</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">def charge_node(state, config):
-    # a STABLE key derived from the run + logical action — same on every replay
-    key = f"{config['configurable']['thread_id']}:charge:{state['order_id']}"
-    if payments.already_processed(key):          # replay-safe guard
-        return {"charge_ref": payments.lookup(key)}
-    ref = payments.charge(state["amount"], idempotency_key=key)   # provider-side dedupe too
-    return {"charge_ref": ref}
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 5.3 ---------- -->
-      <article class="topic" id="g5-3">
-        <h3><span class="tn">5.3</span> Reliability primitives — retries, timeouts &amp; error handlers</h3>
-        <p class="lead">LangGraph <b>1.2</b> (May 2026) turned fault tolerance into first-class node configuration: retries, two kinds of timeout, and error handlers that enable Saga-style compensation. This is the most interview-relevant addition since 1.0.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 250" role="img" aria-label="A node attempt lifecycle: attempts are retried with exponential backoff, each attempt bounded by run and idle timeouts, and after retries are exhausted an error handler runs for compensation.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">one node's failure lifecycle — retries first, error handler last</text>
-              <!-- attempts -->
-              <g font-size="8.5" text-anchor="middle" fill="#fff">
-                <rect x="24" y="66" width="82" height="32" rx="6" fill="#5560D8"/><text x="65" y="86">attempt 1</text>
-                <rect x="126" y="66" width="82" height="32" rx="6" fill="#5560D8"/><text x="167" y="86">attempt 2</text>
-                <rect x="228" y="66" width="82" height="32" rx="6" fill="#5560D8"/><text x="269" y="86">attempt 3</text>
-              </g>
-              <path d="M106 82 h16" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#ft)"/>
-              <path d="M208 82 h16" stroke="#F0A81E" stroke-width="1.4" marker-end="url(#ft)"/>
-              <text x="165" y="58" fill="#f0c274" font-size="8">backoff + jitter</text>
-              <!-- timeout box over attempts -->
-              <rect x="18" y="54" width="298" height="56" rx="9" fill="none" stroke="#F0A81E" stroke-dasharray="4 3"/>
-              <text x="167" y="126" fill="#f0c274" font-size="8.5" text-anchor="middle">each attempt bounded by TimeoutPolicy → NodeTimeoutError (retriable)</text>
-              <!-- exhausted -->
-              <path d="M316 82 h30" stroke="#C0392B" stroke-width="1.6" marker-end="url(#ftr)"/>
-              <text x="331" y="74" fill="#e0a3a8" font-size="8">exhausted</text>
-              <rect x="348" y="60" width="120" height="44" rx="8" fill="#252D3A" stroke="#C0392B"/>
-              <text x="408" y="78" fill="#e0a3a8" font-size="9">error_handler</text>
-              <text x="408" y="92" fill="#8892a0" font-size="8">receives NodeError</text>
-              <path d="M468 82 h28" stroke="#2E9E5B" stroke-width="1.5" marker-end="url(#ftg)"/>
-              <rect x="498" y="60" width="180" height="44" rx="8" fill="#14181f" stroke="#2E9E5B"/>
-              <text x="588" y="78" fill="#7fd6a0" font-size="9" text-anchor="middle">compensate / degrade / route</text>
-              <text x="588" y="92" fill="#8892a0" font-size="8" text-anchor="middle">runs atomically, same cycle</text>
-              <!-- two timeouts -->
-              <rect x="24" y="156" width="316" height="76" rx="9" fill="#161b23" stroke="#2c3542"/>
-              <text x="38" y="176" fill="#c2cad6" font-size="10">two timeout kinds</text>
-              <text x="38" y="196" fill="#e6e9ef" font-size="8.5">run_timeout</text><text x="130" y="196" fill="#8892a0" font-size="8.5">hard wall-clock cap on one attempt</text>
-              <text x="38" y="214" fill="#e6e9ef" font-size="8.5">idle_timeout</text><text x="130" y="214" fill="#8892a0" font-size="8.5">resets on progress (writes, chunks,</text>
-              <text x="130" y="226" fill="#8892a0" font-size="8.5">child events) — catches a stalled stream</text>
-              <!-- saga -->
-              <rect x="356" y="156" width="322" height="76" rx="9" fill="#161b23" stroke="#2E9E5B"/>
-              <text x="370" y="176" fill="#7fd6a0" font-size="10">Saga pattern</text>
-              <text x="370" y="196" fill="#c2cad6" font-size="8.5">error_handler returns Command(goto="compensate")</text>
-              <text x="370" y="212" fill="#c2cad6" font-size="8.5">→ undo completed steps in REVERSE order</text>
-              <text x="370" y="226" fill="#8892a0" font-size="8.5">void ticket → refund payment → release seat</text>
-              <defs>
-                <marker id="ft" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#F0A81E"/></marker>
-                <marker id="ftr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#C0392B"/></marker>
-                <marker id="ftg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b>Order matters:</b> timeouts bound each <em>attempt</em>, retries repeat attempts with backoff, and the <b>error handler fires only once retries are exhausted</b> — which is what makes it the right place for compensation rather than retry logic.</figcaption>
-        </figure>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">retries + timeouts + error handler (LangGraph ≥ 1.2)</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.types import RetryPolicy, TimeoutPolicy
-from langgraph.errors import NodeError
-
-# --- timeouts: two different failure shapes ---
-TimeoutPolicy(
-    run_timeout=30.0,     # hard wall-clock cap on a single attempt
-    idle_timeout=5.0,     # max seconds WITHOUT progress (writes, chunks, child events)
-    refresh_on="auto",    # or "heartbeat"
-)
-# either firing raises NodeTimeoutError — and the attempt becomes retriable
-
-# --- error handler: runs only AFTER retries are exhausted ---
-def on_call_llm_failed(state: State, error: NodeError) -> State:
-    log.error("call_llm failed after retries: %s", error.error)
-    return {"status": "llm_unavailable"}          # graceful degradation
-
-builder.add_node(
-    "call_llm", call_llm,
-    retry_policy=RetryPolicy(max_attempts=4),      # backoff + jitter + retryable predicate
-    timeout=TimeoutPolicy(run_timeout=30.0, idle_timeout=5.0),
-    error_handler=on_call_llm_failed,
-)
-
-# --- set once for EVERY node instead of repeating (langgraph >= 1.2) ---
-builder.set_node_defaults(retry_policy=RetryPolicy(max_attempts=2), timeout=20.0)
-# per-node values passed to add_node ALWAYS win; defaults apply at compile()
-# ⚠ NOT inherited by subgraphs
-# ⚠ cache_policy/error_handler defaults apply to regular nodes only —
-#    caching handler results is unsafe, and a handler must never catch itself
-
-graph.invoke(inputs, {"recursion_limit": 50})      # still bound runaway loops
-</code></pre>
-        </figure>
-
-        <h4>The Saga pattern — compensating a multi-step workflow</h4>
-        <p>Error handlers unlock the classic distributed-systems answer: when step 3 of a booking fails, you don't just stop — you <em>undo</em> steps 1 and 2, in reverse order.</p>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">Saga: route failures to compensation</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">def to_compensate(state: BookingState, error: NodeError) -> Command:
-    """Any failed step routes here, tagging which node blew up."""
-    return Command(update={"completed": [f"FAILED:{error.node}"]}, goto="compensate")
-
-def compensate(state) -> Command:
-    # undo ONLY the steps that actually completed, in reverse order
-    if "issue_ticket"   in state["completed"]: void_ticket(state)
-    if "process_payment" in state["completed"]: refund_payment(state)
-    if "reserve_seat"   in state["completed"]: release_seat(state)
-    return Command(goto=END)
-
-for step in ("reserve_seat", "process_payment", "issue_ticket"):
-    builder.add_node(step, globals()[step], retry_policy=RetryPolicy(max_attempts=3),
-                     error_handler=to_compensate)
-</code></pre>
-        </figure>
-        <p>Also plan plain <b>graceful degradation</b>: when a tool is down, return a partial answer with a caveat rather than failing the whole run — that's what the <code class="ic">status="llm_unavailable"</code> handler above enables downstream.</p>
-      </article>
-
-      <!-- ---------- 5.4 ---------- -->
-      <article class="topic" id="g5-4">
-        <h3><span class="tn">5.4</span> Node caching</h3>
-        <p class="lead">Cache expensive nodes by their input. Huge for development iteration speed, and a real production cost lever.</p>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">cache a node with a TTL</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.cache.memory import InMemoryCache
-from langgraph.types import CachePolicy
-
-builder.add_node("expensive", fn, cache_policy=CachePolicy(ttl=300))
-graph = builder.compile(cache=InMemoryCache())
-# backends: InMemoryCache, SqliteCache, RedisCache
-# key_func=... customises how the cache key is derived from node input
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 5.5 ---------- -->
-      <article class="topic" id="g5-5">
-        <h3><span class="tn">5.5</span> Streaming</h3>
-        <p class="lead">Perceived latency <em>is</em> latency. A frozen UI reads as a broken app, so streaming isn't a nicety — it's the difference between a 3-second wait and a 300 ms first token.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 200" role="img" aria-label="The five LangGraph stream modes: values, updates, messages, custom, and debug, each emitting a different granularity of event.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">five stream modes — pick by what the UI needs</text>
-              <g font-size="9">
-                <rect x="20" y="38" width="140" height="30" rx="6" fill="#3B45B5"/><text x="32" y="57" fill="#fff">values</text>
-                <text x="176" y="57" fill="#8892a0">full state after each superstep</text>
-                <rect x="20" y="74" width="140" height="30" rx="6" fill="#5560D8"/><text x="32" y="93" fill="#fff">updates</text>
-                <text x="176" y="93" fill="#8892a0">only the deltas each node wrote</text>
-                <rect x="20" y="110" width="140" height="30" rx="6" fill="#2E9E5B"/><text x="32" y="129" fill="#0b2016">messages ★</text>
-                <text x="176" y="129" fill="#8892a0">LLM tokens as they generate — what users see</text>
-                <rect x="20" y="146" width="140" height="30" rx="6" fill="#4a5568"/><text x="32" y="165" fill="#e6e9ef">custom / debug</text>
-                <text x="176" y="165" fill="#8892a0">your own events from inside tools · full trace detail</text>
-              </g>
-              <rect x="470" y="38" width="210" height="66" rx="9" fill="#14181f" stroke="#C0392B"/>
-              <text x="575" y="58" fill="#e0a3a8" font-size="9.5" text-anchor="middle">⚠ common bug</text>
-              <text x="575" y="76" fill="#c2cad6" font-size="8.5" text-anchor="middle">streaming raw tool JSON into the UI</text>
-              <text x="575" y="90" fill="#c2cad6" font-size="8.5" text-anchor="middle">looks broken — filter to AIMessage</text>
-            </svg>
-          </div>
-          <figcaption><b>Combine modes</b> — <code>["updates", "messages"]</code> gives you progress <em>and</em> tokens. Use <code>subgraphs=True</code> to stream from inside a subgraph, and <code>astream_events</code> when you need fine-grained event control.</figcaption>
-        </figure>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">streaming multiple modes</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">async for chunk in graph.astream(inputs, config,
-                                 stream_mode=["updates", "messages"],
-                                 subgraphs=True):
-    ...
-</code></pre>
-        </figure>
-
-        <h4>The v3 streaming API (new in LangGraph 1.2 / LangChain 1.3, beta)</h4>
-        <p>The modes above are <em>channel</em>-centric. The <b>v3</b> protocol is <b>content-block-centric</b>: instead of one undifferentiated firehose you subscribe to <em>typed projections</em>, which is what makes rich agent UIs tractable.</p>
-        <div class="tbl-wrap">
-          <table class="data">
-            <thead><tr><th>Projection</th><th>Yields</th></tr></thead>
-            <tbody>
-              <tr><td><code>run.values</code></td><td>State values as they change</td></tr>
-              <tr><td><code>run.messages</code> ★</td><td>A typed <code>ChatModelStream</code> <em>per LLM call</em>, with sub-projections for text, <b>reasoning</b>, tool calls, and usage</td></tr>
-              <tr><td><code>run.lifecycle</code></td><td>Run/node lifecycle events</td></tr>
-              <tr><td><code>run.subgraphs</code></td><td>Events from nested graphs</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">v3 event streaming</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">async for event in agent.astream_events(inputs, config, version="v3"):
-    ...
-# Why it matters: separating reasoning tokens from answer tokens from tool calls
-# used to require hand-parsing the v2 event soup. v3 gives you typed streams —
-# so "show thinking in a collapsible panel, answer in the bubble" is a subscription,
-# not a parser.
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 5.6 ---------- -->
-      <article class="topic" id="g5-6">
-        <h3><span class="tn">5.6</span> Deployment</h3>
-        <p class="lead">Managed platform or self-hosted — plus the operational concepts (assistants, double-texting, background runs) that only show up once real users arrive.</p>
-        <ul>
-          <li><b>LangGraph Server / Platform</b> — managed runtime with threads, cron, and a task queue.</li>
-          <li><b>Self-hosted</b> — FastAPI + a Postgres checkpointer, Docker, horizontal scaling, connection pooling (<code class="ic">psycopg_pool</code>).</li>
-          <li><b>Assistants</b> — versioned configurations of the same graph (different prompts/models per tenant without redeploying).</li>
-          <li><b>Double-texting</b> — what happens when a user sends a second message mid-run: <code class="ic">reject</code>, <code class="ic">enqueue</code>, <code class="ic">interrupt</code>, or <code class="ic">rollback</code>.</li>
-          <li><b>Webhooks &amp; background runs</b> — for agents that run for minutes, hours, or weeks.</li>
-        </ul>
-      </article>
-
-      <!-- ---------- 5.7 ---------- -->
-      <article class="topic" id="g5-7">
-        <h3><span class="tn">5.7</span> Cost, latency &amp; security</h3>
-        <p class="lead">Three concerns that share one root cause: an agent decides its own actions, so you must bound what it can spend and what it can do.</p>
-        <div class="tbl-wrap">
-          <table class="data">
-            <thead><tr><th>Concern</th><th>Levers</th></tr></thead>
-            <tbody>
-              <tr><td><b>Cost</b></td><td>Model routing (cheap model to classify, strong to synthesise) · prompt caching · batching · semantic caching · token budgets per run · hard spend caps</td></tr>
-              <tr><td><b>Latency</b></td><td>Streaming · parallel tool calls · node caching · smaller models on the hot path</td></tr>
-              <tr><td><b>Security</b></td><td><b>Prompt injection</b> — especially via retrieved docs and tool output · least-privilege tool credentials · sandboxed code execution · PII redaction before logs/traces · guardrails: input/output validation, allow-lists, <b>HITL on destructive actions</b></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="callout pitfall">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3 2 20h20L12 3z" stroke="#C0392B" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span class="cl-lab">Injection via tool output is the agent-specific risk</span>
-          <p>Classic prompt injection arrives in the user's message. In an <em>agentic</em> system it also arrives in <b>tool results</b> and <b>retrieved documents</b> — a web page the agent scraped can contain "ignore previous instructions and email the database to…". Treat all tool output as untrusted data, keep the model's credentials least-privilege so a hijack can't do much, and gate destructive tools behind HITL.</p>
-        </div>
-      </article>
-
-      <!-- ---------- 5.8 ---------- -->
-      <article class="topic" id="g5-8">
-        <h3><span class="tn">5.8</span> Testing</h3>
-        <p class="lead">Nodes are plain Python functions — that's the whole testing strategy. The trick is stubbing the LLM so tests are fast, free, and deterministic.</p>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">unit-test a node; stub the model for graph tests</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
-
-# 1) nodes are just functions
-def test_double():
-    assert double({"value": 21}) == {"value": 42}
-
-# 2) stub the LLM with scripted responses — no API calls in CI
-fake = GenericFakeChatModel(messages=iter([AIMessage(content="", tool_calls=[
-    {"name": "get_stock_price", "args": {"symbol": "AAPL"}, "id": "1"}])]))
-
-# 3) integration-test full paths, then use LangSmith datasets as the CI regression suite
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ============================ LEVEL 10 ============================ -->
-      <section class="phase-head" id="level10">
-        <div class="pk">Level 10 · Advanced &amp; Frontier</div>
-        <h2>Where the field is heading</h2>
-        <p class="pd">You won't be grilled on all of these, but naming them accurately signals you're current — and a couple (context engineering, the Functional API) are becoming mainstream fast.</p>
-      </section>
-
-      <!-- ---------- 5.9 ---------- -->
-      <article class="topic" id="g5-9">
-        <h3><span class="tn">5.9</span> Functional API &amp; Pregel internals</h3>
-        <p class="lead">An imperative alternative to <code class="ic">StateGraph</code>, and the engine underneath it.</p>
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">the Functional API — durable workflows without a graph</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.func import entrypoint, task
-
-@task
-def research(topic: str) -> str: ...
-
-@entrypoint(checkpointer=InMemorySaver())
-def workflow(topic: str):
-    findings = research(topic).result()      # durable, checkpointed, retryable
-    return summarise(findings).result()
-</code></pre>
-        </figure>
-        <p>Same runtime, imperative style — useful when the flow is naturally sequential code rather than a graph. Under both sits <b>Pregel</b>: supersteps, channels, and a scheduler (§1.7).</p>
-      </article>
-
-      <!-- ---------- 5.10 ---------- -->
-      <article class="topic" id="g5-10">
-        <h3><span class="tn">5.10</span> Context engineering</h3>
-        <p class="lead">The discipline that replaced prompt engineering: deciding <em>what enters the context window, when, and why</em>. For agents this is the central performance lever.</p>
-        <p>It spans everything you've learned: trimming and summarization (§2.10), what a handoff carries (§4.3), sub-agent context isolation, tool-output size limits (§3.1), and retrieval that fetches only what's needed (§3.7). The mental model: context is a <em>budget</em> you allocate deliberately, not a bucket you fill.</p>
-      </article>
-
-      <!-- ---------- 5.11 ---------- -->
-      <article class="topic" id="g5-11">
-        <h3><span class="tn">5.11</span> Frontier topics worth naming</h3>
-        <ul>
-          <li><b>Custom checkpointer / store</b> implementations (<code class="ic">BaseCheckpointSaver</code>, <code class="ic">BaseStore</code>)</li>
-          <li><b>Reflexion</b> and self-improving agents that update <em>procedural</em> memory</li>
-          <li><b>LangMem / Mem0</b> — managed cross-session recall</li>
-          <li><b>Simulation-based evaluation</b> — agents tested against simulated users</li>
-          <li><b>Computer-use / browser agents</b></li>
-          <li><b>Agent-to-agent protocols (A2A)</b> and authoring your own MCP servers</li>
-          <li><b>Deep Agents</b> — planning + subagents + a filesystem, layered on LangGraph</li>
-        </ul>
-
-        <div class="callout note">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#5A6472" stroke-width="1.8"/><path d="M12 11v5M12 8h.01" stroke="#5A6472" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span class="cl-lab">The <code class="ic">deepagents</code> package moved fast in 2026</span>
-          <p>Worth tracking as the reference implementation of a "deep" agent (planning + subagents + filesystem) on top of LangGraph — and as a source of patterns you can steal:</p>
-          <ul style="margin:.4rem 0 0;padding-left:1.1rem">
-            <li><b>v0.5</b> (Apr 2026) — async subagents for non-blocking background work; multi-modal <code class="ic">read_file</code> (PDF, audio, video).</li>
-            <li><b>v0.6</b> (May 2026) — <code class="ic">CodeInterpreterMiddleware</code> (experimental) running code in a scoped QuickJS sandbox; <b>harness profiles</b> that auto-configure per provider/model; <code class="ic">ContextHubBackend</code> storing agent files as Hub commits <em>with version history</em>.</li>
-            <li><b>v0.7</b> (Jul 2026) — <b>input tokens cut ~65%</b> on default turns via leaner prompts and tighter tool schemas (a concrete lesson in context engineering, §5.10); middleware can override built-in defaults by matching <code class="ic">.name</code>; prompt caching for Bedrock and Fireworks. <em>Breaking:</em> <code class="ic">TodoListMiddleware</code> is no longer included by default.</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- ---------- 5.12 ---------- -->
-      <article class="topic" id="g5-12">
-        <h3><span class="tn">5.12</span> Interview focus — the production round</h3>
         <div class="qbox">
           <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
           <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Trap ⭐</span>Your agent crashes mid-run. What happens on restart? Does checkpointing give exactly-once?</summary>
-              <div class="ans"><p>With a checkpointer and a <code class="ic">thread_id</code>, the run resumes from the last completed superstep — <b>state is recoverable</b>. But <b>side effects are not exactly-once</b>: the interrupted node <em>re-executes</em>, so if it charged a card or sent an email before crashing, that happens twice. LangGraph doesn't solve this for you. You add <b>idempotency keys</b> derived from stable identifiers (thread + logical action), check "already processed" before acting, and pass the key to providers that support idempotent requests. The robust pattern is two-phase: the node produces a <em>draft</em> (<code class="ic">status="pending"</code>) and a separate idempotent commit step performs the side effect.</p></div>
+            <details class="qa"><summary><span class="qtag">System design</span>Design an agent that runs a marketing campaign over six weeks.</summary>
+              <div class="ans"><p><b>Episodic, not continuous.</b> A scheduled trigger wakes the graph — daily, or on an event — and each episode does a bounded chunk of work then writes a durable summary and exits. The graph is checkpointed throughout, so it survives restarts, deploys and long gaps.</p><p><b>State design:</b> the plan and objective live in explicit channels (and the store), <em>not</em> in the message history, because history will be summarised away. Each episode re-reads the objective and the plan, does its work, updates progress, and appends a compact episode summary.</p><p><b>Oversight:</b> <code class="ic">interrupt</code> at milestones — approve the plan, approve the first send, approve anything above a spend threshold — so a six-week run can't quietly go wrong for five of them. A running budget in state, checked each episode, not just a per-request cap.</p><p><b>Freshness:</b> facts gathered in week 1 may be stale by week 4, so timestamp what's stored and re-verify anything load-bearing before acting on it. This is where LangGraph's persistence genuinely has no substitute — the alternative is building the same checkpoint-and-resume machinery yourself.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Production</span>What are durability modes and how would you choose one?</summary>
-              <div class="ans"><p><code class="ic">"exit"</code> persists only at the end — fastest, but a crash loses the whole run; fine for short, cheap, retryable work. <code class="ic">"async"</code> persists in the background — a good default, with a small loss window. <code class="ic">"sync"</code> persists before continuing — safest and slowest, which is what you want for long-running agents, anything with expensive steps you don't want to redo, or workflows with HITL pauses. Choose by asking: how expensive is it to redo the work, and how bad is losing it?</p></div>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What is goal drift and how do you prevent it?</summary>
+              <div class="ans"><p>Over a long run the agent gradually optimises for something adjacent to the original objective — the goal was &ldquo;increase qualified leads&rdquo;, and twenty episodes later it's tuning email open rates because that's what its recent context is about. It happens because the objective sits at the start of a history that keeps getting summarised, while recent tactical detail dominates the context.</p><p>Prevention: keep the objective in a <b>dedicated state channel</b> that is never summarised and is re-injected verbatim into every episode's prompt. Define <b>success criteria as checkable conditions</b> rather than prose. Add a periodic <b>alignment check</b> — a cheap call asking &ldquo;does the current plan still serve this objective?&rdquo;. And put a <b>human review</b> at milestones, since drift is much easier for a person to spot than for the drifting agent to self-diagnose.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Production</span>How do you make streaming useful rather than noisy?</summary>
-              <div class="ans"><p>Pick modes by what the UI needs and filter. <code class="ic">messages</code> streams LLM tokens (what the user should see), <code class="ic">updates</code> streams per-node deltas (good for a progress indicator), <code class="ic">values</code> streams full state (heavy), plus <code class="ic">custom</code> for your own in-tool events and <code class="ic">debug</code> for detail. Combine <code class="ic">["updates", "messages"]</code> for progress + tokens, and pass <code class="ic">subgraphs=True</code> to see inside subgraphs. The classic bug: piping raw tool-call JSON into the UI, which looks broken — filter to <code class="ic">AIMessage</code> content.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g11-2">
+        <h3><span class="tn">11.2</span> Computer use and browser agents</h3>
+        <p class="lead">Agents that operate a GUI — screenshot in, click and keystroke out. Genuinely useful where no API exists, and considerably less reliable than any tool-based alternative.</p>
+
+        <p>The loop is the familiar one with a different observation space: screenshot → model identifies the target and emits a coordinate or an accessibility-tree action → the action is executed → new screenshot. The failure modes are specific: <b>ambiguous targets</b> (three buttons labelled &ldquo;Continue&rdquo;), <b>timing</b> (acting before the page settled), <b>drift</b> (the UI changed and every hardcoded expectation broke), and <b>cost</b> — screenshots are large images, so every step is an expensive multimodal call.</p>
+
+        <p>The judgement to express: <b>prefer an API, then a structured DOM/accessibility tree, then pixels.</b> Computer use is the last resort for systems that genuinely have no programmatic surface — legacy internal tools, third-party portals — and where it's used, it should be sandboxed, gated on destructive actions, and monitored, because a mis-click has real consequences and no schema stops it.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>When would you use a browser agent instead of an API?</summary>
+              <div class="ans"><p><b>Only when there is no API</b> — a legacy internal system, a third-party portal with no integration, a workflow spanning several systems that can't be joined any other way.</p><p>The preference order is API → structured DOM or accessibility tree → raw pixels, and you should move down it reluctantly. Each step down costs reliability (no schema, no error codes, no idempotency), cost (screenshots are expensive multimodal inputs on every step), and speed.</p><p>Where you do use one: pin it to the accessibility tree rather than coordinates where possible, gate destructive clicks behind approval, run it in a sandboxed browser with scoped credentials, and expect maintenance — a UI change is a silent breakage with no deprecation notice.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Security</span>How do you secure an agent that can call tools?</summary>
-              <div class="ans"><p>Assume the model can be hijacked and limit the blast radius. Treat <b>all tool output and retrieved documents as untrusted input</b> (that's where agentic prompt injection arrives), give tools <b>least-privilege credentials</b> so a compromised run can't do much, sandbox any code execution, redact PII before it reaches logs and traces, validate inputs/outputs with allow-lists, and put <b>HITL approval gates on destructive or irreversible actions</b>. Combine with hard spend caps and recursion limits so a runaway loop is bounded financially as well as logically.</p></div>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why are computer-use agents unreliable?</summary>
+              <div class="ans"><p>Because the observation is a <b>picture</b>, not a structured state, so every step involves perception that can be wrong in ways a schema would have prevented. Specific modes: <b>ambiguity</b> — several visually similar targets, and nothing distinguishes them semantically; <b>timing</b> — acting before an async render completes, which produces a click on whatever was there a moment ago; <b>drift</b> — the UI changes and there's no contract to break loudly; and <b>compounding error</b>, since a single wrong click puts the agent in a state its subsequent reasoning doesn't account for.</p><p>The mitigations are honest but partial: verify after each action (screenshot and confirm the expected change happened), prefer accessibility-tree targets over coordinates, keep episodes short with checkpoints so recovery doesn't mean restarting, and gate anything irreversible.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Current ⭐</span>A node hangs on a slow API. What are your options in LangGraph 1.2?</summary>
-              <div class="ans"><p>Per-node <b>timeouts</b>, and pick the right kind. <code class="ic">run_timeout</code> is a hard wall-clock cap on one attempt — use it when you simply never want to wait more than N seconds. <code class="ic">idle_timeout</code> resets on every <em>progress</em> signal (channel writes, streamed chunks, child-task events, callbacks) — use it to catch a <em>stalled</em> stream that would pass a generous wall-clock check. Either raises <code class="ic">NodeTimeoutError</code>, and the attempt is <b>retriable</b>, so pair with a <code class="ic">RetryPolicy</code>. If retries are still exhausted, an <code class="ic">error_handler</code> runs for graceful degradation. Set them once for every node with <code class="ic">set_node_defaults(...)</code>.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g11-3">
+        <h3><span class="tn">11.3</span> Agent protocols — MCP, A2A, AG-UI <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Three layers people conflate. Be precise about which problem each one solves, and honest about which have actually settled.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Protocol</th><th>Connects</th><th>Status in 2026</th></tr></thead>
+            <tbody>
+              <tr><td><b>MCP</b></td><td>Agent ↔ <b>tools and data</b></td><td><b>Settled</b> — broad adoption, the de-facto tool interface</td></tr>
+              <tr><td>A2A</td><td>Agent ↔ <b>agent</b>, across organisations</td><td>Emerging; real momentum, not yet universal</td></tr>
+              <tr><td>AG-UI</td><td>Agent ↔ <b>user interface</b> (streaming, state, HITL)</td><td>Early; the problem is real, the standard isn't fixed</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="The protocol stack: MCP connecting an agent downward to tools and data, A2A connecting agents sideways to other organisations agents, and AG-UI connecting an agent upward to a user interface, each labelled with its adoption status.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">three layers, three very different levels of adoption</text>
+              <g font-size="10.5">
+                <rect x="248" y="102" width="200" height="60" rx="12" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.8"/>
+                <text x="348" y="128" fill="#8fa0ff" text-anchor="middle" font-size="13" font-weight="600">YOUR AGENT</text>
+                <text x="348" y="147" fill="#8892a0" text-anchor="middle" font-size="9.5">LangGraph runtime</text>
+
+                <rect x="248" y="30" width="200" height="46" rx="10" fill="#161b23" stroke="#5A6472" stroke-dasharray="5 4"/>
+                <text x="348" y="50" fill="#c9d1dc" text-anchor="middle">user interface</text>
+                <text x="348" y="66" fill="#8892a0" text-anchor="middle" font-size="9">streaming · state · HITL prompts</text>
+                <path d="M348 102V80" stroke="#c9a0e0" stroke-width="1.6"/>
+                <text x="358" y="94" fill="#c9a0e0" font-size="10" font-weight="600">AG-UI</text>
+                <text x="410" y="94" fill="#e0929a" font-size="9">early — not settled</text>
+
+                <rect x="248" y="190" width="200" height="46" rx="10" fill="#161b23" stroke="#7fd6a0" stroke-width="1.5"/>
+                <text x="348" y="210" fill="#7fd6a0" text-anchor="middle">tools &amp; data</text>
+                <text x="348" y="226" fill="#8892a0" text-anchor="middle" font-size="9">filesystem · APIs · databases · search</text>
+                <path d="M348 162v24" stroke="#F0A81E" stroke-width="2.2"/>
+                <text x="358" y="180" fill="#F0A81E" font-size="10" font-weight="600">MCP</text>
+                <text x="400" y="180" fill="#7fd6a0" font-size="9">settled — build against it</text>
+
+                <rect x="516" y="102" width="160" height="60" rx="10" fill="#161b23" stroke="#5A6472" stroke-dasharray="5 4"/>
+                <text x="596" y="126" fill="#c9d1dc" text-anchor="middle">another org’s agent</text>
+                <text x="596" y="144" fill="#8892a0" text-anchor="middle" font-size="9">discovery · delegation · tracking</text>
+                <path d="M448 132h62" stroke="#c9a0e0" stroke-width="1.6"/>
+                <text x="458" y="124" fill="#c9a0e0" font-size="10" font-weight="600">A2A</text>
+                <text x="452" y="152" fill="#F0A81E" font-size="9">emerging — real problem,</text>
+                <text x="452" y="164" fill="#F0A81E" font-size="9">most teams don’t have it yet</text>
+
+                <rect x="24" y="102" width="196" height="60" rx="10" fill="#161b23" stroke="#2c3542"/>
+                <text x="40" y="124" fill="#8892a0" font-size="10">the question being tested:</text>
+                <text x="40" y="142" fill="#c9d1dc" font-size="10">can you tell <tspan fill="#7fd6a0">adopted</tspan> from</text>
+                <text x="40" y="156" fill="#c9d1dc" font-size="10"><tspan fill="#e0929a">announced</tspan>?</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#F0A81E"></i>settled</span><span><i style="background:#c9a0e0"></i>contested</span><span><i style="background:#7fd6a0"></i>tools layer</span></div>
+          <figcaption>Saying &ldquo;all three are the future&rdquo; is weaker than naming the one you'd adopt this quarter and why.</figcaption>
+        </figure>
+
+        <p>The reason to hold a view here: interviewers use protocol questions to check whether you distinguish <em>what has actually been adopted</em> from <em>what has been announced</em>. The defensible position is that MCP won its layer and you should build against it; A2A addresses a genuine problem (cross-organisational agent interoperability) that most teams don't have yet; and the UI layer is still being fought over, so building directly on LangGraph's streaming modes is a reasonable choice today.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>MCP, A2A, AG-UI — what does each solve?</summary>
+              <div class="ans"><p><b>Different layers, not competitors.</b> <b>MCP</b> connects an agent to tools and data — the <code class="ic">m × n</code> → <code class="ic">m + n</code> integration argument, and the one layer that has genuinely standardised. <b>A2A</b> connects agents to <em>other agents</em>, typically across organisational boundaries: capability discovery, task delegation, negotiated exchange. <b>AG-UI</b> connects an agent to a <em>user interface</em> — streaming tokens and steps, shared state, human-in-the-loop prompts.</p><p>Then the honest status assessment, which is the part being tested: MCP is settled and worth building against; A2A solves a real problem that most teams don't have yet, and it hasn't converged; the UI layer is early enough that building on your framework's streaming primitives is a defensible choice. Saying &ldquo;all three are the future&rdquo; is weaker than saying which one you'd actually adopt this quarter and why.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Current ⭐</span>How do you undo completed work when a later step fails? (Saga)</summary>
-              <div class="ans"><p>Attach an <code class="ic">error_handler</code> to each step; it fires only <em>after</em> retries are exhausted and receives a <code class="ic">NodeError</code> with failure context. Have it return <code class="ic">Command(goto="compensate")</code>, and let the compensate node undo <b>only the steps that actually completed, in reverse order</b> (void ticket → refund payment → release seat), driven by a <code class="ic">completed</code> list in state. That's the Saga pattern, and it's the correct answer to "there's no distributed transaction here — how do you stay consistent?" Note it composes with idempotency (§5.2): compensation must itself be replay-safe.</p></div>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Do we need an agent-to-agent protocol at all?</summary>
+              <div class="ans"><p><b>Within one organisation, usually not</b> — you control both agents, so a shared graph, a function call or an internal RPC is simpler, faster and easier to debug than a negotiation protocol. Adding one internally is manufacturing a boundary that doesn't exist.</p><p><b>Across organisations, yes</b>, and that's the real motivation: my agent needs to discover what your agent can do, delegate a task, and track it, without either of us having integrated with the other in advance. That's a genuine <code class="ic">m × n</code> problem and it's exactly what MCP solved one layer down.</p><p>The open questions are why it hasn't settled: authentication and authorisation between autonomous agents, liability when a delegated task goes wrong, payment, and trust in capability claims. Those are harder than the wire format, which is why the protocol layer is moving slower than the enthusiasm.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Current</span>Checkpoint writes are dominating latency on a long thread. What do you do?</summary>
-              <div class="ans"><p>Reach for <b><code class="ic">DeltaChannel</code></b> (LangGraph 1.2, beta): it persists <em>incremental deltas</em> rather than re-serialising the whole growing value each superstep, which is exactly the long-thread failure mode (message history, accumulated findings). Add <code class="ic">snapshot_frequency</code> so replay folds a bounded number of deltas rather than thousands. Also consider a looser durability mode (<code class="ic">"async"</code>) if some loss window is acceptable, and trim/summarize history (§2.10) so the state isn't growing unboundedly in the first place.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g11-4">
+        <h3><span class="tn">11.4</span> Self-improving agents</h3>
+        <p class="lead">An agent that gets better from its own experience. Several mechanisms are real and useful; the version people imagine — an agent rewriting its own code unsupervised — is not something you should ship.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Mechanism</th><th>What improves</th><th>Reality</th></tr></thead>
+            <tbody>
+              <tr><td><b>Memory of outcomes</b></td><td>Recalls what worked for similar cases</td><td><b>Works today</b> — write outcomes to the store, retrieve on similar queries</td></tr>
+              <tr><td><b>Few-shot from successes</b></td><td>Prompt improves as good examples accumulate</td><td>Works; needs curation or it drifts</td></tr>
+              <tr><td>Automated prompt optimisation</td><td>Prompt tuned against an eval set</td><td>Real, and entirely dependent on the eval set's quality</td></tr>
+              <tr><td>Learned tool selection</td><td>Routing improves from logged outcomes</td><td>Works — it's a classifier trained on your traces</td></tr>
+              <tr><td>Self-modifying code</td><td>The agent rewrites itself</td><td><b>Research</b>. Do not put this in production</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The common requirement across the workable ones is a <b>reliable outcome signal</b>. Without knowing which runs succeeded, &ldquo;learning from experience&rdquo; is just accumulating unlabelled history — and an agent that learns from its own unvalidated outputs will confidently reinforce its own mistakes. Get the feedback loop from §9.7 working first; self-improvement is downstream of evaluation, not a substitute for it.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Can agents learn from their mistakes?</summary>
+              <div class="ans"><p><b>Yes, through mechanisms you build — not by themselves.</b> The workable ones: writing outcomes to a <b>store</b> and retrieving relevant past cases (&ldquo;last time this customer's issue was X, the fix was Y&rdquo;); accumulating <b>successful examples as few-shot prompts</b>; <b>automated prompt optimisation</b> against an eval set; and training a small <b>routing classifier</b> on logged trajectories and outcomes.</p><p>The prerequisite is a <b>reliable outcome signal</b>. Without knowing which runs actually succeeded, the agent is accumulating unlabelled history and will reinforce its own errors as readily as its successes. So the honest ordering is: evaluation and feedback collection first, then self-improvement on top of it.</p><p>And the boundary: an agent modifying its own code or prompts unsupervised in production is a research topic, not an engineering practice — the failure mode is silent, compounding and hard to roll back.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Testing</span>How do you test a LangGraph agent?</summary>
-              <div class="ans"><p>Three layers. <b>Unit:</b> nodes are plain functions — call them with a state dict and assert on the partial update, no framework needed. <b>Integration:</b> run full graph paths with a <b>stubbed LLM</b> (a fake chat model returning scripted messages/tool calls) so tests are deterministic, fast, and free — this is the key trick. <b>Regression:</b> LangSmith datasets with outcome and trajectory evaluators, run in CI to gate prompt/model changes. Add explicit tests for the failure paths too: tool errors, interrupts/resume, and recursion limits.</p></div>
+            <details class="qa"><summary><span class="qtag">Design</span>How would you build an agent that learns user preferences?</summary>
+              <div class="ans"><p><b>Explicit extraction into a store, with governance.</b> After a conversation, a background step extracts candidate preferences (&ldquo;prefers concise answers&rdquo;, &ldquo;works in metric units&rdquo;, &ldquo;owns the payments service&rdquo;) with a confidence and a source; dedupe against existing memories; write to <code class="ic">("preferences", user_id)</code>. At the start of each run, retrieve the relevant ones and inject them into the system prompt with a token cap.</p><p>What makes it work rather than degrade: <b>extract selectively</b>, since storing everything makes retrieval noisy; <b>supersede rather than accumulate</b> when a new preference contradicts an old one; <b>timestamp</b> everything, because preferences go stale; and make it <b>visible and editable</b> — a &ldquo;what I remember about you&rdquo; view where the user can correct or delete entries, which is both a trust feature and a genuine quality mechanism, since users will fix errors you'd never have detected.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g11-5">
+        <h3><span class="tn">11.5</span> Context engineering <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The reframing that has replaced &ldquo;prompt engineering&rdquo; as the central discipline. Once you see agent design this way, memory, RAG, tool selection and message trimming stop being separate topics.</p>
+
+        <h4>The definition</h4>
+        <p><b>Context engineering is deciding, for every LLM call, exactly what occupies the finite context window.</b> Not the wording of a prompt — the <em>composition</em> of everything sent: system instructions, tool schemas, retrieved documents, conversation history, memories, and the current input. Every token is a choice, and every token you include crowds out one you didn't.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Component</th><th>Governed by</th><th>The lever</th></tr></thead>
+            <tbody>
+              <tr><td>System instructions</td><td>Prompt design</td><td>Keep stable — it's the cacheable prefix</td></tr>
+              <tr><td>Tool schemas</td><td>Catalogue size</td><td>Namespacing, routing, tool retrieval (§6.4)</td></tr>
+              <tr><td>Retrieved documents</td><td>Retrieval quality</td><td>Rerank and cut k — fewer, better (§7.2)</td></tr>
+              <tr><td>Conversation history</td><td>Trimming policy</td><td>Summary + last <em>k</em> (§5.6)</td></tr>
+              <tr><td>Long-term memories</td><td>Store curation</td><td>Selective extraction; hard token cap (§5.7)</td></tr>
+              <tr><td>Current input</td><td>The user</td><td>Rewrite for the index; strip boilerplate</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="A context window drawn as a fixed-width budget bar split into system instructions, tool schemas, retrieved documents, conversation history, memories and the current input, with the four context-engineering operations labelled: write, select, compress and isolate.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">one finite window, six competing claims on it</text>
+              <g font-size="10">
+                <rect x="24" y="40" width="652" height="44" rx="8" fill="#1a1f28" stroke="#2c3542"/>
+                <rect x="26" y="42" width="86" height="40" rx="6" fill="#4B5BD6" opacity=".85"/><text x="34" y="66" fill="#fff" font-size="9">system</text>
+                <rect x="114" y="42" width="120" height="40" rx="6" fill="#4B5BD6" opacity=".6"/><text x="122" y="66" fill="#fff" font-size="9">tool schemas</text>
+                <rect x="236" y="42" width="180" height="40" rx="6" fill="#7fd6a0" opacity=".8"/><text x="244" y="66" fill="#14181f" font-size="9">retrieved documents</text>
+                <rect x="418" y="42" width="180" height="40" rx="6" fill="#F0A81E" opacity=".8"/><text x="426" y="66" fill="#14181f" font-size="9">conversation history</text>
+                <rect x="600" y="42" width="42" height="40" rx="6" fill="#c9a0e0" opacity=".8"/><text x="606" y="66" fill="#14181f" font-size="8.5">mem</text>
+                <rect x="644" y="42" width="30" height="40" rx="6" fill="#e0929a" opacity=".9"/><text x="649" y="66" fill="#14181f" font-size="8.5">now</text>
+                <text x="24" y="102" fill="#5A6472" font-size="9.5">every token here crowds out one you didn’t include — and is billed on every turn</text>
+
+                <g transform="translate(24,124)">
+                  <rect width="152" height="102" rx="10" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                  <text x="14" y="24" fill="#7fd6a0" font-size="11.5" font-weight="600">write</text>
+                  <text x="14" y="44" fill="#8892a0">persist outside the window</text>
+                  <text x="14" y="60" fill="#5A6472" font-size="9">the store · a scratchpad</text>
+                  <text x="14" y="84" fill="#c9d1dc" font-size="9">§5.7 long-term memory</text>
+                </g>
+                <g transform="translate(190,124)">
+                  <rect width="152" height="102" rx="10" fill="#161b23" stroke="#F0A81E" stroke-width="1.4"/>
+                  <text x="14" y="24" fill="#F0A81E" font-size="11.5" font-weight="600">select</text>
+                  <text x="14" y="44" fill="#8892a0">retrieve only what this</text>
+                  <text x="14" y="58" fill="#8892a0">call needs</text>
+                  <text x="14" y="84" fill="#c9d1dc" font-size="9">§6.4 tool retrieval · §7.2 RAG</text>
+                </g>
+                <g transform="translate(356,124)">
+                  <rect width="152" height="102" rx="10" fill="#161b23" stroke="#4B5BD6" stroke-width="1.4"/>
+                  <text x="14" y="24" fill="#8fa0ff" font-size="11.5" font-weight="600">compress</text>
+                  <text x="14" y="44" fill="#8892a0">summarise, trim, cap</text>
+                  <text x="14" y="58" fill="#8892a0">tool-result size</text>
+                  <text x="14" y="84" fill="#c9d1dc" font-size="9">§5.6 context management</text>
+                </g>
+                <g transform="translate(522,124)">
+                  <rect width="154" height="102" rx="10" fill="#161b23" stroke="#c9a0e0" stroke-width="1.4"/>
+                  <text x="14" y="24" fill="#c9a0e0" font-size="11.5" font-weight="600">isolate</text>
+                  <text x="14" y="44" fill="#8892a0">sub-agents and subgraphs</text>
+                  <text x="14" y="58" fill="#8892a0">get their own contexts</text>
+                  <text x="14" y="84" fill="#c9d1dc" font-size="9">§3.9 subgraphs · §8.4 hierarchy</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#7fd6a0"></i>write</span><span><i style="background:#F0A81E"></i>select</span><span><i style="background:#4B5BD6"></i>compress</span><span><i style="background:#c9a0e0"></i>isolate</span></div>
+          <figcaption>Almost every technique in this subject is one of these four operations applied to one of those six components.</figcaption>
+        </figure>
+
+        <p>The four operations, worth naming as a set: <b>write</b> (persist outside the window — the store, a scratchpad file), <b>select</b> (retrieve only what this call needs), <b>compress</b> (summarise, trim, truncate results), and <b>isolate</b> (give sub-agents or subgraphs their own contexts so their scratchpads don't pollute the main one). Almost every technique in this subject is one of those four.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">A bigger window did not remove the problem</span>
+          <p>Million-token windows changed the constraint from &ldquo;does it fit&rdquo; to &ldquo;should it be there&rdquo;. Cost scales with tokens on every turn, time-to-first-token scales with input length, and attention degrades over long contexts — so a focused 8k context routinely beats an unfocused 500k one. <b>Selection is now a quality technique, not just a capacity workaround.</b></p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>What is context engineering, and how is it different from prompt engineering?</summary>
+              <div class="ans"><p><b>Prompt engineering</b> is about the wording of instructions. <b>Context engineering</b> is about the <em>composition</em> of the whole context window for every call: which instructions, which tool schemas, which retrieved documents, how much history, which memories, in what order.</p><p>The shift matters because in an agent, the prompt is <b>assembled dynamically at every step</b> and it's the assembly — not the phrasing — that determines behaviour. Four operations cover it: <b>write</b> (persist outside the window), <b>select</b> (retrieve only what this call needs), <b>compress</b> (summarise and trim), and <b>isolate</b> (sub-agents get their own contexts).</p><p>The unifying insight worth stating: memory management, RAG, tool selection and history trimming are not four topics, they're four instances of one problem — <b>a finite window and a budget for what goes in it</b>. Framing them that way is a strong senior signal.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>How do you decide what goes into the context for a given call?</summary>
+              <div class="ans"><p>Work backwards from the decision the model has to make at <em>that step</em>, and include only what's needed for it.</p><p>Practically: a <b>token budget per component</b> — say 20% instructions and tools, 30% retrieved content, 40% history, 10% memories — enforced in code rather than hoped for. <b>Rank within each component</b> and cut, rather than including everything that fits: five well-reranked chunks beat twenty mediocre ones, and fewer is often <em>better</em>, not just cheaper. <b>Order most-static to most-dynamic</b> so prompt caching works and the important recent content sits near the end where attention is strongest. And <b>isolate</b> — if a sub-task needs a large working context, give it a subgraph with its own state so that context never enters the main thread.</p><p>Then measure it: log token composition per call. Teams are routinely surprised to find tool schemas or stale history consuming most of their window.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g11-6">
+        <h3><span class="tn">11.6</span> The 2026 positions <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Defensible answers to the open questions. The goal is not to be right — it's to show you've thought about them and can argue a position under pushback.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Question</th><th>A defensible position</th></tr></thead>
+            <tbody>
+              <tr><td>Are multi-agent systems the future?</td><td>Not by default. Most production value is <b>one</b> well-instrumented agent with good tools and tight gates.</td></tr>
+              <tr><td>Will frameworks survive better models?</td><td>Yes — the framework's value is persistence, HITL and observability, none of which a better model provides.</td></tr>
+              <tr><td>Has RAG been killed by long context?</td><td>No. Cost, latency and attention degradation all still favour selection; long context changed the ceiling, not the incentive.</td></tr>
+              <tr><td>Are agents production-ready?</td><td>Narrow, gated, well-evaluated agents are, and have been. Open-ended autonomous ones are not.</td></tr>
+              <tr><td>Will models make prompt engineering obsolete?</td><td>Phrasing, largely yes. <b>Context engineering</b>, no — deciding what to include is a systems problem.</td></tr>
+              <tr><td>Do reasoning models change agent design?</td><td>Yes — fewer explicit reflection loops needed, but cost and latency per call rise, so you use them selectively.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">How to hold a position in an interview</span>
+          <p>State it, give the reasoning, then give the <b>strongest counter-argument</b> and why it doesn't change your mind — or what evidence would. That pattern reads as judgement rather than opinion, and it's very hard to fake. An interviewer pushing back is usually testing whether you'll fold or think, and both extremes lose.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Where do you think agentic AI is heading?</summary>
+              <div class="ans"><p>Three trends I'd argue for. <b>Toward less autonomy and more engineering</b>: the 2023 enthusiasm for fully autonomous swarms gave way to narrow, gated, well-instrumented agents, because that's what actually ships. <b>Toward standardisation at the boundaries</b>: MCP settled the tool layer, and the agent-to-agent and UI layers are being contested now. <b>Toward evaluation as the differentiator</b> — models are commoditising and the teams that win are the ones who can measure whether a change helped.</p><p>What I'd bet <em>against</em>: agents that plan and execute open-ended goals unsupervised. The blocker isn't model capability, it's that we have no good way to <b>bound the consequences</b> of a wrong decision, and that's a systems and liability problem, not a scaling one.</p><p>And the falsifier, which is the part that makes this a position rather than a slogan: if reliability at long horizons improved to the point where a multi-day autonomous run needed no intervention, I'd revise the first and third claims.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>&ldquo;Frameworks like LangGraph will be obsolete when models get good enough.&rdquo; Respond.</summary>
+              <div class="ans"><p>I'd disagree, and be specific about why. A better model improves <em>decisions</em>; it doesn't provide <b>persistence, resumability, human-in-the-loop, or observability</b>. A perfectly reasoning model still can't pause for three days waiting for an approval and resume in a different process, still can't be inspected at step four of a failed run, and still can't survive a pod restart. Those are infrastructure properties, and something has to provide them.</p><p>Where the objection has force: the <em>orchestration</em> parts do shrink. Better models need fewer reflection loops, less prompt scaffolding and less hand-holding on tool selection, so graphs get simpler. That's a real trend and I'd expect the framework's centre of gravity to keep moving from &ldquo;how to make the model behave&rdquo; toward &ldquo;durable execution and observability&rdquo; — which is roughly what happened between the 0.x and 1.x eras already.</p><p>The version I'd concede: if you don't need persistence, HITL or streaming, a plain SDK loop is the right choice today, and better models widen that category.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What's the most overrated idea in agentic AI right now?</summary>
+              <div class="ans"><p><b>Multi-agent as a default architecture.</b> The org-chart metaphor is intuitive and mostly wrong: every additional agent multiplies latency and cost, loses context at each boundary, and adds coordination failure modes that don't exist in a single agent with the same tools. Most systems that get built as three agents work better as one agent or as a workflow with one agentic node.</p><p>A close second: <b>benchmark scores</b> as evidence of production readiness. Narrow tasks, contamination, and unreported cost and latency mean a leaderboard number tells you almost nothing about behaviour on your data.</p><p>What I'd say is <em>under</em>rated, since the question usually invites it: <b>tool design</b>. It's unglamorous, it's where most real failures live, and an afternoon rewriting tool descriptions and return values routinely beats a week of architectural work.</p></div>
             </details>
           </div>
         </div>
@@ -879,14 +776,14 @@ def workflow(topic: str):
 
             <!-- PART NAV -->
       <nav class="partnav">
-        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part4_MultiAgent.html">Part 4 · Multi-Agent &amp; Observability</a></div><ul><li>Supervisor, subgraphs, LangSmith</li></ul></div>
-        <div class="pcard"><div class="k">You are here</div><div class="t">Part 5 · Production Engineering</div></div>
-        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part6_QABank.html">Part 6 · Interview Q&amp;A Bank</a></div><ul><li>46 questions + 7 traps</li><li>6 system-design scenarios</li></ul></div>
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part10_Production.html">Part 10 · Production Engineering</a></div><ul><li>Durability, cost, security</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 11 · Advanced &amp; Frontier</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part12_QABank.html">Part 12 · Interview Q&amp;A Bank</a></div><ul><li>Full question bank + traps</li><li>System designs and projects</li></ul></div>
       </nav>
 
       <div class="doc-foot">
-        LangGraph &amp; Agentic AI — Part 5 of 6 · Production Engineering<br>
-        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        LangGraph &amp; Agentic AI — Part 11 of 12 · Advanced &amp; Frontier<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 

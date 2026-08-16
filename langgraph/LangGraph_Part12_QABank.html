@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangGraph &amp; Agentic AI — Part 12: Interview Q&amp;A Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 12 / 12</small>Interview Q&amp;A Bank</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">LangGraph<small>Agentic AI Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 12 of 12</div>
+      <div class="v">Interview Q&amp;A Bank</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 210 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">QA</span> The Question Bank <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#g12-0">12.0 · How to use this bank</a></li>
+          <li><a href="#g12-1">12.1 · Conceptual foundations</a></li>
+          <li><a href="#g12-2">12.2 · LangGraph mechanics</a></li>
+          <li><a href="#g12-3">12.3 · State &amp; memory</a></li>
+          <li><a href="#g12-4">12.4 · HITL &amp; durability</a></li>
+          <li><a href="#g12-5">12.5 · Tools &amp; MCP</a></li>
+          <li><a href="#g12-6">12.6 · RAG in agents</a></li>
+          <li><a href="#g12-7">12.7 · Multi-agent</a></li>
+          <li><a href="#g12-8">12.8 · Evaluation &amp; observability</a></li>
+          <li><a href="#g12-9">12.9 · Production &amp; cost</a></li>
+          <li><a href="#g12-10">12.10 · Frontier &amp; senior signal</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">REF</span> Traps &amp; Reference <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#g12-11">12.11 · The trap questions ⭐⭐</a></li>
+          <li><a href="#g12-12">12.12 · System design scenarios</a></li>
+          <li><a href="#g12-13">12.13 · Coding exercises</a></li>
+          <li><a href="#g12-14">12.14 · Portfolio projects</a></li>
+          <li><a href="#g12-15">12.15 · Gotchas cheat sheet</a></li>
+          <li><a href="#g12-16">12.16 · API quick reference</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← LangGraph home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      LangGraph &amp; Agentic AI<br>Part 12 — Interview Q&amp;A Bank<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 12 of 12 · Interview Q&amp;A Bank</div>
+        <h1 class="title">The question bank
+          <span class="sub">The consolidated drill: high-frequency questions with model answers across every level, the trap questions, system-design scenarios, coding exercises, portfolio projects, the gotchas sheet and an API quick reference.</span>
+        </h1>
+        <p class="thesis">Every part of this subject ends its topics with the questions that topic answers — this is the <strong>consolidated drill</strong>, shuffled and stripped of context so you cannot coast on adjacency. Read the question, answer out loud, <em>then</em> expand and compare. Two sections deserve the most attention: <strong>§12.11, the traps</strong>, because agentic-AI interviews are lost on a small number of confidently-wrong answers — &ldquo;we'll use multi-agent&rdquo; for a problem one agent solves, &ldquo;the checkpointer stores memory&rdquo;, &ldquo;we'll add a guardrail prompt&rdquo; for prompt injection — and <strong>§12.16</strong>, which is the API surface you should be able to write from memory.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Q&amp;A Bank</b></span>
+          <span class="chip"><b>17</b> sections</span>
+          <span class="chip">📐 <b>1</b> diagrams</span>
+          <span class="chip">💬 <b>125</b> Q&amp;A</span>
+          <span class="chip">🎛 <b>1</b> interactive</span>
+          <span class="chip">⏱ <b>~6h drill</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">210</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 210 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <article class="topic" id="g12-0">
+        <h3><span class="tn">12.0</span> How to use this bank</h3>
+        <p class="lead">Every part of this subject ends its topics with the questions that topic answers. This is the consolidated drill — shuffled, stripped of context, so you can't coast on adjacency.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 252" role="img" aria-label="A study map of the twelve parts arranged in four bands: foundations, the LangGraph core, capabilities, and production, with arrows showing that the question bank draws from all of them and arrows marking the three diagrams worth memorising.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">where each drill section draws from</text>
+              <g font-size="9.5">
+                <g transform="translate(24,38)">
+                  <text x="0" y="10" fill="#8892a0">foundations</text>
+                  <rect x="76" y="0" width="106" height="30" rx="7" fill="#161b23" stroke="#4B5BD6"/><text x="129" y="19" fill="#8fa0ff" text-anchor="middle">1 · prerequisites</text>
+                  <rect x="190" y="0" width="118" height="30" rx="7" fill="#161b23" stroke="#4B5BD6"/><text x="249" y="19" fill="#8fa0ff" text-anchor="middle">2 · agentic foundations</text>
+                </g>
+                <g transform="translate(24,80)">
+                  <text x="0" y="10" fill="#8892a0">the core</text>
+                  <rect x="76" y="0" width="106" height="30" rx="7" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.6"/><text x="129" y="19" fill="#F0A81E" text-anchor="middle">3 · primitives ★</text>
+                  <rect x="190" y="0" width="98" height="30" rx="7" fill="#161b23" stroke="#F0A81E"/><text x="239" y="19" fill="#F0A81E" text-anchor="middle">4 · patterns</text>
+                  <rect x="296" y="0" width="122" height="30" rx="7" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.6"/><text x="357" y="19" fill="#F0A81E" text-anchor="middle">5 · state &amp; memory ★</text>
+                </g>
+                <g transform="translate(24,122)">
+                  <text x="0" y="10" fill="#8892a0">capabilities</text>
+                  <rect x="76" y="0" width="88" height="30" rx="7" fill="#161b23" stroke="#7fd6a0"/><text x="120" y="19" fill="#7fd6a0" text-anchor="middle">6 · tools</text>
+                  <rect x="172" y="0" width="88" height="30" rx="7" fill="#161b23" stroke="#7fd6a0"/><text x="216" y="19" fill="#7fd6a0" text-anchor="middle">7 · RAG</text>
+                  <rect x="268" y="0" width="106" height="30" rx="7" fill="#161b23" stroke="#7fd6a0"/><text x="321" y="19" fill="#7fd6a0" text-anchor="middle">8 · multi-agent</text>
+                </g>
+                <g transform="translate(24,164)">
+                  <text x="0" y="10" fill="#8892a0">production</text>
+                  <rect x="76" y="0" width="112" height="30" rx="7" fill="#161b23" stroke="#c9a0e0"/><text x="132" y="19" fill="#c9a0e0" text-anchor="middle">9 · observability</text>
+                  <rect x="196" y="0" width="122" height="30" rx="7" fill="#1a1f28" stroke="#c9a0e0" stroke-width="1.6"/><text x="257" y="19" fill="#c9a0e0" text-anchor="middle">10 · production ★</text>
+                  <rect x="326" y="0" width="92" height="30" rx="7" fill="#161b23" stroke="#c9a0e0"/><text x="372" y="19" fill="#c9a0e0" text-anchor="middle">11 · frontier</text>
+                </g>
+
+                <rect x="470" y="38" width="206" height="156" rx="11" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.8"/>
+                <text x="573" y="62" fill="#F0A81E" text-anchor="middle" font-size="12" font-weight="600">12 · this bank</text>
+                <text x="486" y="84" fill="#c9d1dc">§12.1–12.10 · by topic</text>
+                <text x="486" y="102" fill="#e0929a">§12.11 · the traps ← read last</text>
+                <text x="486" y="120" fill="#c9d1dc">§12.12 · system design</text>
+                <text x="486" y="138" fill="#c9d1dc">§12.13 · coding</text>
+                <text x="486" y="156" fill="#c9d1dc">§12.15 · gotchas sheet</text>
+                <text x="486" y="176" fill="#7fd6a0">§12.16 · API from memory</text>
+                <g stroke="#5A6472" stroke-width="1" stroke-dasharray="3 3">
+                  <path d="M356 68h108M442 95h28M398 137h72M442 179h28"/>
+                </g>
+
+                <rect x="24" y="212" width="652" height="30" rx="8" fill="#161b23" stroke="#7fd6a0" stroke-width="1.3"/>
+                <text x="40" y="231" fill="#7fd6a0">draw these three from memory: agent anatomy (§2.2) · the superstep barrier (§3.6) · the interrupt/resume flow (§5.5)</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>foundations</span><span><i style="background:#F0A81E"></i>core ★</span><span><i style="background:#7fd6a0"></i>capabilities</span><span><i style="background:#c9a0e0"></i>production</span></div>
+          <figcaption>The starred parts carry the most interview weight; the traps section is the highest value-per-minute revision in the guide.</figcaption>
+        </figure>
+
+        <h4>The method</h4>
+        <p><b>Read the question. Answer out loud. Then expand and compare.</b> Reading the answer without attempting it first feels productive and isn't — recall is the thing being trained, and recognition is not recall. Say your answer aloud rather than thinking it; the gap between &ldquo;I know this&rdquo; and &ldquo;I can say this in forty seconds&rdquo; is exactly what an interview measures.</p>
+
+        <p>Aim for a <b>structured 45–90 seconds</b>: the direct answer first, then the reasoning, then a trade-off or caveat. Answers here are written longer than you'd speak them so they're useful as reference — deliver the first paragraph and let the interviewer pull on the rest.</p>
+
+        <div class="wdg">
+          <div class="wh"><span class="wtag">Interactive</span>Random drill — 30 high-frequency questions</div>
+          <div class="wbody">
+            <div class="wout" id="lgDrillQ" style="min-height:78px;font-size:14px;line-height:1.7">Press <b>Draw</b> to get a question. Answer out loud, then reveal the key points.</div>
+            <div class="wbtns">
+              <button class="wbtn on" id="lgDrillDraw">Draw a question</button>
+              <button class="wbtn" id="lgDrillShow">Reveal key points</button>
+              <button class="wbtn" id="lgDrillReset">Reset deck</button>
+            </div>
+            <div class="wout" id="lgDrillA" style="display:none"></div>
+            <p class="wnote">The deck draws without replacement, so a full pass covers all 30. Anything you stumble on, find its section above and re-read the full answer — the key points here are a checklist, not a substitute.</p>
+          </div>
+        </div>
+
+        <script>
+        (function(){
+          var qEl=document.getElementById('lgDrillQ'); if(!qEl) return;
+          var aEl=document.getElementById('lgDrillA');
+          var DECK=[
+            ["What is the difference between LangChain and LangGraph?","Layers, not rivals. LangChain = abstractions (messages, tools, model wrappers). LangGraph = the orchestration runtime (state, supersteps, checkpoints, interrupts). <b>create_agent is built on LangGraph.</b>"],
+            ["What is the difference between a workflow and an agent?","Who decides the control flow — a developer at build time, or the LLM at runtime. Mention the ladder: call → chain → router → workflow → agent."],
+            ["What is a reducer and why are they needed?","<code>(current, update) → new</code> per channel; default is <b>overwrite</b>. Needed because agent state accumulates, and because concurrent writes in a superstep must have declared merge semantics."],
+            ["My chatbot only remembers the last message. Why?","No <code>add_messages</code> reducer on the messages channel, so each write overwrites. Also check thread_id and whether a node returns the whole list."],
+            ["What is a superstep?","One Pregel/BSP round: all active nodes run, writes are buffered, a barrier applies them through reducers, one checkpoint is written. Siblings never see each other's writes."],
+            ["Three parallel nodes each do count+1. What's count?","With overwrite: InvalidUpdateError. With max/last-write: 1, not 3 — they all read the same pre-barrier value. Correct pattern: <code>operator.add</code> and each returns <code>{\"count\": 1}</code>."],
+            ["What is Send and when do you need it?","Dynamic fan-out from a conditional edge; width decided at runtime; each worker gets its own <b>private input state</b>; implicit join. The target channel must have a reducer."],
+            ["Command vs conditional edge?","Command when the node computes the routing as part of its work (supervisors, handoffs) or must route to the parent graph. Conditional edge when routing is separable, reused, or should be visible in the diagram."],
+            ["Checkpointer vs store?","Checkpointer = within-thread, automatic, whole state, enables resume/HITL/time-travel. Store = cross-thread, manual, selected facts. <b>Checkpointer remembers the conversation; the store remembers the user.</b>"],
+            ["What does a checkpoint contain?","Channel values, <b>next</b> (which nodes run next), pending writes, metadata (step, parent id), and any active interrupt. It's a resumable continuation, not just data."],
+            ["How does human-in-the-loop work?","<code>interrupt(payload)</code> raises → state checkpointed with next = this node → invocation returns, nothing held in memory → later <code>Command(resume=…)</code> re-runs the node and interrupt() returns the decision."],
+            ["Why must interrupt nodes be small?","Because on resume the <b>whole node re-runs from the top</b>. Anything above the interrupt call executes twice. Put side effects in a separate node after the gate."],
+            ["What happens if the process dies mid-run?","With a checkpointer, resume the thread with <code>None</code>; it restores the last checkpoint including pending writes and continues. You lose at most one superstep — so nodes must be idempotent."],
+            ["Why does durable execution force idempotency?","Recovery is at superstep granularity, so nodes re-execute. At-least-once is the contract. Derive idempotency keys from <b>stable state</b>, never uuid4() inside the node."],
+            ["A conversation exceeds the context window. Options?","Trim (free, loses the start), <b>summary + last k</b> (the production default), RAG over history, structured fact extraction. Keep the system message; never split a tool call from its ToolMessage."],
+            ["What makes a good tool for an LLM?","Name states the action; description says when <b>and when not</b> to use it; Literal types; few flat args; readable return with ids; explicit 'nothing found'. The interface is prompt."],
+            ["Should a tool raise or return an error string?","Depends who can fix it. Model-fixable (bad args, no results) → return a corrective message. Transient (429, timeout) → retry inside the tool. Infrastructure → raise for RetryPolicy. Never return a stack trace."],
+            ["50 tools and it picks the wrong one. Fix?","Similarity matters more than count. Merge overlapping tools, add 'do NOT use for…' lines, namespace by domain, route to a sub-agent, or add tool retrieval. Also: 50 schemas is a fixed per-request token bill."],
+            ["What is MCP and why does it matter?","Open standard for exposing tools/resources/prompts to LLM clients — LSP for tools. Turns m×n integrations into m+n. The one agent protocol layer that has actually settled."],
+            ["How do you prevent destructive actions?","Layered, and <b>not</b> in the prompt: capability (credentials can't do it), validation (parse and allow-list in the tool), approval (interrupt), sandbox, reversibility. Prompt is UX, not control."],
+            ["RAG vs agentic RAG?","Pipeline: retrieval always happens once with the raw query. Agentic: retrieval is a tool the model may skip, rewrite, repeat, or redirect. More capable, harder to evaluate."],
+            ["Explain CRAG and Self-RAG.","CRAG grades retrieved docs into correct/incorrect/ambiguous and falls back to search. Self-RAG uses reflection tokens to decide whether to retrieve <b>and</b> whether the output is grounded."],
+            ["When would you use multi-agent?","Rarely. Only for genuinely separable expertise, context-window pressure, or organisational boundaries. Otherwise one agent with good tools wins on latency, cost and debuggability."],
+            ["Supervisor vs swarm?","Supervisor: central control, easy to bound and audit, costs a routing call per hop. Swarm: direct handoffs via tools, lower latency, nothing watching for ping-pong. Default supervisor."],
+            ["How do you evaluate an agent?","Four independent dimensions: final response, <b>trajectory</b>, single-step, and cost/latency. Run as a dataset in CI with relative thresholds. One accuracy number hides which part broke."],
+            ["What is trajectory evaluation?","Comparing the tool-call sequence to a golden path. Matchers: exact, in-order subsequence, any-order set, superset. Report extra-step count too, or a wandering run passes silently."],
+            ["How do you make LLM-as-judge reliable?","Pairwise over absolute; swap order for position bias; anchored 3-point rubrics; a different model than the generator; reasoning before score; <b>validate against human labels</b>."],
+            ["Agent costs 10× the estimate. Fix?","Measure per-step first. Then prompt caching on the stable prefix, iteration cap, model cascade, trim history, cache tool results, shrink the catalogue. Then ask whether it needs to be an agent."],
+            ["How do you defend against prompt injection?","It's a <b>privilege</b> problem. Assume injection succeeds: least-privilege tools, approval gates on outbound actions, treat all tool output as untrusted data, egress controls. Guardrail prompts are defence in depth, not a control."],
+            ["What is context engineering?","Deciding what occupies the finite window on every call — not the wording. Four operations: write, select, compress, isolate. Memory, RAG, tool selection and trimming are all instances of one problem."]
+          ];
+          var pool=[], cur=null;
+          function reset(){pool=DECK.slice(); aEl.style.display='none';
+            qEl.innerHTML='Deck reset — <b>'+pool.length+'</b> questions. Press Draw.';}
+          function draw(){
+            if(!pool.length){qEl.innerHTML='<span class="good">Deck exhausted — you covered all '+DECK.length+'.</span> Press Reset to go again.'; aEl.style.display='none'; return;}
+            var i=Math.floor(Math.random()*pool.length);
+            cur=pool.splice(i,1)[0];
+            qEl.innerHTML='<span class="k">'+(DECK.length-pool.length)+' / '+DECK.length+'</span><br><b style="font-size:15px">'+cur[0]+'</b>';
+            aEl.style.display='none';
+          }
+          document.getElementById('lgDrillDraw').onclick=draw;
+          document.getElementById('lgDrillShow').onclick=function(){
+            if(!cur) return; aEl.innerHTML='<span class="k">key points</span><br>'+cur[1]; aEl.style.display='';
+          };
+          document.getElementById('lgDrillReset').onclick=reset;
+          reset();
+        })();
+        </script>
+      </article>
+
+      <article class="topic" id="g12-1">
+        <h3><span class="tn">12.1</span> Conceptual foundations</h3>
+        <p class="lead">The opening five minutes. These get asked almost regardless of the role, and a crisp answer sets the tone for everything after.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is an agent?</summary>
+              <div class="ans"><p>A system where an <b>LLM decides the control flow at runtime</b> — typically by choosing tools in a loop until it decides it's done. Four components: instructions, memory, tools, and a termination condition; the loop is model → tool call → observation → model.</p><p>The distinguishing feature versus everything simpler is that the execution path isn't known before the run. That's what buys flexibility and what costs predictability, testability and bounded cost.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Walk me through the capability ladder.</summary>
+              <div class="ans"><p>Single call → chain → router → workflow → agent. Each rung adds flexibility and subtracts determinism. The line that matters is between workflow and agent: <b>a workflow's control flow is written by a developer; an agent's is decided by an LLM at runtime.</b></p><p>The point of naming the ladder is that it makes &ldquo;do we need an agent?&rdquo; a question with five answers rather than two, and the right answer is usually the lowest rung that solves the problem.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>When would you not build an agent?</summary>
+              <div class="ans"><p>When the steps are knowable in advance (encode them); when the latency budget is under a second or two (each iteration is a round trip); when errors are expensive and hard to detect (non-determinism plus stakes is the worst pairing); and when you have no way to evaluate the output (build the eval first).</p><p>Plus: if SQL, a regex or a lookup table solves it, do that. Most problems that look agentic are workflows.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Explain ReAct, and say what's changed since the paper.</summary>
+              <div class="ans"><p>Reason + Act — interleave reasoning with tool actions so the model thinks, acts, observes, and thinks again. It beat reasoning-only (which hallucinates lookupable facts) and action-only (which flails at tool choice).</p><p>What's changed: the text protocol (<code class="ic">Thought:/Action:/Observation:</code>) is gone, replaced by <b>native structured tool calls</b>, which killed the regex-parsing failure mode and added <b>parallel tool calls</b>. Reasoning is native in reasoning models. The loop survived; the format didn't.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Does self-critique actually improve output?</summary>
+              <div class="ans"><p>Only when the critic has <b>information the generator didn't</b> — test results, a compiler error, a schema validation failure, sources to check against. Same-model self-review with &ldquo;are you sure?&rdquo; shares the generator's blind spots and produces hedging more than insight.</p><p>Design implication: give the critic a tool or a signal, not just an opinion. And bound the loop — cap iterations, keep the best draft, stop on marginal improvement.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Plan-and-Execute or ReAct?</summary>
+              <div class="ans"><p>Ask whether the steps are knowable up front. Yes → plan, because planning amortises across steps and independent steps can run <b>in parallel</b>. No → interleave, because each observation changes what's sensible next.</p><p>The middle option most serious systems land on is <b>plan with re-planning</b>: revise remaining steps after each execution, which keeps parallelism and adaptability at the cost of one extra call per step. Name the Plan-and-Execute failure mode: stale-plan execution after step 2 invalidated the premise.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>How much autonomy would you give a production agent?</summary>
+              <div class="ans"><p>Reframe it as <b>per action, not per agent</b>, decided by blast radius: if this call is wrong, how bad is it and can we undo it? Reads and drafts are free; writes, spends and sends are gated behind an <code class="ic">interrupt</code>.</p><p>And enforcement lives in the <b>tool layer</b>, not the prompt — the model can be talked out of an instruction, not past a code path requiring an approval token.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>Why LangGraph over CrewAI, AutoGen or a provider SDK?</summary>
+              <div class="ans"><p>The axis is <b>control over control flow, plus durability</b>. CrewAI and AutoGen give high-level abstractions — fast to start, awkward when you need a specific flow. Provider SDKs give a clean loop tied to one vendor. LangGraph is low-level and durable: explicit graph, no hidden flow, plus checkpointing for resume, HITL, time travel and crash recovery.</p><p>Finish honestly: for a simple tool-calling agent with no persistence requirement, a plain SDK loop is easier to debug and a perfectly good choice.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-2">
+        <h3><span class="tn">12.2</span> LangGraph mechanics</h3>
+        <p class="lead">The part where an interviewer finds out whether you've used it or read about it. Be able to write these on a whiteboard.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>What is a node, and what does it return?</summary>
+              <div class="ans"><p>A function from state to a <b>partial update</b> — a dict of only the channels it wants to change, not a new state object. LangGraph merges it through each channel's reducer.</p><p>Consequences: nodes stay small and composable; parallel nodes each return their slice and reducers merge at the barrier; and <b>never mutate the incoming state</b>, because that bypasses the reducer and the checkpointer and makes the node non-replayable.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Core</span>How do you create a loop, and how do you bound it?</summary>
+              <div class="ans"><p>A conditional edge that can point backwards: <code class="ic">model → should_continue → {"tools": "tools", "finish": END}</code> plus <code class="ic">tools → model</code>. The routing function is <b>plain Python</b>, which is why it's unit-testable.</p><p>Bound it by checking an iteration counter <em>before</em> the model-driven condition, and set <code class="ic">recursion_limit</code> (default 25 supersteps) as a backstop. Treat hitting the limit as a bug to diagnose, not a number to raise.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>Why is LangGraph's execution model Pregel-style rather than a DAG scheduler?</summary>
+              <div class="ans"><p>Because agent loops are <b>cycles</b>, and a DAG framework can't express &ldquo;call a tool then go back to the model&rdquo;. Pregel/BSP gives cycles plus deterministic merge semantics: rounds, buffered writes, a barrier that applies everything through reducers, then the next round's active set.</p><p>That single model explains parallel-write conflicts, why reducers exist, why a node can't see a sibling's write, and why checkpoints land where they do.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Can a conditional edge return several destinations?</summary>
+              <div class="ans"><p>Yes. A <b>list of node names</b> activates all of them in the next superstep (static fan-out chosen at runtime). A <b>list of <code class="ic">Send</code> objects</b> gives dynamic fan-out where each branch also carries its own private input state.</p><p>Either way, any channel more than one branch writes now <b>needs a reducer</b>, or you get <code class="ic">InvalidUpdateError</code> at the barrier.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>What does a <code class="ic">Send</code> worker receive as its state?</summary>
+              <div class="ans"><p><b>Exactly the dict you passed</b> — not the parent state. A worker reading <code class="ic">state["messages"]</code> will find it missing unless you included it.</p><p>That's deliberate: it isolates workers, keeps them testable, and avoids copying a large parent state into every branch. If the payload is getting big, pass an id and let the worker fetch.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Write a custom reducer and say what makes it correct.</summary>
+              <div class="ans"><p><code class="ic">def keep_best(cur, new): return max(cur, new)</code>, used as <code class="ic">score: Annotated[float, keep_best]</code>.</p><p>Correctness properties: <b>pure</b> (no I/O — it runs inside the state machinery), doesn't mutate its arguments, <b>associative</b> where possible because concurrent write order isn't guaranteed, and handles the <b>initial call</b> where the current value is the channel default. A reducer assuming a non-empty <code class="ic">cur</code> fails on the first write.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Core</span>What does <code class="ic">compile()</code> do?</summary>
+              <div class="ans"><p>Freezes the builder into an immutable Runnable and attaches infrastructure: <code class="ic">checkpointer</code>, <code class="ic">store</code>, static <code class="ic">interrupt_before</code>/<code class="ic">interrupt_after</code>, and a name for traces. It also <b>validates</b> — unreachable nodes, edges to non-existent names, no path from START.</p><p>The division: compile-time is infrastructure; invocation-time config carries <code class="ic">thread_id</code>, user context and <code class="ic">recursion_limit</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>When would you use a subgraph, and what breaks?</summary>
+              <div class="ans"><p>For reuse, encapsulation (multi-agent with private state), or team ownership boundaries. Not for aesthetics — it adds a translation boundary and an indirection layer to debugging.</p><p>What breaks if you forget: a subgraph <b>inherits the parent's checkpointer</b> and is namespaced under the parent thread, so don't compile it with its own; and you must pass <b><code class="ic">subgraphs=True</code></b> to <code class="ic">stream</code> or <code class="ic">get_state</code> or the internals are invisible.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>You get <code class="ic">GraphRecursionError</code>. Process?</summary>
+              <div class="ans"><p>Don't raise the limit first. Read the trajectory (<code class="ic">stream_mode="updates"</code> or the trace) — a cycle is usually obvious. Check the exit condition is <b>reachable</b>: often the router tests something no node ever sets. Check whether the model is looping on an uninformative tool result. Check whether a fan-out is losing a counter increment because the channel overwrites.</p><p>Only raise <code class="ic">recursion_limit</code> once you've confirmed the graph legitimately needs more supersteps.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your parallel fan-out isn't faster. Why?</summary>
+              <div class="ans"><p>Four checks: is anything actually in the <b>same superstep</b> (sequential edges aren't parallel); are you calling the <b>async</b> entrypoint; is a node <b>blocking the event loop</b> with a sync client (the usual answer — wrap in <code class="ic">asyncio.to_thread</code> or use an async client); and are you hitting <b>provider rate limits</b>, in which case the calls are serialising server-side.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-3">
+        <h3><span class="tn">12.3</span> State and memory</h3>
+        <p class="lead">The layer confusion here — checkpointer versus store — is the single most probed misunderstanding in the subject.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Explain state, checkpointer and store.</summary>
+              <div class="ans"><p>State = live channel values during an invocation. Checkpointer = per-superstep, per-thread snapshots, giving resume, HITL, crash recovery and time travel. Store = cross-thread namespaced memory you read and write explicitly.</p><p>The settling sentence: <b>the checkpointer remembers this conversation; the store remembers this user.</b></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>TypedDict or Pydantic for state?</summary>
+              <div class="ans"><p>TypedDict by default — it's the LangGraph default, a plain dict at runtime, zero validation overhead. Pydantic at the <b>boundaries</b>: the graph's <code class="ic">input_schema</code> when input is untrusted, and anywhere an LLM produces data (tool args, structured output).</p><p>The cost to name: LangGraph validates Pydantic state on <b>every state update</b>, so you pay per superstep, and checkpoint serialisation gets heavier.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you decide what belongs in state?</summary>
+              <div class="ans"><p>In: anything that must survive across nodes, be checkpointed for resume, or is written by more than one node. Out: derivable values, large blobs (put an S3 key or row id instead — state is re-serialised every superstep), and <b>anything secret</b>, because state is persisted.</p><p>If the schema passes about eight fields, that's a signal to factor part into a subgraph with private state rather than widening the parent.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why shouldn't you put a large dataframe in state?</summary>
+              <div class="ans"><p>Because every superstep serialises the full state to the checkpoint store. A 40 MB object means a 40 MB write <b>per superstep</b>, plus the same cost on every resume and <code class="ic">get_state</code>. It looks like model latency and is actually the serialiser.</p><p>Store it externally, put a reference in state.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Core</span>What's a thread, and where does <code class="ic">thread_id</code> come from?</summary>
+              <div class="ans"><p>One conversation — the checkpoints sharing that id. It comes from your application's model of a conversation (chat session, ticket, workflow instance), not from the framework. One thread per <em>conversation</em>: not per request (amnesia), not per user forever (unbounded growth).</p><p>Namespace it (<code class="ic">tenant:user:conv</code>) and always verify ownership server-side — a thread id is a key to someone's history.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Two users see each other's messages. What happened?</summary>
+              <div class="ans"><p>Shared <code class="ic">thread_id</code>: a hardcoded demo value, an id derived from something non-unique, or — the security version — a <b>client-supplied</b> id with no server-side ownership check.</p><p>Fix by deriving it server-side from the authenticated user plus a conversation identifier and checking ownership before invoke. Then treat it as an incident: the checkpoint tables now hold cross-contaminated history.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>How do you delete messages from state?</summary>
+              <div class="ans"><p>Return <code class="ic">RemoveMessage(id=...)</code> for each — <code class="ic">add_messages</code> understands it. A summarisation node returns a list of <code class="ic">RemoveMessage</code> plus one new summary message in a single update.</p><p>You can't do it by returning a shorter list (the reducer appends), and you mustn't do it by mutating <code class="ic">state["messages"]</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your provider starts rejecting requests after you added trimming. Why?</summary>
+              <div class="ans"><p><b>Orphaned tool calls.</b> An assistant message with <code class="ic">tool_calls</code> must be followed by a <code class="ic">ToolMessage</code> per call id; a naive last-N window cuts between them and the provider returns a 400.</p><p>Trim on conversation boundaries — <code class="ic">trim_messages</code> with <code class="ic">start_on="human"</code> and <code class="ic">include_system=True</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Design memory for an assistant used daily for a year.</summary>
+              <div class="ans"><p>Three tiers: <b>working</b> (message list, summary + last k), <b>episodic</b> (per-conversation summaries in the store), <b>semantic</b> (extracted durable facts with embeddings).</p><p>Write path: extract at conversation end, not per message; dedupe; supersede contradictions rather than appending. Read path: top-k relevant memories injected with a hard token cap. Governance: timestamps, sources, TTLs, a user-visible &ldquo;what I remember&rdquo; view, and deletion that reaches the store.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What goes wrong if you store too much long-term memory?</summary>
+              <div class="ans"><p>Retrieval quality collapses — top-k returns vaguely-related fragments instead of the one fact that mattered — and you accumulate contradictions with no current-version marker.</p><p><b>Memory is a curated summary, not a log.</b> If you want full history search, build a search index over transcripts and expose it as a tool.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-4">
+        <h3><span class="tn">12.4</span> HITL and durability</h3>
+        <p class="lead">The capabilities that justify the framework. Expect these in any interview for a role shipping agents that touch real systems.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How does <code class="ic">interrupt</code> work, mechanically?</summary>
+              <div class="ans"><p>It raises. LangGraph catches it, checkpoints the state with <code class="ic">next</code> pointing at this node, and surfaces the payload to the caller; the invocation returns and <b>nothing is held in memory</b>. Later, <code class="ic">Command(resume=decision)</code> on the same thread restores the checkpoint, <b>re-runs the node</b>, and this time <code class="ic">interrupt()</code> returns the decision.</p><p>Requires a checkpointer. And keep the node small, because everything above the interrupt executes twice.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span><code class="ic">interrupt()</code> vs <code class="ic">interrupt_before</code>?</summary>
+              <div class="ans"><p><code class="ic">interrupt_before</code> is a <b>static</b> compile-time breakpoint — always stops, no payload, good for debugging. <code class="ic">interrupt()</code> is <b>dynamic</b> — fires only when your code decides, carries a structured payload out and a decision back.</p><p>Product features (approval, editing, clarifying questions) use dynamic interrupts.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What are the four HITL shapes?</summary>
+              <div class="ans"><p><b>Approve/reject</b> a proposed action; <b>edit</b> — return a modified payload such as a corrected tool argument or reduced amount; <b>provide input</b> — the agent asks a clarifying question; <b>review and continue</b> — an oversight checkpoint.</p><p>All four are the same mechanism with a different payload contract, which is worth saying because it means you design the contract, not the plumbing.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What if the human never responds?</summary>
+              <div class="ans"><p>LangGraph waits forever by design, so <b>you</b> own the deadline. Write the pending interrupt into a review queue with an SLA; a scheduled job escalates, reminds, or resumes with a <b>default decision</b> — usually reject, since the safe default for an irreversible action is not to do it.</p><p>Make the timeout policy per-action: a £5 refund can auto-approve after a day; a £5,000 one never should.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What is time travel, and what's the caveat?</summary>
+              <div class="ans"><p><code class="ic">get_state_history()</code> gives every checkpoint; resume from any by passing its config; <code class="ic">update_state</code> first to fork with a modification, leaving the original branch intact. Uses: deterministic debugging, what-if analysis, correcting a wrong turn in production.</p><p>The caveat: <b>replay re-executes nodes for real</b> — real model calls, real side effects. It's not a simulation.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Which <code class="ic">durability</code> mode, and why?</summary>
+              <div class="ans"><p><b><code class="ic">"async"</code></b> as the default — the checkpoint write happens concurrently with the next superstep, so near-full crash protection without a DB round trip on the critical path. <b><code class="ic">"sync"</code></b> when losing one superstep is unacceptable. <b><code class="ic">"exit"</code></b> only for short, cheap, side-effect-free runs.</p><p>The trade: how much work you'll redo versus how much latency you'll pay per superstep.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Make an email-sending node safe under durable execution.</summary>
+              <div class="ans"><p>Isolate it in its own node; derive an idempotency key from <b>stable state</b> (<code class="ic">f"notify-{order_id}-{stage}"</code>, never <code class="ic">uuid4()</code>); pass it to the provider; record the returned message id in state and short-circuit on re-entry.</p><p>If the provider has no idempotency support, keep your own sent-log keyed by the same value. For expensive or irreversible actions, add an <code class="ic">interrupt</code> in front too.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>A customer was charged twice. Investigate.</summary>
+              <div class="ans"><p>Read the thread's checkpoint history for a superstep that ran twice: a crash-and-resume, an interrupt resume where the charge sat <em>above</em> the <code class="ic">interrupt()</code> call, a node retry after a timeout that actually succeeded, or a debug replay against production.</p><p>Then check whether an idempotency key was sent and whether it was <b>derived from stable state</b> — a per-execution UUID defeats provider dedup entirely and is the usual cause.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-5">
+        <h3><span class="tn">12.5</span> Tools and MCP</h3>
+        <p class="lead">Where most real agent failures live. Interviewers who have shipped agents spend a lot of time here.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Core</span>What does the model see when you give it a tool?</summary>
+              <div class="ans"><p>Name, docstring, and the JSON schema of the arguments including every field description. <b>Never the implementation.</b></p><p>So those three artefacts are prompt: when the model picks the wrong tool or passes a bad argument, the fix is in the name, description or schema. They also cost tokens on every request.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>What makes a good tool?</summary>
+              <div class="ans"><p>Action-stating name; description that says when <b>and when not</b> to use it, naming the alternative; <code class="ic">Literal</code>/enum for closed value sets; few flat scalar arguments; a readable return with ids; an explicit &ldquo;nothing found&rdquo; message instead of <code class="ic">[]</code>.</p><p>The test: show only the name, description and schema to a colleague and ask when they'd call it. Their hesitation predicts the model's.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How granular should tools be?</summary>
+              <div class="ans"><p>One tool per <b>user-meaningful action</b>, with the arguments a person would specify. Too coarse (<code class="ic">execute_sql</code>) pushes the hard part onto the model and opens a safety hole; too fine degrades selection and fills the prompt with schemas.</p><p>Also split by <b>risk</b>: a read tool and a write tool should be separate even against the same table, so you can gate one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>The agent keeps passing a malformed argument.</summary>
+              <div class="ans"><p>Fix the schema, not the prompt: <code class="ic">Literal</code>/enum for closed sets, format instructions in the field description, numeric constraints, sensible defaults.</p><p>Then make failure recoverable — return &ldquo;invalid date '03/04/2026'; expected YYYY-MM-DD&rdquo; rather than raising, so the loop self-corrects.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>What is <code class="ic">tool_choice</code> and when do you set it?</summary>
+              <div class="ans"><p>Forces behaviour: <code class="ic">"auto"</code>, <code class="ic">"any"</code>/<code class="ic">"required"</code>, <code class="ic">"none"</code>, or a named tool. Uses: mandatory retrieval on the first step; <code class="ic">"any"</code> when the model keeps answering from parametric knowledge; <code class="ic">"none"</code> for a final prose turn.</p><p>Caution: forcing a call when none is appropriate produces a <b>fabricated call with invented arguments</b>. Use it per step, not globally.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How does tool retrieval work and what's the risk?</summary>
+              <div class="ans"><p>Embed tool descriptions; at request time retrieve the top-k relevant and bind only those. The catalogue can be huge while the model sees eight schemas.</p><p>The risk: a <b>retrieval failure in front of a selection failure</b> — if the right tool isn't in the top-k, the model confidently does something else. Mitigate with always-on tools, a generous k, retrieving on the current step's intent rather than the original question, and logging misses.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>How do you give an agent database access safely?</summary>
+              <div class="ans"><p>Capability first: a role with <code class="ic">SELECT</code> on specific views and nothing else. Then parse the SQL with a real parser and reject non-SELECT, allow-list tables, wrap with LIMIT and a statement timeout, expose views not base tables, log every query.</p><p>Better where it fits: don't hand it raw SQL — offer parameterised tools whose query shapes you wrote.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>What is MCP, and would you build internal tools as MCP servers?</summary>
+              <div class="ans"><p>An open standard for exposing tools, resources and prompts to LLM clients — LSP for tools; <code class="ic">m × n</code> becomes <code class="ic">m + n</code>. Consumed in LangGraph via <code class="ic">langchain-mcp-adapters</code>, which yields ordinary LangChain tools.</p><p>Internally: yes when there are <b>multiple consumers</b> or a real ownership boundary; no for a single consumer, where a plain <code class="ic">@tool</code> is simpler and faster. <b>MCP is for crossing an ownership boundary.</b></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Security implications of third-party MCP servers?</summary>
+              <div class="ans"><p>Three: <b>prompt injection via tool descriptions</b>, since the server controls text entering your context; <b>capability grants</b>, since its tools run with whatever access you gave; and <b>mutable tool sets</b> between connections.</p><p>Treat them as dependencies: pin and review, run sandboxed with least privilege, alert on tool-list changes, and gate destructive MCP tools like your own.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>What is agent middleware, and when do you use it over a node?</summary>
+              <div class="ans"><p>Hooks around the agent loop — <code class="ic">before_model</code>, <code class="ic">after_model</code>, <code class="ic">before_tool</code>, <code class="ic">after_tool</code>, <code class="ic">wrap_model_call</code> — replacing callbacks and copy-pasted wrapper code.</p><p>Middleware for cross-cutting concerns applying every iteration (trimming, guardrails, budgets, model fallback). A node for anything that's a step in the domain logic. The test: <b>would it appear in the flowchart you'd draw for a colleague?</b> If yes, it's a node.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+      <article class="topic" id="g12-6">
+        <h3><span class="tn">12.6</span> RAG in agents</h3>
+        <p class="lead">Expect competence rather than depth here unless the role is RAG-specific — but the orchestration questions come up constantly.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>RAG versus agentic RAG?</summary>
+              <div class="ans"><p>Who decides whether and how to retrieve. Pipeline: always once, with the raw query. Agentic: a tool the model may <b>skip</b>, <b>rewrite</b>, <b>repeat</b>, or point at a <b>different source</b>, and react to poor results.</p><p>Costs: latency, tokens, non-determinism, and much harder evaluation — a bad answer could be bad retrieval, bad query formulation, or good retrieval the model ignored.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Retrieval</span>Retrieval quality is poor. What do you try, in order?</summary>
+              <div class="ans"><p><b>Measure first</b> with a golden question→document set and recall@k. Then: <b>hybrid</b> (BM25 + dense, fused with RRF) — fixes exact-term failures like error codes; <b>reranking</b> a top-50 with a cross-encoder — usually the biggest single jump; <b>chunking review</b>, including contextual chunking; <b>query transformation</b>; <b>metadata filters</b>.</p><p>And check the unglamorous causes: is the content indexed, is ingestion current, are permissions filtering the right doc out?</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why does hybrid search beat dense alone?</summary>
+              <div class="ans"><p>They fail on different things. Dense finds paraphrase but blurs exact tokens — error codes, SKUs, rare proper nouns. BM25 nails those and misses paraphrase. RRF fuses them without needing score calibration.</p><p>The wins land exactly where users are most annoyed: searching for an identifier copied out of an error message.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Enforce document permissions in RAG.</summary>
+              <div class="ans"><p><b>As a hard filter inside the retrieval query</b>, using identity resolved server-side. Chunks carry ACL metadata from ingest; unauthorised documents are never retrieved.</p><p>Not post-filtering (the content already entered your process and possibly your traces), and definitely not asking the model to ignore them. Re-check at query time since permissions change, and watch caches and summaries, which can carry restricted content across a boundary.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>CRAG and Self-RAG — the precise difference.</summary>
+              <div class="ans"><p><b>CRAG grades the retrieval</b>: correct / incorrect / ambiguous, falling back to web search when documents are poor. <b>Self-RAG makes the model reflect</b> at several points: should I retrieve at all, is this passage relevant, is my statement supported, is the response useful.</p><p>Most production systems implement a simplified hybrid — a grading node plus a grounding check — as two structured-output calls rather than the papers' training setups.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Retrieval is good but the answer is wrong. Where's the bug?</summary>
+              <div class="ans"><p>Downstream of retrieval. Check whether the docs are <b>actually in the prompt</b> (truncation, trimming, an overwritten channel); <b>position</b>, since middle-of-context content is attended to less — rerank and cut k; <b>conflict</b> with parametric knowledge, which the prompt must resolve explicitly; <b>prompt framing</b> (&ldquo;answer only from context; say when it isn't there&rdquo;); and <b>chunk boundaries</b> putting the crucial sentence in the neighbouring chunk.</p><p>Systematically: measure retrieval recall and grounded-answer accuracy given <em>gold</em> documents, separately.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>How do you evaluate an agentic RAG system?</summary>
+              <div class="ans"><p>Decompose: <b>retrieval recall</b> (did any retrieval call fetch the known-correct docs?), <b>decision correctness</b> (did it retrieve when it should and skip when it shouldn't?), <b>groundedness</b> (judge each claim against retrieved text), <b>answer correctness</b>, plus retrieval calls per question and p95 cost.</p><p>End-to-end accuracy alone is undiagnostic — &ldquo;recall unchanged, groundedness down 12&rdquo; is actionable; &ldquo;62% success&rdquo; is not.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you make an agent cite sources reliably?</summary>
+              <div class="ans"><p>Give it ids to cite (<code class="ic">[doc-17]</code> markers in the context), make citations part of the <b>output schema</b> rather than optional prose, then <b>validate that cited ids exist</b> — models invent plausible ones.</p><p>Add a separate grounding check listing unsupported claims, and flag or strip them. Render citations as followable links, or they build no trust.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-7">
+        <h3><span class="tn">12.7</span> Multi-agent</h3>
+        <p class="lead">The section where restraint scores highest. Lead with when <em>not</em> to, then show you can build it properly.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>When is multi-agent worth it?</summary>
+              <div class="ans"><p>Three cases: <b>genuinely separable expertise</b> (materially different prompts, tools, possibly models), <b>context pressure</b> (the work doesn't fit one window), and <b>organisational boundaries</b> (different teams own and deploy them).</p><p>Not worth it for &ldquo;the task has several steps&rdquo; (that's a workflow) or &ldquo;it feels modular&rdquo; (nodes are already modular). Costs: an extra call per hop, context loss at every boundary, coordination failures, harder traces.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Multi-agent system versus a graph with several nodes?</summary>
+              <div class="ans"><p><b>Autonomy at the boundary.</b> In a multi-node graph you wrote the edges. In a multi-agent system each agent has its own loop and prompt, and the transfer of control is itself an LLM decision.</p><p>Which is why the failure modes differ: a multi-node graph can't ping-pong, can't lose context at an undefined boundary, and can't have two components each assume the other did the work.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Core</span>Describe the supervisor pattern and its weakness.</summary>
+              <div class="ans"><p>A coordinator picks the next specialist via structured output and <code class="ic">Command(goto=...)</code>; specialists have normal edges back. Annotate the return type <code class="ic">Command[Literal[...]]</code> so the graph is drawable, and bound hops with a counter checked before the model call.</p><p>Weakness: a <b>sequential bottleneck</b> — roughly <code class="ic">2n</code> calls for <em>n</em> steps. Mitigate with parallel dispatch via multiple <code class="ic">Send</code>s, a cheap model for routing, and direct handoffs for common adjacent pairs.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>How is a handoff implemented?</summary>
+              <div class="ans"><p>A <b>tool returning a <code class="ic">Command</code></b>: <code class="ic">Command(goto="billing", graph=Command.PARENT, update={...})</code>.</p><p>Three details: <b><code class="ic">graph=Command.PARENT</code></b> to escape the calling agent's subgraph; a <b><code class="ic">ToolMessage</code></b> with the matching <code class="ic">tool_call_id</code> or the next model call is malformed; and <b><code class="ic">active_agent</code> in state</b> so a checkpointed conversation resumes with the right agent.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Two agents keep transferring back and forth.</summary>
+              <div class="ans"><p>Stop it with a <b>hop counter</b> (add-reducer) checked before any handoff, routing past the cap to a default agent that must resolve or escalate.</p><p>Then fix the cause: handoff history in state refusing an immediate return; a required <code class="ic">reason</code> argument (articulating why measurably reduces reflexive transfers); sharper &ldquo;transfer only if…&rdquo; descriptions; merging agents whose scopes overlap; and checking the handoff carries enough context, since ping-pong is often two agents each lacking what they need.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Shared state or message passing between agents?</summary>
+              <div class="ans"><p><b>Hybrid</b>: a shared <code class="ic">messages</code> channel for coherence and one readable trace, plus private per-agent channels so scratchpads don't pollute everyone's context.</p><p>Pure shared state loses nothing but costs tokens and distracts; pure message passing decouples but risks the receiver missing something. When passing summaries, make them <b>structured</b> — findings, sources, open questions — because prose loses exactly the specifics the next agent needs.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Name the multi-agent failure modes and their guards.</summary>
+              <div class="ans"><p><b>Ping-pong</b> → hop cap, handoff history, default agent. <b>Diffusion of responsibility</b> → explicit ownership in the task payload, completion check. <b>Context loss</b> → structured handoff artefacts. <b>Cost explosion</b> → per-run token budget between hops. <b>Conflicting writes</b> → reducers or private channels. <b>Untraceable failures</b> → per-agent spans.</p><p>Meta-guard: always build and measure the <b>single-agent baseline</b> first.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>How do you debug a multi-agent system?</summary>
+              <div class="ans"><p><b>Trajectory first</b> — the sequence of agents and handoffs, because most failures are coordination failures visible only at that level. Then per-agent spans: exact input, output, latency, cost.</p><p>Two techniques specific to this: <b>replay from a checkpoint</b> just before the suspect handoff so you can iterate on one boundary; and <b>test agents in isolation</b> with recorded inputs, which separates &ldquo;bad at its job&rdquo; from &ldquo;given a bad task&rdquo; — identical end-to-end, completely different fixes.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-8">
+        <h3><span class="tn">12.8</span> Evaluation and observability</h3>
+        <p class="lead">The area where senior candidates most reliably separate themselves, because it's the part most people skip.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why can't you debug an agent with logs?</summary>
+              <div class="ans"><p>Agent failures are <b>decision</b> failures, and understanding one requires the exact prompt the model saw — system prompt, tool schemas, full history, retrieved docs. Nobody logs that; a trace captures it natively, along with per-span tokens and latency.</p><p>That turns &ldquo;it gave a bad answer&rdquo; into &ldquo;at step 4 it had the right documents and ignored them&rdquo;.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you evaluate an agent?</summary>
+              <div class="ans"><p>Four independent dimensions: <b>final response</b>, <b>trajectory</b>, <b>single step</b>, and <b>cost/latency</b>. They fail independently — right answer via an absurd route is the version that breaks next month.</p><p>Run them as a versioned dataset in CI with relative thresholds against main, and grow the dataset from production failures.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What is trajectory evaluation and how do you score it?</summary>
+              <div class="ans"><p>Comparing the tool-call sequence to a golden path. Matchers: <b>exact</b> (usually too strict — a duplicate call fails), <b>in-order subsequence</b> (good default), <b>any-order set</b> (when steps are independent), <b>superset</b> (most permissive, most dangerous).</p><p>Always report the <b>extra-step count and precision</b> alongside, or a wandering run that burned four extra calls passes silently.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Where does the golden trajectory come from?</summary>
+              <div class="ans"><p>Hand-authored from domain rules (&ldquo;check policy before issuing a refund&rdquo; is a business rule you should have written down anyway); harvested from highly-rated runs; or expressed as <b>partial-order constraints</b> rather than a full path.</p><p>That last form is underrated — &ldquo;<code class="ic">check_policy</code> before <code class="ic">issue_refund</code>&rdquo;, &ldquo;<code class="ic">delete_*</code> never appears&rdquo; — cheaper to maintain, survives refactors, and encodes what you actually care about.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Isn't trajectory evaluation too brittle?</summary>
+              <div class="ans"><p>Exact matching is, which is why it's rarely the right matcher. Evaluate the <b>properties</b> instead: required steps present, forbidden steps absent, safety ordering respected, step count within budget.</p><p>And track the <b>distribution</b> rather than pass/fail per run — &ldquo;median 4 tool calls, p95 7&rdquo; moving to &ldquo;median 6, p95 14&rdquo; is a regression even though no single run was wrong.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you make LLM-as-judge reliable?</summary>
+              <div class="ans"><p>Name the biases and the controls: <b>position</b> → swap order, count only consistent verdicts; <b>verbosity</b> → rubric penalising padding; <b>self-preference</b> → judge with a different model; <b>leniency</b> → anchored 3-point scales, not 1–10; <b>format</b> → factual criteria only.</p><p>Structurally: <b>pairwise beats absolute</b>, reasoning field before the score, and <b>validate against human labels</b> — a judge agreeing with reviewers 70% of the time isn't measuring what you think.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your judge scores 4.2/5 on everything.</summary>
+              <div class="ans"><p>Leniency plus an unanchored scale. A metric with no variance can't detect a regression, which is worse than no metric because it looks like coverage.</p><p>Switch to binary or 3-point with anchored definitions, make criteria specific and checkable, move to pairwise against a baseline, and sanity-check by feeding it deliberately bad answers.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>How do you stop prompt changes from silently regressing quality?</summary>
+              <div class="ans"><p>A dataset-backed <b>eval gate in CI</b> on any PR touching a prompt, tool, model version or the graph. Relative thresholds against main (&ldquo;no more than 2 points below&rdquo;) rather than absolute ideals; gate on <b>cost and latency too</b>; version the dataset; keep the run cheap enough that people tolerate it.</p><p>Plus the cultural half: every production failure becomes a dataset entry before it's fixed.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Eval scores are noisy run to run.</summary>
+              <div class="ans"><p>Reduce what you can — temperature 0, fixed seeds, stubbed tools with recorded responses. Then measure honestly: several runs per example with a confidence interval, a bigger dataset, and thresholds <b>outside the noise band</b>.</p><p>If one specific example flips constantly it's usually informative, not noise — it's genuinely ambiguous and belongs in a separate bucket you inspect.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>How do you know your agent is degrading in production?</summary>
+              <div class="ans"><p>Four layers, alerting on the leading ones: <b>operational metrics</b> (p95 latency and cost, tool error rate, tool calls per run, recursion-limit hits) — these move before quality does; <b>implicit user signals</b> (retries, rephrasing, escalation, abandonment); <b>explicit feedback</b>; <b>online judges</b> on a small traffic sample.</p><p>Close the loop: negative-signal runs go to a review queue, get labelled, and become dataset entries. And re-run offline evals on a schedule, because the world changes even when your code doesn't.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-9">
+        <h3><span class="tn">12.9</span> Production and cost</h3>
+        <p class="lead">Where a senior interview spends most of its time. Concrete numbers and named mechanisms beat architectural vocabulary.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>How would you deploy a LangGraph agent?</summary>
+              <div class="ans"><p>Async service in a container, Postgres (<code class="ic">AsyncPostgresSaver</code>, pooled) for checkpoints, background worker for long runs — return a <code class="ic">thread_id</code> immediately and stream or poll.</p><p>Don't forget: resume endpoints for HITL, graceful shutdown (durable execution makes it cheap), secrets outside state, and retention for checkpoint tables. Mention LangGraph Platform as the managed alternative when that infrastructure <em>is</em> the work.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>What streaming modes are there and which do you use?</summary>
+              <div class="ans"><p><code class="ic">values</code>, <code class="ic">updates</code>, <code class="ic">messages</code>, <code class="ic">custom</code>, <code class="ic">debug</code>. Production combination: <b><code class="ic">updates</code> + <code class="ic">messages</code> + <code class="ic">custom</code></b> — progress labels, the typing effect, and domain progress respectively.</p><p>Two details: filter <code class="ic">messages</code> by <code class="ic">langgraph_node</code> so you don't stream a router's deliberation as the answer; and pass <b><code class="ic">subgraphs=True</code></b> or inner nodes are invisible.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Streaming works locally but not through your API.</summary>
+              <div class="ans"><p>Buffering somewhere in the chain: the framework (must return a streaming response and <code class="ic">yield</code>), a reverse proxy (<code class="ic">proxy_buffering off</code> / <code class="ic">X-Accel-Buffering: no</code>), gzip middleware, or a client not using a streaming reader.</p><p>Then LangGraph-side: using <code class="ic">invoke</code> instead of <code class="ic">astream</code>, a sync node blocking the loop, or missing <code class="ic">subgraphs=True</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Your agent costs 10× the estimate.</summary>
+              <div class="ans"><p>Measure per-step from traces first. Then: <b>prompt caching</b> on the stable prefix (usually the biggest win), <b>iteration cap</b> (bounds the tail), <b>model cascade</b> (cheap model for routing/grading), <b>trim or summarise history</b> (the quadratic term), <b>cache tool results</b>, <b>shrink the catalogue</b>.</p><p>Then the structural question: does it need to be an agent? Routing common cases to a deterministic path often beats all the tuning.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>How does prompt caching work and what breaks it?</summary>
+              <div class="ans"><p>Providers cache internal state for a <b>prefix</b>; a later request whose prompt starts byte-identically reuses it at roughly 10% of the input rate, with faster time-to-first-token.</p><p>Broken by anything that changes the prefix: a timestamp in the system prompt, reordered tool definitions, retrieved docs placed <em>before</em> static instructions, a model change. Design rule: <b>order the prompt most-static to most-dynamic</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Enforce a hard cost ceiling per request.</summary>
+              <div class="ans"><p>Accumulate token usage into an <code class="ic">operator.add</code> channel after each model call (middleware's <code class="ic">after_model</code> is a clean place), and have a routing function check the total against the budget before continuing, diverting to a &ldquo;finish with what we have&rdquo; branch.</p><p>Plus per-tenant daily budgets, alerts on <b>p95</b> cost not the mean, and <code class="ic">recursion_limit</code> as a coarse backstop. <b>Degrade rather than abort.</b></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Your agent takes 15 seconds. Get it under 5.</summary>
+              <div class="ans"><p>Break down the traces — it's almost always sequential model calls. Then <b>parallelise</b> independent steps, <b>downgrade</b> routing and grading to a small fast model, <b>remove iterations</b> by improving tool descriptions and returns, <b>shorten prompts</b> (TTFT scales with input), and <b>prefetch</b> highly likely retrievals.</p><p>Then the perceptual half: <b>stream progress and tokens</b> — a 6-second run showing its work beats a 4-second blank screen.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>p50 is 2 s, p95 is 20 s.</summary>
+              <div class="ans"><p>Bimodal — find the long runs in traces. Usual causes: a subset of queries triggering many more iterations, retry/backoff after 429s, one slow dependency on a branch, very long conversations, or cold starts and pool exhaustion.</p><p>Always-right fixes: <b>cap iterations</b> and <b>alert on p95</b>. If the long path is legitimate, make it visibly asynchronous rather than holding a request open.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you defend against prompt injection?</summary>
+              <div class="ans"><p>Frame it as a <b>privilege problem</b>. The dangerous form is indirect — instructions planted in content your agent retrieves — and to the model it's indistinguishable from your instructions, so detection is unreliable by construction.</p><p>Assume it succeeds: least-privilege tools (no arbitrary HTTP, no send-to-any-recipient, credentials scoped to the end user), approval gates on outbound actions, treat all tool output as untrusted data, egress controls, escape output before rendering. Guardrail prompts are defence in depth, not a control.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Where do secrets live?</summary>
+              <div class="ans"><p>Not in state (persisted in checkpoints) and not in the prompt (captured in traces). They live in a secret manager, read by the <b>tool implementation</b> at call time, ideally as short-lived scoped tokens.</p><p>Also redact traces, since tool arguments are captured verbatim. And note the model should never need a secret — it requests an action, your code supplies credentials.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Scale to 10,000 concurrent users.</summary>
+              <div class="ans"><p>Lead with: <b>the bottleneck is the provider's rate limit, not your infrastructure</b>. Then: stateless horizontally-scaled async pods (state lives in the checkpointer), pooled Postgres with an eye on write throughput, a queue with per-tenant fairness and graceful backpressure.</p><p>Agent-specific: per-tenant <b>token</b> budgets as well as request limits, degradation under load (smaller iteration cap, cheaper model, drop optional enrichment), and caching to raise effective throughput against a fixed quota.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you test a non-deterministic agent?</summary>
+              <div class="ans"><p>Most of the system is deterministic: <b>unit-test</b> routing functions (plain Python over state), reducers (including empty and concurrent cases), tools (with error paths), and graph structure (compile and assert reachability). <b>Stub the model</b> to make LLM nodes deterministic. Only end-to-end needs statistical evaluation.</p><p>Saying &ldquo;you can't really test agents&rdquo; misses five sixths of the work — and most agent bugs are graph bugs, not model bugs.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Your agent misbehaves at 2 a.m. Runbook?</summary>
+              <div class="ans"><p><b>Contain</b>: kill switch to a deterministic fallback or human queue; roll back prompt/model config (config, not deploy); disable the offending tool; check the spend circuit breaker.</p><p><b>Diagnose</b>: recent traces versus pre-change traces, trajectories first. What changed — your deploy, a prompt edit, a provider model update, an upstream API?</p><p><b>Follow up</b>: add the failing cases to the golden dataset <em>before</em> fixing, and use checkpoints to find and remediate affected threads.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-10">
+        <h3><span class="tn">12.10</span> Frontier and senior signal</h3>
+        <p class="lead">Positions, not facts. The goal is to show you've thought about the open questions and can hold a view under pushback.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Drill</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>What is context engineering?</summary>
+              <div class="ans"><p>Deciding what occupies the finite context window on <em>every</em> call — the composition, not the wording. Four operations: <b>write</b> (persist outside), <b>select</b> (retrieve only what's needed), <b>compress</b> (summarise, trim), <b>isolate</b> (sub-agents get their own contexts).</p><p>The unifying claim: memory management, RAG, tool selection and history trimming are four instances of one problem, not four topics.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Million-token windows — is memory management obsolete?</summary>
+              <div class="ans"><p>No. <b>Cost</b> scales with tokens on every turn; <b>latency</b> (TTFT) scales with input length; and <b>attention degrades</b> over long contexts, so a focused 8k context routinely beats an unfocused 500k one.</p><p>Bigger windows raised the ceiling and turned selection from a capacity workaround into a <em>quality</em> technique.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Design an agent that runs for six weeks.</summary>
+              <div class="ans"><p><b>Episodic</b>: a scheduled trigger wakes the graph, does a bounded chunk of work, writes a durable summary, exits. Plan and objective in dedicated state channels (never summarised away), re-read each episode. <code class="ic">interrupt</code> at milestones. A running budget in state. Timestamps on gathered facts, re-verified before acting.</p><p>This is where LangGraph's persistence has no real substitute — the alternative is building checkpoint-and-resume yourself.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What is goal drift?</summary>
+              <div class="ans"><p>Over a long run the agent optimises for something adjacent to the objective, because the objective sits at the start of a history that keeps getting summarised while recent tactical detail dominates.</p><p>Prevent with a dedicated never-summarised objective channel re-injected each episode, checkable success criteria, a periodic alignment check, and human review at milestones — drift is far easier for a person to spot than for the drifting agent.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>MCP, A2A, AG-UI — what does each solve, and which has settled?</summary>
+              <div class="ans"><p>MCP: agent ↔ tools/data — <b>settled</b>, build against it. A2A: agent ↔ agent across organisations — real problem, not yet converged, and most teams don't have it. AG-UI: agent ↔ user interface — early; building on your framework's streaming primitives is defensible today.</p><p>The signal being tested is whether you distinguish adopted from announced.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Can agents learn from their mistakes?</summary>
+              <div class="ans"><p>Through mechanisms you build: outcomes written to a store and retrieved for similar cases; successful examples accumulated as few-shot; prompt optimisation against an eval set; a routing classifier trained on logged trajectories.</p><p>The prerequisite is a <b>reliable outcome signal</b> — without it you're accumulating unlabelled history and reinforcing errors. Self-improvement is downstream of evaluation, not a substitute. And self-modifying code in production is research, not practice.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>&ldquo;Frameworks will be obsolete when models get good enough.&rdquo;</summary>
+              <div class="ans"><p>Disagree, specifically: a better model improves <em>decisions</em>; it doesn't provide persistence, resumability, HITL or observability. A perfect reasoner still can't pause three days and resume in another process, or be inspected at step 4 of a failed run.</p><p>Concede where it has force: the orchestration scaffolding does shrink — fewer reflection loops, less prompt hand-holding — so the framework's centre of gravity moves toward durable execution and observability. And if you need none of those, a plain SDK loop is right today.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What's the most overrated idea in agentic AI right now?</summary>
+              <div class="ans"><p><b>Multi-agent as a default architecture.</b> The org-chart metaphor is intuitive and mostly wrong; most three-agent systems work better as one agent or a workflow with one agentic node. Runner-up: benchmark scores as evidence of production readiness.</p><p>Underrated, since the question invites it: <b>tool design</b> — unglamorous, where most real failures live, and an afternoon rewriting descriptions and return values routinely beats a week of architecture.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-11">
+        <h3><span class="tn">12.11</span> The trap questions <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Agentic-AI interviews are lost on a small number of confidently-wrong answers. Each of these has an obvious answer that is wrong, and a correct answer that sounds less impressive.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#F0A81E" stroke-width="1.9" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round"/></svg><span>Traps — the answer that sounds good and isn't</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Trap 1</span>&ldquo;Design an agent to classify and route support tickets.&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> designing a multi-agent triage system. <b>Correct:</b> that's not an agent — it's one classification call with structured output and a deterministic route. ~500 ms, testable against labels, trivially cheap.</p><p>Then show the boundary: it <em>becomes</em> agentic if routing requires lookups whose number and order depend on what you find. Volunteering the boundary is what makes this a strong answer rather than a contrarian one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 2</span>&ldquo;How do you stop prompt injection?&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> &ldquo;a guardrail prompt telling it to ignore instructions in retrieved content.&rdquo; <b>Correct:</b> it's a <b>privilege</b> problem. Injected text is indistinguishable from your instructions, so <b>assume it succeeds</b> and constrain what it can achieve — least-privilege tools, approval gates on outbound actions, egress controls, scoped credentials.</p><p>Guardrail prompts reduce frequency. They are not a control.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 3</span>&ldquo;Should we use multi-agent for this?&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> yes, with an architecture diagram. <b>Correct:</b> usually no. Ask whether the sub-agents would have materially different prompts and tools, whether there's real context pressure, and whether an ownership boundary exists. If not, one agent with good tools wins on every axis.</p><p>The clincher: <b>&ldquo;I'd build the single-agent baseline first and measure it.&rdquo;</b></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 4</span>&ldquo;The checkpointer gives you memory, right?&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> agreeing. <b>Correct:</b> it gives <em>within-thread</em> persistence. Cross-conversation memory is the <b>store</b>. Conflating them is the tell that someone has only done tutorials.</p><p>The distinguishing sentence: the checkpointer remembers this conversation; the store remembers this user.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 5</span>&ldquo;Three parallel nodes each increment a counter. What's the result?&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> &ldquo;3&rdquo;. <b>Correct:</b> with the default overwrite reducer it raises <code class="ic">InvalidUpdateError</code>; with a max or last-write reducer it's <b>1</b>, because all three read the same pre-barrier value.</p><p>To count parallel completions, use <code class="ic">Annotated[int, operator.add]</code> and have each node return <code class="ic">{"count": 1}</code> — in a fan-out, nodes return their <em>contribution</em>, not the computed total.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 6</span>&ldquo;Just increase <code class="ic">recursion_limit</code> — the graph needs more steps.&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> raising it. <b>Correct:</b> hitting the limit is almost always a bug — an unreachable exit condition, a model looping on uninformative tool results, or a lost counter increment in a fan-out. Raising it converts a fast failure into an expensive one.</p><p>Diagnose from the trajectory first; raise the limit only after confirming the graph legitimately needs more supersteps.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 7</span>&ldquo;Context windows are huge now, so we don't need RAG or memory management.&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> agreeing. <b>Correct:</b> three reasons that have nothing to do with fitting — <b>cost</b> per token every turn, <b>latency</b> scaling with input length, and <b>attention degradation</b> over long contexts. A focused 8k context routinely beats an unfocused 500k one.</p><p>Big windows made selection a quality technique rather than a capacity workaround.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 8</span>&ldquo;We'll add a retry so the flaky tool stops failing.&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> adding retries at every layer. <b>Correct:</b> retries <b>multiply</b> — 3 in the tool × 3 at the node × an agent loop retrying = 27 calls to a struggling dependency, a self-inflicted DDoS.</p><p>Pick <b>one owner per failure class</b>, use backoff with jitter, add a circuit breaker, and note that retries don't fix a model making a bad decision.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 9</span>&ldquo;The agent's answer was correct, so the run was fine.&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> accepting it. <b>Correct:</b> a right answer via six unnecessary tool calls is right today and broken the moment one of those tools changes. A right answer from parametric knowledge instead of the retrieved documents is right by luck.</p><p>Trajectory and step-level evaluation exist precisely to catch answers that are correct for the wrong reasons.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 10</span>&ldquo;Put the API key in state so the tool can use it.&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> doing it. <b>Correct:</b> state is <b>serialised into checkpoints</b>, so that key is now in your database, in every state snapshot, and readable by anyone who can read a thread. Prompts and tool arguments are also captured in traces.</p><p>Secrets live in a secret manager, read by the tool implementation at call time. The model never needs one — it requests an action; your code supplies credentials.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 11</span>&ldquo;We use <code class="ic">AgentExecutor</code> — that's the standard way, isn't it?&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> agreeing, or dismissing it as merely &ldquo;old&rdquo;. <b>Correct:</b> it's the deprecated 0.x API, along with <code class="ic">initialize_agent</code> and <code class="ic">langgraph.prebuilt.create_react_agent</code>; the current one is <code class="ic">create_agent</code>.</p><p>Then say <em>why</em> it changed: <code class="ic">AgentExecutor</code> was an opaque loop with no inspectable state, no interruption, no resume, no time travel. <code class="ic">create_agent</code> returns a real graph, so all of that comes free.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Trap 12</span>&ldquo;Time travel lets you safely test what would have happened.&rdquo;</summary>
+              <div class="ans"><p><b>Trap:</b> treating replay as a simulation. <b>Correct:</b> replay <b>re-executes nodes for real</b> — real model calls, real tool calls, real side effects. Replaying a range containing a send or a charge does it again.</p><p>Same idempotency requirement as crash recovery, arriving from a different direction.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-12">
+        <h3><span class="tn">12.12</span> System design scenarios</h3>
+        <p class="lead">Six full scenarios. Practise them out loud with a whiteboard: state schema, graph shape, guards, then operations.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The structure that works for every one of these</span>
+          <p><b>1.</b> Clarify scope and non-goals. <b>2.</b> Say what the <em>simplest</em> thing that could work is — and why it isn't enough here. <b>3.</b> State schema and graph shape. <b>4.</b> Guards: iteration cap, budget, approval gates, fallbacks. <b>5.</b> Operations: persistence, streaming, tracing, evaluation. <b>6.</b> What you'd measure and what would make you change the design.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Scenarios</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">System design</span>1 · Customer support triage agent</summary>
+              <div class="ans"><p><b>Shape:</b> router (cheap model, <code class="ic">Literal</code> + confidence, fallback branch) → per-category handler. The refund/billing branch is a tool-calling agent with read-only tools (order lookup, policy retrieval, prior refunds); the action tool is gated.</p><p><b>State:</b> <code class="ic">messages</code> (add_messages), <code class="ic">category</code>, <code class="ic">confidence</code>, <code class="ic">customer_id</code>, <code class="ic">iterations</code>. Thread per conversation, namespaced by tenant.</p><p><b>Guards:</b> confidence threshold → general handler; iteration cap; <code class="ic">interrupt</code> on refunds above a threshold with a full decision payload; escalation-to-human branch.</p><p><b>Ops:</b> Postgres checkpointer, streaming <code class="ic">updates</code> + <code class="ic">messages</code>, traces tagged with category and tenant, golden dataset of labelled tickets with router accuracy as its own metric.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>2 · Research assistant with parallel search and reflection</summary>
+              <div class="ans"><p><b>Shape:</b> plan (decompose into ≤8 sub-questions) → conditional edge returning one <code class="ic">Send</code> per sub-question → researcher workers writing to <code class="ic">findings: Annotated[list, add]</code> → synthesise → critique (structured: score + gaps) → conditional: accept, or one more targeted research wave.</p><p><b>Why this shape:</b> the fan-out turns <em>n</em> sequential researches into one superstep, which is the main latency win; the reflection loop is bounded at two rounds with best-draft retention.</p><p><b>Guards:</b> cap fan-out width; async workers; per-worker error capture so one failure doesn't lose the rest; overall token budget.</p><p><b>Ops:</b> checkpointer so a long research run survives a restart; <code class="ic">custom</code> stream events for &ldquo;4 of 8 complete&rdquo;; citations carried through with source ids.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>3 · SQL analytics agent</summary>
+              <div class="ans"><p><b>Shape:</b> schema-retrieval node (only the relevant tables, not the whole catalogue) → generate SQL with structured output → <b>validate</b> (parse with a real parser, reject non-SELECT, allow-list tables, inject LIMIT) → execute against a <b>read-only replica</b> with a statement timeout → interpret results → optional retry on error with the error text fed back.</p><p><b>Security is the answer here:</b> capability first (read-only role on specific views), then parsing, then limits, then logging every query with user and thread.</p><p><b>Guards:</b> row and byte caps on results (a 2M-row result destroys your context and your bill); retry cap of 2; refuse rather than guess when the schema doesn't support the question.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>4 · Code review agent</summary>
+              <div class="ans"><p><b>Shape:</b> fetch diff → fan out one reviewer per file (or per concern: correctness, security, tests) via <code class="ic">Send</code> → merge findings with an add-reducer → dedupe and rank → <b>verify</b> each finding against the actual code (a second pass that tries to refute it) → post.</p><p><b>The design point:</b> the verification pass is what makes it usable — unverified LLM review findings have a high false-positive rate, and false positives are what get a review bot turned off.</p><p><b>Tools:</b> read file, read symbol definition, run tests, search the repo. All read-only; posting is the only write and it's rate-limited.</p><p><b>Eval:</b> golden PRs with known issues; measure recall on real bugs <em>and</em> false-positive rate, because the second is what determines adoption.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>5 · Multi-tenant chatbot at 10k users</summary>
+              <div class="ans"><p><b>Isolation:</b> thread ids namespaced <code class="ic">tenant:user:conv</code>, tenant resolved server-side from the session, ownership checked before every invoke, row-level security on checkpoint tables, tenant filters inside retrieval queries.</p><p><b>Capacity:</b> the provider rate limit is the ceiling. Stateless async pods, pooled Postgres, a queue with per-tenant fair scheduling, backpressure that degrades rather than errors.</p><p><b>Fairness:</b> per-tenant request limits <b>and</b> token budgets, because agent cost per request varies by orders of magnitude.</p><p><b>Cost:</b> prompt caching, a cheap model for routing, trimming policy, tool-result caching. <b>Retention:</b> TTL on old threads plus a deletion path that reaches the checkpoint store.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>6 · Long-running campaign agent (weeks)</summary>
+              <div class="ans"><p><b>Episodic execution:</b> a scheduled trigger wakes the graph; each episode re-reads the objective and plan from dedicated state channels, does bounded work, writes a durable summary, exits.</p><p><b>Why not continuous:</b> processes restart, deploys happen, and a six-week in-memory run is a fiction. Checkpointing makes episodes the natural unit.</p><p><b>Oversight:</b> <code class="ic">interrupt</code> at milestones (approve the plan, approve the first send, approve spend above a threshold), with a review queue and SLA-based escalation.</p><p><b>Drift and staleness:</b> objective channel never summarised; periodic alignment check; timestamps on gathered facts with re-verification before acting; a running budget in state, not a per-request cap.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-13">
+        <h3><span class="tn">12.13</span> Coding exercises</h3>
+        <p class="lead">Whiteboard-sized tasks. If you can write these from memory you can write anything they'll ask.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Write these out</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Coding</span>1 · A minimal ReAct agent, by hand</summary>
+              <div class="ans"><p>Two nodes, one conditional edge, one cycle. <code class="ic">MessagesState</code>; an <code class="ic">agent</code> node calling <code class="ic">model.bind_tools(tools)</code>; a <code class="ic">ToolNode</code>; <code class="ic">should_continue</code> checking the iteration cap first and then <code class="ic">last.tool_calls</code>; <code class="ic">add_edge("tools", "agent")</code>. Compile with a checkpointer.</p><p>The details that score: the cap check <em>before</em> the tool-call check, and knowing that <code class="ic">create_agent</code> does exactly this so you'd only hand-roll it when you need to change the loop.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>2 · Map-reduce with <code class="ic">Send</code></summary>
+              <div class="ans"><p><code class="ic">plan</code> produces <code class="ic">subtopics</code>; a conditional edge returns <code class="ic">[Send("worker", {"subtopic": s}) for s in state["subtopics"][:MAX]]</code>; workers return <code class="ic">{"sections": [{"idx": i, "text": ...}]}</code> into an <code class="ic">operator.add</code> channel; <code class="ic">compile</code> sorts by index.</p><p>Score points for: the <b>index</b> (concurrent write order isn't guaranteed), the <b>width cap</b>, <b>async</b> workers, and per-worker error capture returning a sentinel instead of raising.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>3 · An approval gate</summary>
+              <div class="ans"><p>A tiny node calling <code class="ic">interrupt({...})</code> with everything the reviewer needs; a resume contract of <code class="ic">{"approved": bool, "amount": optional, "note": str}</code>; the actual action in a <em>separate downstream node</em>.</p><p>Say why the action isn't in the interrupt node: the node re-runs from the top on resume.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>4 · A bounded reflection loop</summary>
+              <div class="ans"><p><code class="ic">generate</code> → <code class="ic">critique</code> (structured: score, issues, accept) → conditional edge checking <code class="ic">iterations &gt;= MAX</code> <em>first</em>, then the score threshold. Channels: <code class="ic">draft</code>, <code class="ic">best_draft</code>, <code class="ic">best_score</code>, <code class="ic">iterations</code>.</p><p>Return <code class="ic">best_draft</code>, not the last one — quality degrades on over-revision, and this makes that harmless.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>5 · A custom reducer with dedup</summary>
+              <div class="ans"><p><code class="ic">def merge_docs(cur, new): seen = {d["id"] for d in cur}; return cur + [d for d in new if d["id"] not in seen]</code>, used as <code class="ic">docs: Annotated[list[dict], merge_docs]</code>.</p><p>Mention: pure, non-mutating, handles an empty <code class="ic">cur</code>, and is order-insensitive enough for concurrent writes.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>6 · A safe SQL tool</summary>
+              <div class="ans"><p>Parse with <code class="ic">sqlglot</code>, reject anything that isn't a <code class="ic">SELECT</code>, allow-list tables, wrap in <code class="ic">SELECT * FROM (...) LIMIT n</code>, execute on a read-only pool with a timeout, and <b>return a corrective string</b> rather than raising on rejection so the model can fix its query.</p><p>Say the important part out loud: the read-only credential is the control; the parsing is defence in depth.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>7 · A supervisor with <code class="ic">Command</code></summary>
+              <div class="ans"><p><code class="ic">def supervisor(state) -&gt; Command[Literal["researcher","writer","__end__"]]</code>, hop cap checked first, structured decision <code class="ic">{next, instruction}</code>, returning <code class="ic">Command(goto=..., update={...})</code>; specialists have normal edges back.</p><p>Explain the return-type annotation: it's what lets the compiled graph be drawn correctly.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>8 · Trim history without breaking tool pairs</summary>
+              <div class="ans"><p><code class="ic">trim_messages(messages, max_tokens=N, strategy="last", token_counter=model, include_system=True, start_on="human")</code>, applied in a <code class="ic">before_model</code> middleware or a node returning <code class="ic">RemoveMessage</code>s.</p><p>The point to make: <code class="ic">start_on="human"</code> is what prevents orphaning a tool call from its <code class="ic">ToolMessage</code>, which providers reject outright.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-14">
+        <h3><span class="tn">12.14</span> Portfolio projects</h3>
+        <p class="lead">Six projects that demonstrate the whole surface. Build two well rather than six badly — depth is what survives follow-up questions.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Project</th><th>Proves you can</th><th>The detail that makes it credible</th></tr></thead>
+            <tbody>
+              <tr><td><b>1 · Multi-pattern workflow set</b></td><td>Sequential, parallel, conditional and iterative graphs</td><td>One README comparing cost and latency across the four</td></tr>
+              <tr><td><b>2 · Persistent chatbot</b></td><td>Checkpointers, threads, streaming, trimming</td><td>Thread switching in the UI, and a visible summary-plus-recent policy</td></tr>
+              <tr><td><b>3 · Research agent, built twice</b></td><td>Hand-rolled <code class="ic">StateGraph</code> vs <code class="ic">create_agent</code></td><td>An honest write-up of what the prebuilt gave you and what it cost</td></tr>
+              <tr><td><b>4 · Agentic RAG with CRAG + Self-RAG</b></td><td>Grading, rewriting, fallback, grounding checks</td><td>Recall and groundedness measured separately, with numbers</td></tr>
+              <tr><td><b>5 · Multi-agent report writer</b></td><td>Supervisor, handoffs, HITL approval</td><td>The single-agent baseline measured alongside it</td></tr>
+              <tr><td><b>6 · Fully instrumented agent</b></td><td>Tracing, trajectory evals, a CI gate</td><td>A PR that fails the gate, screenshotted</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">What reviewers actually look for</span>
+          <p>Not the demo — the <b>evidence of judgement</b>. A README that states what you measured, what surprised you, what you'd do differently, and where you chose the simpler option, is worth more than a slicker UI. Project 5's real value is the sentence &ldquo;the single agent was within 3 points at a third of the cost, so here's when I'd still use multi-agent&rdquo;.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely follow-ups</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>&ldquo;Walk me through a project you built.&rdquo;</summary>
+              <div class="ans"><p>Structure it as: the problem, the <b>simplest thing you tried first</b>, what failed and how you knew, what you changed, and what you measured. Land on a number — latency, cost per request, accuracy on your eval set.</p><p>Then volunteer a limitation and what you'd do next. Interviewers are calibrating whether you can evaluate your own work; a candidate with no criticisms of their project reads as someone who never measured it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>&ldquo;What was the hardest bug?&rdquo;</summary>
+              <div class="ans"><p>Pick one with a <b>non-obvious cause and a clear diagnostic path</b> — the missing reducer that silently dropped history, the sync client blocking the event loop so &ldquo;parallel&rdquo; fan-out ran serially, the orphaned tool call after adding trimming. Describe the symptom, the wrong hypothesis you had first, the evidence that corrected it, and the fix.</p><p>The wrong-hypothesis part is what makes it believable and demonstrates how you actually debug.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-15">
+        <h3><span class="tn">12.15</span> Gotchas cheat sheet</h3>
+        <p class="lead">One table. If you can recall this cold, you can diagnose most LangGraph problems from the symptom alone.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr><td>Only the last message is remembered</td><td>No <code class="ic">add_messages</code> reducer</td><td><code class="ic">Annotated[list, add_messages]</code>, or <code class="ic">MessagesState</code></td></tr>
+              <tr><td>Nothing is remembered between turns</td><td>No checkpointer, or a new <code class="ic">thread_id</code> per request</td><td>Compile with a saver; derive the id from the conversation</td></tr>
+              <tr><td><code class="ic">InvalidUpdateError</code></td><td>Concurrent writes to a channel with no reducer</td><td>Add a reducer, or use private per-branch channels</td></tr>
+              <tr><td>Counter increments once, not <em>n</em> times</td><td>Parallel nodes all read the same pre-barrier value</td><td><code class="ic">operator.add</code>; each node returns its contribution</td></tr>
+              <tr><td><code class="ic">GraphRecursionError</code></td><td>Unreachable exit condition, or a model loop</td><td>Diagnose the trajectory; don't just raise the limit</td></tr>
+              <tr><td>&ldquo;Parallel&rdquo; is not faster</td><td>Sync client blocking the event loop</td><td><code class="ic">asyncio.to_thread</code> or an async client</td></tr>
+              <tr><td>Provider 400 after adding trimming</td><td>Tool call orphaned from its <code class="ic">ToolMessage</code></td><td><code class="ic">start_on="human"</code>, <code class="ic">include_system=True</code></td></tr>
+              <tr><td>Streaming silent in production</td><td>Proxy/gzip buffering, or <code class="ic">invoke</code> not <code class="ic">astream</code></td><td>Disable buffering; use the async stream</td></tr>
+              <tr><td>Subgraph internals invisible</td><td>Missing <code class="ic">subgraphs=True</code></td><td>Pass it to <code class="ic">stream</code> / <code class="ic">get_state</code></td></tr>
+              <tr><td>Supervisor drawn with no edges</td><td><code class="ic">Command</code> return type not annotated</td><td><code class="ic">-&gt; Command[Literal["a","b","__end__"]]</code></td></tr>
+              <tr><td>Work repeated after resume</td><td>Side effect above the <code class="ic">interrupt()</code> call</td><td>Move it to a node after the gate; idempotency key</td></tr>
+              <tr><td>Duplicate charges / emails</td><td>Idempotency key generated inside the node</td><td>Derive the key from stable state</td></tr>
+              <tr><td>Checkpoint writes are slow</td><td>Large objects in state</td><td>Store externally; keep a reference in state</td></tr>
+              <tr><td>Model ignores retrieved docs</td><td>Prompt doesn't require grounding; k too large</td><td>Instruct explicitly; rerank and cut k</td></tr>
+              <tr><td>Wrong tool chosen</td><td>Overlapping descriptions, not raw count</td><td>Merge, add &ldquo;do NOT use for…&rdquo;, namespace, retrieve</td></tr>
+              <tr><td>Agent retries the same tool forever</td><td>Uninformative tool result</td><td>Return explicit &ldquo;no results for X&rdquo; and corrective errors</td></tr>
+              <tr><td>Cross-user data visible</td><td>Shared or client-supplied <code class="ic">thread_id</code></td><td>Server-side derivation + ownership check</td></tr>
+              <tr><td>Cost 10× expected</td><td>Full history re-sent, no caching</td><td>Prompt caching, trimming, iteration cap, cascade</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Self-test</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Debug</span>Cover the table. Given &ldquo;the graph runs but nothing is persisted&rdquo;, what are your three checks?</summary>
+              <div class="ans"><p><b>1.</b> Was the graph compiled with a checkpointer at all? Without one, it runs perfectly and silently keeps nothing. <b>2.</b> Is a <code class="ic">thread_id</code> being passed in <code class="ic">config["configurable"]</code>, and is it stable across turns? <b>3.</b> Is the checkpointer an <code class="ic">InMemorySaver</code> that looked fine in a notebook and is lost on restart in production?</p><p>If all three pass, check <code class="ic">durability</code> — <code class="ic">"exit"</code> only persists at the end of a run.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Given &ldquo;findings from parallel workers are missing&rdquo;, what's your first hypothesis?</summary>
+              <div class="ans"><p>The channel has no reducer — either you're getting an <code class="ic">InvalidUpdateError</code> you've swallowed somewhere, or the channel overwrites and only one worker's write survives. Fix with <code class="ic">Annotated[list, operator.add]</code>.</p><p>Second hypothesis: the workers are writing to a channel name that isn't in the parent schema, or a <code class="ic">Send</code> worker is reading state it was never given.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g12-16">
+        <h3><span class="tn">12.16</span> API quick reference</h3>
+        <p class="lead">The surface you should be able to write from memory. Current as of <b>LangGraph 1.2.11 / LangChain 1.3.15</b> (11 Aug 2026), Python ≥ 3.10.</p>
+
+        <figure class="code">
+          <div class="chead">graph construction</div>
+          <pre><code class="language-python">from typing import Annotated, TypedDict, Literal
+from langgraph.graph import StateGraph, START, END, MessagesState
+from langgraph.graph.message import add_messages
+from langgraph.types import Send, Command, interrupt, RetryPolicy
+from langgraph.prebuilt import ToolNode
+import operator
+
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
+    docs: Annotated[list[str], operator.add]
+    count: Annotated[int, operator.add]
+    plan: str                                        # overwrite (default)
+
+b = StateGraph(State, input_schema=In, output_schema=Out)
+b.add_node("plan", plan_fn, retry_policy=RetryPolicy(max_attempts=3))
+b.add_node("tools", ToolNode(tools))
+b.add_edge(START, "plan")
+b.add_conditional_edges("plan", router, {"a": "a", "b": "b", "done": END})
+graph = b.compile(checkpointer=saver, store=store,
+                  interrupt_before=["approve"], name="my_agent")</code></pre>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">running, streaming, state</div>
+          <pre><code class="language-python">cfg = {"configurable": {"thread_id": tid, "user_id": uid},
+       "recursion_limit": 40, "durability": "async"}
+
+out = await graph.ainvoke({"messages": [msg]}, cfg)
+
+async for mode, chunk in graph.astream(inp, cfg,
+        stream_mode=["updates", "messages", "custom"], subgraphs=True):
+    ...
+
+snap = graph.get_state(cfg)              # .values .next .tasks .config
+hist = list(graph.get_state_history(cfg))       # newest first
+new  = graph.update_state(cfg, {"plan": "revised"}, as_node="plan")
+graph.invoke(Command(resume={"approved": True}), cfg)     # after interrupt
+graph.invoke(None, cfg)                                    # resume after crash</code></pre>
+        </figure>
+
+        <figure class="code">
+          <div class="chead">agents, tools, persistence</div>
+          <pre><code class="language-python">from langchain.agents import create_agent            # replaces AgentExecutor
+from langchain_core.tools import tool
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from langgraph.store.postgres import PostgresStore
+
+agent = create_agent(model, tools, prompt=SYSTEM,
+                     checkpointer=saver, middleware=[...])
+
+@tool
+def search(query: str, top_k: int = 5) -> str:
+    """Search X. Use for A and B. Do NOT use for C — use other_tool."""
+
+async with AsyncPostgresSaver.from_conn_string(URL) as saver:
+    await saver.setup()                              # once, at deploy
+
+store.put(("memories", user_id), key, {"text": fact})
+hits = store.search(("memories", user_id), query=q, limit=5)</code></pre>
+        </figure>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Recall check</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Coding</span>Which of these is set at compile time and which at invocation?</summary>
+              <div class="ans"><p><b>Compile:</b> <code class="ic">checkpointer</code>, <code class="ic">store</code>, <code class="ic">interrupt_before</code>/<code class="ic">interrupt_after</code>, <code class="ic">name</code>. <b>Invocation:</b> <code class="ic">thread_id</code> and any per-request context in <code class="ic">configurable</code>, <code class="ic">recursion_limit</code>, <code class="ic">durability</code>.</p><p>The principle: <b>compile-time is infrastructure, invocation-time is per-request.</b> Putting a <code class="ic">thread_id</code> into <code class="ic">compile()</code> is a category error that shows up as every user sharing one conversation.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>What's new in LangGraph 1.2.x worth mentioning?</summary>
+              <div class="ans"><p><b><code class="ic">trace_policy</code> on <code class="ic">add_node</code></b> (1.2.11) for per-node tracing control — useful for turning down noise from hot, uninteresting nodes without disabling tracing globally. And a <b>typed v3 <code class="ic">stream_events</code></b> return with native projections (1.2.10).</p><p>Don't over-index on patch numbers in an interview — knowing that <code class="ic">create_agent</code> superseded <code class="ic">AgentExecutor</code> and that memory moved from chain wrappers to checkpointers and stores matters far more than any release note.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">You've reached the end</span>
+          <p>Work backwards from here: re-read §12.11 the day before an interview, drill the widget in §12.0 until the deck is exhausted, and make sure you can draw the agent anatomy (§2.2), the superstep model (§3.6) and the HITL flow (§5.5) on a whiteboard from memory. Those three diagrams answer a surprising share of the questions in this bank.</p>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part11_Frontier.html">Part 11 · Advanced &amp; Frontier</a></div><ul><li>Context engineering, protocols</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 12 · Interview Q&amp;A Bank</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="index.html">Learning Hub</a></div><ul><li>All subjects</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        LangGraph &amp; Agentic AI — Part 12 of 12 · Interview Q&amp;A Bank<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 210 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · Prerequisites", "l1": "Level 1 · Agentic AI Foundations", "l2": "Level 2 · LangGraph Core Primitives", "l3": "Level 3 · Workflow Patterns", "l4": "Level 4 · State, Persistence & Memory", "l5": "Level 5 · Tools & Agent Capabilities", "l6": "Level 6 · RAG &amp; Advanced RAG", "l7": "Level 7 · Multi-Agent Architectures", "l8": "Level 8 · Observability &amp; Evaluation", "l9": "Level 9 · Production Engineering", "l10": "Level 10 · Advanced &amp; Frontier", "iv": "Interview Q&amp;A Bank", "sd": "System Design Scenarios", "pp": "Portfolio Projects"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "iv", "sd", "pp"];
+const TRACKER = [
+[1,"l0","Theory","Medium",0,"Functions, decorators, closures"],
+[2,"l0","Theory","Medium",0,"TypedDict, Annotated, Literal, Optional from typing"],
+[3,"l0","Theory","Medium",0,"Pydantic v2 \u2014 BaseModel, field validation, model_dump()"],
+[4,"l0","Theory","Medium",0,"async / await, asyncio.gather"],
+[5,"l0","Theory","Medium",0,"Generators and yield (needed to understand streaming)"],
+[6,"l0","Theory","Medium",0,"Environment management \u2014 venv / uv, .env files with python-dotenv"],
+[7,"l0","Theory","Medium",0,"Tokens, context windows, temperature, top-p"],
+[8,"l0","Theory","Medium",0,"Chat message roles: system / user / assistant / tool"],
+[9,"l0","Theory","Medium",0,"Embeddings and cosine similarity"],
+[10,"l0","Theory","Medium",0,"Function calling / tool calling at the API level"],
+[11,"l0","Theory","Medium",0,"Structured output and JSON mode"],
+[12,"l0","Theory","Medium",0,"What hallucination actually is, and why grounding reduces it"],
+[13,"l1","Theory","Medium",0,"Traditional AI \u2014 classify / predict from patterns"],
+[14,"l1","Theory","Medium",0,"Generative AI \u2014 learn a distribution, create new content"],
+[15,"l1","Theory","Medium",0,"RAG \u2014 GenAI grounded in your private data (still reactive)"],
+[16,"l1","Theory","Medium",0,"Tool-augmented \u2014 can act, but the human orchestrates"],
+[17,"l1","Theory","Medium",0,"Agentic AI \u2014 given a goal, plans and executes autonomously"],
+[18,"l1","Theory","Medium",0,"Autonomy \u2014 acts without step-by-step prompting"],
+[19,"l1","Theory","Medium",0,"Goal-orientation \u2014 persistent objective drives all actions"],
+[20,"l1","Theory","Medium",0,"Planning \u2014 decomposes goals, generates candidate plans, selects one"],
+[21,"l1","Theory","Medium",0,"Reasoning \u2014 chooses tools, handles errors, evaluates results"],
+[22,"l1","Theory","Medium",0,"Adaptability \u2014 pivots when a strategy fails"],
+[23,"l1","Theory","Medium",0,"Context awareness \u2014 uses memory to know where it is"],
+[24,"l1","Theory","Medium",0,"ReAct (Reason + Act) \u2014 interleaved thought/action/observation loop. *Read the original Yao et al. paper.*"],
+[25,"l1","Theory","Medium",0,"Plan-and-Execute \u2014 plan the whole thing upfront, then execute steps"],
+[26,"l1","Theory","Medium",0,"Reflection / Reflexion \u2014 the agent critiques and revises its own output"],
+[27,"l1","Theory","Medium",0,"Orchestrator\u2013Worker \u2014 a lead agent delegates to specialists"],
+[28,"l1","Theory","Medium",0,"Evaluator\u2013Optimizer \u2014 generator + critic in a loop"],
+[29,"l1","Theory","Medium",0,"Router \u2014 classify the request, dispatch to a specialist path"],
+[30,"l1","Theory","Medium",0,"LangGraph \u2014 graph-based, maximal control, production/enterprise default"],
+[31,"l1","Theory","Medium",0,"CrewAI \u2014 role-based, collaboration-first, faster to prototype"],
+[32,"l1","Theory","Medium",0,"AutoGen \u2014 conversational multi-agent (Microsoft)"],
+[33,"l1","Theory","Medium",0,"OpenAI Agents SDK, Mastra (TypeScript), Pydantic AI"],
+[34,"l1","Theory","Medium",0,"Be ready to defend a choice with tradeoffs, not name-drop"],
+[35,"l2","Theory","High",0,"A graph is a flowchart: nodes are Python functions, edges are control flow"],
+[36,"l2","Theory","High",0,"Nodes return partial state updates \u2014 a dict of only the keys they changed"],
+[37,"l2","Theory","High",0,"START and END are sentinels, never executed as nodes"],
+[38,"l2","Theory","High",0,"Execution happens in rounds called supersteps (Pregel model, from Google)"],
+[39,"l2","Theory","High",0,"Two nodes reachable from the same source in one step run in parallel"],
+[40,"l2","Theory","High",0,"TypedDict (most common), Pydantic BaseModel (validation), or dataclass"],
+[41,"l2","Theory","High",0,"Input / output schemas \u2014 expose a narrow public interface, keep internals private"],
+[42,"l2","Theory","High",0,"Private state keys passed between nodes but not returned to the caller"],
+[43,"l2","Theory","High",0,"Default behaviour with no reducer = overwrite"],
+[44,"l2","Theory","High",0,"Without a reducer, two parallel branches writing the same key in one superstep raise InvalidUpdateError \u2014 they do *not* silently merge"],
+[45,"l2","Theory","High",0,"add_messages is special: it appends, dedupes by message id, and understands RemoveMessage"],
+[46,"l2","Theory","High",0,"You can write custom reducers \u2014 any (current, update) -&gt; merged function"],
+[47,"l2","Theory","High",0,"Static edges \u2014 add_edge(\"a\", \"b\"), unconditional"],
+[48,"l2","Theory","High",0,"Conditional edges \u2014 add_conditional_edges(source, router_fn, path_map)"],
+[49,"l2","Theory","High",0,"The router returns a node name (or list of names), not data"],
+[50,"l2","Theory","High",0,"Also used to navigate to a node in a parent graph (graph=Command.PARENT)"],
+[51,"l2","Theory","High",0,"Also the mechanism for resuming after an interrupt \u2014 see 4.5"],
+[52,"l2","Theory","High",0,"Each Send carries its own state payload, not the whole graph state"],
+[53,"l2","Theory","High",0,"Results merge back via a reducer on the target key"],
+[54,"l2","Theory","High",0,"This is the canonical map-reduce pattern in LangGraph"],
+[55,"l3","Practical","Medium",0,"Linear graph, each node enriches state"],
+[56,"l3","Practical","Medium",0,"Practice: BMI calculator (no LLM) \u2192 outline generator \u2192 blog writer"],
+[57,"l3","Practical","Medium",0,"Multiple independent nodes in one superstep"],
+[58,"l3","Practical","Medium",0,"Must return partial updates and use reducers"],
+[59,"l3","Practical","Medium",0,"Practice: essay scored by three evaluators (language / analysis / clarity) with operator.add collecting scores, then an aggregator node averaging them"],
+[60,"l3","Practical","Medium",0,"Router function + add_conditional_edges"],
+[61,"l3","Practical","Medium",0,"Force classification with Literal[...] in a Pydantic schema"],
+[62,"l3","Practical","Medium",0,"Practice: quadratic solver branching on the discriminant \u2192 customer-review bot routing on sentiment, with a diagnosis sub-step for negative reviews"],
+[63,"l3","Practical","Medium",0,"Loop back to a previous node instead of hitting END"],
+[64,"l3","Practical","Medium",0,"Evaluator\u2013Optimizer: generate \u2192 critique \u2192 regenerate"],
+[65,"l3","Practical","Medium",0,"Always bound the loop with a max_iterations counter in state"],
+[66,"l3","Practical","Medium",0,"Know graph.invoke(..., {\"recursion_limit\": 50}) and what GraphRecursionError means"],
+[67,"l3","Practical","Medium",0,"builder.add_node(\"aggregate\", fn, defer=True) \u2014 runs only after all upstream paths complete"],
+[68,"l3","Practical","Medium",0,"Solves parallel branches of unequal length finishing at different times"],
+[69,"l3","Practical","Medium",0,"Ideal for map-reduce fan-in, consensus voting, multi-agent collaboration"],
+[70,"l4","Theory","High",0,"A checkpointer snapshots the entire state after every superstep"],
+[71,"l4","Theory","High",0,"thread_id isolates conversations \u2014 User A's memory never bleeds into User B's"],
+[72,"l4","Theory","High",0,"Dev \u2192 InMemorySaver. Prod \u2192 SqliteSaver (single node) or PostgresSaver (scale)"],
+[73,"l4","Theory","High",0,"checkpointer.setup() creates tables on first use for the DB backends"],
+[74,"l4","Theory","High",0,"Async variants exist: AsyncSqliteSaver, AsyncPostgresSaver"],
+[75,"l4","Theory","High",0,"Every superstep is a checkpoint, so you can rewind to any point"],
+[76,"l4","Theory","High",0,"Replay from a past checkpoint_id"],
+[77,"l4","Theory","High",0,"Fork \u2014 update state at a past checkpoint and run a different branch"],
+[78,"l4","Theory","High",0,"Primary use: debugging non-deterministic agent runs"],
+[79,"l4","Theory","High",0,"Know the memory *types*: semantic (facts), episodic (past events/examples), procedural (learned instructions)"],
+[80,"l4","Theory","High",0,"Know the tradeoff: hot-path writes (immediate, adds latency) vs background writes (async, eventually consistent)"],
+[81,"l4","Theory","High",0,"HITL requires a checkpointer \u2014 no persistence, no pause/resume"],
+[82,"l4","Theory","High",0,"The four HITL patterns: approve/reject, edit state, review tool calls, provide input"],
+[83,"l4","Theory","High",0,"Retrieve pending interrupts: graph.get_state(config).tasks[0].interrupts"],
+[84,"l5","Practical","Medium",0,"The docstring is the prompt. The model chooses tools based on name + description + arg schema. Vague docstrings = wrong tool selection"],
+[85,"l5","Practical","Medium",0,"Use Pydantic args_schema for complex inputs"],
+[86,"l5","Practical","Medium",0,"Prefer few, well-scoped tools over many overlapping ones"],
+[87,"l5","Practical","Medium",0,"Return strings or JSON-serialisable objects; keep outputs small"],
+[88,"l5","Practical","Medium",0,"\u26a0\ufe0f create_react_agent from langgraph.prebuilt is deprecated \u2014 it still works but emits LangGraphDeprecatedSinceV10"],
+[89,"l5","Practical","Medium",0,"create_agent adds a middleware system: composable hooks that run before/after the model call and before/after tool execution, for logging, guardrails, retries, and summarization \u2014 without rewriting the graph"],
+[90,"l5","Practical","Medium",0,"Know the tradeoff: prebuilt = fast; hand-built StateGraph = full control. Interviewers ask when you'd drop down"],
+[91,"l5","Practical","Medium",0,"Parallel tool calls \u2014 the model can emit several at once; ToolNode executes them concurrently"],
+[92,"l5","Practical","Medium",0,"Tool errors \u2014 return a ToolMessage describing the failure so the model can retry, rather than crashing"],
+[93,"l5","Practical","Medium",0,"InjectedState / InjectedStore \u2014 pass graph state into a tool without exposing it to the LLM"],
+[94,"l5","Practical","Medium",0,"Tool call review \u2014 gate sensitive tools behind HITL"],
+[95,"l5","Practical","Medium",0,"Structured output vs tool calling \u2014 when to use which"],
+[96,"l5","Practical","Medium",0,"Open standard (from Anthropic) for connecting models to tools and data sources"],
+[97,"l5","Practical","Medium",0,"Client\u2013server: your agent is the client; Drive/Slack/Postgres/etc. expose servers"],
+[98,"l5","Practical","Medium",0,"Replaces writing a bespoke wrapper per integration"],
+[99,"l5","Practical","Medium",0,"langchain-mcp-adapters converts MCP tools into LangChain tools"],
+[100,"l5","Practical","Medium",0,"Know transports: stdio (local) vs HTTP/SSE (remote)"],
+[101,"l5","Practical","Medium",0,"LangGraph can also expose an agent as an MCP tool"],
+[102,"l6","Practical","Medium",0,"Loaders: PyPDFLoader, WebBaseLoader, DirectoryLoader"],
+[103,"l6","Practical","Medium",0,"RecursiveCharacterTextSplitter \u2014 chunk size, overlap, and why both matter"],
+[104,"l6","Practical","Medium",0,"Embeddings; vector stores: FAISS (local), Chroma, Pinecone, pgvector"],
+[105,"l6","Practical","Medium",0,"Retriever config: k, MMR, metadata filtering, score thresholds"],
+[106,"l6","Practical","Medium",0,"As a step: every query goes through retrieval \u2014 simple, wasteful, and wrong for \"hi\""],
+[107,"l6","Practical","Medium",0,"As a tool: wrap the retriever in @tool and let the model decide \u2014 this is Agentic RAG"],
+[108,"l6","Practical","Medium",0,"Multi-source agents route between a PDF retriever, a SQL tool, and web search"],
+[109,"l6","Practical","Medium",0,"Solves: vector similarity returns plausible-but-wrong chunks"],
+[110,"l6","Practical","Medium",0,"The grader is an LLM scoring \"do these docs actually answer the question?\""],
+[111,"l6","Practical","Medium",0,"Fallback is usually web search"],
+[112,"l6","Practical","Medium",0,"Two graders: groundedness (supported by context?) and relevance (answers the question?)"],
+[113,"l6","Practical","Medium",0,"Bound the retry loop or you'll spin forever"],
+[114,"l6","Practical","Medium",0,"Adaptive RAG \u2014 route by query complexity (no retrieval / single-shot / multi-hop)"],
+[115,"l6","Practical","Medium",0,"HyDE \u2014 embed a hypothetical answer instead of the question"],
+[116,"l6","Practical","Medium",0,"Parent-document / small-to-big retrieval"],
+[117,"l6","Practical","Medium",0,"Reranking with a cross-encoder (Cohere Rerank, BGE)"],
+[118,"l6","Practical","Medium",0,"Hybrid search \u2014 BM25 + dense vectors"],
+[119,"l6","Practical","Medium",0,"GraphRAG \u2014 knowledge-graph-backed retrieval"],
+[120,"l6","Practical","Medium",0,"Contextual retrieval \u2014 prepend chunk-level context before embedding"],
+[121,"l7","Theory","Medium",0,"Compile a graph and use it as a node in a parent graph"],
+[122,"l7","Theory","Medium",0,"Shared schema \u2014 add the compiled subgraph directly"],
+[123,"l7","Theory","Medium",0,"Different schema \u2014 wrap it in a function that translates state in and out"],
+[124,"l7","Theory","Medium",0,"Checkpointing propagates from parent to subgraph automatically"],
+[125,"l7","Theory","Medium",0,"Enables reuse of an approval loop or research module across projects"],
+[126,"l7","Theory","Medium",0,"Command(goto=\"other_agent\", update={...}, graph=Command.PARENT)"],
+[127,"l7","Theory","Medium",0,"Decide what context transfers: full history or a compressed handoff summary?"],
+[128,"l7","Theory","Medium",0,"Context isolation \u2014 sub-agents with their own scratchpad prevent context bloat"],
+[129,"l8","Practical","High",0,"Run \u2014 a single unit of work; Trace \u2014 the full tree for one request"],
+[130,"l8","Practical","High",0,"Span hierarchy \u2014 nested parent/child runs"],
+[131,"l8","Practical","High",0,"Metrics captured: latency, token counts, cost, errors"],
+[132,"l8","Practical","High",0,"Tags and metadata for filtering (user id, version, environment)"],
+[133,"l8","Practical","High",0,"For LangGraph specifically: traces show each superstep, conditional branches taken, loops, and how state mutates node by node \u2014 invaluable for spotting a dropped or overwritten key"],
+[134,"l8","Practical","High",0,"Datasets \u2014 curated inputs (+ reference outputs) to test against"],
+[135,"l8","Practical","High",0,"Build them from production traces you flag as interesting"],
+[136,"l8","Practical","High",0,"Evaluator types:"],
+[137,"l8","Practical","High",0,"Online evaluation \u2014 run evaluators against live production traffic"],
+[138,"l8","Practical","High",0,"Regression testing \u2014 compare experiments across prompt/model changes"],
+[139,"l8","Practical","High",0,"Final-answer eval is not enough. Evaluate the trajectory \u2014 the sequence of steps taken"],
+[140,"l8","Practical","High",0,"Golden trajectories \u2014 reference paths a correct run should follow"],
+[141,"l8","Practical","High",0,"Step-level accuracy \u2014 did it pick the right tool, with the right args, at the right time?"],
+[142,"l8","Practical","High",0,"Trajectory match \u2014 exact / in-order / any-order / superset"],
+[143,"l8","Practical","High",0,"Cost and step-count as first-class metrics \u2014 a correct answer after 40 tool calls is a failure"],
+[144,"l8","Practical","High",0,"Common agent failure taxonomy: wrong tool, malformed args, infinite loop, premature stop, context overflow"],
+[145,"l8","Practical","High",0,"LangSmith Prompt Hub \u2014 versioned prompts, decoupled from code"],
+[146,"l8","Practical","High",0,"LangGraph Studio \u2014 visual graph debugger, step through and edit state"],
+[147,"l8","Practical","High",0,"Alternatives worth naming: Langfuse, Arize Phoenix, W&amp;B Weave, OpenTelemetry GenAI conventions"],
+[148,"l9","Practical","High",0,"Durability modes \u2014 trade write frequency against performance:"],
+[149,"l9","Practical","High",0,"Nodes re-execute on resume \u2014 write them as near-pure functions of state"],
+[150,"l9","Practical","High",0,"\u2b50 Checkpoints make state recoverable, but they do NOT make side effects exactly-once. Add idempotency keys so a resume can't re-charge a card or re-send an email. This is a top senior-level interview answer"],
+[151,"l9","Practical","High",0,"Pattern: have the node produce a draft (status=\"pending\"), and commit the side effect in a separate, idempotent step"],
+[152,"l9","Practical","High",0,"Retry policies \u2014 add_node(..., retry_policy=RetryPolicy(max_attempts=3))"],
+[153,"l9","Practical","High",0,"Node timeouts and error handlers"],
+[154,"l9","Practical","High",0,"set_node_defaults(...) (langgraph \u2265 1.2) to apply retry/timeout/cache/error-handler to every node at once"],
+[155,"l9","Practical","High",0,"Recursion limits to bound runaway loops"],
+[156,"l9","Practical","High",0,"Graceful degradation when a tool is down"],
+[157,"l9","Practical","High",0,"Backends: InMemoryCache, SqliteCache, RedisCache"],
+[158,"l9","Practical","High",0,"key_func customises how the cache key is derived from node input"],
+[159,"l9","Practical","High",0,"Huge for development iteration speed; also cuts production cost"],
+[160,"l9","Practical","High",0,"Stream modes: values (full state), updates (deltas), messages (LLM tokens), custom, debug"],
+[161,"l9","Practical","High",0,"astream_events for fine-grained event streams"],
+[162,"l9","Practical","High",0,"Streaming from inside tools and from subgraphs (subgraphs=True)"],
+[163,"l9","Practical","High",0,"Why it matters: perceived latency. A frozen UI reads as a broken app"],
+[164,"l9","Practical","High",0,"LangGraph Server / Platform \u2014 managed runtime with threads, cron, and a task queue"],
+[165,"l9","Practical","High",0,"Self-hosting with FastAPI + Postgres checkpointer"],
+[166,"l9","Practical","High",0,"Assistants \u2014 versioned configurations of the same graph"],
+[167,"l9","Practical","High",0,"Docker, horizontal scaling, connection pooling (psycopg_pool)"],
+[168,"l9","Practical","High",0,"Double-texting strategies (reject, enqueue, interrupt, rollback)"],
+[169,"l9","Practical","High",0,"Webhooks and background runs for long-running agents"],
+[170,"l9","Practical","High",0,"Model routing \u2014 cheap model for classification, strong model for synthesis"],
+[171,"l9","Practical","High",0,"Prompt caching; batching; semantic caching"],
+[172,"l9","Practical","High",0,"Token budgets per run; hard spend caps"],
+[173,"l9","Practical","High",0,"Prompt injection \u2014 especially via retrieved documents and tool output"],
+[174,"l9","Practical","High",0,"Least-privilege tool credentials; sandboxing code execution"],
+[175,"l9","Practical","High",0,"PII redaction before it reaches logs/traces"],
+[176,"l9","Practical","High",0,"Guardrails: input/output validation, allow-lists, HITL on destructive actions"],
+[177,"l9","Practical","High",0,"Unit-test nodes as plain functions \u2014 they are just Python"],
+[178,"l9","Practical","High",0,"Stub the LLM with a fake chat model returning scripted tool calls, so tests don't hit the API"],
+[179,"l9","Practical","High",0,"Integration-test full graph paths"],
+[180,"l9","Practical","High",0,"LangSmith datasets as the regression suite in CI"],
+[181,"l10","Theory","Medium",0,"Functional API \u2014 @entrypoint / @task decorators as an alternative to StateGraph for imperative-style durable workflows"],
+[182,"l10","Theory","Medium",0,"Pregel internals \u2014 how supersteps, channels, and the scheduler actually work"],
+[183,"l10","Theory","Medium",0,"Custom checkpointer / store implementations (BaseCheckpointSaver, BaseStore)"],
+[184,"l10","Theory","Medium",0,"Context engineering \u2014 the discipline that replaced prompt engineering: what enters the window, when, and why"],
+[185,"l10","Theory","Medium",0,"Multi-agent context isolation and compression strategies"],
+[186,"l10","Theory","Medium",0,"Reflexion and self-improving agents that update procedural memory"],
+[187,"l10","Theory","Medium",0,"LangMem / Mem0 for managed cross-session recall"],
+[188,"l10","Theory","Medium",0,"Simulation-based evaluation \u2014 agents tested against simulated users"],
+[189,"l10","Theory","Medium",0,"Computer-use / browser agents"],
+[190,"l10","Theory","Medium",0,"Agent-to-agent protocols (A2A) and MCP server authoring"],
+[191,"l10","Theory","Medium",0,"Deep Agents \u2014 planning + subagents + filesystem, layered on LangGraph"],
+[192,"iv","Interview Prep","High",0,"High-frequency: Conceptual questions (agent vs workflow, ReAct, LangChain vs LangGraph)"],
+[193,"iv","Interview Prep","High",0,"High-frequency: LangGraph mechanics (reducers, Send, Command, supersteps, loops)"],
+[194,"iv","Interview Prep","High",0,"High-frequency: State &amp; memory (checkpointer vs store, thread_id, context window)"],
+[195,"iv","Interview Prep","High",0,"High-frequency: HITL &amp; production (approval gates, crash recovery, idempotency, durability)"],
+[196,"iv","Interview Prep","High",0,"High-frequency: Tools &amp; RAG (tool choice, tool errors, MCP, the RAG ladder)"],
+[197,"iv","Interview Prep","High",0,"High-frequency: Evaluation (agent eval, golden trajectories, regression gates)"],
+[198,"iv","Interview Prep","High",0,"The 7 trap questions (answered correctly, out loud)"],
+[199,"sd","Interview Prep","High",0,"System design: Customer support triage agent"],
+[200,"sd","Interview Prep","High",0,"System design: Research assistant (parallel Send + reflection)"],
+[201,"sd","Interview Prep","High",0,"System design: SQL analytics agent (guarding destructive SQL)"],
+[202,"sd","Interview Prep","High",0,"System design: Code review agent (tool design)"],
+[203,"sd","Interview Prep","High",0,"System design: Multi-tenant chatbot at 10k users"],
+[204,"sd","Interview Prep","High",0,"System design: Long-running campaign agent (weeks, durability)"],
+[205,"pp","Project","High",0,"Project 1: Multi-pattern workflow set (sequential/parallel/conditional/iterative)"],
+[210,"pp","Project","High",0,"Project 2: Persistent chatbot (Streamlit + SQLite checkpointer + streaming)"],
+[207,"pp","Project","High",0,"Project 3: Research agent built twice (hand-rolled vs create_agent)"],
+[208,"pp","Project","High",0,"Project 4: Agentic RAG with CRAG + Self-RAG"],
+[209,"pp","Project","High",0,"Project 5: Multi-agent report writer (planner/researcher/writer/evaluator + HITL)"],
+[210,"pp","Project","High",0,"Project 6: Fully instrumented agent (LangSmith traces, trajectory evals, CI gate)"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="lgPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 210 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+</body>
+</html>

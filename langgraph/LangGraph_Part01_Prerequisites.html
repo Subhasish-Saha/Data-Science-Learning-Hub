@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LangGraph &amp; Agentic AI — Part 2: Patterns, State &amp; Memory</title>
+<title>LangGraph &amp; Agentic AI — Part 1: Prerequisites &amp; the LLM Substrate</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -313,6 +313,53 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
   figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* ---- interactive widgets (LangGraph) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wctl b{color:var(--indigo);font-weight:600}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+.wdg .cm{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:13px;max-width:420px}
+.wdg .cm div{border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:11px;letter-spacing:.6px;text-transform:uppercase}
+.wdg .cm .tp{background:var(--green-soft);border:1px solid #bfe3cc;color:#1c7a42}
+.wdg .cm .fp{background:var(--gold-soft);border:1px solid var(--gold-line);color:#a5710a}
+.wdg .cm .fn{background:#fdecec;border:1px solid #f3c9c9;color:#a33}
+.wdg .cm .tn{background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wdg .cm b{display:block;font-family:var(--disp);font-size:1.4rem;color:var(--ink);letter-spacing:-.5px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.assump{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.assump .ah{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.assump .ah .an{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.assump .abody{padding:2px 0}
+.assump .arow{display:grid;grid-template-columns:132px 1fr;gap:0;border-top:1px solid var(--line)}
+.assump .arow:first-child{border-top:none}
+.assump .arow .al{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.assump .arow .av{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.assump .arow.brk .al{color:#a33}
+.assump .arow.fix .al{color:#1c7a42}
+@media (max-width:620px){.assump .arow{grid-template-columns:1fr}.assump .arow .al{border-right:none;border-bottom:1px solid var(--line)}}
 </style>
 </head>
 <body>
@@ -321,7 +368,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
 <div class="topbar">
   <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
-  <div class="tt"><small>Part 2 / 6</small>Patterns, State &amp; Memory</div>
+  <div class="tt"><small>Part 1 / 12</small>Prerequisites &amp; the LLM Substrate</div>
 </div>
 
 <div class="layout">
@@ -341,8 +388,8 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
     </div>
 
     <div class="sb-part">
-      <div class="k">Part 2 of 6</div>
-      <div class="v">Patterns, State &amp; Memory</div>
+      <div class="k">Part 1 of 12</div>
+      <div class="v">Prerequisites &amp; the LLM Substrate</div>
       <div class="sb-progress">
         <div class="bar"><div class="fill" id="sbFill"></div></div>
         <div class="lab" id="sbLab">0 / 210 topics done</div>
@@ -355,25 +402,14 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
       </div>
       <div class="grp">
-        <button class="ghead" data-t><span class="num">L3</span> Workflow Patterns <span class="chev">▾</span></button>
+        <button class="ghead" data-t><span class="num">L0</span> Prerequisites <span class="chev">▾</span></button>
         <ul class="links">
-          <li><a href="#g2-1">2.1 · Sequential</a></li>
-          <li><a href="#g2-2">2.2 · Parallel fan-out/in</a></li>
-          <li><a href="#g2-3">2.3 · Conditional branching</a></li>
-          <li><a href="#g2-4">2.4 · Iterative cycles</a></li>
-          <li><a href="#g2-5">2.5 · Deferred nodes</a></li>
-        </ul>
-      </div>
-      <div class="grp">
-        <button class="ghead" data-t><span class="num">L4</span> State &amp; Memory <span class="chev">▾</span></button>
-        <ul class="links">
-          <li><a href="#g2-6">2.6 · Checkpointers</a></li>
-          <li><a href="#g2-7">2.7 · Inspect &amp; time travel</a></li>
-          <li><a href="#g2-8">2.8 · The Store ⭐</a></li>
-          <li><a href="#g2-9">2.9 · Long-term memory pipeline</a></li>
-          <li><a href="#g2-10">2.10 · Context window management</a></li>
-          <li><a href="#g2-11">2.11 · Human-in-the-loop</a></li>
-          <li><a href="#g2-12">2.12 · Interview focus</a></li>
+          <li><a href="#g1-1">1.1 · Python you actually need</a></li>
+          <li><a href="#g1-2">1.2 · Typing, TypedDict &amp; Pydantic ⭐</a></li>
+          <li><a href="#g1-3">1.3 · Async, concurrency &amp; the event loop ⭐</a></li>
+          <li><a href="#g1-4">1.4 · The LLM substrate</a></li>
+          <li><a href="#g1-5">1.5 · Structured output ⭐</a></li>
+          <li><a href="#g1-6">1.6 · The LangChain layer in 2026 ⭐</a></li>
         </ul>
       </div>
       <div class="grp">
@@ -382,7 +418,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
       </div>
     </nav>
     <div class="sb-foot">
-      LangGraph &amp; Agentic AI<br>Part 2 — Patterns, State &amp; Memory<br>© your study kit
+      LangGraph &amp; Agentic AI<br>Part 1 — Prerequisites &amp; the LLM Substrate<br>© your study kit
     </div>
   </aside>
 
@@ -392,16 +428,17 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
 
       <!-- HERO -->
       <header class="hero">
-        <div class="eyebrow">Part 2 of 6 · Patterns, State &amp; Memory</div>
-        <h1 class="title">Patterns, memory, and the human in the loop
-          <span class="sub">The four workflow shapes every agentic system is assembled from — then persistence, the checkpointer/Store distinction, time travel, context management, and HITL approval gates.</span>
+        <div class="eyebrow">Part 1 of 12 · Prerequisites &amp; the LLM Substrate</div>
+        <h1 class="title">What you must know before the graph makes sense
+          <span class="sub">The Python that LangGraph actually leans on — TypedDict, Annotated, Pydantic v2, async and the event loop — plus the LLM substrate underneath it: tokens, context windows, structured output, and where LangChain sits relative to LangGraph in 2026.</span>
         </h1>
-        <p class="thesis">This is where junior and senior candidates separate. Anyone can wire a linear chain; the signal is knowing <strong>which of the four patterns</strong> a business process needs, and then the memory model: a <strong>checkpointer</strong> gives thread-scoped memory keyed by <code>thread_id</code>, a <strong>Store</strong> gives cross-thread memory keyed by user. Confusing them is the classic telling mistake. We also cover time travel, three context-window strategies, and the <code>interrupt()</code> pattern behind every approval gate.</p>
+        <p class="thesis">Skipping this part is the single most common reason LangGraph feels like magic. Three things here are load-bearing for everything that follows. <strong>Annotated[T, reducer]</strong> is the mechanism behind every state channel — if you don't know what <code class="ic">Annotated</code> does in Python, reducers will never make sense. <strong>Async</strong> is why parallel <code class="ic">Send</code> fan-out actually runs concurrently, and why one blocking call inside a node silently serialises your whole graph. And the <strong>LangChain-vs-LangGraph layering</strong> is the question you will be asked in the first five minutes — it is a layering question, not a rivalry, and getting that framing right sets the tone.</p>
         <div class="meta-chips">
-          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 3–4</b></span>
-          <span class="chip"><b>29</b> tracked topics</span>
-          <span class="chip">⏱ <b>~6–7h</b></span>
-          <span class="chip">💾 persistence &amp; HITL</span>
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 0</b></span>
+          <span class="chip"><b>6</b> sections</span>
+          <span class="chip">📐 <b>4</b> diagrams</span>
+          <span class="chip">💬 <b>20</b> Q&amp;A</span>
+          <span class="chip">⏱ <b>~5h</b></span>
         </div>
       </header>
 
@@ -412,7 +449,7 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
             <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <div>
               <h2>Master Progress Tracker</h2>
-              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 6 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+              <p class="tk-sub">One tracker for the whole LangGraph subject — all 210 topics across all 12 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
             </div>
             <div class="tk-overall">
               <div class="pct" id="ovPct">0%</div>
@@ -447,504 +484,416 @@ select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
         </div>
       </section>
 
-      <!-- ============================ LEVEL 3 ============================ -->
-      <section class="phase-head" id="level3">
-        <div class="pk">Level 3 · Workflow Patterns</div>
-        <h2>Four shapes, endlessly recombined</h2>
-        <p class="pd">Every agentic system is these four patterns glued together: <b>sequential</b>, <b>parallel</b>, <b>conditional</b>, and <b>iterative</b> — plus deferred nodes as the synchronisation trick. Build each twice: once with a non-LLM toy so you see the mechanics, once with an LLM.</p>
-      </section>
+      <article class="topic" id="g1-1">
+        <h3><span class="tn">1.1</span> The Python you actually need</h3>
+        <p class="lead">LangGraph is a small library sitting on top of a few Python features you may have skimmed. Four of them are load-bearing, and every one of them shows up in an interview as &ldquo;walk me through this code&rdquo;.</p>
 
-      <!-- ---------- 2.1–2.4 patterns overview ---------- -->
-      <article class="topic" id="g2-1">
-        <h3><span class="tn">2.1</span> Sequential (prompt chaining)</h3>
-        <p class="lead">A linear graph where each node enriches state. The simplest pattern, and the right default whenever the steps are known.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 300" role="img" aria-label="The four workflow patterns drawn as small graphs: sequential chain, parallel fan-out and fan-in, conditional branch, and an iterative loop with a bounded counter.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">the four patterns — learn to spot them in any business process</text>
-              <!-- sequential -->
-              <text x="30" y="52" fill="#F0A81E" font-size="10.5">1 · SEQUENTIAL</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="30" y="62" width="62" height="26" rx="5" fill="#3B45B5"/><text x="61" y="79">outline</text>
-                <rect x="108" y="62" width="62" height="26" rx="5" fill="#5560D8"/><text x="139" y="79">write</text>
-                <rect x="186" y="62" width="62" height="26" rx="5" fill="#5560D8"/><text x="217" y="79">polish</text>
-              </g>
-              <path d="M92 75 h14" stroke="#8892a0" stroke-width="1.2" marker-end="url(#p4)"/>
-              <path d="M170 75 h14" stroke="#8892a0" stroke-width="1.2" marker-end="url(#p4)"/>
-              <text x="30" y="106" fill="#8892a0" font-size="8.5">each node enriches state</text>
-
-              <!-- parallel -->
-              <text x="400" y="52" fill="#F0A81E" font-size="10.5">2 · PARALLEL (fan-out / fan-in)</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="400" y="76" width="54" height="24" rx="5" fill="#3B45B5"/><text x="427" y="92">essay</text>
-                <rect x="486" y="52" width="74" height="22" rx="5" fill="#5560D8"/><text x="523" y="67">language</text>
-                <rect x="486" y="78" width="74" height="22" rx="5" fill="#5560D8"/><text x="523" y="93">analysis</text>
-                <rect x="486" y="104" width="74" height="22" rx="5" fill="#5560D8"/><text x="523" y="119">clarity</text>
-                <rect x="590" y="76" width="70" height="24" rx="5" fill="#256b3f"/><text x="625" y="92">aggregate</text>
-              </g>
-              <path d="M456 84 L484 64" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p4)"/>
-              <path d="M456 88 L484 89" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p4)"/>
-              <path d="M456 92 L484 113" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p4)"/>
-              <path d="M562 64 L588 84" stroke="#2E9E5B" stroke-width="1.1" marker-end="url(#p4g)"/>
-              <path d="M562 89 L588 88" stroke="#2E9E5B" stroke-width="1.1" marker-end="url(#p4g)"/>
-              <path d="M562 113 L588 92" stroke="#2E9E5B" stroke-width="1.1" marker-end="url(#p4g)"/>
-              <text x="400" y="142" fill="#8892a0" font-size="8.5">needs a reducer on the shared key</text>
-
-              <!-- conditional -->
-              <text x="30" y="188" fill="#F0A81E" font-size="10.5">3 · CONDITIONAL</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="30" y="200" width="66" height="26" rx="5" fill="#3B45B5"/><text x="63" y="217">classify</text>
-                <rect x="140" y="176" width="74" height="24" rx="5" fill="#5560D8"/><text x="177" y="192">positive</text>
-                <rect x="140" y="208" width="74" height="24" rx="5" fill="#5560D8"/><text x="177" y="224">negative</text>
-                <rect x="140" y="240" width="74" height="24" rx="5" fill="#5560D8"/><text x="177" y="256">neutral</text>
-              </g>
-              <path d="M96 208 L138 188" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p4)"/>
-              <path d="M96 213 L138 218" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p4)"/>
-              <path d="M96 218 L138 250" stroke="#8892a0" stroke-width="1.1" marker-end="url(#p4)"/>
-              <text x="30" y="282" fill="#8892a0" font-size="8.5">router returns a node name</text>
-
-              <!-- iterative -->
-              <text x="400" y="188" fill="#F0A81E" font-size="10.5">4 · ITERATIVE (bounded)</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="400" y="200" width="70" height="26" rx="5" fill="#3B45B5"/><text x="435" y="217">generate</text>
-                <rect x="502" y="200" width="70" height="26" rx="5" fill="#252D3A" stroke="#2E9E5B"/><text x="537" y="217" fill="#7fd6a0">critique</text>
-                <rect x="604" y="200" width="56" height="26" rx="5" fill="#256b3f"/><text x="632" y="217">END</text>
-              </g>
-              <path d="M470 213 h30" stroke="#8892a0" stroke-width="1.2" marker-end="url(#p4)"/>
-              <path d="M572 213 h30" stroke="#2E9E5B" stroke-width="1.2" marker-end="url(#p4g)"/>
-              <text x="590" y="205" fill="#7fd6a0" font-size="7.5">pass</text>
-              <path d="M537 226 C 537 256, 435 256, 435 228" fill="none" stroke="#F0A81E" stroke-width="1.6" marker-end="url(#p4y)"/>
-              <text x="486" y="270" fill="#f0c274" font-size="8">fail → retry (max_iterations!)</text>
-              <defs>
-                <marker id="p4" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="p4g" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
-                <marker id="p4y" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#F0A81E"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b>Given any business process, you should be able to sketch it as a graph and name the pattern of each segment.</b> That's the Level-3 checkpoint — and a very common whiteboard prompt.</figcaption>
-        </figure>
-        <p><b>Practice ladder:</b> a BMI calculator with no LLM at all (so you see pure state mechanics) → an outline generator → a blog writer that chains outline → draft → polish.</p>
-      </article>
-
-      <!-- ---------- 2.2 ---------- -->
-      <article class="topic" id="g2-2">
-        <h3><span class="tn">2.2</span> Parallel (fan-out / fan-in)</h3>
-        <p class="lead">Multiple independent nodes in one superstep. This is where reducers stop being theory — parallel branches <em>must</em> return partial updates into a reduced key.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">three evaluators scoring one essay in parallel</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from typing import Annotated, TypedDict
-from pydantic import BaseModel, Field
-import operator
-
-class Evaluation(BaseModel):                      # force structured output
-    feedback: str = Field(description="Qualitative feedback")
-    score: int = Field(ge=0, le=10)
-
-structured_llm = llm.with_structured_output(Evaluation)
-
-class State(TypedDict):
-    essay: str
-    scores: Annotated[list[int], operator.add]     # ← reducer collects all three
-    feedback: Annotated[list[str], operator.add]
-
-def language(state):  # each returns ONLY its own partial update
-    r = structured_llm.invoke(f"Score the language: {state['essay']}")
-    return {"scores": [r.score], "feedback": [r.feedback]}
-# analysis(), clarity() are identical in shape
-
-builder.add_edge(START, "language"); builder.add_edge(START, "analysis"); builder.add_edge(START, "clarity")
-builder.add_edge("language", "aggregate"); builder.add_edge("analysis", "aggregate"); builder.add_edge("clarity", "aggregate")
-
-def aggregate(state):
-    return {"final": sum(state["scores"]) / len(state["scores"])}
-</code></pre>
-        </figure>
-        <p>Drop the <code class="ic">Annotated[..., operator.add]</code> and this graph raises <code class="ic">InvalidUpdateError</code> the moment two evaluators finish in the same superstep — the single most common beginner failure.</p>
-      </article>
-
-      <!-- ---------- 2.3 ---------- -->
-      <article class="topic" id="g2-3">
-        <h3><span class="tn">2.3</span> Conditional (branching)</h3>
-        <p class="lead">A router function plus <code class="ic">add_conditional_edges</code>. The trick that makes it reliable: force the classification into a closed set with <code class="ic">Literal</code> in a Pydantic schema.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">constrained classification → routing</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from typing import Literal
-from pydantic import BaseModel, Field
-
-class Sentiment(BaseModel):
-    label: Literal["positive", "negative", "neutral"] = Field(description="review sentiment")
-
-def classify(state):
-    out = llm.with_structured_output(Sentiment).invoke(state["review"])
-    return {"sentiment": out.label}               # constrained — no free-text surprises
-
-def route(state) -> Literal["thank", "diagnose", "ack"]:
-    return {"positive": "thank", "negative": "diagnose", "neutral": "ack"}[state["sentiment"]]
-
-builder.add_conditional_edges("classify", route, {"thank": "thank_node",
-                                                  "diagnose": "diagnose_node",
-                                                  "ack": "ack_node"})
-</code></pre>
-        </figure>
-        <p><b>Practice:</b> a quadratic solver branching on the discriminant (no LLM — pure mechanics), then a customer-review bot routing on sentiment with an extra diagnosis sub-step for negative reviews.</p>
-      </article>
-
-      <!-- ---------- 2.4 ---------- -->
-      <article class="topic" id="g2-4">
-        <h3><span class="tn">2.4</span> Iterative (cycles)</h3>
-        <p class="lead">Loop back to an earlier node instead of hitting <code class="ic">END</code>. This is what makes LangGraph a <em>graph</em> rather than a chain — and it's where runaway agents come from if you don't bound it.</p>
-
-        <p>The canonical shape is <b>evaluator–optimizer</b>: generate → critique → regenerate until the critic passes. <b>Always</b> bound the loop with a counter in state, and know the framework-level backstop:</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">a bounded refinement loop — two independent guards</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from typing import Literal
-
-def should_continue(state) -> Literal["rewrite", "__end__"]:
-    if state["approved"] or state["iterations"] &gt;= 3:   # GUARD 1: your own counter
-        return "__end__"
-    return "rewrite"
-
-def rewrite(state):
-    new = llm.invoke(f"Revise using this critique: {state['critique']}\n\n{state['draft']}")
-    return {"draft": new.content, "iterations": state["iterations"] + 1}   # increment!
-
-builder.add_conditional_edges("critique", should_continue, {"rewrite": "rewrite", "__end__": END})
-
-# GUARD 2: framework backstop — raises GraphRecursionError past this many supersteps
-graph.invoke(inputs, {"recursion_limit": 50})
-</code></pre>
-        </figure>
-
-        <div class="callout pitfall">
-          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3 2 20h20L12 3z" stroke="#C0392B" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="#C0392B" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span class="cl-lab">Common pitfall · the counter you forgot to increment</span>
-          <p>A cycle whose counter is read but never incremented (or is stored on a key that gets overwritten) loops until <code class="ic">GraphRecursionError</code> — burning tokens the whole way. <code class="ic">recursion_limit</code> is a <em>safety net</em>, not a design: it stops the process but gives you no partial answer and no graceful degradation. Bound the loop semantically <b>and</b> keep the limit.</p>
-        </div>
-      </article>
-
-      <!-- ---------- 2.5 ---------- -->
-      <article class="topic" id="g2-5">
-        <h3><span class="tn">2.5</span> Deferred nodes (synchronisation barriers)</h3>
-        <p class="lead">A subtle but interview-worthy primitive: <code class="ic">defer=True</code> makes a node wait until <em>all</em> upstream paths complete — solving parallel branches of unequal length.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 220" role="img" aria-label="Two parallel branches of unequal length; without defer the aggregate node runs early, with defer=True it waits for both to finish.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">branches of unequal length — the aggregator must wait for the slow one</text>
-              <!-- short branch -->
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="30" y="56" width="58" height="24" rx="5" fill="#5560D8"/><text x="59" y="72">fast</text>
-                <rect x="30" y="124" width="58" height="24" rx="5" fill="#5560D8"/><text x="59" y="140">slow 1</text>
-                <rect x="112" y="124" width="58" height="24" rx="5" fill="#5560D8"/><text x="141" y="140">slow 2</text>
-                <rect x="194" y="124" width="58" height="24" rx="5" fill="#5560D8"/><text x="223" y="140">slow 3</text>
-              </g>
-              <path d="M88 136 h22" stroke="#8892a0" stroke-width="1.2" marker-end="url(#df)"/>
-              <path d="M170 136 h22" stroke="#8892a0" stroke-width="1.2" marker-end="url(#df)"/>
-              <!-- aggregate -->
-              <rect x="300" y="86" width="110" height="34" rx="8" fill="#256b3f"/><text x="355" y="102" fill="#fff" font-size="9.5" text-anchor="middle">aggregate</text><text x="355" y="114" fill="#bfe3cc" font-size="8" text-anchor="middle">defer=True</text>
-              <path d="M88 68 C 200 68, 240 92, 298 98" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#dfg)"/>
-              <path d="M252 136 C 280 136, 280 114, 298 110" stroke="#2E9E5B" stroke-width="1.4" marker-end="url(#dfg)"/>
-              <text x="180" y="96" fill="#7fd6a0" font-size="8.5">waits…</text>
-              <!-- annotations -->
-              <rect x="440" y="56" width="240" height="44" rx="8" fill="#14181f" stroke="#C0392B"/>
-              <text x="452" y="74" fill="#e0a3a8" font-size="9">without defer: aggregate fires as soon</text>
-              <text x="452" y="88" fill="#e0a3a8" font-size="9">as the fast branch arrives → partial data</text>
-              <rect x="440" y="112" width="240" height="44" rx="8" fill="#14181f" stroke="#2E9E5B"/>
-              <text x="452" y="130" fill="#7fd6a0" font-size="9">with defer=True: runs once, after ALL</text>
-              <text x="452" y="144" fill="#7fd6a0" font-size="9">upstream paths finish → complete data</text>
-              <defs>
-                <marker id="df" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="dfg" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b><code>builder.add_node("aggregate", fn, defer=True)</code></b> — ideal for map-reduce fan-in, consensus voting, and multi-agent collaboration where workers finish at different times.</figcaption>
-        </figure>
-
-        <div class="qbox">
-          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
-          <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Mechanics</span>How do you prevent an infinite loop in a cyclic graph?</summary>
-              <div class="ans"><p>Two independent guards. <b>Semantic:</b> keep an iteration counter in state, increment it in the loop body, and have the router exit at a max (plus an exit on success). <b>Framework:</b> <code class="ic">recursion_limit</code> (default 25) raises <code class="ic">GraphRecursionError</code> past N supersteps — a safety net, not a design. Also give the loop a meaningful stop condition (a critic that can actually pass) and return the best-so-far result on exhaustion rather than failing hard.</p></div>
-            </details>
-            <details class="qa"><summary><span class="qtag">Mechanics</span>What is a deferred node and what problem does it solve?</summary>
-              <div class="ans"><p>A node declared with <code class="ic">defer=True</code> runs only after <b>all</b> upstream paths reach it, instead of firing when the first one arrives. It solves parallel branches of <em>unequal length</em>: without it, an aggregator downstream of a 1-hop branch and a 3-hop branch executes early on partial data. It's the clean way to build a synchronisation barrier for map-reduce fan-in, consensus voting, or multi-agent collaboration.</p></div>
-            </details>
-          </div>
-        </div>
-      </article>
-      <!-- ============================ LEVEL 4 ============================ -->
-      <section class="phase-head" id="level4">
-        <div class="pk">Level 4 · State, Persistence &amp; Memory</div>
-        <h2>Where junior and senior candidates separate</h2>
-        <p class="pd">Persistence is what turns a script into a product: conversations that survive a restart, agents you can pause for human approval, runs you can rewind and debug. It also contains the single most reliable discriminator question in LangGraph interviews — <b>checkpointer vs Store</b>.</p>
-      </section>
-
-      <!-- ---------- 2.6 ---------- -->
-      <article class="topic" id="g2-6">
-        <h3><span class="tn">2.6</span> Checkpointers — short-term, thread-scoped memory</h3>
-        <p class="lead">A checkpointer snapshots the <em>entire state after every superstep</em>. That one mechanism gives you conversation memory, crash recovery, time travel, and human-in-the-loop — they're all the same feature.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">compile with a checkpointer, then thread every call</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.checkpoint.sqlite import SqliteSaver
-from langgraph.checkpoint.postgres import PostgresSaver
-
-graph = builder.compile(checkpointer=InMemorySaver())      # dev
-# prod: SqliteSaver (single node) or PostgresSaver (scale); call .setup() once to create tables
-
-config = {"configurable": {"thread_id": "user-123-session-1"}}   # ← isolates this conversation
-graph.invoke({"messages": [...]}, config)
-graph.invoke({"messages": [...]}, config)   # remembers the first turn
-</code></pre>
-        </figure>
-        <ul>
-          <li><code class="ic">thread_id</code> isolates conversations — User A's memory never bleeds into User B's.</li>
-          <li>Dev → <code class="ic">InMemorySaver</code>. Prod → <code class="ic">SqliteSaver</code> or <code class="ic">PostgresSaver</code> (async variants: <code class="ic">AsyncSqliteSaver</code>, <code class="ic">AsyncPostgresSaver</code>).</li>
-          <li><b>No checkpointer = no memory, no HITL, no time travel.</b> <b>No <code class="ic">thread_id</code> = the checkpointer silently does nothing useful.</b></li>
-        </ul>
-      </article>
-
-      <!-- ---------- 2.7 ---------- -->
-      <article class="topic" id="g2-7">
-        <h3><span class="tn">2.7</span> Inspecting state &amp; time travel</h3>
-        <p class="lead">Because every superstep is a checkpoint, you can read the state at any point, edit it, rewind to a past checkpoint, and <em>fork</em> a different branch from there. This is the debugging superpower for non-deterministic agents.</p>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">read, edit, rewind, fork</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">snapshot = graph.get_state(config)                 # current state + which nodes run next
-history  = list(graph.get_state_history(config))   # every checkpoint, newest first
-graph.update_state(config, {"draft": "edited by human"})   # patch state (applies reducers!)
-
-# time travel: replay from an earlier checkpoint
-past = history[3]
-graph.invoke(None, past.config)                    # re-run forward from that point
-
-# fork: change state at a past checkpoint, then run a DIFFERENT branch
-forked = graph.update_state(past.config, {"strategy": "try the other approach"})
-graph.invoke(None, forked)
-</code></pre>
-        </figure>
-        <p>Primary use is debugging: an agent took a bad turn at step 7, so you rewind to step 6, change one value, and replay to see whether your fix actually helps — without re-running the expensive earlier steps.</p>
-      </article>
-
-      <!-- ---------- 2.8 ---------- -->
-      <article class="topic" id="g2-8">
-        <h3><span class="tn">2.8</span> The Store — long-term, cross-thread memory ⭐</h3>
-        <p class="lead">The classic interview discriminator. A <b>checkpointer</b> gives <em>within-thread</em> memory keyed by <code class="ic">thread_id</code>; a <b>Store</b> gives <em>cross-thread</em> memory keyed by namespace (usually <code class="ic">user_id</code>). Confusing them is the most common telling mistake.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 290" role="img" aria-label="Checkpointer scoped to individual conversation threads versus a Store scoped to a user across all of their threads.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">the same user, three conversations, two kinds of memory</text>
-              <!-- threads -->
-              <g font-size="9" text-anchor="middle">
-                <rect x="30" y="52" width="180" height="56" rx="9" fill="#161b23" stroke="#5560D8"/>
-                <text x="120" y="70" fill="#aab2f0" font-size="10">thread: mon-chat</text>
-                <text x="120" y="86" fill="#c2cad6">messages, scratchpad,</text><text x="120" y="98" fill="#c2cad6">this run's state</text>
-                <rect x="30" y="118" width="180" height="56" rx="9" fill="#161b23" stroke="#5560D8"/>
-                <text x="120" y="136" fill="#aab2f0" font-size="10">thread: tue-chat</text>
-                <text x="120" y="152" fill="#c2cad6">separate history —</text><text x="120" y="164" fill="#c2cad6">knows nothing of Monday</text>
-                <rect x="30" y="184" width="180" height="56" rx="9" fill="#161b23" stroke="#5560D8"/>
-                <text x="120" y="202" fill="#aab2f0" font-size="10">thread: wed-chat</text>
-                <text x="120" y="218" fill="#c2cad6">separate again</text>
-              </g>
-              <text x="120" y="262" fill="#aab2f0" font-size="10">CHECKPOINTER · keyed by thread_id</text>
-              <!-- store -->
-              <rect x="330" y="82" width="200" height="128" rx="12" fill="#14181f" stroke="#2E9E5B" stroke-width="1.8"/>
-              <text x="430" y="106" fill="#7fd6a0" font-size="11" text-anchor="middle">STORE</text>
-              <text x="430" y="124" fill="#8892a0" font-size="9" text-anchor="middle">namespace: ("user-123", …)</text>
-              <g font-size="9" fill="#c2cad6" text-anchor="middle">
-                <text x="430" y="148">"prefers Python"</text>
-                <text x="430" y="164">"timezone: IST"</text>
-                <text x="430" y="180">"working on a RAG app"</text>
-              </g>
-              <text x="430" y="202" fill="#7fd6a0" font-size="8.5" text-anchor="middle">survives across ALL threads</text>
-              <!-- arrows -->
-              <path d="M212 80 C 270 80, 290 120, 328 128" stroke="#2E9E5B" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#st)"/>
-              <path d="M212 146 h114" stroke="#2E9E5B" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#st)"/>
-              <path d="M212 212 C 270 212, 290 176, 328 168" stroke="#2E9E5B" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#st)"/>
-              <text x="270" y="252" fill="#7fd6a0" font-size="9.5" text-anchor="middle">every thread can read/write it</text>
-              <!-- rule -->
-              <rect x="552" y="96" width="130" height="100" rx="9" fill="#252D3A" stroke="#F0A81E"/>
-              <text x="617" y="118" fill="#f0c274" font-size="9.5" text-anchor="middle">the rule</text>
-              <text x="617" y="138" fill="#e6e9ef" font-size="8.5" text-anchor="middle">"what happened</text><text x="617" y="150" fill="#e6e9ef" font-size="8.5" text-anchor="middle">in THIS chat?"</text>
-              <text x="617" y="163" fill="#aab2f0" font-size="8.5" text-anchor="middle">→ checkpointer</text>
-              <text x="617" y="180" fill="#e6e9ef" font-size="8.5" text-anchor="middle">"what do I know</text><text x="617" y="192" fill="#e6e9ef" font-size="8.5" text-anchor="middle">about THIS USER?" → Store</text>
-              <defs><marker id="st" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L5 3 L0 6 z" fill="#2E9E5B"/></marker></defs>
-            </svg>
-          </div>
-          <figcaption><b>User preferences belong in the Store, not the checkpointer.</b> If you store "prefers Python" in thread state, it vanishes the moment the user starts a new conversation. That's the trap question — and the wrong answer is very common.</figcaption>
-        </figure>
-
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">Store with semantic search, wired alongside the checkpointer</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.store.memory import InMemoryStore
-from langgraph.store.postgres import PostgresStore     # prod (needs the pgvector extension)
-
-store = InMemoryStore(index={"dims": 1536, "embed": embeddings})   # index=… enables semantic search
-
-store.put(("user-123", "preferences"), "lang", {"value": "Python"})
-store.get(("user-123", "preferences"), "lang")
-store.search(("user-123", "preferences"), query="what languages?", limit=5)   # semantic
-
-graph = builder.compile(checkpointer=checkpointer, store=store)    # BOTH, they're complementary
-</code></pre>
-        </figure>
-      </article>
-
-      <!-- ---------- 2.9 ---------- -->
-      <article class="topic" id="g2-9">
-        <h3><span class="tn">2.9</span> The long-term memory pipeline</h3>
-        <p class="lead">Having a Store isn't having memory — you need a pipeline that decides <em>what</em> is worth remembering, and gets it back into the prompt at the right moment.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 200" role="img" aria-label="Four-step memory pipeline: extraction of durable facts, storage namespaced by user, semantic retrieval at session start, and injection into the system prompt.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">the four-step pipeline — and the hot-path vs background choice</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="20" y="60" width="140" height="46" rx="9" fill="#3B45B5"/><text x="90" y="80">1 · EXTRACTION</text><text x="90" y="94" fill="#c9cdf0" font-size="8">LLM pulls durable facts</text>
-                <rect x="184" y="60" width="140" height="46" rx="9" fill="#5560D8"/><text x="254" y="80">2 · STORAGE</text><text x="254" y="94" fill="#c9cdf0" font-size="8">namespaced by user</text>
-                <rect x="348" y="60" width="140" height="46" rx="9" fill="#5560D8"/><text x="418" y="80">3 · RETRIEVAL</text><text x="418" y="94" fill="#c9cdf0" font-size="8">semantic search on session start</text>
-                <rect x="512" y="60" width="150" height="46" rx="9" fill="#256b3f"/><text x="587" y="80">4 · INJECTION</text><text x="587" y="94" fill="#bfe3cc" font-size="8">splice into system prompt</text>
-              </g>
-              <g stroke="#8892a0" stroke-width="1.3">
-                <path d="M160 83 h20" marker-end="url(#mp)"/><path d="M324 83 h20" marker-end="url(#mp)"/><path d="M488 83 h20" marker-end="url(#mp)"/>
-              </g>
-              <text x="20" y="140" fill="#c2cad6" font-size="10">memory types:</text>
-              <text x="110" y="140" fill="#8892a0" font-size="9.5"><tspan fill="#e6e9ef">semantic</tspan> = facts · <tspan fill="#e6e9ef">episodic</tspan> = past events/examples · <tspan fill="#e6e9ef">procedural</tspan> = learned instructions</text>
-              <text x="20" y="168" fill="#c2cad6" font-size="10">write timing:</text>
-              <text x="110" y="168" fill="#8892a0" font-size="9.5"><tspan fill="#f0c274">hot-path</tspan> = immediate, adds latency · <tspan fill="#7fd6a0">background</tspan> = async, eventually consistent</text>
-              <defs><marker id="mp" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker></defs>
-            </svg>
-          </div>
-          <figcaption><b>Extraction is the hard part.</b> Most conversational text is noise; an LLM decides what's durable ("prefers Python") versus ephemeral ("what's 2+2"). Then it's a retrieval problem — which is why the Store supports semantic search.</figcaption>
-        </figure>
-      </article>
-
-      <!-- ---------- 2.10 ---------- -->
-      <article class="topic" id="g2-10">
-        <h3><span class="tn">2.10</span> Context window management</h3>
-        <p class="lead">Conversations grow; context windows don't. Three strategies, and interviewers like to hear you compare them rather than name one.</p>
-
+        <h4>The four that matter</h4>
         <div class="tbl-wrap">
           <table class="data">
-            <thead><tr><th>Strategy</th><th>Token efficiency</th><th>Context loss</th><th>Complexity</th></tr></thead>
+            <thead><tr><th>Feature</th><th>Where it shows up in LangGraph</th><th>If you don't know it</th></tr></thead>
             <tbody>
-              <tr><td><b>Trimming</b> (<code>trim_messages</code>)</td><td>High</td><td><b>High</b> — drops old turns wholesale</td><td>Low</td></tr>
-              <tr><td><b>Deletion</b> (<code>RemoveMessage</code>)</td><td>Moderate</td><td>Targeted — you choose what goes</td><td>Low–Med</td></tr>
-              <tr><td><b>Summarization</b></td><td>High</td><td><b>Low</b> — meaning preserved</td><td>Med–High</td></tr>
+              <tr><td><code class="ic">TypedDict</code></td><td>The default state schema — <code class="ic">class State(TypedDict)</code></td><td>You can't read any graph definition</td></tr>
+              <tr><td><code class="ic">Annotated[T, meta]</code></td><td>Attaches a <b>reducer</b> to a channel</td><td>Reducers look like magic syntax</td></tr>
+              <tr><td>Decorators</td><td><code class="ic">@tool</code>, <code class="ic">@task</code>, <code class="ic">@entrypoint</code></td><td>You can't explain what <code class="ic">@tool</code> generates</td></tr>
+              <tr><td><code class="ic">async</code>/<code class="ic">await</code></td><td><code class="ic">ainvoke</code>, <code class="ic">astream</code>, parallel node execution</td><td>Your &ldquo;parallel&rdquo; graph runs serially</td></tr>
             </tbody>
           </table>
         </div>
 
-        <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">trimming with correct boundaries</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langchain_core.messages import trim_messages, RemoveMessage
-from langchain_core.messages.utils import count_tokens_approximately
-
-trimmed = trim_messages(
-    state["messages"],
-    strategy="last",                              # keep the most recent
-    token_counter=count_tokens_approximately,
-    max_tokens=4000,
-    start_on="human",                             # don't start mid tool-call pair
-    end_on=("human", "tool"),
-)
-
-# targeted deletion (needs the add_messages reducer + a REAL message id)
-return {"messages": [RemoveMessage(id=old_msg.id)]}
-</code></pre>
-        </figure>
-        <p><code class="ic">start_on</code>/<code class="ic">end_on</code> matter more than they look: cutting between an assistant tool-call and its <code class="ic">ToolMessage</code> leaves an orphaned call that many providers reject outright.</p>
-      </article>
-
-      <!-- ---------- 2.11 ---------- -->
-      <article class="topic" id="g2-11">
-        <h3><span class="tn">2.11</span> Human-in-the-loop</h3>
-        <p class="lead">Pause the graph, show a human the pending action, resume with their decision. The modern mechanism is <code class="ic">interrupt()</code> — and it only works because checkpointing already gives you durable pause/resume.</p>
-
-        <figure class="diagram">
-          <div class="dwrap">
-            <svg viewBox="0 0 700 220" role="img" aria-label="A graph runs to an approval gate, calls interrupt to pause and durably checkpoint, a human approves or rejects, and Command resume continues execution.">
-              <text x="20" y="22" fill="#8892a0" font-size="12">interrupt() pauses durably — the process can even restart while paused</text>
-              <g font-size="9" text-anchor="middle" fill="#fff">
-                <rect x="20" y="86" width="76" height="34" rx="7" fill="#3B45B5"/><text x="58" y="107">draft</text>
-                <rect x="120" y="82" width="104" height="42" rx="8" fill="#252D3A" stroke="#F0A81E"/><text x="172" y="99" fill="#f0c274">interrupt()</text><text x="172" y="113" fill="#8892a0" font-size="8">state checkpointed</text>
-              </g>
-              <path d="M96 103 h22" stroke="#8892a0" stroke-width="1.3" marker-end="url(#hl)"/>
-              <!-- pause -->
-              <path d="M224 103 h40" stroke="#F0A81E" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#hly)"/>
-              <rect x="266" y="76" width="120" height="54" rx="9" fill="#14181f" stroke="#C0392B"/>
-              <text x="326" y="96" fill="#e0a3a8" font-size="9.5" text-anchor="middle">⏸ PAUSED</text>
-              <text x="326" y="112" fill="#8892a0" font-size="8" text-anchor="middle">human reviews the draft</text>
-              <text x="326" y="124" fill="#8892a0" font-size="8" text-anchor="middle">(minutes… or days)</text>
-              <path d="M386 103 h40" stroke="#2E9E5B" stroke-width="1.6" marker-end="url(#hlg)"/>
-              <text x="406" y="94" fill="#7fd6a0" font-size="8">resume</text>
-              <rect x="428" y="82" width="118" height="42" rx="8" fill="#252D3A" stroke="#2E9E5B"/>
-              <text x="487" y="99" fill="#7fd6a0" font-size="9">Command(resume=…)</text><text x="487" y="112" fill="#8892a0" font-size="8">picks up mid-node</text>
-              <rect x="574" y="86" width="100" height="34" rx="7" fill="#256b3f"/><text x="624" y="107" fill="#fff" font-size="9" text-anchor="middle">send email</text>
-              <path d="M546 103 h24" stroke="#8892a0" stroke-width="1.3" marker-end="url(#hl)"/>
-              <text x="350" y="176" fill="#8892a0" font-size="9.5" text-anchor="middle">the four HITL patterns: approve/reject · edit state · review tool calls · provide input</text>
-              <text x="350" y="196" fill="#e0a3a8" font-size="9.5" text-anchor="middle">⚠ HITL requires a checkpointer — no persistence, no pause/resume</text>
-              <defs>
-                <marker id="hl" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#8892a0"/></marker>
-                <marker id="hly" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#F0A81E"/></marker>
-                <marker id="hlg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#2E9E5B"/></marker>
-              </defs>
-            </svg>
-          </div>
-          <figcaption><b>The pause is durable, not in-memory.</b> Because state is checkpointed at the interrupt, the process can crash or the user can walk away for a week — resuming later picks up exactly where it stopped. That's why HITL and crash recovery are the same underlying feature.</figcaption>
-        </figure>
+        <h4>Generators and streaming</h4>
+        <p>Every <code class="ic">graph.stream(...)</code> call returns a <b>generator</b>, not a list. That is why you write <code class="ic">for chunk in graph.stream(...)</code> and why nothing executes until you start iterating. The async form, <code class="ic">astream</code>, is an <em>async</em> generator consumed with <code class="ic">async for</code>. If you have never written a generator, streaming will feel arbitrary; if you have, it's obvious that a partially-consumed stream means a partially-executed graph.</p>
 
         <figure class="code">
-          <div class="chead"><div class="dots"><i class="d1"></i><i class="d2"></i><i class="d3"></i></div><span class="lang">Python</span><span class="cap">dynamic interrupt (modern) vs static breakpoint</span><button class="copy">Copy</button></div>
-<pre><code class="language-python">from langgraph.types import interrupt, Command
+          <div class="chead">the four features, in one graph definition</div>
+          <pre><code class="language-python">from typing import Annotated, TypedDict
+from operator import add
 
-def approval_gate(state):
-    decision = interrupt({"draft": state["draft"], "action": "send_email"})  # pauses HERE
-    return {"approved": decision == "yes"}
+class State(TypedDict):                    # 1. TypedDict — the schema
+    question: str
+    findings: Annotated[list[str], add]    # 2. Annotated — attaches a reducer
 
-# ... run pauses; inspect what it's asking:
-pending = graph.get_state(config).tasks[0].interrupts
+async def research(state: State) -> dict:  # 4. async — real concurrency
+    return {"findings": ["one finding"]}   # returns a PARTIAL update
 
-# ... resume with the human's answer:
-graph.invoke(Command(resume="yes"), config)
-
-# static alternative — pause BEFORE a node, decided at compile time
-graph = builder.compile(checkpointer=cp, interrupt_before=["send_email"])
-</code></pre>
+for chunk in graph.stream({"question": "..."}):   # generator, lazily consumed
+    print(chunk)</code></pre>
         </figure>
-      </article>
 
-      <!-- ---------- 2.12 ---------- -->
-      <article class="topic" id="g2-12">
-        <h3><span class="tn">2.12</span> Interview focus — the Level-4 checkpoint</h3>
-        <p class="lead">You should be able to explain the difference between a checkpointer and a store in one sentence each, without hesitating. Here are the questions this level generates.</p>
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The one-line summary of a node</span>
+          <p>A node is <b>a function that takes the whole state and returns a partial update</b>. Not the new state — a <em>dict of the channels it wants to change</em>. Everything else in LangGraph follows from that sentence.</p>
+        </div>
 
         <div class="qbox">
           <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
           <div class="qbody">
-            <details class="qa"><summary><span class="qtag">Trap ⭐</span>Checkpointer vs Store — what's the difference?</summary>
-              <div class="ans"><p>A <b>checkpointer</b> persists the graph's state after every superstep, scoped to a <code class="ic">thread_id</code> — it's <em>within-conversation</em> memory, and it's what enables resume, time travel, and HITL. A <b>Store</b> is a separate key-value (optionally vector-indexed) service scoped to a namespace, usually <code class="ic">user_id</code> — it's <em>cross-conversation</em> memory. Rule of thumb: "what happened in <em>this</em> chat?" → checkpointer; "what do I know about <em>this user</em>?" → Store. User preferences go in the Store, because thread state dies with the thread. You typically compile with both.</p></div>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What does a LangGraph node return, and why does that matter?</summary>
+              <div class="ans"><p>It returns a <b>partial update</b> — a dict containing only the channels it wants to change — not a whole new state object. LangGraph then merges that update into the state using each channel's reducer. This matters for three reasons: nodes stay small and composable because they don't need to know about channels they don't touch; <b>parallel nodes can each return their own slice</b> and the reducers merge them at the superstep barrier; and a returned key that isn't in the schema is either ignored or raises, depending on the schema type, which is a common silent-bug source.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">State</span>How does <code>thread_id</code> work, and what breaks without it?</summary>
-              <div class="ans"><p><code class="ic">thread_id</code> (passed in <code class="ic">config["configurable"]</code>) is the key the checkpointer stores state under — it partitions conversations so User A's history never leaks into User B's, and so a returning user resumes their own thread. Without it the checkpointer has nothing to key on: you effectively get no useful memory, every invocation looks like a fresh conversation, and HITL/time travel can't target a run. It fails <em>silently</em>, which is what makes it a good interview question.</p></div>
+            <details class="qa"><summary><span class="qtag">Coding</span>What does <code class="ic">Annotated[list[str], add]</code> actually do at runtime?</summary>
+              <div class="ans"><p><code class="ic">Annotated</code> is a typing construct that carries <b>arbitrary metadata alongside a type</b> — at runtime the type is still <code class="ic">list[str]</code>, and the extra argument is retrievable via <code class="ic">typing.get_type_hints(..., include_extras=True)</code>. LangGraph reads that metadata when it builds the graph and registers <code class="ic">add</code> as the channel's <b>reducer</b>. So it's not special syntax — it's ordinary Python metadata that LangGraph inspects. Without it, the channel uses the default reducer, which is <em>overwrite</em>.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">State</span>How would you manage a conversation that exceeds the context window?</summary>
-              <div class="ans"><p>Three strategies with different trade-offs. <b>Trimming</b> (<code class="ic">trim_messages</code>) keeps the last N tokens — cheapest, but loses old context wholesale; mind <code class="ic">start_on</code>/<code class="ic">end_on</code> so you don't orphan a tool call. <b>Deletion</b> (<code class="ic">RemoveMessage</code> with the <code class="ic">add_messages</code> reducer) surgically drops specific messages — targeted, needs real message ids. <b>Summarization</b> folds old turns into a running summary — best meaning-per-token, but costs an extra LLM call and can drift. In production I'd summarize older history and keep recent turns verbatim, plus push durable facts into the Store so they survive independently of the transcript.</p></div>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why does <code class="ic">graph.stream()</code> sometimes appear to do nothing?</summary>
+              <div class="ans"><p>Because it returns a <b>generator</b>. Calling it schedules nothing; execution only advances as you iterate. If you write <code class="ic">result = graph.stream(inputs)</code> and never loop over <code class="ic">result</code>, the graph never runs. Similarly, breaking out of the loop early leaves the graph <em>partially executed</em> — which, with a checkpointer attached, means a persisted half-finished thread you can later resume. That is a feature, but it surprises people.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">HITL</span><code>interrupt()</code> vs <code>interrupt_before</code> — which and why?</summary>
-              <div class="ans"><p><code class="ic">interrupt()</code> is dynamic: called inside a node, it can pause <em>conditionally</em> (only for high-value orders, say), and it passes a payload to the human describing what's pending. <code class="ic">interrupt_before=["node"]</code> is static, decided at compile time, and always pauses before that node. Prefer <code class="ic">interrupt()</code> for production approval gates — conditional pausing and a structured payload — and use <code class="ic">interrupt_before</code> for debugging or blanket gates. Both require a checkpointer, and you resume both with <code class="ic">Command(resume=…)</code>.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g1-2">
+        <h3><span class="tn">1.2</span> Typing, TypedDict and Pydantic <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">You have three choices for a state schema. The interview question is not &ldquo;which is best&rdquo; — it's &ldquo;when would you pay for validation, and what does it cost you?&rdquo;</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Three state schema options compared: TypedDict with no runtime validation and lowest overhead, dataclass with attribute access, and Pydantic BaseModel with full runtime validation on every node return.">
+              <text x="20" y="22" fill="#8892a0" font-size="12">three ways to declare state — the trade is validation against per-superstep overhead</text>
+              <g font-size="10.5">
+                <g transform="translate(24,44)">
+                  <rect width="200" height="180" rx="10" fill="#161b23" stroke="#4B5BD6" stroke-width="1.6"/>
+                  <text x="14" y="26" fill="#8fa0ff" font-size="12.5" font-weight="600">TypedDict</text>
+                  <text x="14" y="48" fill="#c9d1dc">dict at runtime</text>
+                  <text x="14" y="68" fill="#7fd6a0">✓ fastest, zero overhead</text>
+                  <text x="14" y="86" fill="#7fd6a0">✓ the LangGraph default</text>
+                  <text x="14" y="104" fill="#7fd6a0">✓ partial updates are natural</text>
+                  <text x="14" y="126" fill="#e0929a">✗ no runtime validation</text>
+                  <text x="14" y="144" fill="#e0929a">✗ typos in keys pass silently</text>
+                  <text x="14" y="168" fill="#8892a0">state["question"]</text>
+                </g>
+                <g transform="translate(250,44)">
+                  <rect width="200" height="180" rx="10" fill="#161b23" stroke="#2c3542"/>
+                  <text x="14" y="26" fill="#c9d1dc" font-size="12.5" font-weight="600">dataclass</text>
+                  <text x="14" y="48" fill="#c9d1dc">object at runtime</text>
+                  <text x="14" y="68" fill="#7fd6a0">✓ attribute access</text>
+                  <text x="14" y="86" fill="#7fd6a0">✓ defaults, __post_init__</text>
+                  <text x="14" y="104" fill="#7fd6a0">✓ light</text>
+                  <text x="14" y="126" fill="#e0929a">✗ still no type checking</text>
+                  <text x="14" y="144" fill="#e0929a">✗ less common in examples</text>
+                  <text x="14" y="168" fill="#8892a0">state.question</text>
+                </g>
+                <g transform="translate(476,44)">
+                  <rect width="200" height="180" rx="10" fill="#161b23" stroke="#F0A81E" stroke-width="1.6"/>
+                  <text x="14" y="26" fill="#F0A81E" font-size="12.5" font-weight="600">Pydantic BaseModel</text>
+                  <text x="14" y="48" fill="#c9d1dc">validated model</text>
+                  <text x="14" y="68" fill="#7fd6a0">✓ runtime validation</text>
+                  <text x="14" y="86" fill="#7fd6a0">✓ coercion + field validators</text>
+                  <text x="14" y="104" fill="#7fd6a0">✓ catches bad node returns</text>
+                  <text x="14" y="126" fill="#e0929a">✗ validated every superstep</text>
+                  <text x="14" y="144" fill="#e0929a">✗ heavier serialisation</text>
+                  <text x="14" y="168" fill="#8892a0">state.question</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>default choice</span><span><i style="background:#F0A81E"></i>choose when inputs are untrusted</span></div>
+          <figcaption>All three are valid state schemas. Pydantic validates <em>on every state update</em>, so the cost is paid per superstep, not once.</figcaption>
+        </figure>
+
+        <h4>The rule of thumb</h4>
+        <p><b>TypedDict for internal state, Pydantic for boundaries.</b> The graph's own state is written by your own nodes, which you control — validation there mostly buys you protection against your own typos, at a per-superstep cost. The places where validation genuinely earns its keep are the <em>boundaries</em>: the input schema of the graph (which may come from an untrusted HTTP request), and <b>tool arguments and structured output</b>, which are generated by an LLM and therefore genuinely untrusted. Many production graphs use a Pydantic <code class="ic">input_schema</code> and a TypedDict internal state.</p>
+
+        <div class="callout gotcha">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 4l8.5 15h-17L12 4z" stroke="#c9781f" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.5h.01" stroke="#c9781f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="cl-lab">TypedDict is not checked at runtime</span>
+          <p><code class="ic">TypedDict</code> is a <em>static</em> typing construct. At runtime your state is a plain <code class="ic">dict</code>, and returning <code class="ic">{"quesiton": "..."}</code> with a typo does not raise — with the default schema handling, an unknown key is rejected by the channel machinery in current versions, but a <em>wrongly typed value</em> for a known key sails straight through. Nothing but mypy or a Pydantic schema will catch <code class="ic">{"count": "five"}</code>.</p>
+        </div>
+
+        <h4>Input, output and private channels</h4>
+        <p>A graph can declare three schemas. <code class="ic">StateGraph(State, input_schema=In, output_schema=Out)</code> means callers pass only <code class="ic">In</code>, receive only <code class="ic">Out</code>, and everything else in <code class="ic">State</code> is <b>internal scratch space</b> that never leaves the graph. This is how you keep intermediate reasoning, raw retrieved chunks and tool traces out of the API response — a genuinely useful production pattern and a good thing to mention unprompted.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>TypedDict or Pydantic for your state schema — how do you choose?</summary>
+              <div class="ans"><p><b>TypedDict by default; Pydantic at the boundaries.</b> TypedDict is the LangGraph default, is a plain dict at runtime, has zero validation overhead, and makes partial updates natural. Pydantic gives you runtime validation and coercion, but LangGraph validates <b>on every state update</b>, so you pay that cost once per superstep for the life of the run — and it makes checkpoint serialisation heavier.</p><p>Where Pydantic clearly wins: the graph's <code class="ic">input_schema</code> when input comes from an untrusted caller, and anywhere an <b>LLM</b> produces the data — tool arguments and structured output — because that's genuinely unvalidated input. A common production shape is a Pydantic input schema and a TypedDict internal state.</p></div>
             </details>
-            <details class="qa"><summary><span class="qtag">Debugging</span>What is time travel and when have you used it?</summary>
-              <div class="ans"><p>Because every superstep is checkpointed, you can list history with <code class="ic">get_state_history()</code>, replay from any past <code class="ic">checkpoint_id</code>, or <b>fork</b> — patch state at a past checkpoint and run a different branch forward. The main use is debugging non-deterministic agents: rather than re-running an expensive 10-step trajectory hoping to reproduce a bug, you rewind to the step before it went wrong, change one value, and replay. It's also how you A/B two prompts from an identical mid-run state.</p></div>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Does TypedDict catch a wrong type at runtime?</summary>
+              <div class="ans"><p><b>No.</b> <code class="ic">TypedDict</code> is a static-analysis construct only; at runtime the state is a plain dict. Returning <code class="ic">{"count": "five"}</code> from a node where <code class="ic">count: int</code> will not raise — it just puts a string in your state and blows up somewhere downstream, far from the cause. The only ways to catch that are a type checker in CI, or a Pydantic state model.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you keep internal scratch data out of the graph's response?</summary>
+              <div class="ans"><p>Declare separate schemas: <code class="ic">StateGraph(State, input_schema=In, output_schema=Out)</code>. The internal <code class="ic">State</code> can carry raw retrieved documents, tool traces, scratchpad reasoning and retry counters; the caller only ever supplies <code class="ic">In</code> and only ever receives the channels in <code class="ic">Out</code>. This matters for API hygiene, for payload size, and for not leaking intermediate reasoning or raw source documents to a client.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why does state have to be a schema at all — why not just a dict?</summary>
+              <div class="ans"><p>Because LangGraph needs to know the <b>channels</b> in advance to do three things: attach a reducer to each one, decide how to merge concurrent writes at a superstep barrier, and serialise the state into a checkpoint. A free-form dict has no reducer attachment point and no stable serialisation contract. The schema is what turns &ldquo;a dict passed between functions&rdquo; into &ldquo;a set of typed channels with merge semantics and persistence&rdquo; — which is the whole difference between a graph and a chain of function calls.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g1-3">
+        <h3><span class="tn">1.3</span> Async, concurrency and the event loop <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Agents are almost entirely I/O wait. Async is not an optimisation here — it is the difference between a parallel fan-out that takes 2 seconds and the identical code taking 20.</p>
+
+        <h4>Why async, specifically</h4>
+        <p>An agent's wall-clock time is dominated by waiting: for the model, for a vector store, for an HTTP tool. That is <b>I/O-bound</b> work, which is exactly what <code class="ic">asyncio</code> is for. A single event loop can hold hundreds of in-flight LLM calls, because while one is waiting on the network the loop runs another. Threads would also work, but with far more memory per unit of concurrency; processes are for CPU-bound work, which agents essentially never are.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="Timeline comparison: three sequential LLM calls of two seconds each taking six seconds total, versus the same three calls awaited concurrently on one event loop finishing in two seconds; and a third row showing one blocking synchronous call inside an async node collapsing the concurrency back to serial.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">three tool calls, three execution strategies</text>
+              <g font-size="10.5">
+                <text x="20" y="52" fill="#c9d1dc">sync</text>
+                <rect x="76" y="40" width="130" height="20" rx="4" fill="#4B5BD6" opacity=".85"/><text x="86" y="54" fill="#fff">call A · 2s</text>
+                <rect x="210" y="40" width="130" height="20" rx="4" fill="#4B5BD6" opacity=".7"/><text x="220" y="54" fill="#fff">call B · 2s</text>
+                <rect x="344" y="40" width="130" height="20" rx="4" fill="#4B5BD6" opacity=".55"/><text x="354" y="54" fill="#fff">call C · 2s</text>
+                <text x="486" y="54" fill="#e0929a">total 6s</text>
+
+                <text x="20" y="108" fill="#c9d1dc">async</text>
+                <rect x="76" y="80" width="130" height="18" rx="4" fill="#7fd6a0" opacity=".9"/><text x="86" y="93" fill="#14181f">await A</text>
+                <rect x="76" y="102" width="130" height="18" rx="4" fill="#7fd6a0" opacity=".75"/><text x="86" y="115" fill="#14181f">await B</text>
+                <rect x="76" y="124" width="130" height="18" rx="4" fill="#7fd6a0" opacity=".6"/><text x="86" y="137" fill="#14181f">await C</text>
+                <text x="220" y="115" fill="#7fd6a0">total 2s — one event loop, three awaits in flight</text>
+
+                <text x="20" y="192" fill="#c9d1dc">async +</text>
+                <text x="20" y="206" fill="#c9d1dc">1 blocking</text>
+                <rect x="76" y="176" width="130" height="18" rx="4" fill="#7fd6a0" opacity=".9"/><text x="86" y="189" fill="#14181f">await A</text>
+                <rect x="210" y="176" width="130" height="18" rx="4" fill="#e0929a"/><text x="220" y="189" fill="#14181f">requests.get — BLOCKS</text>
+                <rect x="344" y="176" width="130" height="18" rx="4" fill="#7fd6a0" opacity=".6"/><text x="354" y="189" fill="#14181f">await C</text>
+                <text x="486" y="189" fill="#e0929a">back to ~6s</text>
+              </g>
+              <text x="20" y="238" fill="#8892a0" font-size="11">one synchronous call inside an async node freezes the whole event loop — every other in-flight task included</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>sequential</span><span><i style="background:#7fd6a0"></i>concurrent</span><span><i style="background:#e0929a"></i>blocking the loop</span></div>
+          <figcaption>The third row is the bug people actually ship: an <code class="ic">async def</code> node that calls a synchronous SDK.</figcaption>
+        </figure>
+
+        <div class="callout pitfall">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="#a33" stroke-width="1.7"/><path d="M12 7.5v5M12 15.8h.01" stroke="#a33" stroke-width="1.9" stroke-linecap="round"/></svg>
+          <span class="cl-lab">One blocking call poisons the whole loop</span>
+          <p>An <code class="ic">async def</code> node that calls <code class="ic">requests.get()</code>, a synchronous DB driver, or <code class="ic">time.sleep()</code> blocks the <b>entire event loop</b> — not just its own task. Every other concurrent node in that superstep stalls behind it. Fixes: use an async client (<code class="ic">httpx.AsyncClient</code>, <code class="ic">asyncpg</code>), or push the blocking call to a thread with <code class="ic">await asyncio.to_thread(fn, ...)</code>.</p>
+        </div>
+
+        <h4>Mixing sync and async in one graph</h4>
+        <p>LangGraph lets you define sync and async nodes in the same graph, but the <em>invocation</em> style decides what happens. Call <code class="ic">graph.ainvoke()</code> and sync nodes are run in a thread pool — safe, but each one occupies a thread. Call <code class="ic">graph.invoke()</code> on a graph containing async nodes and LangGraph will run an event loop for you, but you lose the concurrency benefit for anything outside the graph. <b>Pick one style and be consistent</b>; production graphs should be async end to end, because that is what lets one process serve many concurrent users.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why does async matter so much for agents specifically?</summary>
+              <div class="ans"><p>Because an agent is <b>almost entirely I/O wait</b> — LLM calls, vector search, HTTP tools. Under async, one event loop keeps hundreds of those waits in flight simultaneously with almost no per-task memory. Concretely: three 2-second tool calls run sequentially take 6 seconds; awaited concurrently they take 2. Threads would give the same concurrency at much higher memory cost per task, and processes are for CPU-bound work, which agents essentially never are. Async is also what makes <b>one server process able to serve many concurrent conversations</b>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your parallel fan-out isn't any faster than the sequential version. What do you check?</summary>
+              <div class="ans"><p>In order:</p><p><b>1. Is anything actually parallel?</b> Nodes only run concurrently if they're in the same superstep — multiple edges out of one node, or a <code class="ic">Send</code> fan-out. If node B has an edge from A and node C has an edge from B, they're sequential by construction.</p><p><b>2. Are you calling the async entrypoint?</b> <code class="ic">invoke</code> on async nodes doesn't get you loop concurrency.</p><p><b>3. Is a node blocking the loop?</b> This is the usual answer — an <code class="ic">async def</code> node calling <code class="ic">requests</code>, a sync DB driver, or <code class="ic">time.sleep</code>. Wrap it in <code class="ic">asyncio.to_thread</code> or switch to an async client.</p><p><b>4. Rate limits.</b> If the provider is throttling you, the calls are serialising server-side and no amount of client concurrency helps.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>You must call a synchronous vendor SDK inside an async node. What do you do?</summary>
+              <div class="ans"><p><code class="ic">result = await asyncio.to_thread(sdk.call, arg)</code>. That runs the blocking function in the default thread pool executor and yields control back to the event loop while it runs, so other tasks keep progressing. Two caveats worth stating: the thread pool is bounded, so a large fan-out of blocking calls will queue; and the SDK must be thread-safe. The better long-term fix is an async client, but <code class="ic">to_thread</code> is the correct immediate answer.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g1-4">
+        <h3><span class="tn">1.4</span> The LLM substrate</h3>
+        <p class="lead">Tokens, the context window, temperature, and the mechanics of tool calling. You need these not as trivia but because <em>every</em> agent design constraint traces back to one of them.</p>
+
+        <h4>The four numbers that constrain every design</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Quantity</th><th>Typical 2026 scale</th><th>The design constraint it creates</th></tr></thead>
+            <tbody>
+              <tr><td>Context window</td><td>200k–1M tokens</td><td>Long agent runs still overflow it — hence trimming, summarisation, memory</td></tr>
+              <tr><td>Output token limit</td><td>4k–64k</td><td>Long generations must be chunked across nodes</td></tr>
+              <tr><td>Cost per token</td><td>Input ≪ output</td><td>Re-sending history each turn is the dominant cost in a long agent loop</td></tr>
+              <tr><td>Latency</td><td>~1–10 s per call</td><td>An agent with 8 sequential tool calls is a 30-second experience</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Why the agent loop is quadratic in cost</h4>
+        <p>This is the single most useful mechanical fact in the whole subject. On each iteration of an agent loop you re-send the <b>entire message history</b> — because the model is stateless. Turn 1 sends 1 unit, turn 2 sends 2, turn 10 sends 10. Total tokens over <em>n</em> turns is <code class="ic">O(n²)</code>, not <code class="ic">O(n)</code>. That is why a 20-step agent costs vastly more than 20× a single call, why prompt caching matters so much, and why message trimming is a cost lever rather than a nicety.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Bar chart showing cumulative tokens sent over ten agent turns growing quadratically, with a shaded region marking the portion saved by prompt caching of the stable prefix.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">cumulative input tokens across an agent loop — the history is re-sent every turn</text>
+              <g transform="translate(50,36)">
+                <line x1="0" y1="150" x2="600" y2="150" stroke="#5A6472"/>
+                <line x1="0" y1="0" x2="0" y2="150" stroke="#5A6472"/>
+                <g fill="#4B5BD6">
+                  <rect x="14" y="147" width="34" height="3"/><rect x="70" y="141" width="34" height="9"/>
+                  <rect x="126" y="132" width="34" height="18"/><rect x="182" y="120" width="34" height="30"/>
+                  <rect x="238" y="105" width="34" height="45"/><rect x="294" y="87" width="34" height="63"/>
+                  <rect x="350" y="66" width="34" height="84"/><rect x="406" y="42" width="34" height="108"/>
+                  <rect x="462" y="15" width="34" height="135"/><rect x="518" y="0" width="34" height="150"/>
+                </g>
+                <g fill="#7fd6a0" opacity=".55">
+                  <rect x="14" y="147" width="34" height="3"/><rect x="70" y="144" width="34" height="6"/>
+                  <rect x="126" y="141" width="34" height="9"/><rect x="182" y="138" width="34" height="12"/>
+                  <rect x="238" y="135" width="34" height="15"/><rect x="294" y="132" width="34" height="18"/>
+                  <rect x="350" y="129" width="34" height="21"/><rect x="406" y="126" width="34" height="24"/>
+                  <rect x="462" y="123" width="34" height="27"/><rect x="518" y="120" width="34" height="30"/>
+                </g>
+                <g font-size="10" fill="#8892a0">
+                  <text x="14" y="166">1</text><text x="182" y="166">4</text><text x="350" y="166">7</text><text x="518" y="166">10</text>
+                  <text x="250" y="182">agent turn</text>
+                  <text x="-40" y="8" font-size="9">tokens</text>
+                </g>
+                <text x="300" y="30" fill="#e0929a" font-size="11">uncached: O(n²) total</text>
+                <text x="300" y="118" fill="#7fd6a0" font-size="11">with prompt caching of the stable prefix</text>
+              </g>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#4B5BD6"></i>tokens billed, no caching</span><span><i style="background:#7fd6a0"></i>tokens billed with prefix caching</span></div>
+          <figcaption>Prompt caching doesn't reduce the tokens <em>sent</em> — it reduces what you're <em>charged</em> for the unchanged prefix, typically by around 90%.</figcaption>
+        </figure>
+
+        <h4>Tool calling is a protocol, not intelligence</h4>
+        <p>Mechanically: you send the model a list of tool <b>schemas</b> (name, description, JSON-schema parameters). If it decides to use one, its response contains a structured <code class="ic">tool_call</code> block with a name, an argument object and a call id — <em>it does not execute anything</em>. Your code runs the function and sends the result back as a <code class="ic">ToolMessage</code> carrying that same id. The model then continues. Every agent framework, LangGraph included, is a loop around that exchange.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Explain what actually happens when a model &ldquo;calls a tool&rdquo;.</summary>
+              <div class="ans"><p>The model never executes anything. You pass tool <b>schemas</b> in the request — name, description, JSON-schema parameters. The model's response may contain a structured <code class="ic">tool_call</code>: a tool name, an arguments object, and a unique call id. <b>Your runtime</b> parses that, executes the matching function, and appends a <code class="ic">ToolMessage</code> containing the result and the same call id back into the message list. Then you call the model again with the extended history and it continues.</p><p>Two consequences worth adding: the model chooses tools purely by reading their <b>descriptions and schemas</b>, so those are prompt; and because your code is the executor, <b>all</b> authorisation and safety enforcement lives on your side, never in the model's judgement.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">System design</span>Why does an agent loop cost more than the number of turns suggests?</summary>
+              <div class="ans"><p>Because the model is stateless, so every turn re-sends the <b>full accumulated history</b>. Turn 1 sends 1 unit of context, turn 10 sends 10 — total input tokens over <em>n</em> turns is <b><code class="ic">O(n²)</code></b>. A 20-step agent is not 20× a single call, it's closer to 200×.</p><p>The levers: <b>prompt caching</b> on the stable prefix (system prompt + tool schemas + early history) typically cuts the charged rate for that prefix by around 90%; <b>message trimming or summarisation</b> to bound history length; a <b>hard iteration cap</b>; and <b>model cascading</b>, using a cheap model for routing and tool-selection steps and a strong one only for synthesis.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Context windows are a million tokens now — is memory management still a problem?</summary>
+              <div class="ans"><p>Yes, for three reasons that have nothing to do with whether the content <em>fits</em>. <b>Cost</b>: you're billed per token every turn, and a million-token context in a loop is ruinous. <b>Latency</b>: time-to-first-token scales with prompt length. <b>Quality</b>: attention degrades over very long contexts — the &ldquo;lost in the middle&rdquo; effect means a relevant fact buried at position 400,000 is often effectively invisible, so a focused 8k context frequently beats an unfocused 500k one. Bigger windows raised the ceiling; they did not remove the incentive to be selective. That selection discipline is what people now call <b>context engineering</b>.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g1-5">
+        <h3><span class="tn">1.5</span> Structured output <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Half of agent engineering is getting the model to emit something your code can branch on. There are three mechanisms with very different reliability, and knowing which one your provider is actually using is a senior signal.</p>
+
+        <h4>Three mechanisms, ranked</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Mechanism</th><th>How it works</th><th>Reliability</th></tr></thead>
+            <tbody>
+              <tr><td><b>Constrained decoding</b></td><td>The sampler is masked so only tokens valid under the schema can be emitted</td><td><b>Guaranteed</b> to parse — the grammar makes invalid output unreachable</td></tr>
+              <tr><td><b>Tool-calling coercion</b></td><td>Your schema is presented as a tool the model must call; arguments are the output</td><td>Very high — the provider validates against the schema</td></tr>
+              <tr><td><b>Prompt-and-parse</b></td><td>&ldquo;Reply in JSON&rdquo;, then <code class="ic">json.loads</code></td><td>Weakest — markdown fences, prose preambles, trailing commas</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>In LangChain, <code class="ic">model.with_structured_output(Schema)</code> picks the best available mechanism for the provider and returns a validated object. Passing <code class="ic">method="json_schema"</code> requests strict constrained decoding where supported.</p>
+
+        <figure class="code">
+          <div class="chead">structured output as a routing decision</div>
+          <pre><code class="language-python">from pydantic import BaseModel, Field
+from typing import Literal
+
+class Route(BaseModel):
+    """Classify the user's request to pick a downstream handler."""
+    destination: Literal["billing", "technical", "general"] = Field(
+        description="Which specialist team should handle this")
+    urgency: int = Field(ge=1, le=5, description="1 = routine, 5 = outage")
+    reason: str = Field(description="One sentence justifying the choice")
+
+router = model.with_structured_output(Route)
+
+def route_node(state: State) -> dict:
+    r: Route = router.invoke(state["messages"])       # typed, validated
+    return {"destination": r.destination, "urgency": r.urgency}</code></pre>
+        </figure>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Field descriptions are prompt, not documentation</span>
+          <p>The schema — including every <code class="ic">Field(description=...)</code> and the class docstring — is serialised into the request and read by the model. A vague description produces vague values. Write them as instructions to the model, not as comments for your teammates, and use <code class="ic">Literal</code> rather than <code class="ic">str</code> whenever the value set is closed.</p>
+        </div>
+
+        <p>The remaining failure mode is <b>semantic</b>, not syntactic: the schema guarantees you get a valid <code class="ic">urgency</code> between 1 and 5, but not that it's the <em>right</em> number. Constrained decoding solves parsing; it does not solve judgement. That distinction is worth making explicitly in an interview.</p>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you reliably get JSON out of an LLM?</summary>
+              <div class="ans"><p>Three mechanisms, in descending reliability. <b>Constrained decoding</b> — the provider masks the sampler with a grammar derived from your JSON schema, so invalid tokens are literally unreachable and the output is <em>guaranteed</em> to parse. <b>Tool-calling coercion</b> — your schema is presented as a tool the model is forced to call, and the arguments are the output; the provider validates it. <b>Prompt-and-parse</b> — &ldquo;reply in JSON&rdquo; plus <code class="ic">json.loads</code>, which is the weakest and fails on markdown fences and prose preambles.</p><p>Use <code class="ic">with_structured_output(Schema)</code>, which selects the best mechanism the provider supports. And say the important caveat: none of this guarantees the values are <b>correct</b>, only that they're well-formed.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>What makes a good Pydantic schema for LLM output?</summary>
+              <div class="ans"><p><b>Treat it as prompt.</b> Concretely: use <code class="ic">Literal</code> or an enum for any closed value set so the model can't invent a category; write a <code class="ic">Field(description=...)</code> on every field phrased as an instruction; put a docstring on the class explaining the task, because it's serialised too; use numeric constraints (<code class="ic">ge</code>/<code class="ic">le</code>) rather than hoping; keep it <b>flat and shallow</b>, since deeply nested schemas degrade accuracy; and add a short <code class="ic">reason</code> or <code class="ic">rationale</code> field <em>before</em> the decision field so the model reasons before committing — field order in the schema is generation order.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Constrained decoding guarantees valid JSON. What can still go wrong?</summary>
+              <div class="ans"><p>Everything semantic. You are guaranteed a syntactically valid object matching the schema; you are not guaranteed the <em>right</em> object. The model can pick a plausible-but-wrong enum value, hallucinate a confident <code class="ic">urgency: 5</code>, or fill a required field with a fabricated value precisely <em>because</em> the grammar forbids omitting it. There's also a subtler cost: heavy constraint can degrade quality, since the model is forced down token paths it wouldn't otherwise choose. Validation belongs downstream too — check the values against reality, don't just trust that they parsed.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="g1-6">
+        <h3><span class="tn">1.6</span> The LangChain layer in 2026 <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">&ldquo;What's the difference between LangChain and LangGraph?&rdquo; is asked in the first five minutes of most interviews. It is a <em>layering</em> question, and the wrong framing — treating them as competitors — is an instant tell.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 300" role="img" aria-label="Stack diagram: model providers at the bottom, then langchain-core with messages and the Runnable interface, then LangGraph providing the durable execution runtime, then LangChain's create_agent as a prebuilt on top, with LangSmith spanning the stack as an observability sidecar.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the 2026 stack — each layer depends only on the one beneath it</text>
+              <g font-size="11">
+                <rect x="30" y="238" width="500" height="42" rx="8" fill="#161b23" stroke="#2c3542"/>
+                <text x="46" y="258" fill="#c9d1dc" font-weight="600">Model providers</text>
+                <text x="46" y="272" fill="#8892a0" font-size="10">OpenAI · Anthropic · Google · Bedrock · local — each with its own SDK and quirks</text>
+
+                <rect x="30" y="186" width="500" height="44" rx="8" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.4"/>
+                <text x="46" y="206" fill="#8fa0ff" font-weight="600">langchain-core</text>
+                <text x="46" y="221" fill="#8892a0" font-size="10">standard messages, tool schemas, the Runnable/LCEL interface, output parsers — the abstraction layer</text>
+
+                <rect x="30" y="120" width="500" height="58" rx="8" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.8"/>
+                <text x="46" y="141" fill="#F0A81E" font-weight="600">LangGraph — the runtime</text>
+                <text x="46" y="157" fill="#c9d1dc" font-size="10">StateGraph · supersteps · reducers · checkpointers · interrupts · durable execution · streaming</text>
+                <text x="46" y="171" fill="#8892a0" font-size="10">this is the layer that makes an agent resumable, inspectable and interruptible</text>
+
+                <rect x="30" y="62" width="500" height="50" rx="8" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.4"/>
+                <text x="46" y="82" fill="#8fa0ff" font-weight="600">LangChain 1.x — create_agent + middleware</text>
+                <text x="46" y="98" fill="#8892a0" font-size="10">a prebuilt agent <tspan fill="#c9d1dc">built on LangGraph</tspan> — the fast path when the ReAct loop is enough</text>
+
+                <rect x="548" y="62" width="126" height="218" rx="8" fill="#161b23" stroke="#7fd6a0" stroke-width="1.4"/>
+                <text x="562" y="84" fill="#7fd6a0" font-weight="600">LangSmith</text>
+                <text x="562" y="102" fill="#8892a0" font-size="10">traces</text><text x="562" y="118" fill="#8892a0" font-size="10">datasets</text>
+                <text x="562" y="134" fill="#8892a0" font-size="10">evaluators</text><text x="562" y="150" fill="#8892a0" font-size="10">feedback</text>
+                <text x="562" y="172" fill="#8892a0" font-size="9.5">spans every layer;</text>
+                <text x="562" y="186" fill="#8892a0" font-size="9.5">framework-agnostic</text>
+
+                <g stroke="#5A6472" stroke-width="1.2"><path d="M280 238v-8M280 186v-8M280 120v-8"/></g>
+              </g>
+              <text x="20" y="42" fill="#c9d1dc" font-size="11.5">you can use any layer directly — most production systems use core + LangGraph, and reach for create_agent when the default loop fits</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#F0A81E"></i>the orchestration runtime</span><span><i style="background:#4B5BD6"></i>abstractions &amp; prebuilts</span><span><i style="background:#7fd6a0"></i>observability sidecar</span></div>
+          <figcaption>LangGraph is the runtime; LangChain 1.x is abstractions plus a prebuilt agent <em>on top of</em> that runtime.</figcaption>
+        </figure>
+
+        <h4>What changed in the 1.x era</h4>
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Old (0.x)</th><th>Current (1.x, 2026)</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">AgentExecutor</code>, <code class="ic">initialize_agent</code></td><td><b><code class="ic">create_agent</code></b> from <code class="ic">langchain</code></td><td>The old executors were opaque loops with no persistence or interruption</td></tr>
+              <tr><td><code class="ic">langgraph.prebuilt.create_react_agent</code></td><td><b><code class="ic">create_agent</code></b> (same idea, new home)</td><td>Consolidated into LangChain 1.x; the LangGraph name is deprecated</td></tr>
+              <tr><td>Memory classes (<code class="ic">ConversationBufferMemory</code>)</td><td><b>Checkpointers</b> + the <b>Store</b></td><td>Memory became a runtime concern, not a chain wrapper</td></tr>
+              <tr><td>Ad-hoc callbacks for behaviour injection</td><td><b>Middleware</b> around the agent loop</td><td>A composable place to put trimming, guardrails, retries, HITL</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout note">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="4" stroke="#5A6472" stroke-width="1.6"/><path d="M8 12h8" stroke="#5A6472" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">Versions as of this guide</span>
+          <p><b>LangGraph 1.2.11</b> and <b>LangChain 1.3.15</b> (both released 11 Aug 2026), Python ≥ 3.10. Recent additions worth knowing: <code class="ic">trace_policy</code> on <code class="ic">add_node</code> for per-node tracing control, and a typed <b>v3 <code class="ic">stream_events</code></b> return with native projections. Don't over-index on patch numbers in an interview — knowing that <code class="ic">create_agent</code> superseded <code class="ic">AgentExecutor</code> matters far more.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is the difference between LangChain and LangGraph?</summary>
+              <div class="ans"><p>They're <b>layers, not alternatives</b>. LangChain provides the abstractions — a standard message format, tool schemas, model wrappers, output parsers, the Runnable interface — so your code isn't coupled to one provider's SDK. <b>LangGraph is the orchestration runtime</b>: a state machine with typed channels, reducers, supersteps, checkpointed persistence, interrupts and streaming.</p><p>The clinching detail: <b>LangChain's own <code class="ic">create_agent</code> is built on LangGraph</b>. So it isn't a choice between them — you use LangChain's abstractions, and you use LangGraph when you need control over the control flow, or need persistence, human-in-the-loop or durable execution. The honest one-liner: <em>LangChain gives you the pieces; LangGraph decides when each piece runs and remembers what happened.</em></p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>Someone shows you code using <code class="ic">AgentExecutor</code>. What do you say?</summary>
+              <div class="ans"><p>That it's the <b>0.x-era API and is deprecated</b> — along with <code class="ic">initialize_agent</code> and <code class="ic">langgraph.prebuilt.create_react_agent</code>. The current equivalent is <b><code class="ic">create_agent</code></b> from <code class="ic">langchain</code>, which builds a LangGraph graph under the hood.</p><p>Then explain <em>why</em> it changed, which is the part that scores: <code class="ic">AgentExecutor</code> was an opaque <code class="ic">while</code> loop. You couldn't inspect intermediate state, pause for human approval, resume after a crash, stream internal steps meaningfully, or modify the control flow without forking it. <code class="ic">create_agent</code> returns a real graph, so you get checkpointing, interrupts, time travel and streaming for free — and you can drop down to a raw <code class="ic">StateGraph</code> when the default loop isn't the shape you need.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>When would you use <code class="ic">create_agent</code> versus building a <code class="ic">StateGraph</code> by hand?</summary>
+              <div class="ans"><p><b><code class="ic">create_agent</code></b> when your problem genuinely is the standard loop — model, optional tool calls, repeat until done — and you want middleware, structured output and checkpointing without wiring them. It's a real graph, so you can still attach a checkpointer, interrupt it and stream it.</p><p><b>A hand-built <code class="ic">StateGraph</code></b> when the control flow is <em>yours</em>: fixed multi-stage pipelines, parallel fan-out with <code class="ic">Send</code>, evaluator-optimizer loops with custom exit conditions, multi-agent supervision, or any state shape beyond a message list. Rule of thumb: <b>start with <code class="ic">create_agent</code>, drop to <code class="ic">StateGraph</code> when you find yourself fighting the loop.</b> Building a custom graph to reproduce the default ReAct loop is wasted effort — and so is bending <code class="ic">create_agent</code> into a shape it wasn't meant to take.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Where does LangSmith fit, and is it required?</summary>
+              <div class="ans"><p>It's an <b>observability and evaluation sidecar</b> that spans the whole stack: traces of every LLM call, tool call and node transition; datasets; evaluators; and human feedback collection. It is <b>not required</b> — LangGraph runs perfectly without it, and it's framework-agnostic, so you can trace non-LangChain code too. But for anything non-trivial in production it's close to essential, because a multi-step non-deterministic program is genuinely undebuggable from logs alone. If you don't want a vendor, the substitute is OpenTelemetry-based tracing; the requirement is <em>tracing</em>, not that specific product.</p></div>
             </details>
           </div>
         </div>
@@ -953,14 +902,14 @@ graph = builder.compile(checkpointer=cp, interrupt_before=["send_email"])
 
             <!-- PART NAV -->
       <nav class="partnav">
-        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="LangGraph_Part1_Foundations.html">Part 1 · Foundations &amp; Primitives</a></div><ul><li>State, reducers, Send</li></ul></div>
-        <div class="pcard"><div class="k">You are here</div><div class="t">Part 2 · Patterns, State &amp; Memory</div></div>
-        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part3_Tools.html">Part 3 · Tools, MCP &amp; RAG</a></div><ul><li>create_agent + middleware</li><li>Agentic RAG, CRAG, Self-RAG</li></ul></div>
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="../index.html">Learning Hub</a></div><ul><li>All subjects</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 1 · Prerequisites &amp; the LLM Substrate</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="LangGraph_Part02_AgenticFoundations.html">Part 2 · Agentic AI Foundations</a></div><ul><li>Workflow vs agent, ReAct</li><li>When NOT to build an agent</li></ul></div>
       </nav>
 
       <div class="doc-foot">
-        LangGraph &amp; Agentic AI — Part 2 of 6 · Patterns, State &amp; Memory<br>
-        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.14</b> · LangGraph <b>1.2.9</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
+        LangGraph &amp; Agentic AI — Part 1 of 12 · Prerequisites &amp; the LLM Substrate<br>
+        API-current as of <b>Aug 2026</b> — LangChain <b>1.3.15</b> · LangGraph <b>1.2.11</b> · Python 3.10–3.14. <code style="color:#8892a0">create_agent</code> replaces the deprecated <code style="color:#8892a0">create_react_agent</code>.<br>
         Progress is stored locally under key <code style="color:#8892a0">lgPrepStatus_v1</code> and is shared by every part of this subject.
       </div>
 
