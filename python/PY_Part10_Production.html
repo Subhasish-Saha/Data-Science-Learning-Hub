@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python for Data Science — Part 10: Production Python for Data Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (Python) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wbtn:disabled{opacity:.45;cursor:not-allowed}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+
+/* ---- live Python runner (Pyodide) ---- */
+.pyrun{margin:1.7rem 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.pyrun .ph{background:#14181f;color:#e6e9ef;padding:9px 15px;font-family:var(--mono);font-size:11.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #2c3542}
+.pyrun .ph .dot3{display:inline-flex;gap:5px;margin-right:4px}
+.pyrun .ph .dot3 i{width:9px;height:9px;border-radius:50%;display:block}
+.pyrun .ph .ptag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;background:#2E9E5B;color:#0b1a10;padding:2px 7px;border-radius:20px;font-weight:700}
+.pyrun .ph .pname{color:#8892a0}
+.pyrun .ph .pspacer{flex:1}
+.pyrun .ph .pstat{font-size:10.5px;color:#8892a0}
+.pyrun .ph .pstat.busy{color:var(--gold-2)}
+.pyrun .ph .pstat.ready{color:#7fd6a0}
+.pyrun .ph .pstat.err{color:#e0929a}
+.pyrun textarea{width:100%;box-sizing:border-box;border:0;outline:0;resize:vertical;display:block;
+  background:#0f1319;color:#e6e9ef;font-family:var(--mono);font-size:12.6px;line-height:1.72;
+  padding:14px 16px;tab-size:4;min-height:96px;caret-color:var(--gold-2)}
+.pyrun textarea::selection{background:#31405c}
+.pyrun .pbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:var(--paper);border-top:1px solid var(--line)}
+.pyrun .pbtn{font-family:var(--mono);font-size:11.5px;padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:.13s}
+.pyrun .pbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.pyrun .pbtn.run{background:var(--indigo);color:#fff;border-color:var(--indigo);font-weight:600}
+.pyrun .pbtn.run:hover{filter:brightness(1.08)}
+.pyrun .pbtn:disabled{opacity:.45;cursor:not-allowed}
+.pyrun .phint{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:auto}
+.pyrun .pout{display:none;border-top:1px solid var(--line);background:#0f1319;color:#c9d1dc;
+  font-family:var(--mono);font-size:12.4px;line-height:1.7;padding:13px 16px;white-space:pre-wrap;
+  word-break:break-word;max-height:420px;overflow:auto;margin:0}
+.pyrun .pout.show{display:block}
+.pyrun .pout .oerr{color:#e0929a}
+.pyrun .pout .ook{color:#7fd6a0}
+.pyrun .pout .odim{color:#5A6472}
+.pyrun .pexp{border-top:1px solid var(--line);background:var(--gold-soft);padding:11px 16px;font-size:.9rem;color:var(--text);line-height:1.7}
+.pyrun .pexp b{color:#8a5c00}
+@media print{.pyrun .pbar{display:none}.pyrun{break-inside:avoid}.pyrun .pout{display:block;max-height:none}}
+
+/* the shared runtime banner */
+.pyboot{margin:1.5rem 0;border:1px dashed var(--indigo-line);border-radius:12px;background:var(--indigo-soft);padding:14px 17px;font-size:.92rem;line-height:1.7;color:var(--text)}
+.pyboot b{color:var(--indigo)}
+.pyboot .pbootbtn{margin-top:10px;display:inline-block;font-family:var(--mono);font-size:11.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;cursor:pointer;font-weight:600}
+.pyboot .pbootbtn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.cmp{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.cmp .ch{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.cmp .ch .cn{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.cmp .crow{display:grid;grid-template-columns:132px 1fr;border-top:1px solid var(--line)}
+.cmp .crow:first-child{border-top:none}
+.cmp .crow .cl{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.cmp .crow .cv{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.cmp .crow.bad .cl{color:#a33}
+.cmp .crow.good .cl{color:#1c7a42}
+@media (max-width:620px){.cmp .crow{grid-template-columns:1fr}.cmp .crow .cl{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 10 / 11</small>Production Python for Data Science</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">Python<small>Data Science Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 10 of 11</div>
+      <div class="v">Production Python for Data Science</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 191 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L9</span> Production <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#p10-1">10.1 · From notebook to module ⭐</a></li>
+          <li><a href="#p10-2">10.2 · Environments and reproducible installs ⭐</a></li>
+          <li><a href="#p10-3">10.3 · Config, secrets and logging ⭐</a></li>
+          <li><a href="#p10-4">10.4 · Testing data code ⭐⭐</a></li>
+          <li><a href="#p10-5">10.5 · Validating data at the boundary ⭐</a></li>
+          <li><a href="#p10-6">10.6 · Pipelines and <code>ColumnTransformer</code> ⭐⭐</a></li>
+          <li><a href="#p10-7">10.7 · Data leakage ⭐⭐</a></li>
+          <li><a href="#p10-8">10.8 · Reproducibility ⭐</a></li>
+          <li><a href="#p10-9">10.9 · The code-review checklist ⭐</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← Python home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      Python for Data Science<br>Part 10 — Production Python for Data Science<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 10 of 11 · Production Python for Data Science</div>
+        <h1 class="title">Code someone else can run next year
+          <span class="sub">Refactoring a notebook into modules, environments and lockfiles, config and logging, testing non-deterministic data code, schema validation at boundaries, scikit-learn pipelines and ColumnTransformer, every flavour of data leakage, reproducibility, and the code-review checklist.</span>
+        </h1>
+        <p class="thesis">At four years' experience this is the part that decides your level. Two candidates can both write correct pandas; the one who gets the senior offer is the one whose code has <strong>tests, a pinned environment and no leakage</strong>. §10.7 is the highest-stakes section in the whole guide — fitting a scaler or an imputer before the split is the mistake that produces a wonderful cross-validation score and a model that fails in production, and §10.6 is the mechanism that makes it structurally impossible rather than merely discouraged. §10.4 is the section most candidates have no answer for at all, which makes even a modest one stand out.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 9</b></span>
+          <span class="chip"><b>9</b> sections</span>
+          <span class="chip">📐 <b>1</b> diagrams</span>
+          <span class="chip">💬 <b>15</b> Q&amp;A</span>
+          <span class="chip">▶ <b>8</b> runnable cells</span>
+          <span class="chip">⏱ <b>~7h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole Python subject — all 191 topics across all 11 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">191</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 191 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <div class="pyboot">
+        <b>▶ Every cell on this page runs</b> in your browser, including the scikit-learn examples
+        (the wheel is fetched on first use).
+        <code class="ic">Ctrl</code>/<code class="ic">⌘</code>&nbsp;+&nbsp;<code class="ic">Enter</code> runs the current cell.
+        <br><button class="pbootbtn" id="pyWarm">Warm up the Python runtime now</button>
+      </div>
+
+      <article class="topic" id="p10-1">
+        <h3><span class="tn">10.1</span> From notebook to module <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">At four years' experience the interesting question isn't &ldquo;can you write pandas&rdquo; — it's &ldquo;can someone else run your work next year?&rdquo; That starts with getting out of the notebook.</p>
+
+        <div class="cmp">
+          <div class="ch"><span class="cn">why</span> What a notebook makes structurally hard</div>
+          <div class="crow bad"><div class="cl">order</div><div class="cv">Cells can run in any order, so state depends on your history. &ldquo;Restart and run all&rdquo; is the only honest test, and it frequently fails.</div></div>
+          <div class="crow bad"><div class="cl">scope</div><div class="cv">One flat global namespace. Nothing is freed, names get shadowed (§1.7), and an intermediate from three cells ago is still holding 4&nbsp;GB.</div></div>
+          <div class="crow bad"><div class="cl">testing</div><div class="cv">No importable units, so nothing can be unit-tested. Diffs are JSON. Review is guesswork.</div></div>
+          <div class="crow good"><div class="cl">the fix</div><div class="cv">Extract <b>pure functions</b> into a module, import them <em>into</em> the notebook, and keep the notebook for exploration and charts.</div></div>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">refactor.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+
+# ---- BEFORE: notebook style — mutation, globals, no seams -------------------
+df = pd.DataFrame({"price": [2.0, 3.0, None, 5.0], "qty": [1, 2, 3, 4],
+                   "region": ["uk", "de", "uk", "fr"]})
+df["price"] = df["price"].fillna(df["price"].median())   # mutates the input
+df["revenue"] = df["price"] * df["qty"]
+summary = df.groupby("region")["revenue"].sum()
+print("notebook style:\n", summary.to_string())
+
+# ---- AFTER: small pure functions, each testable ----------------------------
+def impute_price(d: pd.DataFrame, fill: float) -> pd.DataFrame:
+    """Fill missing price with a caller-supplied value (no hidden statistics)."""
+    return d.assign(price=d["price"].fillna(fill))
+
+def add_revenue(d: pd.DataFrame) -> pd.DataFrame:
+    return d.assign(revenue=lambda x: x["price"] * x["qty"])
+
+def revenue_by_region(d: pd.DataFrame) -> pd.Series:
+    return d.groupby("region")["revenue"].sum()
+
+def pipeline(d: pd.DataFrame, fill: float) -> pd.Series:
+    return (d.pipe(impute_price, fill=fill)
+             .pipe(add_revenue)
+             .pipe(revenue_by_region))
+
+raw = pd.DataFrame({"price": [2.0, 3.0, None, 5.0], "qty": [1, 2, 3, 4],
+                    "region": ["uk", "de", "uk", "fr"]})
+print("\nmodule style:\n", pipeline(raw, fill=3.0).to_string())
+print("\ninput untouched:", raw["price"].isna().sum(), "NaN still present")
+
+# each piece is now trivially testable
+def test_add_revenue():
+    got = add_revenue(pd.DataFrame({"price": [2.0], "qty": [3]}))["revenue"].iloc[0]
+    assert got == 6.0, got
+    return "pass"
+print("test_add_revenue:", test_add_revenue())
+
+# note the KEY design choice: `fill` is a PARAMETER, not computed inside.
+# that is what makes it possible to fit on train and apply to test (see 10.7).</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> both versions produce the same regional totals, but the refactored one leaves <code class="ic">raw</code> untouched (still 1 NaN) and every step is a one-line unit test. The comment at the end is the important part: taking <code class="ic">fill</code> as a <b>parameter</b> rather than computing the median inside is precisely what makes the function reusable across train and test without leakage.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>How do you move a notebook into production?</summary>
+              <div class="ans"><p><b>Extract pure functions into a module, then import them back into the notebook.</b> The notebook keeps the charts and the narrative; the logic lives in importable, testable code — and crucially the notebook still <em>works</em>, so you don't lose the exploration.</p><p>The mechanical steps: get &ldquo;Restart and Run All&rdquo; passing first (if it doesn't, the notebook is already lying to you); pull each transformation into a function that <b>takes a frame and returns a frame</b> with no global reads and no mutation; parameterise anything hard-coded — paths, dates, thresholds — into a config; add a thin entrypoint script; write tests for the functions; pin the environment.</p><p>The design point worth stating: any statistic the transformation needs (a median, a category list, a scaler) should be a <b>parameter</b>, not computed inside. That's what lets the same function serve training and inference, and it's the difference between code that transfers and code that has to be rewritten.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-2">
+        <h3><span class="tn">10.2</span> Environments and reproducible installs <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">&ldquo;It works on my machine&rdquo; is an environment problem. A lockfile is the difference between a project someone can run and one they can only admire.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Artefact</th><th>Answers</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">pyproject.toml</code></td><td>What does this project <em>need</em>?</td><td>Loose ranges; the human-authored intent</td></tr>
+              <tr><td><b>A lockfile</b></td><td>Exactly which versions were installed?</td><td><code class="ic">uv.lock</code>, <code class="ic">poetry.lock</code>, or <code class="ic">pip-compile</code> output. <b>Commit it.</b></td></tr>
+              <tr><td><code class="ic">.python-version</code></td><td>Which interpreter?</td><td>A minor version bump can change behaviour</td></tr>
+              <tr><td>A container image</td><td>Which system libraries?</td><td>Needed when wheels depend on C libs (GDAL, CUDA)</td></tr>
+              <tr><td><code class="ic">requirements.txt</code> (loose)</td><td>Almost nothing</td><td><code class="ic">pandas&gt;=2</code> is not reproducible</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">env_capture.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import sys, platform, json
+
+# capture the environment ALONGSIDE every result you produce
+def environment_fingerprint():
+    import importlib
+    libs = {}
+    for name in ["numpy", "pandas", "sklearn"]:
+        try:
+            libs[name] = importlib.import_module(name).__version__
+        except ImportError:
+            libs[name] = None
+    return {
+        "python": sys.version.split()[0],
+        "implementation": platform.python_implementation(),
+        "libraries": libs,
+    }
+
+fp = environment_fingerprint()
+print(json.dumps(fp, indent=2))
+
+print("\nwhy this matters: attach it to model artefacts and result files.")
+print("when a number cannot be reproduced six months later, this is the")
+print("first thing you check — and usually the answer.")
+
+# a version guard for behaviour you actually depend on
+import pandas as pd
+major = int(pd.__version__.split(".")[0])
+print(f"\npandas major version: {major}")
+if major >= 3:
+    print("  -> Copy-on-Write only; chained assignment is a silent no-op (7.5)")
+    print("  -> strings are 'str' dtype, not 'object' (7.3)")
+else:
+    print("  -> pre-3.0 semantics; expect SettingWithCopyWarning")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> a JSON fingerprint reporting Python 3.14.2 and the bundled library versions (pandas 3.0.2, numpy 2.4.x, sklearn 1.8.x in this runtime), then the pandas-3 branch of the version guard. The practice being demonstrated is the point: <b>record the environment alongside every result</b>, because &ldquo;which versions produced this number&rdquo; is the first question when a result can't be reproduced.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>How do you make an environment reproducible?</summary>
+              <div class="ans"><p><b>A lockfile, committed to the repo.</b> Declare loose intent in <code class="ic">pyproject.toml</code> (<code class="ic">pandas&gt;=3,&lt;4</code>) and generate a lock that pins every direct <em>and transitive</em> dependency to an exact version and hash — <code class="ic">uv lock</code>, <code class="ic">poetry lock</code>, or <code class="ic">pip-compile</code>. Installs then come from the lock, not the resolver.</p><p>Why the transitive part matters: your code pins pandas, but pandas depends on numpy, and a numpy patch release can change a numeric result. A loose <code class="ic">requirements.txt</code> reproduces nothing.</p><p>Beyond Python packages: pin the <b>interpreter version</b>; use a <b>container</b> when you depend on system libraries (GDAL, CUDA, a database client); and set seeds and record versions in the run artefacts (§10.8). The one-line summary: <b>pyproject declares intent, the lockfile declares reality, and only reality is reproducible.</b></p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-3">
+        <h3><span class="tn">10.3</span> Config, secrets and logging <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Three small disciplines that make the difference between a script and a job someone can operate.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">config_logging.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import logging, os, sys
+from dataclasses import dataclass, asdict
+
+# 1. CONFIG as a typed object, not scattered literals
+@dataclass(frozen=True, kw_only=True)
+class Config:
+    input_path: str
+    min_rows: int = 100
+    threshold: float = 0.5
+    bad_row_tolerance: float = 0.05
+
+    @classmethod
+    def from_env(cls, **overrides):
+        return cls(
+            input_path=os.environ.get("INPUT_PATH", "data/in.parquet"),
+            min_rows=int(os.environ.get("MIN_ROWS", 100)),
+            **overrides,
+        )
+
+cfg = Config.from_env(threshold=0.7)
+print("config:", asdict(cfg))
+print("frozen -> cannot be mutated mid-run, so logs match behaviour")
+
+# 2. LOGGING, not print — levels, timestamps, and a name you can filter on
+logging.basicConfig(level=logging.INFO, stream=sys.stdout,
+                    format="%(levelname)-8s %(name)s | %(message)s", force=True)
+log = logging.getLogger("pipeline.transform")
+
+log.info("starting run with threshold=%.2f", cfg.threshold)
+log.info("loaded %d rows from %s", 4200, cfg.input_path)
+log.warning("dropped %d rows (%.1f%%) failing validation", 61, 1.45)
+log.debug("this is hidden at INFO level — no code change needed to reveal it")
+log.error("would surface in an alert")
+
+# lazy %-formatting means the string is only built if the level is enabled
+log.debug("expensive: %s", "…this argument is not even formatted at INFO")
+
+# 3. SECRETS never in code, never in the log
+def connect(dsn: str):
+    safe = dsn.split("@")[-1] if "@" in dsn else dsn
+    log.info("connecting to %s", safe)      # host only, never credentials
+    return "connection"
+
+connect("postgresql://user:sup3rsecret@db.internal:5432/analytics")
+print("\nnote the log shows the host, not the password.")
+print("secrets come from the environment or a secret manager — never a literal,")
+print("never a notebook cell, and never a committed .env file.")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the config dict, then log lines at INFO, WARNING and ERROR — with the DEBUG lines <b>absent</b>, showing that verbosity is a runtime setting rather than a code change. The final section prints <code class="ic">connecting to db.internal:5432/analytics</code> with the password stripped, which is the practice: log enough to debug, never enough to leak.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>Why logging instead of <code class="ic">print</code>?</summary>
+              <div class="ans"><p><b>Levels, routing and structure.</b> Levels let you change verbosity at runtime without editing code — DEBUG locally, INFO in production, and turn DEBUG on for one module when investigating. Handlers route output to a file, stdout or a log aggregator without touching the call sites. Records carry a timestamp, module name and level, so you can filter and alert on them.</p><p>Two mechanical details worth mentioning: use <b>lazy formatting</b> — <code class="ic">log.info("n=%d", n)</code> rather than an f-string — so the message is only built if the level is enabled; and use <code class="ic">logging.getLogger(__name__)</code> so the logger name reflects the module and can be configured independently.</p><p>And in a data pipeline, log the things you'll actually want at 3 a.m.: row counts in and out at each stage, the fraction of rows dropped, the config in use, and timings. Those turn &ldquo;the numbers look wrong&rdquo; into a specific stage.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>Where do configuration and secrets belong?</summary>
+              <div class="ans"><p><b>Config outside the code, secrets outside the config.</b> Configuration — paths, thresholds, date ranges, model hyperparameters — goes in a file or environment variables and is loaded into a single typed object (a frozen dataclass or Pydantic model) at startup. That gives you validation, one place to look, and the ability to log the whole config with the run.</p><p><b>Secrets</b> come from the environment or a secret manager, are never written to a file that could be committed, and are never logged. Redact them at the boundary — log the host, not the DSN.</p><p>Two habits worth adding: make the config object <b>frozen</b> so it can't drift mid-run and diverge from what you logged; and <b>fail fast at startup</b> if a required value is missing, rather than three hours in when the write step finally needs the credential.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-4">
+        <h3><span class="tn">10.4</span> Testing data code <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The section most candidates have no answer for at all — which makes even a modest one stand out. Data code <em>is</em> testable; you just test different things.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">testing.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+
+def add_revenue(d):
+    return d.assign(revenue=lambda x: x["price"] * x["qty"])
+
+def revenue_by_region(d):
+    return d.groupby("region", dropna=False)["revenue"].sum()
+
+# 1. a tiny hand-built fixture with a KNOWN answer
+def test_happy_path():
+    df = pd.DataFrame({"price": [2.0, 3.0], "qty": [3, 4], "region": ["uk", "uk"]})
+    out = revenue_by_region(add_revenue(df))
+    assert out.loc["uk"] == 18.0, out.loc["uk"]
+    return "pass"
+
+# 2. EDGE CASES are where the value is
+def test_empty():
+    df = pd.DataFrame({"price": [], "qty": [], "region": []})
+    out = revenue_by_region(add_revenue(df))
+    assert len(out) == 0
+    return "pass"
+
+def test_nan_region_is_not_dropped():
+    df = pd.DataFrame({"price": [1.0], "qty": [1], "region": [None]})
+    out = revenue_by_region(add_revenue(df))
+    assert out.sum() == 1.0, "a NaN group key silently lost the row (8.3)"
+    return "pass"
+
+def test_nan_price_propagates():
+    df = pd.DataFrame({"price": [np.nan], "qty": [2], "region": ["uk"]})
+    out = revenue_by_region(add_revenue(df))
+    assert pd.isna(out.loc["uk"]) or out.loc["uk"] == 0
+    return "pass"
+
+# 3. an INVARIANT that must hold for any input (property-style)
+def test_total_is_conserved():
+    rng = np.random.default_rng(0)
+    df = pd.DataFrame({"price": rng.random(50), "qty": rng.integers(1, 5, 50),
+                       "region": rng.choice(list("abc"), 50)})
+    enriched = add_revenue(df)
+    assert np.isclose(revenue_by_region(enriched).sum(), enriched["revenue"].sum())
+    return "pass"
+
+for t in [test_happy_path, test_empty, test_nan_region_is_not_dropped,
+          test_nan_price_propagates, test_total_is_conserved]:
+    try:
+        print(f"{t.__name__:<34} {t()}")
+    except AssertionError as exc:
+        print(f"{t.__name__:<34} FAIL - {exc}")
+
+# 4. comparing frames properly — with tolerances
+left  = pd.DataFrame({"v": [0.1 + 0.2]})
+right = pd.DataFrame({"v": [0.3]})
+print("\nexact equality:", left.equals(right), " <- float trap (6.10)")
+pd.testing.assert_frame_equal(left, right, rtol=1e-9)
+print("assert_frame_equal with rtol: pass")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> all five tests pass — note <code class="ic">test_nan_region_is_not_dropped</code> only passes because <code class="ic">revenue_by_region</code> uses <code class="ic">dropna=False</code>; remove that and the test catches the silent row loss from §8.3, which is exactly what a test is for. The last block shows <code class="ic">left.equals(right)</code> is <code class="ic">False</code> for <code class="ic">0.1+0.2</code> vs <code class="ic">0.3</code> while <code class="ic">assert_frame_equal</code> with a tolerance passes — always compare frames with tolerances.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you test a data pipeline?</summary>
+              <div class="ans"><p><b>Test the transformations, not the data.</b> Each transformation should be a pure function taking a frame and returning a frame, which makes it testable with a hand-built fixture of five rows and a known answer.</p><p>Then the four layers. <b>Unit tests</b> on each transformation with a tiny fixture. <b>Edge cases</b>, which is where the value is: empty frame, all-NaN column, a single row, duplicate keys, an unseen category, a NaN group key. <b>Invariants</b> that must hold for any input — row count preserved, totals conserved, no nulls in a required column, ids unique. <b>An integration test</b> running the whole pipeline on a small golden input and comparing to a stored expected output.</p><p>Mechanics that matter: use <code class="ic">pd.testing.assert_frame_equal</code> with <code class="ic">rtol</code> rather than <code class="ic">==</code> (floats, §6.10); <code class="ic">@pytest.mark.parametrize</code> for the edge-case matrix; fixtures for shared inputs; and <b>fix seeds</b> so anything random is deterministic.</p><p>And the cultural half: <b>every production bug becomes a test</b> before it's fixed.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>How do you test something non-deterministic, like a model?</summary>
+              <div class="ans"><p><b>Separate what's deterministic from what isn't.</b> Most of a training pipeline is deterministic given a seed: the feature transformations, the split logic, the schema of the output. Test those normally.</p><p>For the model itself, don't assert exact numbers — assert <b>properties and bounds</b>: the pipeline runs end to end on a small fixture; the output shape and dtypes are right; predicted probabilities lie in [0, 1]; performance on a fixed holdout is <b>above a threshold</b> rather than equal to a value; and a deliberately shuffled-label run performs <em>no better than chance</em>, which is a genuinely good test that catches leakage.</p><p>Then <b>fix every seed</b> and pin versions so a change in output is a signal rather than noise. And use <b>golden files</b> for regression: store last known-good predictions and compare with a tolerance, so an unintended behaviour change is caught even if you can't specify the right answer in advance.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-5">
+        <h3><span class="tn">10.5</span> Validating data at the boundary <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Check the schema where data enters, not forty lines deep in a transformation. Fail with a message that names what was wrong.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">validation.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+from dataclasses import dataclass, field
+
+@dataclass
+class Schema:
+    required: dict                      # column -> a coarse kind
+    non_null: tuple = ()
+    unique: tuple = ()
+    ranges: dict = field(default_factory=dict)
+
+    def validate(self, d: pd.DataFrame) -> None:
+        problems = []
+        missing = [c for c in self.required if c not in d.columns]
+        if missing:
+            problems.append(f"missing columns {missing}; got {list(d.columns)}")
+        for c, kind in self.required.items():
+            if c in d.columns:
+                ok = {"num": pd.api.types.is_numeric_dtype,
+                      "str": lambda s: s.dtype == "str" or s.dtype == object,
+                      "dt":  pd.api.types.is_datetime64_any_dtype}[kind](d[c])
+                if not ok:
+                    problems.append(f"column {c!r} should be {kind}, is {d[c].dtype}")
+        for c in self.non_null:
+            if c in d.columns and d[c].isna().any():
+                problems.append(f"column {c!r} has {int(d[c].isna().sum())} nulls")
+        for c in self.unique:
+            if c in d.columns and not d[c].is_unique:
+                problems.append(f"column {c!r} is not unique "
+                                f"({int(d[c].duplicated().sum())} dupes)")
+        for c, (lo, hi) in self.ranges.items():
+            if c in d.columns:
+                bad = ((d[c] < lo) | (d[c] > hi)).sum()
+                if bad:
+                    problems.append(f"column {c!r}: {int(bad)} values outside [{lo}, {hi}]")
+        if problems:
+            raise ValueError("schema validation failed:\n  - " + "\n  - ".join(problems))
+
+orders = Schema(required={"id": "num", "amount": "num", "region": "str"},
+                non_null=("id", "amount"), unique=("id",),
+                ranges={"amount": (0, 10_000)})
+
+good = pd.DataFrame({"id": [1, 2], "amount": [10.0, 20.0], "region": ["uk", "de"]})
+orders.validate(good)
+print("good frame: validated ✓")
+
+bad = pd.DataFrame({"id": [1, 1], "amount": [10.0, -5.0], "regionx": ["uk", "de"]})
+try:
+    orders.validate(bad)
+except ValueError as exc:
+    print("\n", exc)
+
+print("\nin production: use pandera or pydantic rather than hand-rolling this —")
+print("but the PRINCIPLE is what matters: validate at the boundary, name the fault.")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the good frame validates silently. The bad frame raises a single error listing <b>all four</b> problems at once — the missing <code class="ic">region</code> column (and what was actually present), the duplicate id, and the negative amount. Reporting every fault together rather than failing on the first is what makes a validator usable: one run tells you everything to fix.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>Where and how do you validate incoming data?</summary>
+              <div class="ans"><p><b>At the boundary</b> — immediately after reading, before any transformation. That way a schema change upstream fails with &ldquo;column <code class="ic">region</code> is missing, got [<code class="ic">regionx</code>, …]&rdquo; instead of a <code class="ic">KeyError</code> forty lines into a groupby with no indication of which step broke.</p><p>What to check: <b>required columns present</b>, <b>dtypes</b> as expected, <b>nulls</b> where they aren't allowed, <b>uniqueness</b> of keys, <b>value ranges</b> (a negative amount, a date in the future), and <b>row count</b> in a plausible band — a 90% drop in volume is a failure even if every row is individually valid.</p><p>Tools: <b>pandera</b> for dataframe schemas (declarative, composable, usable as a type annotation), <b>Pydantic</b> for record-shaped JSON, or plain assertions for something small. And report <b>all</b> the problems at once rather than the first, so one run tells the caller everything to fix.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-6">
+        <h3><span class="tn">10.6</span> Pipelines and <code class="ic">ColumnTransformer</code> <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">A <code class="ic">Pipeline</code> is not tidiness — it is the mechanism that makes leakage <b>structurally impossible</b> rather than merely discouraged.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">pipelines.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import numpy as np, pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score, train_test_split
+
+rng = np.random.default_rng(0)
+n = 400
+X = pd.DataFrame({
+    "age":    rng.normal(40, 12, n),
+    "income": rng.lognormal(10, 0.6, n),
+    "city":   rng.choice(["uk", "de", "fr", None], n),
+})
+X.loc[rng.choice(n, 40, replace=False), "age"] = np.nan
+y = (X["income"].fillna(X["income"].median()) > 25_000).astype(int)
+
+numeric = ["age", "income"]
+categorical = ["city"]
+
+pre = ColumnTransformer([
+    ("num", Pipeline([("impute", SimpleImputer(strategy="median")),
+                      ("scale", StandardScaler())]), numeric),
+    ("cat", Pipeline([("impute", SimpleImputer(strategy="most_frequent")),
+                      ("ohe", OneHotEncoder(handle_unknown="ignore"))]), categorical),
+])
+
+pipe = Pipeline([("pre", pre), ("clf", LogisticRegression(max_iter=1000))])
+
+Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.25, random_state=42)
+pipe.fit(Xtr, ytr)
+print("test accuracy      :", round(pipe.score(Xte, yte), 3))
+
+# cross-validation with a pipeline refits every transformer per fold
+scores = cross_val_score(pipe, X, y, cv=5)
+print("5-fold CV          :", scores.round(3), "mean", round(scores.mean(), 3))
+print("\n^ the imputer and scaler are refitted INSIDE each fold —")
+print("  that is what makes the CV estimate honest.")
+
+# handle_unknown='ignore' means an unseen category does not crash at inference
+unseen = pd.DataFrame({"age": [30.0], "income": [50_000.0], "city": ["jp"]})
+print("\nunseen category 'jp' predicts fine:", pipe.predict(unseen))
+
+# and the fitted state is inspectable
+imp = pipe.named_steps["pre"].named_transformers_["num"].named_steps["impute"]
+print("learned medians (train only):", imp.statistics_.round(2))
+print("feature names out:", list(pipe.named_steps["pre"].get_feature_names_out()))</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> a test accuracy and five CV scores. The important structural facts: <code class="ic">cross_val_score</code> refits the imputer and scaler <b>inside every fold</b>, so no fold's statistics come from its own validation set; <code class="ic">handle_unknown="ignore"</code> lets the unseen city <code class="ic">"jp"</code> predict rather than raise; and the learned medians are inspectable via <code class="ic">named_steps</code>, computed from training data only.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why use a scikit-learn <code class="ic">Pipeline</code>?</summary>
+              <div class="ans"><p><b>Because it makes leakage structurally impossible.</b> Every transformer's <code class="ic">fit</code> is called only on the training portion, so when you cross-validate, the imputer's median and the scaler's mean are recomputed <em>inside each fold</em> from that fold's training data alone. Do it manually and you will eventually fit a scaler on the full dataset and quietly inflate every score.</p><p>Three further benefits. <b>One object to serialise</b> — the fitted preprocessing travels with the model, so training and inference can't drift apart. <b>Hyperparameter search across the whole pipeline</b>, so you can tune the imputation strategy alongside the model with <code class="ic">"pre__num__impute__strategy"</code>. And <b>column-aware preprocessing</b> via <code class="ic">ColumnTransformer</code>, applying different steps to numeric and categorical columns in one fitted object.</p><p>The detail that shows production experience: <code class="ic">OneHotEncoder(handle_unknown="ignore")</code>, so a category unseen in training doesn't crash at inference time.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>How do you tune a preprocessing choice along with the model?</summary>
+              <div class="ans"><p>Use the <b>double-underscore</b> parameter path in the search grid. With <code class="ic">Pipeline([("pre", ColumnTransformer([("num", Pipeline([("impute", …)]), cols)])), ("clf", …)])</code>, the imputer's strategy is <code class="ic">"pre__num__impute__strategy"</code> and the model's regularisation is <code class="ic">"clf__C"</code>.</p><p>Pass that grid to <code class="ic">GridSearchCV(pipe, grid, cv=5)</code> and every combination is evaluated with the preprocessing refitted per fold — so the comparison between imputation strategies is itself leak-free, which it wouldn't be if you preprocessed once up front.</p><p>Worth adding: you can swap whole steps, not just parameters, by putting the estimator itself in the grid (<code class="ic">{"clf": [LogisticRegression(), RandomForestClassifier()]}</code>), which is how you compare models on identical preprocessing.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-7">
+        <h3><span class="tn">10.7</span> Data leakage <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The highest-stakes section in this guide. Leakage produces a wonderful cross-validation score and a model that fails in production — and it is almost always introduced by well-intentioned preprocessing.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 270" role="img" aria-label="Two workflows compared. On the left, a scaler is fitted on the full dataset before splitting, so test statistics flow into training, marked as leakage. On the right, the split happens first and the scaler is fitted only on the training fold then applied to the test fold, with no backward flow.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the same two steps, in two orders</text>
+              <g font-size="10">
+                <text x="24" y="44" fill="#e0929a" font-size="11" font-weight="600">✗ scale, then split — LEAKAGE</text>
+                <rect x="24" y="54" width="300" height="30" rx="6" fill="#1a1f28" stroke="#e0929a" stroke-width="1.5"/>
+                <text x="174" y="73" fill="#e0929a" text-anchor="middle">fit scaler on ALL 1000 rows</text>
+                <path d="M174 84v16" stroke="#5A6472" stroke-width="1.2" marker-end="url(#pyar10)"/>
+                <defs><marker id="pyar10" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+                <rect x="24" y="102" width="145" height="30" rx="6" fill="#161b23" stroke="#4B5BD6"/>
+                <text x="96" y="121" fill="#8fa0ff" text-anchor="middle">train 800</text>
+                <rect x="179" y="102" width="145" height="30" rx="6" fill="#161b23" stroke="#F0A81E"/>
+                <text x="251" y="121" fill="#F0A81E" text-anchor="middle">test 200</text>
+                <path d="M251 102v-18h-60" stroke="#a33" stroke-width="1.6" fill="none" stroke-dasharray="4 3"/>
+                <text x="34" y="154" fill="#a33" font-size="9.5">the test set's mean and std are baked into</text>
+                <text x="34" y="168" fill="#a33" font-size="9.5">the transform the model trains on</text>
+                <text x="34" y="188" fill="#e0929a" font-size="10">→ CV score is optimistic; production is worse</text>
+
+                <line x1="352" y1="34" x2="352" y2="250" stroke="#2c3542"/>
+
+                <text x="376" y="44" fill="#7fd6a0" font-size="11" font-weight="600">✓ split, then fit inside the fold</text>
+                <rect x="376" y="54" width="300" height="30" rx="6" fill="#1a1f28" stroke="#7fd6a0" stroke-width="1.5"/>
+                <text x="526" y="73" fill="#7fd6a0" text-anchor="middle">split FIRST — 1000 rows</text>
+                <path d="M526 84v16" stroke="#5A6472" stroke-width="1.2" marker-end="url(#pyar10)"/>
+                <rect x="376" y="102" width="145" height="30" rx="6" fill="#161b23" stroke="#4B5BD6"/>
+                <text x="448" y="121" fill="#8fa0ff" text-anchor="middle">train 800</text>
+                <rect x="531" y="102" width="145" height="30" rx="6" fill="#161b23" stroke="#F0A81E"/>
+                <text x="603" y="121" fill="#F0A81E" text-anchor="middle">test 200</text>
+                <rect x="376" y="146" width="145" height="26" rx="6" fill="#173026" stroke="#2E9E5B"/>
+                <text x="448" y="163" fill="#7fd6a0" text-anchor="middle" font-size="9">fit_transform</text>
+                <rect x="531" y="146" width="145" height="26" rx="6" fill="#161b23" stroke="#5A6472"/>
+                <text x="603" y="163" fill="#c9d1dc" text-anchor="middle" font-size="9">transform only</text>
+                <path d="M521 159h6" stroke="#7fd6a0" stroke-width="1.4" marker-end="url(#pyar10)"/>
+                <text x="386" y="192" fill="#7fd6a0" font-size="10">→ statistics flow forward only</text>
+                <text x="386" y="210" fill="#c9d1dc" font-size="9.5">a Pipeline does this automatically, per fold</text>
+              </g>
+              <text x="20" y="240" fill="#c9d1dc" font-size="11">leakage is any information in your features that would <tspan fill="#e0929a">not be available at prediction time</tspan></text>
+              <text x="20" y="260" fill="#8892a0" font-size="10.5">it is not a coding error — the code runs perfectly. That is exactly why it survives to production.</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#a33"></i>information flowing backwards</span><span><i style="background:#2E9E5B"></i>fit on train only</span></div>
+          <figcaption>Every flavour of leakage is the same shape: a statistic computed over data the model shouldn't have seen yet.</figcaption>
+        </figure>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">leakage.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import numpy as np, pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score, KFold
+
+# PURE NOISE: 400 samples, 600 random features, random labels.
+# an honest model can do no better than chance (0.5).
+rng = np.random.default_rng(0)
+X = rng.normal(size=(400, 600))
+y = rng.integers(0, 2, 400)
+
+cv = KFold(5, shuffle=True, random_state=0)
+
+# WRONG: select features using the WHOLE dataset, then cross-validate
+sel = SelectKBest(f_classif, k=15).fit(X, y)          # <- saw all the labels
+X_leaked = sel.transform(X)
+leaky = cross_val_score(LogisticRegression(max_iter=1000), X_leaked, y, cv=cv)
+
+# RIGHT: selection inside the pipeline, refitted per fold
+pipe = Pipeline([("sel", SelectKBest(f_classif, k=15)),
+                 ("scale", StandardScaler()),
+                 ("clf", LogisticRegression(max_iter=1000))])
+honest = cross_val_score(pipe, X, y, cv=cv)
+
+print("data is PURE NOISE — true accuracy must be ~0.50\n")
+print(f"leaky  selection outside CV : {leaky.mean():.3f}   <- fantasy")
+print(f"honest selection inside CV  : {honest.mean():.3f}   <- reality")
+print(f"\ninflation: +{(leaky.mean()-honest.mean())*100:.1f} accuracy points from thin air")
+
+# the same trap with scaling on the full data
+from sklearn.model_selection import train_test_split
+Xtr, Xte, ytr, yte = train_test_split(X[:, :20], y, test_size=0.3, random_state=0)
+
+bad_scaler = StandardScaler().fit(np.vstack([Xtr, Xte]))   # fitted on both!
+print("\nscaler fitted on train+test  mean[0]:", round(bad_scaler.mean_[0], 4))
+good_scaler = StandardScaler().fit(Xtr)
+print("scaler fitted on train only  mean[0]:", round(good_scaler.mean_[0], 4))
+print("different transforms -> the first one encodes test information")
+
+# the shuffled-label sanity check: a great leakage detector
+shuffled = cross_val_score(pipe, X, rng.permutation(y), cv=cv)
+print(f"\nshuffled labels through the honest pipeline: {shuffled.mean():.3f}")
+print("~0.5 as expected. If THIS is high, you have leakage somewhere.")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> on <b>pure random noise</b>, feature selection done outside the CV loop scores well above 0.5 — often 0.60–0.70 — while the honest pipeline scores ~0.50. That gap is <b>entirely fabricated</b> by letting the selector see all the labels, and it's the clearest possible demonstration that leakage is not a small effect. The shuffled-label check returns ~0.5, which is the sanity test to run on any suspiciously good model.</div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Flavour</th><th>What it looks like</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr><td><b>Preprocessing leakage</b></td><td>Scaler / imputer / encoder fitted before the split</td><td>Put it in a <code class="ic">Pipeline</code></td></tr>
+              <tr><td><b>Feature-selection leakage</b></td><td>Selecting features using all the labels</td><td>Selection inside the CV loop</td></tr>
+              <tr><td><b>Target leakage</b></td><td>A feature that encodes the outcome (<code class="ic">days_until_churn</code>)</td><td>Ask &ldquo;would I have this at prediction time?&rdquo;</td></tr>
+              <tr><td><b>Temporal leakage</b></td><td>Random split on time-ordered data; unshifted rolling features</td><td><code class="ic">TimeSeriesSplit</code>; <code class="ic">shift(1)</code> (§8.9)</td></tr>
+              <tr><td><b>Group leakage</b></td><td>The same customer in train and test</td><td><code class="ic">GroupKFold</code> on the entity id</td></tr>
+              <tr><td><b>Duplicate leakage</b></td><td>Duplicated rows split across train and test</td><td>Deduplicate <em>before</em> splitting</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is data leakage and how do you prevent it?</summary>
+              <div class="ans"><p><b>Any information in your features that wouldn't be available at prediction time.</b> The model learns from it, scores brilliantly in validation, and fails in production — and the code runs perfectly, which is why it survives.</p><p>Name the flavours: <b>preprocessing</b> (scaler or imputer fitted before the split); <b>feature selection</b> using all the labels; <b>target leakage</b> (a feature derived from the outcome, like <code class="ic">days_until_churn</code>); <b>temporal</b> (a random split on time-ordered data, or an unshifted rolling feature); <b>group</b> (the same customer in train and test); <b>duplicate rows</b> split across both.</p><p>Prevention: put <b>all</b> preprocessing and selection in a <code class="ic">Pipeline</code> so it refits per fold; choose the right splitter — <code class="ic">TimeSeriesSplit</code> for temporal, <code class="ic">GroupKFold</code> for entities; deduplicate before splitting; and audit every feature with the question <em>&ldquo;would I have this value at the moment I need the prediction?&rdquo;</em></p><p>And the detection tests: an implausibly high score, a single feature with suspicious importance, and a <b>shuffled-label run</b> that should score at chance.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your model gets 0.99 AUC in CV and 0.6 in production. Diagnose it.</summary>
+              <div class="ans"><p><b>Assume leakage first</b> — a 0.39 AUC gap is almost never distribution shift alone.</p><p>Check in this order. <b>Feature importances</b>: one feature dominating is the classic signature of target leakage; trace where it comes from and when it becomes available. <b>Split strategy</b>: was the data time-ordered and split randomly? Does the same entity appear in both sides? Were duplicates removed before splitting? <b>Preprocessing order</b>: was anything fitted outside the pipeline, on the full dataset? <b>Feature timestamps</b>: for each feature, is its value knowable at prediction time — a point-in-time join issue (§8.6)?</p><p>Then the confirming test: <b>shuffle the labels and re-run</b>. If accuracy stays well above chance, information is reaching the model through a channel you haven't accounted for.</p><p>And rule out the non-leakage explanations so the answer is complete: train/serve skew (features computed differently in production), a genuinely shifted population, or a label definition that differs between the training data and reality.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Design</span>How do you split time-series data?</summary>
+              <div class="ans"><p><b>Chronologically — never randomly.</b> A random split lets the model train on next month and predict last month, which is not a task it will ever face. Use <code class="ic">TimeSeriesSplit</code>, which produces expanding (or rolling) windows where the validation fold is always <em>after</em> the training fold.</p><p>Two additional requirements. A <b>gap</b> between train and validation if your features use a lookback window or your label has a horizon, otherwise the windows overlap and leak. And <b>features shifted</b> so each row uses only prior information (§8.9) — a rolling mean that includes the current row leaks the target.</p><p>If the data is both temporal and grouped — many customers over time — you need both constraints: split by time <em>and</em> keep each customer's history on one side where the problem demands it. And evaluate on the <b>most recent</b> holdout, since that's the closest analogue to production.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-8">
+        <h3><span class="tn">10.8</span> Reproducibility <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Seeds are necessary but nowhere near sufficient. The honest answer names the other sources of nondeterminism.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">reproducible.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import numpy as np, random, os, sys, json, hashlib
+
+def seed_everything(seed: int = 42):
+    """Seed every source you control. Returns what was set, for the run record."""
+    random.seed(seed)
+    np.random.seed(seed)                     # legacy global — some libs still use it
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    return {"seed": seed, "note": "pass random_state= to every sklearn object too"}
+
+print(seed_everything(42))
+
+# prefer explicit generators over the global state
+rng = np.random.default_rng(42)
+a = rng.random(3)
+rng2 = np.random.default_rng(42)
+print("\nsame seed -> same draws:", np.array_equal(a, rng2.random(3)))
+
+# independent, non-correlated streams for parallel workers
+children = np.random.default_rng(42).spawn(3)
+print("spawned streams:", [c.random(1).round(4)[0] for c in children])
+print("(better than seed+i, which can produce correlated streams)")
+
+# a content hash makes 'same data?' answerable
+def data_fingerprint(arr):
+    return hashlib.sha256(np.ascontiguousarray(arr).tobytes()).hexdigest()[:16]
+print("\ndata fingerprint:", data_fingerprint(a))
+
+# the run record: everything needed to explain a number later
+record = {
+    "seed": 42,
+    "python": sys.version.split()[0],
+    "numpy": np.__version__,
+    "data_hash": data_fingerprint(a),
+    "params": {"n_estimators": 100, "max_depth": 6},
+}
+print("\nrun record:\n" + json.dumps(record, indent=2))
+
+print("\nwhat seeds CANNOT fix:")
+for item in [
+    "thread count (parallel float summation order differs)",
+    "GPU kernels (nondeterministic reductions by default)",
+    "library version changes (algorithm or default changed)",
+    "dict/set iteration over unhashed external input",
+    "wall-clock or 'today' used anywhere in the pipeline",
+]:
+    print("  -", item)</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> identical draws from two generators with the same seed; three independent spawned streams; a short content hash; and a JSON run record. The closing list is the substance of the answer — <b>seeds don't control thread count, GPU reductions, library versions, or anything reading the clock</b>, which is why reproducibility needs pinned versions and a recorded fingerprint, not just <code class="ic">seed=42</code>.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>How do you make an ML experiment reproducible?</summary>
+              <div class="ans"><p><b>Four things, and seeds are only the first.</b></p><p><b>Seeds:</b> Python's <code class="ic">random</code>, NumPy (prefer an explicit <code class="ic">default_rng</code> passed around over the global <code class="ic">np.random.seed</code>), <code class="ic">PYTHONHASHSEED</code>, your framework, and <code class="ic">random_state=</code> on every scikit-learn estimator and splitter.</p><p><b>Pinned environment:</b> a lockfile with exact versions (§10.2) — a numpy patch release can change a numeric result.</p><p><b>Data versioning:</b> a content hash or an immutable snapshot, so &ldquo;same data?&rdquo; is answerable. &ldquo;I reran it and got a different number&rdquo; is very often a changed input.</p><p><b>A run record:</b> seed, versions, data hash, parameters and git commit, written alongside the output.</p><p>Then the honesty that makes it a senior answer: seeds <b>cannot</b> control thread count (parallel float summation order), GPU reductions, or anything reading the clock. Bit-exact reproducibility is sometimes unattainable — so also define what tolerance counts as &ldquo;reproduced&rdquo;.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p10-9">
+        <h3><span class="tn">10.9</span> The code-review checklist <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">What you'd look for reviewing someone else's data code. A concrete list here reads as experience, and it's a common closing question.</p>
+
+        <div class="cmp">
+          <div class="ch"><span class="cn">review</span> In rough order of how often it matters</div>
+          <div class="crow bad"><div class="cl">correctness</div><div class="cv">Leakage (§10.7). Joins without <code class="ic">validate=</code> or a row-count assertion (§8.5). <code class="ic">groupby</code> silently dropping NaN keys (§8.3). Unshifted rolling features (§8.9).</div></div>
+          <div class="crow bad"><div class="cl">silent failure</div><div class="cv"><code class="ic">except: pass</code>. Filters with no count logged. <code class="ic">fillna(0)</code> on something where 0 is meaningful. Chained assignment that now does nothing (§7.5).</div></div>
+          <div class="crow"><div class="cl">dtypes</div><div class="cv">Ids read as integers, losing leading zeros. <code class="ic">object</code> columns that should be numeric or categorical. Downcasts that can overflow (§6.3).</div></div>
+          <div class="crow"><div class="cl">reproducibility</div><div class="cv">Unseeded randomness. Hard-coded paths and dates. <code class="ic">datetime.now()</code> inside a transformation.</div></div>
+          <div class="crow"><div class="cl">performance</div><div class="cv"><code class="ic">iterrows</code>/<code class="ic">apply</code> where vectorised works (§9.2). A frame grown row by row. <code class="ic">x in list</code> in a loop (§2.3).</div></div>
+          <div class="crow good"><div class="cl">structure</div><div class="cv">Pure functions with a frame in and a frame out. Statistics passed as parameters. Tests for the edge cases. Logged row counts at each stage.</div></div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>What do you look for when reviewing data code?</summary>
+              <div class="ans"><p><b>Correctness first, and specifically the failures that are silent.</b> Leakage in the modelling path; joins without <code class="ic">validate=</code> or a row-count assertion; <code class="ic">groupby</code> dropping NaN keys so totals don't reconcile; rolling features without a <code class="ic">shift</code>. All of these produce plausible wrong numbers rather than errors, which is what makes them dangerous.</p><p>Then <b>silent failure</b> generally: <code class="ic">except: pass</code>, filters that drop rows without logging how many, <code class="ic">fillna(0)</code> where zero is a real value, chained assignment that under pandas 3.0 does nothing at all.</p><p>Then <b>dtypes</b> (ids as integers, stray <code class="ic">object</code> columns), <b>reproducibility</b> (unseeded randomness, hard-coded dates, <code class="ic">now()</code> inside a transformation), and only then <b>performance</b>.</p><p>What I'd want to <em>see</em>: small pure functions, statistics passed as parameters rather than computed inline, row counts logged at each stage, and tests covering the empty frame and the duplicate key. And I'd ask for a number on any claim of correctness — &ldquo;how do you know?&rdquo; is the most useful review comment there is.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>What would you change about a pipeline you inherited?</summary>
+              <div class="ans"><p>A good answer is <b>sequenced</b>, not a wish list, because rewriting inherited code wholesale is how you introduce regressions.</p><p><b>First, make it observable</b>: log row counts and timings at each stage, so you can see what it currently does before changing anything. <b>Second, pin it</b> — a lockfile, so you're debugging one variable at a time. <b>Third, add a golden-output test</b> on a small input, which lets every later change be verified rather than hoped about.</p><p><b>Then</b> fix correctness issues (validation, leakage, silent drops), extract functions to make it testable, and only after that optimise. Performance work before you have a regression test is how a fast wrong answer replaces a slow right one.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="PY_Part09_Performance.html">Part 9 · Performance &amp; Memory</a></div><ul><li>Vectorisation, GIL, memory</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 10 · Production Python for Data Science</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="PY_Part11_QABank.html">Part 11 · Interview Q&amp;A Bank</a></div><ul><li>The full question bank</li><li>Live-coding playground</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        Python for Data Science Interviews — Part 10 of 11 · Production Python for Data Science<br>
+        Library-current as of <b>Aug 2026</b> — Python <b>3.14</b> (PEP 779 free-threading) · pandas <b>3.0</b> (Copy-on-Write only) · NumPy <b>2.5</b> · scikit-learn <b>1.9</b>.<br>
+        Runnable cells execute <b>real CPython 3.14</b> in your browser via Pyodide — nothing is sent to a server.<br>
+        Progress is stored locally under key <code style="color:#8892a0">pyPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 191 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · The Data Model", "l1": "Level 1 · Data Structures", "l2": "Level 2 · Functions &amp; Decorators", "l3": "Level 3 · Generators", "l4": "Level 4 · OOP &amp; Dataclasses", "l5": "Level 5 · NumPy", "l6": "Level 6 · pandas Core", "l7": "Level 7 · pandas Transformation", "l8": "Level 8 · Performance &amp; Memory", "l9": "Level 9 · Production", "iv": "Interview Q&amp;A Drill", "ex": "Coding Exercises"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "iv", "ex"];
+const TRACKER = [
+[1,"l0","Theory","High",0,"Names are bindings, not boxes: what a = b actually does"],
+[2,"l0","Theory","High",0,"Mutable vs immutable, and why it decides everything else"],
+[3,"l0","Theory","High",0,"is vs ==, and why is on small ints looks like it works"],
+[4,"l0","Theory","High",0,"Identity, equality and the __hash__/__eq__ contract"],
+[5,"l0","Theory","High",0,"Why only immutable objects can be dict keys or set members"],
+[6,"l0","Theory","High",0,"The mutable default argument trap"],
+[7,"l0","Theory","High",0,"Shallow copy vs deep copy vs assignment"],
+[8,"l0","Theory","High",0,"Argument passing: neither call-by-value nor call-by-reference"],
+[9,"l0","Theory","High",0,"LEGB scope resolution, global and nonlocal"],
+[10,"l0","Theory","High",0,"Late binding in closures (the classic loop-variable bug)"],
+[11,"l0","Theory","High",0,"Truthiness, None checks, and the or default idiom"],
+[12,"l0","Theory","High",0,"Reference counting, cycles and the generational GC"],
+[13,"l0","Theory","High",0,"__slots__ and where object overhead comes from"],
+[14,"l0","Theory","High",0,"Interning, sys.getsizeof, and why a list of ints is bigger than you think"],
+[15,"l1","Theory","Medium",0,"list vs tuple vs set vs dict: the four-way decision"],
+[16,"l1","Theory","Medium",0,"Time complexity of every common operation (the table you must know)"],
+[17,"l1","Theory","Medium",0,"Why x in list is the most common accidental O(n\u00b2)"],
+[18,"l1","Theory","Medium",0,"Dict insertion order, and when it became a guarantee"],
+[19,"l1","Theory","Medium",0,"dict.get / setdefault / defaultdict / Counter"],
+[20,"l1","Theory","Medium",0,"deque for queues, and why list.pop(0) is a bug at scale"],
+[21,"l1","Theory","Medium",0,"heapq for top-k without sorting everything"],
+[22,"l1","Theory","Medium",0,"Sorting: key=, stability, operator.itemgetter, multi-key with reverse"],
+[23,"l1","Theory","Medium",0,"Comprehensions vs map/filter vs loops"],
+[24,"l1","Theory","Medium",0,"Nested comprehensions and the flatten idiom"],
+[25,"l1","Theory","Medium",0,"Set algebra for dedup, membership and diffing datasets"],
+[26,"l1","Theory","Medium",0,"Tuple unpacking, starred targets and swapping"],
+[27,"l1","Theory","Medium",0,"zip, enumerate, zip(*rows) for transposition"],
+[28,"l1","Theory","Medium",0,"Slicing semantics, negative steps, and slice assignment"],
+[29,"l1","Theory","Medium",0,"str immutability and why += in a loop is quadratic"],
+[30,"l1","Theory","Medium",0,"bisect for sorted lookups and bucketing"],
+[31,"l2","Practical","Medium",0,"Positional, keyword, default, args, *kwargs"],
+[32,"l2","Practical","Medium",0,"Keyword-only and positional-only parameters"],
+[33,"l2","Practical","Medium",0,"First-class functions and higher-order functions"],
+[34,"l2","Practical","Medium",0,"Closures: what gets captured and when"],
+[35,"l2","Practical","Medium",0,"Writing a decorator from scratch"],
+[36,"l2","Practical","Medium",0,"functools.wraps and why omitting it breaks introspection"],
+[37,"l2","Practical","Medium",0,"Decorators with arguments (the three-level nesting)"],
+[38,"l2","Practical","Medium",0,"Practical decorators: timing, retry, caching, logging, validation"],
+[39,"l2","Practical","Medium",0,"functools.lru_cache / cache and its hashability requirement"],
+[40,"l2","Practical","Medium",0,"functools.partial and where it beats a lambda"],
+[41,"l2","Practical","Medium",0,"functools.reduce, and why a loop is usually clearer"],
+[42,"l2","Practical","Medium",0,"Lambdas: what they are for and what they are not for"],
+[43,"l2","Practical","Medium",0,"Type hints on functions, Optional, Callable, generics"],
+[44,"l2","Practical","Medium",0,"Docstrings that answer the caller's actual questions"],
+[45,"l3","Practical","Medium",0,"The iterator protocol: __iter__, __next__, StopIteration"],
+[46,"l3","Practical","Medium",0,"Iterable vs iterator, and why a generator is exhausted once"],
+[47,"l3","Practical","Medium",0,"Generator functions and yield"],
+[48,"l3","Practical","Medium",0,"Generator expressions vs list comprehensions (memory)"],
+[49,"l3","Practical","Medium",0,"yield from and generator delegation"],
+[50,"l3","Practical","Medium",0,"Reading a multi-GB file without loading it"],
+[51,"l3","Practical","Medium",0,"Chunked processing and streaming aggregation"],
+[52,"l3","Practical","Medium",0,"itertools: islice, chain, groupby, product, accumulate, tee"],
+[53,"l3","Practical","Medium",0,"Pipelines of generators as a processing pattern"],
+[54,"l3","Practical","Medium",0,"Two-pass problems and when laziness stops helping"],
+[55,"l3","Practical","Medium",0,"Context managers: with, __enter__/__exit__"],
+[56,"l3","Practical","Medium",0,"contextlib.contextmanager for a generator-based context manager"],
+[57,"l3","Practical","Medium",0,"Exception handling: try/except/else/finally, specific excepts"],
+[58,"l3","Practical","Medium",0,"Custom exceptions and failing loudly in a pipeline"],
+[59,"l4","Practical","Medium",0,"Classes, instances, __init__, and self"],
+[60,"l4","Practical","Medium",0,"Class vs instance attributes (and the shared-mutable trap)"],
+[61,"l4","Practical","Medium",0,"@property for computed and validated attributes"],
+[62,"l4","Practical","Medium",0,"@staticmethod vs @classmethod and alternative constructors"],
+[63,"l4","Practical","Medium",0,"Dunder methods: __repr__, __str__, __eq__, __len__, __getitem__"],
+[64,"l4","Practical","Medium",0,"@dataclass, frozen, field(default_factory=...)"],
+[65,"l4","Practical","Medium",0,"Dataclass vs NamedTuple vs TypedDict vs Pydantic"],
+[66,"l4","Practical","Medium",0,"Inheritance, MRO and super()"],
+[67,"l4","Practical","Medium",0,"Composition over inheritance, with a data-pipeline example"],
+[68,"l4","Practical","Medium",0,"Abstract base classes and duck typing"],
+[69,"l4","Practical","Medium",0,"Protocol and structural typing"],
+[70,"l4","Practical","Medium",0,"Writing a scikit-learn\u2013compatible estimator (fit/transform/get_params)"],
+[71,"l4","Practical","Medium",0,"Mixins, and when they become a maintenance problem"],
+[72,"l5","Practical","High",0,"ndarray anatomy: data buffer, dtype, shape, strides"],
+[73,"l5","Practical","High",0,"Why arrays beat lists: contiguity, fixed dtype, no boxing"],
+[74,"l5","Practical","High",0,"dtypes, overflow, and silent integer wraparound"],
+[75,"l5","Practical","High",0,"Views vs copies, and how to tell which you have"],
+[76,"l5","Practical","High",0,"Strides: how reshape and transpose avoid copying"],
+[77,"l5","Practical","High",0,"C order vs Fortran order and .copy(order=...)"],
+[78,"l5","Practical","High",0,"Basic indexing (view) vs fancy indexing (copy)"],
+[79,"l5","Practical","High",0,"Boolean masking and np.where"],
+[80,"l5","Practical","High",0,"Broadcasting: the three rules"],
+[81,"l5","Practical","High",0,"The [:, None] idiom for outer operations"],
+[82,"l5","Practical","High",0,"Axis semantics, and what axis=0 really reduces"],
+[83,"l5","Practical","High",0,"keepdims and why it saves broadcasting bugs"],
+[84,"l5","Practical","High",0,"Vectorising a loop: pairwise distances worked example"],
+[85,"l5","Practical","High",0,"Universal functions, out= and in-place operations"],
+[86,"l5","Practical","High",0,"Aggregations, nan-aware functions, and NaN propagation"],
+[87,"l5","Practical","High",0,"Float equality, np.isclose, and catastrophic cancellation"],
+[88,"l5","Practical","High",0,"Random number generation: default_rng and reproducibility"],
+[89,"l5","Practical","High",0,"einsum and when it is worth the readability cost"],
+[90,"l5","Practical","High",0,"Structured arrays and memory-mapped arrays"],
+[91,"l5","Practical","High",0,"Where NumPy ends and pandas begins"],
+[92,"l6","Practical","High",0,"Series and DataFrame as index + typed columns"],
+[93,"l6","Practical","High",0,"The index: alignment, duplicates, reset_index, set_index"],
+[94,"l6","Practical","High",0,"dtypes: numeric, str (new default in pandas 3.0), category, datetime, nullable"],
+[95,"l6","Practical","High",0,"Why object dtype used to be everywhere and what changed in 3.0"],
+[96,"l6","Practical","High",0,"category dtype for memory and speed"],
+[97,"l6","Practical","High",0,"loc vs .iloc vs []: label, position and the ambiguous case"],
+[98,"l6","Practical","High",0,"Boolean masking, query, isin, between"],
+[99,"l6","Practical","High",0,"Copy-on-Write in pandas 3.0 and the death of SettingWithCopyWarning"],
+[100,"l6","Practical","High",0,"Why chained assignment now silently does nothing"],
+[101,"l6","Practical","High",0,"Missing data: NaN vs None vs pd.NA"],
+[102,"l6","Practical","High",0,"fillna, dropna, interpolate and choosing between them"],
+[103,"l6","Practical","High",0,"Reading data: dtypes at read time, usecols, chunksize, parsing dates"],
+[104,"l6","Practical","High",0,"Parquet vs CSV, and why CSV loses your schema"],
+[105,"l6","Practical","High",0,"Duplicates: duplicated, drop_duplicates(subset=, keep=)"],
+[106,"l6","Practical","High",0,"Type conversion: astype, to_numeric(errors=), convert_dtypes"],
+[107,"l6","Practical","High",0,"assign and pd.col for readable chains"],
+[108,"l6","Practical","High",0,"Method chaining and pipe"],
+[109,"l7","Practical","High",0,"groupby and the split-apply-combine model"],
+[110,"l7","Practical","High",0,"agg with multiple functions and named aggregation"],
+[111,"l7","Practical","High",0,"transform vs agg vs apply: shape, speed and when each is right"],
+[112,"l7","Practical","High",0,"filter on groups"],
+[113,"l7","Practical","High",0,"groupby(dropna=), observed= and the categorical surprise"],
+[114,"l7","Practical","High",0,"Group-wise fill, rank, and normalisation without a loop"],
+[115,"l7","Practical","High",0,"merge: the five how values and what each keeps"],
+[116,"l7","Practical","High",0,"Validating a join: validate=, indicator=, row-count assertions"],
+[117,"l7","Practical","High",0,"Why row counts explode: many-to-many joins"],
+[118,"l7","Practical","High",0,"join vs merge vs concat"],
+[119,"l7","Practical","High",0,"concat: axis, keys, and index collisions"],
+[120,"l7","Practical","High",0,"merge_asof for nearest-key and point-in-time joins"],
+[121,"l7","Practical","High",0,"Wide vs long, melt and pivot"],
+[122,"l7","Practical","High",0,"pivot vs pivot_table and the aggregation requirement"],
+[123,"l7","Practical","High",0,"stack/unstack and the MultiIndex"],
+[124,"l7","Practical","High",0,"MultiIndex selection: xs, tuples, IndexSlice"],
+[125,"l7","Practical","High",0,"Datetime index, resample, asfreq"],
+[126,"l7","Practical","High",0,"Timezones, and the naive-vs-aware bug"],
+[127,"l7","Practical","High",0,"Rolling, expanding and ewm windows"],
+[128,"l7","Practical","High",0,"shift, diff, pct_change and lag features without leakage"],
+[129,"l7","Practical","High",0,"cut and qcut for binning"],
+[130,"l7","Practical","High",0,"String operations via .str, and regex extraction"],
+[131,"l7","Practical","High",0,"Translating SQL to pandas (and when to just use SQL)"],
+[132,"l8","Practical","High",0,"Where pandas time actually goes: measure before optimising"],
+[133,"l8","Practical","High",0,"The vectorisation ladder: loop \u2192 iterrows \u2192 apply \u2192 vectorised \u2192 NumPy"],
+[134,"l8","Practical","High",0,"Why apply is a loop wearing a costume"],
+[135,"l8","Practical","High",0,"itertuples vs iterrows, and when a loop is genuinely correct"],
+[136,"l8","Practical","High",0,"Reducing memory: dtype downcasting, category, dropping columns early"],
+[137,"l8","Practical","High",0,"Chunked reads and out-of-core aggregation"],
+[138,"l8","Practical","High",0,"Profiling: timeit, cProfile, line profiling, memory_profiler"],
+[139,"l8","Practical","High",0,"Big-O of a pipeline vs constant factors in practice"],
+[140,"l8","Practical","High",0,"The GIL: what it does and does not lock"],
+[141,"l8","Practical","High",0,"Free-threaded Python 3.14 (PEP 779) and what it changes for data work"],
+[142,"l8","Practical","High",0,"Threads vs processes vs async: choosing by workload"],
+[143,"l8","Practical","High",0,"concurrent.futures for embarrassingly parallel work"],
+[144,"l8","Practical","High",0,"multiprocessing pitfalls: pickling, fork vs spawn, memory copies"],
+[145,"l8","Practical","High",0,"asyncio for many API calls, and one blocking call ruining it"],
+[146,"l8","Practical","High",0,"joblib and scikit-learn's n_jobs"],
+[147,"l8","Practical","High",0,"Numba, Cython and when to reach for them"],
+[148,"l8","Practical","High",0,"Polars, DuckDB and Arrow: what they change and when to switch"],
+[149,"l8","Practical","High",0,"Caching: lru_cache, on-disk caches, and invalidation"],
+[150,"l9","Practical","Medium",0,"Project layout, imports and why notebooks break in production"],
+[151,"l9","Practical","Medium",0,"Virtual environments, lockfiles and reproducible installs"],
+[152,"l9","Practical","Medium",0,"Configuration and secrets outside the code"],
+[153,"l9","Practical","Medium",0,"Logging instead of print, with levels and structure"],
+[154,"l9","Practical","Medium",0,"Testing data code with pytest: fixtures, parametrize, tolerances"],
+[155,"l9","Practical","Medium",0,"Testing the untestable: seeds, golden files, property tests"],
+[156,"l9","Practical","Medium",0,"Data validation at boundaries: schemas and assertions"],
+[157,"l9","Practical","Medium",0,"Type hints in practice, and running a checker in CI"],
+[158,"l9","Practical","Medium",0,"scikit-learn Pipeline and ColumnTransformer"],
+[159,"l9","Practical","Medium",0,"Data leakage: fitting on the full dataset, and how pipelines prevent it"],
+[160,"l9","Practical","Medium",0,"Cross-validation with a pipeline, and grouped/time-series splits"],
+[161,"l9","Practical","Medium",0,"Reproducibility: seeds, versions, and the sources of nondeterminism"],
+[162,"l9","Practical","Medium",0,"Serialising models: pickle, joblib, ONNX and version skew"],
+[163,"l9","Practical","Medium",0,"Code review for data code: the checklist"],
+[164,"l9","Practical","Medium",0,"Refactoring a notebook into modules"],
+[165,"l9","Practical","Medium",0,"Docstrings, README and handing work over"],
+[166,"iv","Interview Prep","High",0,"High-frequency: the data model (mutability, copies, identity, scope)"],
+[167,"iv","Interview Prep","High",0,"High-frequency: data structures and complexity"],
+[168,"iv","Interview Prep","High",0,"High-frequency: decorators, generators and context managers"],
+[169,"iv","Interview Prep","High",0,"High-frequency: NumPy (views, broadcasting, vectorisation)"],
+[170,"iv","Interview Prep","High",0,"High-frequency: pandas selection and Copy-on-Write"],
+[171,"iv","Interview Prep","High",0,"High-frequency: groupby, joins and reshaping"],
+[172,"iv","Interview Prep","High",0,"High-frequency: performance, memory and the GIL"],
+[173,"iv","Interview Prep","High",0,"High-frequency: production, testing and leakage"],
+[174,"iv","Interview Prep","High",0,"The trap questions (answered correctly, out loud)"],
+[175,"iv","Interview Prep","High",0,"Live-coding warm-ups timed at 10 minutes each"],
+[176,"iv","Interview Prep","High",0,"Explaining a past project in 90 seconds"],
+[177,"ex","Exercise","High",0,"Exercise: two-sum and the hash-map reflex"],
+[178,"ex","Exercise","High",0,"Exercise: group records without pandas"],
+[179,"ex","Exercise","High",0,"Exercise: running/streaming statistics"],
+[180,"ex","Exercise","High",0,"Exercise: flatten a nested structure"],
+[181,"ex","Exercise","High",0,"Exercise: sessionise events by gap"],
+[182,"ex","Exercise","High",0,"Exercise: top-k per group"],
+[183,"ex","Exercise","High",0,"Exercise: dedupe with a tie-break rule"],
+[184,"ex","Exercise","High",0,"Exercise: pairwise distances, vectorised"],
+[185,"ex","Exercise","High",0,"Exercise: entropy and information gain from scratch"],
+[186,"ex","Exercise","High",0,"Exercise: train/test split by time without leakage"],
+[187,"ex","Exercise","High",0,"Exercise: a retry decorator with backoff"],
+[188,"ex","Exercise","High",0,"Exercise: a chunked CSV aggregator"],
+[189,"ex","Exercise","High",0,"Exercise: rolling median with a deque"],
+[190,"ex","Exercise","High",0,"Exercise: a custom sklearn transformer"],
+[191,"ex","Exercise","High",0,"Exercise: SQL-to-pandas translation drill"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="pyPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 191 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+
+<script>
+/* ------------------------------------------------------------------------
+   Shared in-browser Python runtime for every .pyrun cell on the page.
+   Pyodide (CPython 3.14 compiled to WebAssembly) is loaded LAZILY on the
+   first Run click, so the page itself stays light. numpy / pandas / sklearn
+   wheels are fetched on demand the first time a cell imports them.
+   ------------------------------------------------------------------------ */
+window.PyRT = (function () {
+  var PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/pyodide.js";
+  var pyodide = null, booting = null, loaded = {};
+  var listeners = [];
+
+  function announce(msg, cls) {
+    listeners.forEach(function (fn) { try { fn(msg, cls); } catch (e) {} });
+  }
+  function onStatus(fn) { listeners.push(fn); }
+
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement("script");
+      s.src = src; s.onload = res; s.onerror = function () { rej(new Error("could not load " + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function boot() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (booting) return booting;
+    announce("downloading Python runtime (~12 MB, once per visit)…", "busy");
+    booting = loadScript(PYODIDE_URL)
+      .then(function () {
+        announce("starting CPython…", "busy");
+        return loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/" });
+      })
+      .then(function (py) {
+        pyodide = py;
+        announce("Python ready", "ready");
+        return py;
+      })
+      .catch(function (e) {
+        booting = null;
+        announce("runtime failed to load — you are probably offline. " +
+                 "The expected output is shown under each cell.", "err");
+        throw e;
+      });
+    return booting;
+  }
+
+  /* map an import name -> the Pyodide package that provides it */
+  var PKG = {
+    numpy: "numpy", pandas: "pandas", sklearn: "scikit-learn", scipy: "scipy",
+    matplotlib: "matplotlib", pyarrow: "pyarrow", statsmodels: "statsmodels"
+  };
+  function neededPackages(code) {
+    var want = {};
+    var re = /(?:^|\n)\s*(?:import|from)\s+([A-Za-z_][\w.]*)/g, m;
+    while ((m = re.exec(code))) {
+      var top = m[1].split(".")[0];
+      if (PKG[top] && !loaded[PKG[top]]) want[PKG[top]] = 1;
+    }
+    return Object.keys(want);
+  }
+
+  function run(code) {
+    return boot().then(function (py) {
+      var pkgs = neededPackages(code);
+      var p = Promise.resolve();
+      if (pkgs.length) {
+        announce("fetching " + pkgs.join(", ") + "…", "busy");
+        p = py.loadPackage(pkgs).then(function () {
+          pkgs.forEach(function (k) { loaded[k] = 1; });
+          announce("Python ready", "ready");
+        });
+      }
+      return p.then(function () {
+        var out = [];
+        py.setStdout({ batched: function (s) { out.push(s); } });
+        py.setStderr({ batched: function (s) { out.push(s); } });
+        return py.runPythonAsync(code).then(
+          function (val) {
+            var txt = out.join("\n");
+            /* echo the value of a trailing expression, REPL-style */
+            if (val !== undefined && val !== null) {
+              var r;
+              try { r = py.globals.get("repr")(val); } catch (e) { r = String(val); }
+              if (r !== "None") txt += (txt && !txt.endsWith("\n") ? "\n" : "") + r;
+            }
+            return { ok: true, text: txt };
+          },
+          function (err) {
+            return { ok: false, text: out.join("\n") + (out.length ? "\n" : "") + String(err.message || err) };
+          }
+        );
+      });
+    }).catch(function (e) {
+      return { ok: false, text: String(e.message || e), offline: true };
+    });
+  }
+
+  function reset() { pyodide = null; booting = null; loaded = {}; announce("runtime discarded — next Run reloads it", ""); }
+  function isReady() { return !!pyodide; }
+
+  return { boot: boot, run: run, reset: reset, onStatus: onStatus, isReady: isReady };
+})();
+
+/* wire up every .pyrun cell */
+(function () {
+  var cells = document.querySelectorAll(".pyrun");
+  if (!cells.length) return;
+
+  function setStatus(el, msg, cls) {
+    var s = el.querySelector(".pstat");
+    if (s) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+  }
+  window.PyRT.onStatus(function (msg, cls) {
+    for (var i = 0; i < cells.length; i++) {
+      var s = cells[i].querySelector(".pstat");
+      if (s && !s.dataset.local) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+    }
+  });
+
+  for (var i = 0; i < cells.length; i++) (function (cell) {
+    var ta   = cell.querySelector("textarea");
+    var out  = cell.querySelector(".pout");
+    var run  = cell.querySelector(".pbtn.run");
+    var rst  = cell.querySelector(".pbtn.reset");
+    var seed = ta ? ta.value : "";
+
+    if (ta) {
+      /* size to content, and keep Tab inside the editor */
+      var fit = function () { ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; };
+      fit(); ta.addEventListener("input", fit);
+      ta.addEventListener("keydown", function (e) {
+        if (e.key === "Tab") {
+          e.preventDefault();
+          var s = ta.selectionStart, t = ta.selectionEnd;
+          ta.value = ta.value.slice(0, s) + "    " + ta.value.slice(t);
+          ta.selectionStart = ta.selectionEnd = s + 4;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); doRun(); }
+      });
+    }
+
+    function doRun() {
+      if (!ta || !out) return;
+      run.disabled = true;
+      var s = cell.querySelector(".pstat"); if (s) s.dataset.local = "1";
+      setStatus(cell, "running…", "busy");
+      out.classList.add("show");
+      out.innerHTML = '<span class="odim">running…</span>';
+      window.PyRT.run(ta.value).then(function (r) {
+        run.disabled = false;
+        if (s) delete s.dataset.local;
+        var txt = (r.text || "").replace(/[&<>]/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+        });
+        if (r.ok) {
+          setStatus(cell, "ok", "ready");
+          out.innerHTML = txt ? txt : '<span class="odim">(ran cleanly — no output; add a print())</span>';
+        } else {
+          setStatus(cell, r.offline ? "offline" : "error", "err");
+          out.innerHTML = '<span class="oerr">' + (txt || "failed") + "</span>";
+        }
+      });
+    }
+
+    if (run) run.addEventListener("click", doRun);
+    if (rst) rst.addEventListener("click", function () {
+      if (ta) { ta.value = seed; ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; }
+      if (out) { out.classList.remove("show"); out.innerHTML = ""; }
+      setStatus(cell, window.PyRT.isReady() ? "Python ready" : "idle", window.PyRT.isReady() ? "ready" : "");
+    });
+  })(cells[i]);
+
+  /* page-level "warm up the runtime now" buttons (several in the stitched file) */
+  var warms = document.querySelectorAll(".pbootbtn");
+  for (var w = 0; w < warms.length; w++) (function (btn) {
+    btn.addEventListener("click", function () {
+      for (var j = 0; j < warms.length; j++) { warms[j].disabled = true; warms[j].textContent = "loading…"; }
+      window.PyRT.boot().then(function () {
+        for (var j = 0; j < warms.length; j++) warms[j].textContent = "Python is ready ✓";
+      }).catch(function () {
+        for (var j = 0; j < warms.length; j++) {
+          warms[j].textContent = "failed — check your connection"; warms[j].disabled = false;
+        }
+      });
+    });
+  })(warms[w]);
+})();
+</script>
+
+</body>
+</html>

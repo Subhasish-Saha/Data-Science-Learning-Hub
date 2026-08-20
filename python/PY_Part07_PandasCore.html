@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python for Data Science — Part 7: pandas Core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (Python) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wbtn:disabled{opacity:.45;cursor:not-allowed}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+
+/* ---- live Python runner (Pyodide) ---- */
+.pyrun{margin:1.7rem 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.pyrun .ph{background:#14181f;color:#e6e9ef;padding:9px 15px;font-family:var(--mono);font-size:11.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #2c3542}
+.pyrun .ph .dot3{display:inline-flex;gap:5px;margin-right:4px}
+.pyrun .ph .dot3 i{width:9px;height:9px;border-radius:50%;display:block}
+.pyrun .ph .ptag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;background:#2E9E5B;color:#0b1a10;padding:2px 7px;border-radius:20px;font-weight:700}
+.pyrun .ph .pname{color:#8892a0}
+.pyrun .ph .pspacer{flex:1}
+.pyrun .ph .pstat{font-size:10.5px;color:#8892a0}
+.pyrun .ph .pstat.busy{color:var(--gold-2)}
+.pyrun .ph .pstat.ready{color:#7fd6a0}
+.pyrun .ph .pstat.err{color:#e0929a}
+.pyrun textarea{width:100%;box-sizing:border-box;border:0;outline:0;resize:vertical;display:block;
+  background:#0f1319;color:#e6e9ef;font-family:var(--mono);font-size:12.6px;line-height:1.72;
+  padding:14px 16px;tab-size:4;min-height:96px;caret-color:var(--gold-2)}
+.pyrun textarea::selection{background:#31405c}
+.pyrun .pbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:var(--paper);border-top:1px solid var(--line)}
+.pyrun .pbtn{font-family:var(--mono);font-size:11.5px;padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:.13s}
+.pyrun .pbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.pyrun .pbtn.run{background:var(--indigo);color:#fff;border-color:var(--indigo);font-weight:600}
+.pyrun .pbtn.run:hover{filter:brightness(1.08)}
+.pyrun .pbtn:disabled{opacity:.45;cursor:not-allowed}
+.pyrun .phint{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:auto}
+.pyrun .pout{display:none;border-top:1px solid var(--line);background:#0f1319;color:#c9d1dc;
+  font-family:var(--mono);font-size:12.4px;line-height:1.7;padding:13px 16px;white-space:pre-wrap;
+  word-break:break-word;max-height:420px;overflow:auto;margin:0}
+.pyrun .pout.show{display:block}
+.pyrun .pout .oerr{color:#e0929a}
+.pyrun .pout .ook{color:#7fd6a0}
+.pyrun .pout .odim{color:#5A6472}
+.pyrun .pexp{border-top:1px solid var(--line);background:var(--gold-soft);padding:11px 16px;font-size:.9rem;color:var(--text);line-height:1.7}
+.pyrun .pexp b{color:#8a5c00}
+@media print{.pyrun .pbar{display:none}.pyrun{break-inside:avoid}.pyrun .pout{display:block;max-height:none}}
+
+/* the shared runtime banner */
+.pyboot{margin:1.5rem 0;border:1px dashed var(--indigo-line);border-radius:12px;background:var(--indigo-soft);padding:14px 17px;font-size:.92rem;line-height:1.7;color:var(--text)}
+.pyboot b{color:var(--indigo)}
+.pyboot .pbootbtn{margin-top:10px;display:inline-block;font-family:var(--mono);font-size:11.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;cursor:pointer;font-weight:600}
+.pyboot .pbootbtn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.cmp{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.cmp .ch{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.cmp .ch .cn{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.cmp .crow{display:grid;grid-template-columns:132px 1fr;border-top:1px solid var(--line)}
+.cmp .crow:first-child{border-top:none}
+.cmp .crow .cl{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.cmp .crow .cv{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.cmp .crow.bad .cl{color:#a33}
+.cmp .crow.good .cl{color:#1c7a42}
+@media (max-width:620px){.cmp .crow{grid-template-columns:1fr}.cmp .crow .cl{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 7 / 11</small>pandas Core</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">Python<small>Data Science Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 7 of 11</div>
+      <div class="v">pandas Core</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 191 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L6</span> pandas Core <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#p7-1">7.1 · Series, DataFrame, and the index ⭐⭐</a></li>
+          <li><a href="#p7-2">7.2 · Index alignment ⭐</a></li>
+          <li><a href="#p7-3">7.3 · dtypes after pandas 3.0 ⭐⭐</a></li>
+          <li><a href="#p7-4">7.4 · <code>.loc</code> vs <code>.iloc</code> vs <code>[]</code> ⭐⭐</a></li>
+          <li><a href="#p7-5">7.5 · Copy-on-Write and the end of SettingWithCopyWarning ⭐⭐</a></li>
+          <li><a href="#p7-6">7.6 · Missing data ⭐</a></li>
+          <li><a href="#p7-7">7.7 · Reading data properly ⭐</a></li>
+          <li><a href="#p7-8">7.8 · Duplicates and type conversion</a></li>
+          <li><a href="#p7-9">7.9 · Method chaining ⭐</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← Python home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      Python for Data Science<br>Part 7 — pandas Core<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 7 of 11 · pandas Core</div>
+        <h1 class="title">The library you will actually be tested on
+          <span class="sub">Series and DataFrame as an index plus typed columns, alignment, what pandas 3.0 changed about dtypes, the three ways to select and when each is right, Copy-on-Write and the removal of <code>SettingWithCopyWarning</code>, missing data, reading files without losing your schema, and readable method chains.</span>
+        </h1>
+        <p class="thesis">If an interview touches one library, it is this one. Two sections are disproportionately valuable. §7.4 is asked almost every time and the complete answer includes <em>why <code class="ic">df[...]</code> is ambiguous</em>, not just that <code class="ic">.loc</code> is labels. §7.5 is the <strong>currency question</strong> for 2026: pandas 3.0 made Copy-on-Write the only mode, which <em>removed</em> <code class="ic">SettingWithCopyWarning</code> entirely and turned chained assignment from unpredictable into reliably silent. A candidate still reciting the 2019 answer is dating themselves; a candidate who explains what replaced it sounds current.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 6</b></span>
+          <span class="chip"><b>9</b> sections</span>
+          <span class="chip">📐 <b>2</b> diagrams</span>
+          <span class="chip">💬 <b>18</b> Q&amp;A</span>
+          <span class="chip">▶ <b>9</b> runnable cells</span>
+          <span class="chip">⏱ <b>~8h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole Python subject — all 191 topics across all 11 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">191</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 191 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <div class="pyboot">
+        <b>▶ Every cell on this page runs — with real pandas 3.0.</b> The in-browser runtime ships
+        <b>pandas 3.0.2</b>, so the Copy-on-Write and string-dtype behaviour demonstrated below is the
+        genuine article, not a description of it. The first cell that imports pandas fetches the wheel
+        (a few seconds, once).
+        <br><button class="pbootbtn" id="pyWarm">Warm up the Python runtime now</button>
+      </div>
+
+      <article class="topic" id="p7-1">
+        <h3><span class="tn">7.1</span> Series, DataFrame, and the index <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">A DataFrame is <b>a dict of Series that share one index</b>. Almost every pandas surprise is really an index surprise, so start here.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Anatomy of a DataFrame: a shared index down the left, then three columns each a Series with its own dtype, shown as separate contiguous blocks. A note explains that a DataFrame is column-oriented so column operations are fast and row operations are slow.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">a DataFrame is column-oriented: one shared index, N typed Series</text>
+              <g font-size="10" font-family="ui-monospace,monospace">
+                <rect x="24" y="42" width="66" height="26" rx="4" fill="#1a1f28" stroke="#c9a0e0" stroke-width="1.5"/>
+                <text x="57" y="59" fill="#c9a0e0" text-anchor="middle">index</text>
+                <rect x="24" y="70" width="66" height="22" rx="3" fill="#161b23" stroke="#2c3542"/><text x="57" y="85" fill="#8892a0" text-anchor="middle">0</text>
+                <rect x="24" y="94" width="66" height="22" rx="3" fill="#161b23" stroke="#2c3542"/><text x="57" y="109" fill="#8892a0" text-anchor="middle">1</text>
+                <rect x="24" y="118" width="66" height="22" rx="3" fill="#161b23" stroke="#2c3542"/><text x="57" y="133" fill="#8892a0" text-anchor="middle">2</text>
+
+                <rect x="102" y="42" width="96" height="26" rx="4" fill="#1a1f28" stroke="#4B5BD6" stroke-width="1.5"/>
+                <text x="150" y="59" fill="#8fa0ff" text-anchor="middle">price</text>
+                <rect x="102" y="70" width="96" height="70" rx="4" fill="#161b23" stroke="#4B5BD6"/>
+                <text x="150" y="90" fill="#c9d1dc" text-anchor="middle">2.5</text>
+                <text x="150" y="112" fill="#c9d1dc" text-anchor="middle">3.0</text>
+                <text x="150" y="134" fill="#c9d1dc" text-anchor="middle">1.5</text>
+                <text x="150" y="158" fill="#5A6472" text-anchor="middle" font-size="9">float64</text>
+
+                <rect x="210" y="42" width="96" height="26" rx="4" fill="#1a1f28" stroke="#7fd6a0" stroke-width="1.5"/>
+                <text x="258" y="59" fill="#7fd6a0" text-anchor="middle">qty</text>
+                <rect x="210" y="70" width="96" height="70" rx="4" fill="#161b23" stroke="#7fd6a0"/>
+                <text x="258" y="90" fill="#c9d1dc" text-anchor="middle">4</text>
+                <text x="258" y="112" fill="#c9d1dc" text-anchor="middle">2</text>
+                <text x="258" y="134" fill="#c9d1dc" text-anchor="middle">9</text>
+                <text x="258" y="158" fill="#5A6472" text-anchor="middle" font-size="9">int64</text>
+
+                <rect x="318" y="42" width="96" height="26" rx="4" fill="#1a1f28" stroke="#F0A81E" stroke-width="1.5"/>
+                <text x="366" y="59" fill="#F0A81E" text-anchor="middle">city</text>
+                <rect x="318" y="70" width="96" height="70" rx="4" fill="#161b23" stroke="#F0A81E"/>
+                <text x="366" y="90" fill="#c9d1dc" text-anchor="middle">"uk"</text>
+                <text x="366" y="112" fill="#c9d1dc" text-anchor="middle">"de"</text>
+                <text x="366" y="134" fill="#c9d1dc" text-anchor="middle">"fr"</text>
+                <text x="366" y="158" fill="#5A6472" text-anchor="middle" font-size="9">str (new in 3.0)</text>
+
+                <rect x="444" y="42" width="232" height="130" rx="10" fill="#161b23" stroke="#2c3542"/>
+                <text x="460" y="64" fill="#c9d1dc" font-family="ui-sans-serif,system-ui" font-size="11" font-weight="600">what column-orientation means</text>
+                <text x="460" y="88" fill="#7fd6a0" font-family="ui-sans-serif,system-ui" font-size="10">✓ df["price"] * df["qty"] is fast</text>
+                <text x="470" y="102" fill="#8892a0" font-family="ui-sans-serif,system-ui" font-size="9.5">two contiguous buffers, one C loop</text>
+                <text x="460" y="126" fill="#e0929a" font-family="ui-sans-serif,system-ui" font-size="10">✗ iterating rows is slow</text>
+                <text x="470" y="140" fill="#8892a0" font-family="ui-sans-serif,system-ui" font-size="9.5">each row touches every buffer and</text>
+                <text x="470" y="152" fill="#8892a0" font-family="ui-sans-serif,system-ui" font-size="9.5">builds a Series object</text>
+              </g>
+              <text x="20" y="196" fill="#c9d1dc" font-size="11">the <tspan fill="#c9a0e0">index</tspan> is not decoration — it drives alignment, joins and reshaping, and it is where most surprises come from</text>
+              <text x="20" y="220" fill="#8892a0" font-size="10.5">think in columns, not rows. That single habit explains most of the performance advice in Part 9.</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#c9a0e0"></i>shared index</span><span><i style="background:#4B5BD6"></i>float column</span><span><i style="background:#7fd6a0"></i>int column</span><span><i style="background:#F0A81E"></i>string column</span></div>
+          <figcaption>Each column is a separate typed buffer. That's why per-column operations are fast and per-row loops are not.</figcaption>
+        </figure>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">anatomy.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+print("pandas", pd.__version__)
+
+df = pd.DataFrame({
+    "price": [2.5, 3.0, 1.5],
+    "qty":   [4, 2, 9],
+    "city":  ["uk", "de", "fr"],
+})
+print("\n", df.to_string())
+print("\ndtypes:\n", df.dtypes.to_string())
+print("\nindex :", df.index.tolist(), "| columns:", df.columns.tolist())
+print("shape :", df.shape, "| size:", df.size)
+
+# a column IS a Series, and carries the same index
+s = df["price"]
+print("\ntype of a column:", type(s).__name__, "| index:", s.index.tolist())
+
+# selecting with [] vs [[]] — Series vs DataFrame
+print("df['price'] ->", type(df["price"]).__name__)
+print("df[['price']] ->", type(df[["price"]]).__name__, "shape", df[["price"]].shape)
+
+# the index can be meaningful
+byc = df.set_index("city")
+print("\nindexed by city:\n", byc.to_string())
+print("lookup by label:", byc.loc["de", "qty"])
+print("back to a column:", byc.reset_index().columns.tolist())
+
+# memory: where does it go?
+print("\nmemory per column (bytes):")
+print(df.memory_usage(deep=True).to_string())</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">pandas 3.0.2</code>, the frame, and dtypes <code class="ic">float64 / int64 / str</code> — note <code class="ic">city</code> is <b><code class="ic">str</code></b>, not <code class="ic">object</code>, which is the pandas 3.0 default (§7.3). <code class="ic">df['price']</code> is a <code class="ic">Series</code>; <code class="ic">df[['price']]</code> is a one-column <code class="ic">DataFrame</code> — the single-versus-double bracket distinction. <code class="ic">set_index('city')</code> then <code class="ic">.loc['de', 'qty']</code> returns <code class="ic">2</code>.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is a DataFrame, really?</summary>
+              <div class="ans"><p><b>A dict of Series sharing one index.</b> Each column is a separate, typed, contiguous buffer; the index is a shared label array that every column aligns to.</p><p>Two consequences follow, and they explain a lot of the rest of pandas. Because storage is <b>column-oriented</b>, whole-column arithmetic is one C loop over contiguous memory and is fast, while iterating rows touches every buffer and constructs a Series per row — which is why <code class="ic">iterrows</code> is so slow (§9.3). And because the <b>index is shared and meaningful</b>, operations align on it automatically, which is the source of both pandas' power and its most confusing behaviour.</p><p>The habit to state: <b>think in columns, not rows.</b> Nearly every pandas performance problem is someone thinking of a frame as a list of records.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span><code class="ic">df['col']</code> vs <code class="ic">df[['col']]</code>?</summary>
+              <div class="ans"><p>Single brackets return a <b>Series</b> (1-D, no column name in the shape); double brackets pass a <em>list</em> of columns and return a <b>DataFrame</b>, even with one element.</p><p>It matters more than it looks. scikit-learn generally wants 2-D for <code class="ic">X</code> and 1-D for <code class="ic">y</code>, so <code class="ic">X = df[['feature']]</code> and <code class="ic">y = df['target']</code> is the correct pairing — getting it backwards produces shape errors, or worse, a silent broadcast (§6.7). Series and DataFrame also have different methods and different <code class="ic">.apply</code> semantics, so a function written for one can behave oddly on the other.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-2">
+        <h3><span class="tn">7.2</span> Index alignment <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">pandas aligns on the index before doing arithmetic. This is a feature, and it is also the source of mysterious NaNs and duplicated rows.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">alignment.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+
+a = pd.Series([1, 2, 3], index=["x", "y", "z"])
+b = pd.Series([10, 20, 30], index=["y", "z", "w"])
+
+print("a + b  (aligned on the index, union):\n", (a + b).to_string())
+print("\nfill_value avoids the NaNs:\n", a.add(b, fill_value=0).to_string())
+
+# the classic bug: assigning a filtered Series back to a full frame
+df = pd.DataFrame({"v": [1, 2, 3, 4]})
+big = df[df["v"] > 2]["v"] * 100
+df["scaled"] = big                       # aligns on index -> NaN where absent
+print("\nassignment aligns, leaving NaN:\n", df.to_string())
+
+# .values / .to_numpy() strips the index and aligns POSITIONALLY
+df2 = pd.DataFrame({"v": [1, 2, 3]}, index=[10, 11, 12])
+s = pd.Series([7, 8, 9], index=[0, 1, 2])
+df2["by_label"] = s                      # no overlap at all -> all NaN
+df2["by_position"] = s.to_numpy()        # positional, works
+print("\nlabel vs positional assignment:\n", df2.to_string())
+
+# duplicate index labels multiply rows on alignment
+dup = pd.Series([1, 2], index=["k", "k"])
+other = pd.Series([10], index=["k"])
+print("\nduplicate labels expand:\n", (dup + other).to_string())
+
+# reset_index is the usual fix before positional work
+print("\nreset_index gives a clean 0..n-1:",
+      df[df["v"] > 2].reset_index(drop=True).index.tolist())</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">a + b</code> gives NaN for <code class="ic">w</code> and <code class="ic">x</code> (present in only one side) and values for <code class="ic">y</code>, <code class="ic">z</code> — the union of indexes. <code class="ic">df["scaled"]</code> is NaN for the first two rows because the filtered Series only had index 2 and 3. In <code class="ic">df2</code>, the label-based assignment is <b>all NaN</b> (no index overlap) while <code class="ic">.to_numpy()</code> works positionally. And duplicate labels produce <b>four</b> rows from two — alignment does a cross-product on repeated labels.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Debug</span>You assigned a column and got NaNs. Why?</summary>
+              <div class="ans"><p><b>Index alignment.</b> Assigning a Series to a DataFrame column matches on the <em>index</em>, not on position. If the Series came from a filtered frame, its index has gaps — so the rows that were filtered out get NaN.</p><p>Three fixes, each appropriate in different situations. <b><code class="ic">.to_numpy()</code></b> (or <code class="ic">.values</code>) to force positional assignment — correct only if you're certain the order matches. <b><code class="ic">.reset_index(drop=True)</code></b> on both sides before combining. Or, best, <b>don't filter then reassign</b> — compute on the whole frame with <code class="ic">np.where</code> or a masked <code class="ic">.loc</code> assignment, so alignment is never in question.</p><p>The framing that shows understanding: alignment is a <em>feature</em> — it's what makes <code class="ic">df['a'] / df['b']</code> safe across differently-ordered frames — and this bug is that feature meeting an unintended index.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your row count went up after an operation you thought was elementwise.</summary>
+              <div class="ans"><p><b>Duplicate index labels.</b> When aligning, pandas matches every occurrence of a label on the left with every occurrence on the right — so two <code class="ic">"k"</code> rows meeting one <code class="ic">"k"</code> row gives two, and two meeting two gives four. It's the same cross-product behaviour that makes many-to-many joins explode (§8.5).</p><p>Diagnose with <code class="ic">df.index.is_unique</code> or <code class="ic">df.index.duplicated().sum()</code>. Fix by resetting the index, aggregating to make labels unique, or being explicit about the join you actually wanted.</p><p>The habit worth stating: <b>assert the row count</b> after any align, merge or concat. It's one line and it catches this class of bug at the point it happens rather than three transformations later.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-3">
+        <h3><span class="tn">7.3</span> dtypes after pandas 3.0 <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">A genuine currency question for 2026. pandas 3.0 changed the default string dtype, which invalidates a lot of muscle memory and a lot of existing code.</p>
+
+        <div class="cmp">
+          <div class="ch"><span class="cn">changed</span> What pandas 3.0 (Jan 2026) did to dtypes</div>
+          <div class="crow good"><div class="cl">strings</div><div class="cv">Inferred as <code class="ic">str</code>, <b>not <code class="ic">object</code></b>. Backed by PyArrow when installed. So <code class="ic">df.dtypes == "object"</code> checks now miss your string columns.</div></div>
+          <div class="crow good"><div class="cl">datetimes</div><div class="cv">Default resolution is <b>microseconds</b>, not nanoseconds — so dates before 1678 and after 2262 no longer overflow.</div></div>
+          <div class="crow"><div class="cl">copy-on-write</div><div class="cv">The only mode. See §7.5 — this is the big one.</div></div>
+          <div class="crow"><div class="cl">removals</div><div class="cv">Everything deprecated in 2.x is gone. The upgrade path is 2.3 → fix all warnings → 3.0.</div></div>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">dtypes.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+
+s = pd.Series(["a", "b", "c"])
+print("pandas", pd.__version__)
+print("string dtype now :", s.dtype, "   <- was 'object' before 3.0")
+print("is it object?    :", s.dtype == object, " <- old checks now FAIL")
+
+# the category dtype: huge win for low-cardinality strings
+big = pd.Series(["uk", "de", "fr"] * 40_000)
+as_cat = big.astype("category")
+print(f"\nstr      : {big.memory_usage(deep=True)/1e6:6.2f} MB")
+print(f"category : {as_cat.memory_usage(deep=True)/1e6:6.2f} MB")
+print("categories stored once:", as_cat.cat.categories.tolist())
+
+# nullable integers: an int column that can hold missing values
+plain = pd.Series([1, 2, None])
+nullable = pd.Series([1, 2, None], dtype="Int64")
+print("\nplain    :", plain.dtype, plain.tolist(), " <- upcast to float!")
+print("nullable :", nullable.dtype, nullable.tolist(), " <- stays integer")
+
+# datetime resolution
+d = pd.Series(pd.to_datetime(["2026-01-01", "1600-01-01"]))
+print("\ndatetime dtype:", d.dtype)
+print("pre-1678 dates now fine:", d.tolist())
+
+# the full dtype survey of a mixed frame
+df = pd.DataFrame({
+    "i": [1, 2], "f": [1.5, 2.5], "s": ["x", "y"],
+    "b": [True, False], "d": pd.to_datetime(["2026-01-01", "2026-01-02"]),
+    "c": pd.Categorical(["hi", "lo"]),
+})
+print("\n", df.dtypes.to_string())
+print("\nselect just the numerics:", df.select_dtypes("number").columns.tolist())
+print("select strings         :", df.select_dtypes("str").columns.tolist())</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the string Series reports dtype <b><code class="ic">str</code></b> and <code class="ic">s.dtype == object</code> is <b><code class="ic">False</code></b> — that single line is why 3.0 broke a lot of code. <code class="ic">category</code> cuts the 120k-element string Series to a fraction of its memory. <code class="ic">pd.Series([1, 2, None])</code> silently becomes <b>float64</b> while <code class="ic">dtype="Int64"</code> stays integer with <code class="ic">pd.NA</code>. And the 1600 date parses without an out-of-bounds error, thanks to the microsecond default.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>What changed about dtypes in pandas 3.0?</summary>
+              <div class="ans"><p><b>Strings get a dedicated <code class="ic">str</code> dtype by default</b>, backed by PyArrow if it's installed and falling back to NumPy object storage if not. Previously every string column was <code class="ic">object</code> dtype — a column of pointers to individual Python string objects, which was slow and memory-hungry.</p><p>The breaking part, and the reason to know this: any code checking <code class="ic">df.dtypes == "object"</code> or <code class="ic">select_dtypes("object")</code> to find string columns <b>now misses them</b>. That pattern is extremely common in feature-engineering code, so it's a real upgrade hazard.</p><p>Also in 3.0: <b>datetime defaults to microsecond resolution</b> rather than nanosecond, which removes the old 1678–2262 date range limit; Copy-on-Write became the only mode (§7.5); and everything deprecated in 2.x was removed. The recommended path is upgrade to 2.3 first, clear every warning, then move to 3.0.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>When would you use the <code class="ic">category</code> dtype?</summary>
+              <div class="ans"><p>For <b>low-cardinality</b> columns — a few hundred distinct values or fewer across many rows. It stores the distinct values once and the column as small integer codes, so a country column over ten million rows goes from hundreds of megabytes to a few.</p><p>It also makes <code class="ic">groupby</code> and merges on that column faster, and it lets you declare an <b>ordering</b> (<code class="ic">CategoricalDtype(ordered=True)</code>), which makes <code class="ic">&lt;</code> comparisons and sorting meaningful for things like ordinal survey responses.</p><p>The gotchas worth naming: appending an unseen value gives NaN rather than adding a category; <code class="ic">groupby</code> on a categorical includes <b>unobserved</b> combinations by default, which can produce a surprisingly large result (use <code class="ic">observed=True</code>); and for a high-cardinality column like a user id, categorical is <em>worse</em> than a plain string because the category mapping is nearly as big as the data.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why did your integer column become float?</summary>
+              <div class="ans"><p>Because it contains missing values, and the classic NumPy-backed <code class="ic">int64</code> dtype <b>has no representation for NaN</b>. pandas silently upcasts to <code class="ic">float64</code> so it has somewhere to put the NaN. The visible symptoms are ids printing as <code class="ic">12345.0</code> and, past 2⁵³, actual precision loss on large integer ids.</p><p>Fix: use the <b>nullable</b> integer dtype — <code class="ic">Series([...], dtype="Int64")</code> with a capital I — which stores an integer array plus a separate boolean mask and uses <code class="ic">pd.NA</code>. Or specify dtypes at read time so it never happens.</p><p>Same trap applies to booleans: a bool column with missing values becomes <code class="ic">object</code>, and the nullable equivalent is <code class="ic">"boolean"</code>. This is the single most common cause of &ldquo;my join key stopped matching&rdquo; — one side is <code class="ic">int64</code>, the other became <code class="ic">float64</code>.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-4">
+        <h3><span class="tn">7.4</span> <code class="ic">.loc</code> vs <code class="ic">.iloc</code> vs <code class="ic">[]</code> <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Asked almost every time. The complete answer includes <em>why <code class="ic">df[...]</code> is ambiguous</em>, not just that <code class="ic">.loc</code> is labels.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Accessor</th><th>Selects by</th><th>Slice end</th><th>Use for</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">.loc[row, col]</code></td><td><b>Label</b> (or boolean mask)</td><td><b>Inclusive</b></td><td>Almost everything, including assignment</td></tr>
+              <tr><td><code class="ic">.iloc[i, j]</code></td><td><b>Integer position</b></td><td>Exclusive</td><td>&ldquo;First 5 rows&rdquo;, positional logic</td></tr>
+              <tr><td><code class="ic">df[...]</code></td><td><b>Depends</b> on what you pass</td><td>varies</td><td>Quick column access only</td></tr>
+              <tr><td><code class="ic">.at</code> / <code class="ic">.iat</code></td><td>Label / position, single cell</td><td>—</td><td>Scalar access in a hot loop</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">selection.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd
+
+df = pd.DataFrame({"v": [10, 20, 30, 40], "w": ["a", "b", "c", "d"]},
+                  index=[10, 11, 12, 13])          # integer labels != positions
+print(df.to_string(), "\n")
+
+print("loc[11]  (label 11)   ->", df.loc[11].tolist())
+print("iloc[1]  (position 1) ->", df.iloc[1].tolist(), " (same row, different reason)")
+print("loc[10:12] INCLUSIVE  ->", df.loc[10:12].index.tolist())
+print("iloc[0:2] exclusive   ->", df.iloc[0:2].index.tolist())
+
+# this is why df[...] is ambiguous:
+print("\ndf['v']   -> a COLUMN by name")
+print("df[0:2]   -> ROWS by position:", df[0:2].index.tolist())
+print("same brackets, different axis — that ambiguity is the reason to prefer .loc")
+
+# boolean masking
+mask = df["v"] > 20
+print("\nmask       :", mask.tolist())
+print("df[mask]   :", df[mask].index.tolist())
+print("df.loc[mask, 'w'] ->", df.loc[mask, "w"].tolist())
+
+# assignment: ALWAYS use .loc with a mask
+df.loc[df["v"] > 20, "v"] = 0
+print("\nafter masked assign:\n", df.to_string())
+
+# query() reads well for complex conditions
+df2 = pd.DataFrame({"a": [1, 2, 3], "b": [9, 8, 7]})
+print("\nquery:", df2.query("a > 1 and b < 9").to_dict("records"))
+
+# scalar access
+print("\nat  (label)   :", df.at[10, "v"])
+print("iat (position):", df.iat[0, 0])</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">loc[11]</code> and <code class="ic">iloc[1]</code> both return the second row, for different reasons. Critically, <code class="ic">loc[10:12]</code> returns <b>three</b> rows (label slicing is inclusive) while <code class="ic">iloc[0:2]</code> returns two. Then the ambiguity demo: <code class="ic">df['v']</code> selects a <em>column</em> but <code class="ic">df[0:2]</code> selects <em>rows</em> — the same operator switching axis based on the argument type, which is exactly why explicit accessors exist.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span><code class="ic">.loc</code> vs <code class="ic">.iloc</code>?</summary>
+              <div class="ans"><p><code class="ic">.loc</code> selects by <b>label</b> (and accepts boolean masks); <code class="ic">.iloc</code> selects by <b>integer position</b>. They coincide only when the index happens to be a default <code class="ic">RangeIndex</code>, which is why the difference is invisible until it bites.</p><p>The detail that scores: <b><code class="ic">.loc</code> slices are inclusive of the endpoint, <code class="ic">.iloc</code> slices are not.</b> <code class="ic">df.loc[10:12]</code> returns three rows; <code class="ic">df.iloc[10:12]</code> returns two. That's deliberate — with arbitrary labels there's no &ldquo;next&rdquo; label to stop before.</p><p>Then explain why plain <code class="ic">df[...]</code> should be avoided beyond column access: it's <b>overloaded</b> — <code class="ic">df['v']</code> takes a column, <code class="ic">df[0:2]</code> takes rows, <code class="ic">df[mask]</code> takes rows. Same syntax, different axis, decided by the argument's type. Being explicit removes a whole class of confusion, which is why <code class="ic">.loc</code> is the recommended default for anything beyond grabbing a column.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>How do you conditionally update a column?</summary>
+              <div class="ans"><p><code class="ic">df.loc[mask, "col"] = value</code>. A single <code class="ic">.loc</code> call handles both the row selection and the column, so pandas knows unambiguously that you are assigning into the frame.</p><p>What <em>not</em> to write: <code class="ic">df[mask]["col"] = value</code>. That's <b>chained assignment</b> — two separate indexing operations — and under pandas 3.0's Copy-on-Write it silently does nothing (§7.5). Before 3.0 it sometimes worked and sometimes didn't, which is what <code class="ic">SettingWithCopyWarning</code> was warning about.</p><p>Alternatives worth naming: <code class="ic">np.where(cond, a, b)</code> for a two-branch assignment over the whole column, <code class="ic">df["col"].mask(cond, value)</code>, and <code class="ic">df.assign(col=...)</code> when you want to stay in a method chain rather than mutate.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-5">
+        <h3><span class="tn">7.5</span> Copy-on-Write and the end of <code class="ic">SettingWithCopyWarning</code> <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The single most valuable currency answer in this subject. pandas 3.0 made Copy-on-Write the only mode, which <b>removed <code class="ic">SettingWithCopyWarning</code> entirely</b> and changed what chained assignment does.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 260" role="img" aria-label="Comparison of chained assignment behaviour before and after pandas 3.0. Before, the same code sometimes modified the original frame and sometimes a temporary copy, with a SettingWithCopyWarning; after, indexing always yields an independent copy so chained assignment reliably does nothing and the warning no longer exists.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">df["a"][df["b"] &gt; 5] = 100 — what happens?</text>
+              <g font-size="10">
+                <rect x="24" y="38" width="310" height="196" rx="11" fill="#161b23" stroke="#e0929a" stroke-width="1.5"/>
+                <text x="42" y="60" fill="#e0929a" font-size="11.5" font-weight="600">before 3.0 — ambiguous</text>
+                <text x="42" y="84" fill="#c9d1dc">df["a"] returned a <tspan fill="#F0A81E">view or a copy</tspan>,</text>
+                <text x="42" y="98" fill="#c9d1dc">depending on dtypes and block layout</text>
+                <text x="42" y="122" fill="#7fd6a0">sometimes → the original changed ✓</text>
+                <text x="42" y="140" fill="#e0929a">sometimes → a temporary changed ✗</text>
+                <text x="42" y="164" fill="#F0A81E">pandas emitted SettingWithCopyWarning</text>
+                <text x="42" y="178" fill="#8892a0">…which nobody could reliably act on,</text>
+                <text x="42" y="192" fill="#8892a0">because it also fired on correct code</text>
+                <text x="42" y="216" fill="#5A6472" font-size="9.5">a decade of Stack Overflow questions</text>
+
+                <rect x="366" y="38" width="310" height="196" rx="11" fill="#161b23" stroke="#7fd6a0" stroke-width="1.7"/>
+                <text x="384" y="60" fill="#7fd6a0" font-size="11.5" font-weight="600">pandas 3.0 — Copy-on-Write only</text>
+                <text x="384" y="84" fill="#c9d1dc">any indexing result behaves as an</text>
+                <text x="384" y="98" fill="#c9d1dc"><tspan fill="#7fd6a0">independent copy</tspan> — always</text>
+                <text x="384" y="122" fill="#e0929a">chained assignment now reliably</text>
+                <text x="384" y="136" fill="#e0929a">does NOTHING (it edits a temporary)</text>
+                <text x="384" y="160" fill="#F0A81E">SettingWithCopyWarning is REMOVED</text>
+                <text x="384" y="180" fill="#7fd6a0">the fix, as always:</text>
+                <text x="384" y="196" fill="#c9d1dc" font-family="ui-monospace,monospace" font-size="9.5">df.loc[df["b"] &gt; 5, "a"] = 100</text>
+                <text x="384" y="220" fill="#5A6472" font-size="9.5">and copies are lazy — faster, not slower</text>
+              </g>
+              <text x="20" y="252" fill="#c9d1dc" font-size="11">predictable is better than sometimes-right: the behaviour is now <tspan fill="#7fd6a0">consistent</tspan>, and the correct idiom is unchanged</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#e0929a"></i>old, ambiguous</span><span><i style="background:#7fd6a0"></i>3.0, predictable</span></div>
+          <figcaption>Copy-on-Write also <em>improves</em> performance: pandas defers the actual duplication until a write happens, so the defensive <code class="ic">.copy()</code> calls people sprinkled everywhere are now usually redundant.</figcaption>
+        </figure>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">copy_on_write.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd
+print("pandas", pd.__version__, "\n")
+
+df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [3, 6, 9, 12]})
+
+# 1. chained assignment: silently does nothing under CoW
+before = df["a"].tolist()
+df["a"][df["b"] > 5] = 100
+print("chained assignment attempted")
+print("  before:", before)
+print("  after :", df["a"].tolist(), "-> UNCHANGED, and no warning")
+
+# 2. the correct form
+df.loc[df["b"] > 5, "a"] = 100
+print("\n.loc assignment:", df["a"].tolist(), "-> works")
+
+# 3. a filtered subset is independent — no need for a defensive .copy()
+sub = df[df["b"] > 5]
+sub["a"] = -1
+print("\nmutating a filtered subset:")
+print("  subset :", sub["a"].tolist())
+print("  parent :", df["a"].tolist(), "-> untouched")
+
+# 4. does SettingWithCopyWarning still exist?
+print("\nSettingWithCopyWarning exists?",
+      hasattr(pd.errors, "SettingWithCopyWarning"))
+
+# 5. and inplace=True does not save memory the way people think
+d2 = pd.DataFrame({"x": range(5)})
+d2.rename(columns={"x": "y"}, inplace=True)
+print("\ninplace rename ->", d2.columns.tolist())
+print("but inplace still copies internally under CoW —")
+print("it saves a NAME, not memory. Prefer chaining and reassignment.")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the chained assignment leaves <code class="ic">a</code> as <code class="ic">[1, 2, 3, 4]</code> — <b>completely unchanged, and with no warning at all</b>. The <code class="ic">.loc</code> form then sets rows 1–3 to 100. Mutating the filtered <code class="ic">sub</code> leaves the parent untouched, which is why the defensive <code class="ic">.copy()</code> after a filter is now redundant. The <code class="ic">hasattr</code> check should report <code class="ic">False</code> or a deprecated shim, because the warning class was removed in 3.0.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Modern</span>What is <code class="ic">SettingWithCopyWarning</code> and how do you fix it?</summary>
+              <div class="ans"><p>Lead with the currency, because this is the version of the question that shows you're current: <b>in pandas 3.0 it no longer exists.</b> Copy-on-Write became the only mode in January 2026, and because indexing results are now unambiguously copies, the warning had nothing left to warn about and was removed.</p><p>What it <em>was</em>: pandas couldn't tell whether <code class="ic">df["a"][mask] = x</code> would modify the original or a temporary, because <code class="ic">df["a"]</code> might return a view or a copy depending on dtypes and internal block layout. The warning meant &ldquo;this might not do what you want&rdquo; — and it fired on correct code too, which is why everyone learned to ignore it.</p><p>What happens <b>now</b>: chained assignment reliably <b>does nothing</b> — it writes to a temporary that's immediately discarded. Silent, but at least consistent, and the fix was always the same: <b>one <code class="ic">.loc</code> call</b>, <code class="ic">df.loc[mask, "a"] = x</code>.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Modern</span>What is Copy-on-Write, and is it faster or slower?</summary>
+              <div class="ans"><p><b>Faster</b>, which surprises people who assume &ldquo;more copies&rdquo;. Under CoW, every indexing result <em>behaves</em> as an independent copy, but pandas doesn't actually duplicate the data until something writes to it. So reads share memory and only a genuine mutation triggers the copy.</p><p>The performance win is that it lets pandas <b>remove defensive copies</b> it previously made because it couldn't prove they were unnecessary. And it lets <em>you</em> remove the <code class="ic">.copy()</code> calls that were idiomatic after every filter — under CoW those force an eager copy that would otherwise never have happened, so deleting them is a real memory improvement on upgrade.</p><p>The behavioural change to be precise about: mutating a slice can no longer reach back into the parent frame. Any code that <em>relied</em> on that — deliberately or accidentally — silently stops working, which is the main upgrade risk.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Does <code class="ic">inplace=True</code> save memory?</summary>
+              <div class="ans"><p><b>Generally no</b> — and this is a persistent myth worth correcting. Most <code class="ic">inplace</code> operations still build a new object internally and then rebind it, so peak memory is similar. What <code class="ic">inplace=True</code> saves is a variable name, not memory. Under Copy-on-Write it's even less meaningful, and the pandas team has been steadily deprecating it.</p><p>The practical arguments against it: it returns <code class="ic">None</code>, so it <b>breaks method chaining</b>; it mutates a frame someone else may hold a reference to, which is the §1.1 aliasing problem; and it makes code harder to reason about because you can't see the transformation as a value.</p><p>Prefer <code class="ic">df = df.rename(...)</code> or a chain with <code class="ic">.assign()</code> and <code class="ic">.pipe()</code>. If you genuinely need to reduce peak memory, the levers are dtypes, <code class="ic">usecols</code>, chunking and dropping columns early (§9.4) — not <code class="ic">inplace</code>.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-6">
+        <h3><span class="tn">7.6</span> Missing data <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Three sentinels, several dtypes, and a choice of strategies. The interview answer is about <em>why</em> the values are missing, not which function fills them.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">missing.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+
+df = pd.DataFrame({
+    "num":  [1.0, np.nan, 3.0, np.nan],
+    "int":  pd.array([1, None, 3, None], dtype="Int64"),
+    "text": ["a", None, "c", None],
+})
+print(df.to_string(), "\n")
+print("dtypes:\n", df.dtypes.to_string())
+
+print("\nmissing per column:\n", df.isna().sum().to_string())
+print("\nany missing at all:", df.isna().any().any(),
+      "| complete rows:", df.dropna().shape[0], "of", len(df))
+
+# NaN vs None vs pd.NA
+print("\nnp.nan is a float :", type(np.nan).__name__)
+print("pd.NA is the new sentinel for nullable dtypes:", df['int'][1] is pd.NA)
+print("NaN != NaN        :", np.nan == np.nan, "-> always use .isna()")
+
+# filling strategies
+print("\nffill (time series):\n", df["num"].ffill().tolist())
+print("median (numeric)  :", df["num"].fillna(df["num"].median()).tolist())
+print("sentinel (text)   :", df["text"].fillna("UNKNOWN").tolist())
+print("interpolate       :", df["num"].interpolate().tolist())
+
+# a missingness INDICATOR is often the most informative feature
+df["num_was_missing"] = df["num"].isna().astype("int8")
+print("\nkeeping the signal:\n", df[["num", "num_was_missing"]].to_string())
+
+# dropping: how much would you lose?
+print("\ndropna(how='any') keeps", len(df.dropna()), "rows")
+print("dropna(subset=['num']) keeps", len(df.dropna(subset=["num"])), "rows")
+print("dropna(thresh=2) keeps", len(df.dropna(thresh=2)), "rows")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> two missing in each column; <code class="ic">int</code> stays <code class="ic">Int64</code> with <code class="ic">pd.NA</code> rather than upcasting to float. <code class="ic">np.nan == np.nan</code> is <code class="ic">False</code>, hence <code class="ic">.isna()</code>. <code class="ic">ffill</code> carries values forward, the median fill uses 2.0, and <code class="ic">interpolate</code> gives <code class="ic">[1.0, 2.0, 3.0, 3.0]</code>. The <code class="ic">num_was_missing</code> indicator is the part worth internalising: it preserves information that any imputation destroys.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you handle missing values?</summary>
+              <div class="ans"><p>Start with the question that determines everything else: <b>why are they missing?</b> Missing completely at random, missing at random given other features, or missing <em>not</em> at random — where the missingness itself carries signal (income unreported by high earners, a sensor that fails under load).</p><p>Then the options. <b>Drop rows</b> only when few and plausibly random — quantify the loss first. <b>Drop the column</b> if mostly empty. <b>Impute</b>: median for skewed numerics, mean for symmetric, mode or an explicit <code class="ic">"UNKNOWN"</code> category for categoricals, forward-fill for time series, and model-based (<code class="ic">IterativeImputer</code>, KNN) when the pattern is structured.</p><p>The two points that make this a senior answer. <b>Add a missingness indicator</b> — <code class="ic">col_was_missing</code> — because for MNAR data that flag is often more predictive than the imputed value. And <b>fit the imputer on train only, inside a Pipeline</b>, or you've leaked test statistics into training (§10.7).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span><code class="ic">NaN</code> vs <code class="ic">None</code> vs <code class="ic">pd.NA</code>?</summary>
+              <div class="ans"><p><code class="ic">np.nan</code> is a <b>float</b> — an IEEE-754 value that propagates through arithmetic and is never equal to itself. It's the historical missing marker for NumPy-backed numeric columns, which is why an integer column with gaps upcasts to float64.</p><p><code class="ic">None</code> is Python's null object. In an <code class="ic">object</code> column it can sit alongside other values; pandas usually converts it to <code class="ic">NaN</code> in numeric contexts.</p><p><code class="ic">pd.NA</code> is the newer, dtype-agnostic sentinel used by the <b>nullable</b> dtypes (<code class="ic">Int64</code>, <code class="ic">boolean</code>, <code class="ic">str</code>). It propagates in comparisons too — <code class="ic">pd.NA &gt; 1</code> is <code class="ic">pd.NA</code>, not <code class="ic">False</code> — which is more logically consistent and occasionally surprising in boolean masks.</p><p>Practical takeaway: <b>always test with <code class="ic">.isna()</code></b>, never <code class="ic">== np.nan</code> or <code class="ic">is None</code>; and prefer nullable dtypes when you need integers or booleans that can be missing.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-7">
+        <h3><span class="tn">7.7</span> Reading data properly <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Most pipeline bugs are born at read time. Five arguments to <code class="ic">read_csv</code> prevent most of them — and the best answer is often &ldquo;don't use CSV&rdquo;.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">reading.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, io
+
+csv = """id,zipcode,amount,when,flag
+1,01234,10.5,2026-01-01,yes
+2,00987,20.0,2026-01-02,no
+3,01234,,2026-01-03,yes
+"""
+
+# naive read: three separate problems
+naive = pd.read_csv(io.StringIO(csv))
+print("NAIVE:\n", naive.to_string())
+print("\ndtypes:\n", naive.dtypes.to_string())
+print("\nproblem 1: zipcode lost its leading zero ->", naive["zipcode"].tolist())
+print("problem 2: 'when' is a string, not a date")
+print("problem 3: 'flag' is a string, not a bool")
+
+# explicit read: say what you mean
+good = pd.read_csv(
+    io.StringIO(csv),
+    dtype={"id": "int32", "zipcode": "str", "amount": "float32"},
+    parse_dates=["when"],
+    usecols=["id", "zipcode", "amount", "when", "flag"],
+    true_values=["yes"], false_values=["no"],
+)
+print("\n\nEXPLICIT:\n", good.to_string())
+print("\ndtypes:\n", good.dtypes.to_string())
+print("\nzipcode preserved:", good["zipcode"].tolist())
+
+# chunked reading for files that do not fit
+total = 0
+for chunk in pd.read_csv(io.StringIO(csv), chunksize=2):
+    total += chunk["amount"].sum()
+print("\nchunked sum:", total)
+
+# why parquet: the schema travels with the data
+buf = io.BytesIO()
+good.to_parquet(buf, index=False)
+buf.seek(0)
+rt = pd.read_parquet(buf)
+print("\nparquet round-trip preserves dtypes exactly:")
+print(rt.dtypes.to_string())
+print("zipcode still text:", rt["zipcode"].tolist())</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the naive read turns <code class="ic">01234</code> into the integer <code class="ic">1234</code> — <b>a silently corrupted identifier</b>, which is the single most common CSV bug — leaves the date as a string and the flag as text. The explicit read preserves the zipcode as <code class="ic">"01234"</code>, parses the date, and reads <code class="ic">yes/no</code> as booleans. The Parquet round-trip returns every dtype unchanged, which is the argument for using it: <b>CSV has no schema, so every read re-guesses.</b></div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Practical</span>What arguments do you always pass to <code class="ic">read_csv</code>?</summary>
+              <div class="ans"><p><b><code class="ic">dtype=</code></b> — the big one. Without it pandas infers per column, which turns zip codes, phone numbers and zero-padded ids into integers, losing leading zeros silently. It also prevents the float64-by-default memory bloat.</p><p><b><code class="ic">usecols=</code></b> — read only what you need; on a wide file this is the cheapest possible speed and memory win. <b><code class="ic">parse_dates=</code></b> so dates are datetimes rather than strings. <b><code class="ic">na_values=</code></b> because real files use <code class="ic">"NULL"</code>, <code class="ic">"N/A"</code>, <code class="ic">"-"</code>, <code class="ic">"missing"</code>. <b><code class="ic">chunksize=</code></b> when the file is large.</p><p>Then the answer that shows judgement: <b>prefer Parquet</b>. CSV has no schema, so every reader re-guesses types and every writer loses them; Parquet is columnar, compressed, stores dtypes, and supports column and predicate pushdown so you read a fraction of the bytes. Converting once at ingestion pays for itself immediately.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Debug</span>Your join key stopped matching after a CSV round-trip.</summary>
+              <div class="ans"><p>Almost certainly a <b>dtype mismatch introduced by the read</b>. The usual suspects: one side is <code class="ic">int64</code> and the other <code class="ic">float64</code> (because that file had a missing value, forcing an upcast), so <code class="ic">1</code> never matches <code class="ic">1.0</code>; or a numeric-looking id was read as an integer on one side and a string on the other; or leading zeros were stripped from one file and not the other.</p><p>Diagnose by comparing <code class="ic">df.dtypes</code> on both sides and inspecting a few keys with <code class="ic">repr()</code> — that reveals whitespace and quote characters that print invisibly.</p><p>Prevent it: <b>declare key dtypes explicitly at read time</b> (ids as <code class="ic">str</code> unless you do arithmetic on them), strip whitespace, and assert the expected row count after the merge (§8.5). Better still, stop using CSV for anything that travels between steps.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-8">
+        <h3><span class="tn">7.8</span> Duplicates and type conversion</h3>
+        <p class="lead">Two routine operations with important arguments people forget: <code class="ic">subset=</code> and <code class="ic">keep=</code> on duplicates, and <code class="ic">errors=</code> on conversion.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">dupes.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+
+df = pd.DataFrame({
+    "user": ["a", "a", "b", "b", "c"],
+    "ts":   [1, 2, 1, 3, 1],
+    "score": [10, 20, 5, 7, 9],
+})
+print(df.to_string(), "\n")
+
+print("fully duplicated rows:", df.duplicated().sum())
+print("duplicated on 'user' :", df.duplicated(subset=["user"]).sum())
+
+print("\nkeep='first':\n", df.drop_duplicates("user", keep="first").to_string(index=False))
+print("\nkeep='last' :\n", df.drop_duplicates("user", keep="last").to_string(index=False))
+
+# the real requirement is usually "latest per user" — sort, then dedupe
+latest = df.sort_values("ts").drop_duplicates("user", keep="last")
+print("\nlatest per user (sort first!):\n", latest.to_string(index=False))
+
+# type conversion with a failure policy
+messy = pd.Series(["1", "2", "oops", "4"])
+print("\nto_numeric(errors='coerce'):", pd.to_numeric(messy, errors="coerce").tolist())
+try:
+    pd.to_numeric(messy)                       # default raises
+except ValueError as exc:
+    print("default raises:", str(exc)[:60], "...")
+
+# astype is strict; to_numeric is the tolerant one
+print("\nastype would raise on 'oops' too — use to_numeric for dirty input")
+
+# convert_dtypes upgrades to the nullable types in one call
+raw = pd.DataFrame({"i": [1, 2, None], "s": ["x", "y", None]})
+print("\nbefore:\n", raw.dtypes.to_string())
+print("after convert_dtypes:\n", raw.convert_dtypes().dtypes.to_string())</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> zero fully-duplicated rows but two duplicated on <code class="ic">user</code>. <code class="ic">keep='first'</code> and <code class="ic">keep='last'</code> select different rows, and the &ldquo;latest per user&rdquo; version sorts by <code class="ic">ts</code> first — <b>that sort is the step people omit</b>, which makes the result depend on the arbitrary input order. <code class="ic">to_numeric(errors="coerce")</code> gives <code class="ic">[1.0, 2.0, nan, 4.0]</code> while the default raises. <code class="ic">convert_dtypes</code> upgrades to <code class="ic">Int64</code> and <code class="ic">str</code>.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Coding</span>Keep only the most recent record per user.</summary>
+              <div class="ans"><p><code class="ic">df.sort_values("ts").drop_duplicates("user", keep="last")</code> — and the <b>sort is the essential part</b>. <code class="ic">keep="last"</code> means &ldquo;last in the current row order&rdquo;, not &ldquo;latest by timestamp&rdquo;, so without sorting the result depends on whatever order the data happened to arrive in.</p><p>Alternatives worth naming: <code class="ic">df.loc[df.groupby("user")["ts"].idxmax()]</code>, which is explicit about the criterion and doesn't rely on sort order; or <code class="ic">df.sort_values(["user","ts"]).groupby("user").tail(1)</code>.</p><p>The edge case to raise unprompted: <b>ties</b>. If two records share the maximum timestamp, you need a documented tie-break — a secondary sort key, or an aggregation. Silently taking whichever comes first is a non-deterministic pipeline.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p7-9">
+        <h3><span class="tn">7.9</span> Method chaining <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A readable chain replaces a stack of intermediate variables and avoids mutation entirely. pandas 3.0 adds <code class="ic">pd.col</code> to make it cleaner still.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">chaining.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import pandas as pd, numpy as np
+
+raw = pd.DataFrame({
+    "region": ["uk", "de", "uk", "fr", "de"],
+    "price":  [2.5, 3.0, 1.5, 4.0, 2.0],
+    "qty":    [4, 2, 9, 1, 5],
+    "status": ["ok", "ok", "void", "ok", "ok"],
+})
+
+# the imperative version: mutation + temporary names
+tmp = raw[raw["status"] == "ok"].copy()
+tmp["revenue"] = tmp["price"] * tmp["qty"]
+tmp = tmp[tmp["revenue"] > 5]
+result_a = tmp.groupby("region")["revenue"].sum().sort_values(ascending=False)
+
+# the chained version: one expression, no mutation, no temporaries
+result_b = (
+    raw
+    .query("status == 'ok'")
+    .assign(revenue=lambda d: d["price"] * d["qty"])
+    .query("revenue > 5")
+    .groupby("region")["revenue"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+print("imperative:\n", result_a.to_string())
+print("\nchained   :\n", result_b.to_string())
+print("\nidentical:", result_a.equals(result_b))
+
+# pipe() inserts your own function into a chain
+def add_margin(d, rate):
+    return d.assign(margin=lambda x: x["revenue"] * rate)
+
+print("\nwith pipe:\n", (
+    raw.query("status == 'ok'")
+       .assign(revenue=lambda d: d["price"] * d["qty"])
+       .pipe(add_margin, rate=0.2)
+       .loc[:, ["region", "revenue", "margin"]]
+       .to_string(index=False)))
+
+# assign can reference columns it just created, in order
+print("\nsequential assign:\n", (
+    raw.assign(rev=lambda d: d["price"] * d["qty"],
+               rev_log=lambda d: np.log1p(d["rev"]))
+       .loc[:, ["rev", "rev_log"]].round(3).to_string(index=False)))</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> both versions produce the same result (<code class="ic">uk 13.5, de 10.0</code> or similar) and <code class="ic">identical: True</code>. The chained form has no temporary variables and no mutation, so there's no <code class="ic">.copy()</code> question and no chance of a stale intermediate. The last block shows <code class="ic">assign</code> can reference a column it created earlier <em>in the same call</em> — the lambdas are evaluated in order, which is what makes multi-step feature creation readable.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>Why prefer method chaining?</summary>
+              <div class="ans"><p>Four reasons. <b>No mutation</b>, so no aliasing questions and no defensive <code class="ic">.copy()</code>. <b>No temporary names</b> — <code class="ic">tmp</code>, <code class="ic">tmp2</code>, <code class="ic">df_final</code> are where stale-intermediate bugs live, especially in notebooks where cells run out of order. <b>Reads top-to-bottom as the transformation it is</b>, which makes review much easier. <b>Composable</b> — <code class="ic">.pipe()</code> lets you drop a tested function into the middle.</p><p>Use <code class="ic">lambda</code> inside <code class="ic">.assign()</code> and <code class="ic">.query()</code> so each step refers to <em>the frame at that point in the chain</em> rather than the original — that's what keeps it correct after a filter.</p><p>The honest limits: very long chains are hard to debug because there's no intermediate to inspect (break them at a meaningful boundary, or insert a <code class="ic">.pipe(lambda d: (print(d.shape), d)[1])</code> probe), and <code class="ic">query</code> uses string expressions that no linter or type checker will check for you.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="PY_Part06_NumPy.html">Part 6 · NumPy</a></div><ul><li>Strides, views, broadcasting</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 7 · pandas Core</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="PY_Part08_PandasTransform.html">Part 8 · pandas Transformation</a></div><ul><li>agg vs transform vs apply</li><li>Joins that explode</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        Python for Data Science Interviews — Part 7 of 11 · pandas Core<br>
+        Library-current as of <b>Aug 2026</b> — Python <b>3.14</b> (PEP 779 free-threading) · pandas <b>3.0</b> (Copy-on-Write only) · NumPy <b>2.5</b> · scikit-learn <b>1.9</b>.<br>
+        Runnable cells execute <b>real CPython 3.14</b> in your browser via Pyodide — nothing is sent to a server.<br>
+        Progress is stored locally under key <code style="color:#8892a0">pyPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 191 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · The Data Model", "l1": "Level 1 · Data Structures", "l2": "Level 2 · Functions &amp; Decorators", "l3": "Level 3 · Generators", "l4": "Level 4 · OOP &amp; Dataclasses", "l5": "Level 5 · NumPy", "l6": "Level 6 · pandas Core", "l7": "Level 7 · pandas Transformation", "l8": "Level 8 · Performance &amp; Memory", "l9": "Level 9 · Production", "iv": "Interview Q&amp;A Drill", "ex": "Coding Exercises"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "iv", "ex"];
+const TRACKER = [
+[1,"l0","Theory","High",0,"Names are bindings, not boxes: what a = b actually does"],
+[2,"l0","Theory","High",0,"Mutable vs immutable, and why it decides everything else"],
+[3,"l0","Theory","High",0,"is vs ==, and why is on small ints looks like it works"],
+[4,"l0","Theory","High",0,"Identity, equality and the __hash__/__eq__ contract"],
+[5,"l0","Theory","High",0,"Why only immutable objects can be dict keys or set members"],
+[6,"l0","Theory","High",0,"The mutable default argument trap"],
+[7,"l0","Theory","High",0,"Shallow copy vs deep copy vs assignment"],
+[8,"l0","Theory","High",0,"Argument passing: neither call-by-value nor call-by-reference"],
+[9,"l0","Theory","High",0,"LEGB scope resolution, global and nonlocal"],
+[10,"l0","Theory","High",0,"Late binding in closures (the classic loop-variable bug)"],
+[11,"l0","Theory","High",0,"Truthiness, None checks, and the or default idiom"],
+[12,"l0","Theory","High",0,"Reference counting, cycles and the generational GC"],
+[13,"l0","Theory","High",0,"__slots__ and where object overhead comes from"],
+[14,"l0","Theory","High",0,"Interning, sys.getsizeof, and why a list of ints is bigger than you think"],
+[15,"l1","Theory","Medium",0,"list vs tuple vs set vs dict: the four-way decision"],
+[16,"l1","Theory","Medium",0,"Time complexity of every common operation (the table you must know)"],
+[17,"l1","Theory","Medium",0,"Why x in list is the most common accidental O(n\u00b2)"],
+[18,"l1","Theory","Medium",0,"Dict insertion order, and when it became a guarantee"],
+[19,"l1","Theory","Medium",0,"dict.get / setdefault / defaultdict / Counter"],
+[20,"l1","Theory","Medium",0,"deque for queues, and why list.pop(0) is a bug at scale"],
+[21,"l1","Theory","Medium",0,"heapq for top-k without sorting everything"],
+[22,"l1","Theory","Medium",0,"Sorting: key=, stability, operator.itemgetter, multi-key with reverse"],
+[23,"l1","Theory","Medium",0,"Comprehensions vs map/filter vs loops"],
+[24,"l1","Theory","Medium",0,"Nested comprehensions and the flatten idiom"],
+[25,"l1","Theory","Medium",0,"Set algebra for dedup, membership and diffing datasets"],
+[26,"l1","Theory","Medium",0,"Tuple unpacking, starred targets and swapping"],
+[27,"l1","Theory","Medium",0,"zip, enumerate, zip(*rows) for transposition"],
+[28,"l1","Theory","Medium",0,"Slicing semantics, negative steps, and slice assignment"],
+[29,"l1","Theory","Medium",0,"str immutability and why += in a loop is quadratic"],
+[30,"l1","Theory","Medium",0,"bisect for sorted lookups and bucketing"],
+[31,"l2","Practical","Medium",0,"Positional, keyword, default, args, *kwargs"],
+[32,"l2","Practical","Medium",0,"Keyword-only and positional-only parameters"],
+[33,"l2","Practical","Medium",0,"First-class functions and higher-order functions"],
+[34,"l2","Practical","Medium",0,"Closures: what gets captured and when"],
+[35,"l2","Practical","Medium",0,"Writing a decorator from scratch"],
+[36,"l2","Practical","Medium",0,"functools.wraps and why omitting it breaks introspection"],
+[37,"l2","Practical","Medium",0,"Decorators with arguments (the three-level nesting)"],
+[38,"l2","Practical","Medium",0,"Practical decorators: timing, retry, caching, logging, validation"],
+[39,"l2","Practical","Medium",0,"functools.lru_cache / cache and its hashability requirement"],
+[40,"l2","Practical","Medium",0,"functools.partial and where it beats a lambda"],
+[41,"l2","Practical","Medium",0,"functools.reduce, and why a loop is usually clearer"],
+[42,"l2","Practical","Medium",0,"Lambdas: what they are for and what they are not for"],
+[43,"l2","Practical","Medium",0,"Type hints on functions, Optional, Callable, generics"],
+[44,"l2","Practical","Medium",0,"Docstrings that answer the caller's actual questions"],
+[45,"l3","Practical","Medium",0,"The iterator protocol: __iter__, __next__, StopIteration"],
+[46,"l3","Practical","Medium",0,"Iterable vs iterator, and why a generator is exhausted once"],
+[47,"l3","Practical","Medium",0,"Generator functions and yield"],
+[48,"l3","Practical","Medium",0,"Generator expressions vs list comprehensions (memory)"],
+[49,"l3","Practical","Medium",0,"yield from and generator delegation"],
+[50,"l3","Practical","Medium",0,"Reading a multi-GB file without loading it"],
+[51,"l3","Practical","Medium",0,"Chunked processing and streaming aggregation"],
+[52,"l3","Practical","Medium",0,"itertools: islice, chain, groupby, product, accumulate, tee"],
+[53,"l3","Practical","Medium",0,"Pipelines of generators as a processing pattern"],
+[54,"l3","Practical","Medium",0,"Two-pass problems and when laziness stops helping"],
+[55,"l3","Practical","Medium",0,"Context managers: with, __enter__/__exit__"],
+[56,"l3","Practical","Medium",0,"contextlib.contextmanager for a generator-based context manager"],
+[57,"l3","Practical","Medium",0,"Exception handling: try/except/else/finally, specific excepts"],
+[58,"l3","Practical","Medium",0,"Custom exceptions and failing loudly in a pipeline"],
+[59,"l4","Practical","Medium",0,"Classes, instances, __init__, and self"],
+[60,"l4","Practical","Medium",0,"Class vs instance attributes (and the shared-mutable trap)"],
+[61,"l4","Practical","Medium",0,"@property for computed and validated attributes"],
+[62,"l4","Practical","Medium",0,"@staticmethod vs @classmethod and alternative constructors"],
+[63,"l4","Practical","Medium",0,"Dunder methods: __repr__, __str__, __eq__, __len__, __getitem__"],
+[64,"l4","Practical","Medium",0,"@dataclass, frozen, field(default_factory=...)"],
+[65,"l4","Practical","Medium",0,"Dataclass vs NamedTuple vs TypedDict vs Pydantic"],
+[66,"l4","Practical","Medium",0,"Inheritance, MRO and super()"],
+[67,"l4","Practical","Medium",0,"Composition over inheritance, with a data-pipeline example"],
+[68,"l4","Practical","Medium",0,"Abstract base classes and duck typing"],
+[69,"l4","Practical","Medium",0,"Protocol and structural typing"],
+[70,"l4","Practical","Medium",0,"Writing a scikit-learn\u2013compatible estimator (fit/transform/get_params)"],
+[71,"l4","Practical","Medium",0,"Mixins, and when they become a maintenance problem"],
+[72,"l5","Practical","High",0,"ndarray anatomy: data buffer, dtype, shape, strides"],
+[73,"l5","Practical","High",0,"Why arrays beat lists: contiguity, fixed dtype, no boxing"],
+[74,"l5","Practical","High",0,"dtypes, overflow, and silent integer wraparound"],
+[75,"l5","Practical","High",0,"Views vs copies, and how to tell which you have"],
+[76,"l5","Practical","High",0,"Strides: how reshape and transpose avoid copying"],
+[77,"l5","Practical","High",0,"C order vs Fortran order and .copy(order=...)"],
+[78,"l5","Practical","High",0,"Basic indexing (view) vs fancy indexing (copy)"],
+[79,"l5","Practical","High",0,"Boolean masking and np.where"],
+[80,"l5","Practical","High",0,"Broadcasting: the three rules"],
+[81,"l5","Practical","High",0,"The [:, None] idiom for outer operations"],
+[82,"l5","Practical","High",0,"Axis semantics, and what axis=0 really reduces"],
+[83,"l5","Practical","High",0,"keepdims and why it saves broadcasting bugs"],
+[84,"l5","Practical","High",0,"Vectorising a loop: pairwise distances worked example"],
+[85,"l5","Practical","High",0,"Universal functions, out= and in-place operations"],
+[86,"l5","Practical","High",0,"Aggregations, nan-aware functions, and NaN propagation"],
+[87,"l5","Practical","High",0,"Float equality, np.isclose, and catastrophic cancellation"],
+[88,"l5","Practical","High",0,"Random number generation: default_rng and reproducibility"],
+[89,"l5","Practical","High",0,"einsum and when it is worth the readability cost"],
+[90,"l5","Practical","High",0,"Structured arrays and memory-mapped arrays"],
+[91,"l5","Practical","High",0,"Where NumPy ends and pandas begins"],
+[92,"l6","Practical","High",0,"Series and DataFrame as index + typed columns"],
+[93,"l6","Practical","High",0,"The index: alignment, duplicates, reset_index, set_index"],
+[94,"l6","Practical","High",0,"dtypes: numeric, str (new default in pandas 3.0), category, datetime, nullable"],
+[95,"l6","Practical","High",0,"Why object dtype used to be everywhere and what changed in 3.0"],
+[96,"l6","Practical","High",0,"category dtype for memory and speed"],
+[97,"l6","Practical","High",0,"loc vs .iloc vs []: label, position and the ambiguous case"],
+[98,"l6","Practical","High",0,"Boolean masking, query, isin, between"],
+[99,"l6","Practical","High",0,"Copy-on-Write in pandas 3.0 and the death of SettingWithCopyWarning"],
+[100,"l6","Practical","High",0,"Why chained assignment now silently does nothing"],
+[101,"l6","Practical","High",0,"Missing data: NaN vs None vs pd.NA"],
+[102,"l6","Practical","High",0,"fillna, dropna, interpolate and choosing between them"],
+[103,"l6","Practical","High",0,"Reading data: dtypes at read time, usecols, chunksize, parsing dates"],
+[104,"l6","Practical","High",0,"Parquet vs CSV, and why CSV loses your schema"],
+[105,"l6","Practical","High",0,"Duplicates: duplicated, drop_duplicates(subset=, keep=)"],
+[106,"l6","Practical","High",0,"Type conversion: astype, to_numeric(errors=), convert_dtypes"],
+[107,"l6","Practical","High",0,"assign and pd.col for readable chains"],
+[108,"l6","Practical","High",0,"Method chaining and pipe"],
+[109,"l7","Practical","High",0,"groupby and the split-apply-combine model"],
+[110,"l7","Practical","High",0,"agg with multiple functions and named aggregation"],
+[111,"l7","Practical","High",0,"transform vs agg vs apply: shape, speed and when each is right"],
+[112,"l7","Practical","High",0,"filter on groups"],
+[113,"l7","Practical","High",0,"groupby(dropna=), observed= and the categorical surprise"],
+[114,"l7","Practical","High",0,"Group-wise fill, rank, and normalisation without a loop"],
+[115,"l7","Practical","High",0,"merge: the five how values and what each keeps"],
+[116,"l7","Practical","High",0,"Validating a join: validate=, indicator=, row-count assertions"],
+[117,"l7","Practical","High",0,"Why row counts explode: many-to-many joins"],
+[118,"l7","Practical","High",0,"join vs merge vs concat"],
+[119,"l7","Practical","High",0,"concat: axis, keys, and index collisions"],
+[120,"l7","Practical","High",0,"merge_asof for nearest-key and point-in-time joins"],
+[121,"l7","Practical","High",0,"Wide vs long, melt and pivot"],
+[122,"l7","Practical","High",0,"pivot vs pivot_table and the aggregation requirement"],
+[123,"l7","Practical","High",0,"stack/unstack and the MultiIndex"],
+[124,"l7","Practical","High",0,"MultiIndex selection: xs, tuples, IndexSlice"],
+[125,"l7","Practical","High",0,"Datetime index, resample, asfreq"],
+[126,"l7","Practical","High",0,"Timezones, and the naive-vs-aware bug"],
+[127,"l7","Practical","High",0,"Rolling, expanding and ewm windows"],
+[128,"l7","Practical","High",0,"shift, diff, pct_change and lag features without leakage"],
+[129,"l7","Practical","High",0,"cut and qcut for binning"],
+[130,"l7","Practical","High",0,"String operations via .str, and regex extraction"],
+[131,"l7","Practical","High",0,"Translating SQL to pandas (and when to just use SQL)"],
+[132,"l8","Practical","High",0,"Where pandas time actually goes: measure before optimising"],
+[133,"l8","Practical","High",0,"The vectorisation ladder: loop \u2192 iterrows \u2192 apply \u2192 vectorised \u2192 NumPy"],
+[134,"l8","Practical","High",0,"Why apply is a loop wearing a costume"],
+[135,"l8","Practical","High",0,"itertuples vs iterrows, and when a loop is genuinely correct"],
+[136,"l8","Practical","High",0,"Reducing memory: dtype downcasting, category, dropping columns early"],
+[137,"l8","Practical","High",0,"Chunked reads and out-of-core aggregation"],
+[138,"l8","Practical","High",0,"Profiling: timeit, cProfile, line profiling, memory_profiler"],
+[139,"l8","Practical","High",0,"Big-O of a pipeline vs constant factors in practice"],
+[140,"l8","Practical","High",0,"The GIL: what it does and does not lock"],
+[141,"l8","Practical","High",0,"Free-threaded Python 3.14 (PEP 779) and what it changes for data work"],
+[142,"l8","Practical","High",0,"Threads vs processes vs async: choosing by workload"],
+[143,"l8","Practical","High",0,"concurrent.futures for embarrassingly parallel work"],
+[144,"l8","Practical","High",0,"multiprocessing pitfalls: pickling, fork vs spawn, memory copies"],
+[145,"l8","Practical","High",0,"asyncio for many API calls, and one blocking call ruining it"],
+[146,"l8","Practical","High",0,"joblib and scikit-learn's n_jobs"],
+[147,"l8","Practical","High",0,"Numba, Cython and when to reach for them"],
+[148,"l8","Practical","High",0,"Polars, DuckDB and Arrow: what they change and when to switch"],
+[149,"l8","Practical","High",0,"Caching: lru_cache, on-disk caches, and invalidation"],
+[150,"l9","Practical","Medium",0,"Project layout, imports and why notebooks break in production"],
+[151,"l9","Practical","Medium",0,"Virtual environments, lockfiles and reproducible installs"],
+[152,"l9","Practical","Medium",0,"Configuration and secrets outside the code"],
+[153,"l9","Practical","Medium",0,"Logging instead of print, with levels and structure"],
+[154,"l9","Practical","Medium",0,"Testing data code with pytest: fixtures, parametrize, tolerances"],
+[155,"l9","Practical","Medium",0,"Testing the untestable: seeds, golden files, property tests"],
+[156,"l9","Practical","Medium",0,"Data validation at boundaries: schemas and assertions"],
+[157,"l9","Practical","Medium",0,"Type hints in practice, and running a checker in CI"],
+[158,"l9","Practical","Medium",0,"scikit-learn Pipeline and ColumnTransformer"],
+[159,"l9","Practical","Medium",0,"Data leakage: fitting on the full dataset, and how pipelines prevent it"],
+[160,"l9","Practical","Medium",0,"Cross-validation with a pipeline, and grouped/time-series splits"],
+[161,"l9","Practical","Medium",0,"Reproducibility: seeds, versions, and the sources of nondeterminism"],
+[162,"l9","Practical","Medium",0,"Serialising models: pickle, joblib, ONNX and version skew"],
+[163,"l9","Practical","Medium",0,"Code review for data code: the checklist"],
+[164,"l9","Practical","Medium",0,"Refactoring a notebook into modules"],
+[165,"l9","Practical","Medium",0,"Docstrings, README and handing work over"],
+[166,"iv","Interview Prep","High",0,"High-frequency: the data model (mutability, copies, identity, scope)"],
+[167,"iv","Interview Prep","High",0,"High-frequency: data structures and complexity"],
+[168,"iv","Interview Prep","High",0,"High-frequency: decorators, generators and context managers"],
+[169,"iv","Interview Prep","High",0,"High-frequency: NumPy (views, broadcasting, vectorisation)"],
+[170,"iv","Interview Prep","High",0,"High-frequency: pandas selection and Copy-on-Write"],
+[171,"iv","Interview Prep","High",0,"High-frequency: groupby, joins and reshaping"],
+[172,"iv","Interview Prep","High",0,"High-frequency: performance, memory and the GIL"],
+[173,"iv","Interview Prep","High",0,"High-frequency: production, testing and leakage"],
+[174,"iv","Interview Prep","High",0,"The trap questions (answered correctly, out loud)"],
+[175,"iv","Interview Prep","High",0,"Live-coding warm-ups timed at 10 minutes each"],
+[176,"iv","Interview Prep","High",0,"Explaining a past project in 90 seconds"],
+[177,"ex","Exercise","High",0,"Exercise: two-sum and the hash-map reflex"],
+[178,"ex","Exercise","High",0,"Exercise: group records without pandas"],
+[179,"ex","Exercise","High",0,"Exercise: running/streaming statistics"],
+[180,"ex","Exercise","High",0,"Exercise: flatten a nested structure"],
+[181,"ex","Exercise","High",0,"Exercise: sessionise events by gap"],
+[182,"ex","Exercise","High",0,"Exercise: top-k per group"],
+[183,"ex","Exercise","High",0,"Exercise: dedupe with a tie-break rule"],
+[184,"ex","Exercise","High",0,"Exercise: pairwise distances, vectorised"],
+[185,"ex","Exercise","High",0,"Exercise: entropy and information gain from scratch"],
+[186,"ex","Exercise","High",0,"Exercise: train/test split by time without leakage"],
+[187,"ex","Exercise","High",0,"Exercise: a retry decorator with backoff"],
+[188,"ex","Exercise","High",0,"Exercise: a chunked CSV aggregator"],
+[189,"ex","Exercise","High",0,"Exercise: rolling median with a deque"],
+[190,"ex","Exercise","High",0,"Exercise: a custom sklearn transformer"],
+[191,"ex","Exercise","High",0,"Exercise: SQL-to-pandas translation drill"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="pyPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 191 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+
+<script>
+/* ------------------------------------------------------------------------
+   Shared in-browser Python runtime for every .pyrun cell on the page.
+   Pyodide (CPython 3.14 compiled to WebAssembly) is loaded LAZILY on the
+   first Run click, so the page itself stays light. numpy / pandas / sklearn
+   wheels are fetched on demand the first time a cell imports them.
+   ------------------------------------------------------------------------ */
+window.PyRT = (function () {
+  var PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/pyodide.js";
+  var pyodide = null, booting = null, loaded = {};
+  var listeners = [];
+
+  function announce(msg, cls) {
+    listeners.forEach(function (fn) { try { fn(msg, cls); } catch (e) {} });
+  }
+  function onStatus(fn) { listeners.push(fn); }
+
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement("script");
+      s.src = src; s.onload = res; s.onerror = function () { rej(new Error("could not load " + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function boot() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (booting) return booting;
+    announce("downloading Python runtime (~12 MB, once per visit)…", "busy");
+    booting = loadScript(PYODIDE_URL)
+      .then(function () {
+        announce("starting CPython…", "busy");
+        return loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/" });
+      })
+      .then(function (py) {
+        pyodide = py;
+        announce("Python ready", "ready");
+        return py;
+      })
+      .catch(function (e) {
+        booting = null;
+        announce("runtime failed to load — you are probably offline. " +
+                 "The expected output is shown under each cell.", "err");
+        throw e;
+      });
+    return booting;
+  }
+
+  /* map an import name -> the Pyodide package that provides it */
+  var PKG = {
+    numpy: "numpy", pandas: "pandas", sklearn: "scikit-learn", scipy: "scipy",
+    matplotlib: "matplotlib", pyarrow: "pyarrow", statsmodels: "statsmodels"
+  };
+  function neededPackages(code) {
+    var want = {};
+    var re = /(?:^|\n)\s*(?:import|from)\s+([A-Za-z_][\w.]*)/g, m;
+    while ((m = re.exec(code))) {
+      var top = m[1].split(".")[0];
+      if (PKG[top] && !loaded[PKG[top]]) want[PKG[top]] = 1;
+    }
+    return Object.keys(want);
+  }
+
+  function run(code) {
+    return boot().then(function (py) {
+      var pkgs = neededPackages(code);
+      var p = Promise.resolve();
+      if (pkgs.length) {
+        announce("fetching " + pkgs.join(", ") + "…", "busy");
+        p = py.loadPackage(pkgs).then(function () {
+          pkgs.forEach(function (k) { loaded[k] = 1; });
+          announce("Python ready", "ready");
+        });
+      }
+      return p.then(function () {
+        var out = [];
+        py.setStdout({ batched: function (s) { out.push(s); } });
+        py.setStderr({ batched: function (s) { out.push(s); } });
+        return py.runPythonAsync(code).then(
+          function (val) {
+            var txt = out.join("\n");
+            /* echo the value of a trailing expression, REPL-style */
+            if (val !== undefined && val !== null) {
+              var r;
+              try { r = py.globals.get("repr")(val); } catch (e) { r = String(val); }
+              if (r !== "None") txt += (txt && !txt.endsWith("\n") ? "\n" : "") + r;
+            }
+            return { ok: true, text: txt };
+          },
+          function (err) {
+            return { ok: false, text: out.join("\n") + (out.length ? "\n" : "") + String(err.message || err) };
+          }
+        );
+      });
+    }).catch(function (e) {
+      return { ok: false, text: String(e.message || e), offline: true };
+    });
+  }
+
+  function reset() { pyodide = null; booting = null; loaded = {}; announce("runtime discarded — next Run reloads it", ""); }
+  function isReady() { return !!pyodide; }
+
+  return { boot: boot, run: run, reset: reset, onStatus: onStatus, isReady: isReady };
+})();
+
+/* wire up every .pyrun cell */
+(function () {
+  var cells = document.querySelectorAll(".pyrun");
+  if (!cells.length) return;
+
+  function setStatus(el, msg, cls) {
+    var s = el.querySelector(".pstat");
+    if (s) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+  }
+  window.PyRT.onStatus(function (msg, cls) {
+    for (var i = 0; i < cells.length; i++) {
+      var s = cells[i].querySelector(".pstat");
+      if (s && !s.dataset.local) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+    }
+  });
+
+  for (var i = 0; i < cells.length; i++) (function (cell) {
+    var ta   = cell.querySelector("textarea");
+    var out  = cell.querySelector(".pout");
+    var run  = cell.querySelector(".pbtn.run");
+    var rst  = cell.querySelector(".pbtn.reset");
+    var seed = ta ? ta.value : "";
+
+    if (ta) {
+      /* size to content, and keep Tab inside the editor */
+      var fit = function () { ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; };
+      fit(); ta.addEventListener("input", fit);
+      ta.addEventListener("keydown", function (e) {
+        if (e.key === "Tab") {
+          e.preventDefault();
+          var s = ta.selectionStart, t = ta.selectionEnd;
+          ta.value = ta.value.slice(0, s) + "    " + ta.value.slice(t);
+          ta.selectionStart = ta.selectionEnd = s + 4;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); doRun(); }
+      });
+    }
+
+    function doRun() {
+      if (!ta || !out) return;
+      run.disabled = true;
+      var s = cell.querySelector(".pstat"); if (s) s.dataset.local = "1";
+      setStatus(cell, "running…", "busy");
+      out.classList.add("show");
+      out.innerHTML = '<span class="odim">running…</span>';
+      window.PyRT.run(ta.value).then(function (r) {
+        run.disabled = false;
+        if (s) delete s.dataset.local;
+        var txt = (r.text || "").replace(/[&<>]/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+        });
+        if (r.ok) {
+          setStatus(cell, "ok", "ready");
+          out.innerHTML = txt ? txt : '<span class="odim">(ran cleanly — no output; add a print())</span>';
+        } else {
+          setStatus(cell, r.offline ? "offline" : "error", "err");
+          out.innerHTML = '<span class="oerr">' + (txt || "failed") + "</span>";
+        }
+      });
+    }
+
+    if (run) run.addEventListener("click", doRun);
+    if (rst) rst.addEventListener("click", function () {
+      if (ta) { ta.value = seed; ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; }
+      if (out) { out.classList.remove("show"); out.innerHTML = ""; }
+      setStatus(cell, window.PyRT.isReady() ? "Python ready" : "idle", window.PyRT.isReady() ? "ready" : "");
+    });
+  })(cells[i]);
+
+  /* page-level "warm up the runtime now" buttons (several in the stitched file) */
+  var warms = document.querySelectorAll(".pbootbtn");
+  for (var w = 0; w < warms.length; w++) (function (btn) {
+    btn.addEventListener("click", function () {
+      for (var j = 0; j < warms.length; j++) { warms[j].disabled = true; warms[j].textContent = "loading…"; }
+      window.PyRT.boot().then(function () {
+        for (var j = 0; j < warms.length; j++) warms[j].textContent = "Python is ready ✓";
+      }).catch(function () {
+        for (var j = 0; j < warms.length; j++) {
+          warms[j].textContent = "failed — check your connection"; warms[j].disabled = false;
+        }
+      });
+    });
+  })(warms[w]);
+})();
+</script>
+
+</body>
+</html>

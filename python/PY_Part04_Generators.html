@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python for Data Science — Part 4: Iterators, Generators &amp; Laziness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (Python) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wbtn:disabled{opacity:.45;cursor:not-allowed}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+
+/* ---- live Python runner (Pyodide) ---- */
+.pyrun{margin:1.7rem 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.pyrun .ph{background:#14181f;color:#e6e9ef;padding:9px 15px;font-family:var(--mono);font-size:11.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #2c3542}
+.pyrun .ph .dot3{display:inline-flex;gap:5px;margin-right:4px}
+.pyrun .ph .dot3 i{width:9px;height:9px;border-radius:50%;display:block}
+.pyrun .ph .ptag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;background:#2E9E5B;color:#0b1a10;padding:2px 7px;border-radius:20px;font-weight:700}
+.pyrun .ph .pname{color:#8892a0}
+.pyrun .ph .pspacer{flex:1}
+.pyrun .ph .pstat{font-size:10.5px;color:#8892a0}
+.pyrun .ph .pstat.busy{color:var(--gold-2)}
+.pyrun .ph .pstat.ready{color:#7fd6a0}
+.pyrun .ph .pstat.err{color:#e0929a}
+.pyrun textarea{width:100%;box-sizing:border-box;border:0;outline:0;resize:vertical;display:block;
+  background:#0f1319;color:#e6e9ef;font-family:var(--mono);font-size:12.6px;line-height:1.72;
+  padding:14px 16px;tab-size:4;min-height:96px;caret-color:var(--gold-2)}
+.pyrun textarea::selection{background:#31405c}
+.pyrun .pbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:var(--paper);border-top:1px solid var(--line)}
+.pyrun .pbtn{font-family:var(--mono);font-size:11.5px;padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:.13s}
+.pyrun .pbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.pyrun .pbtn.run{background:var(--indigo);color:#fff;border-color:var(--indigo);font-weight:600}
+.pyrun .pbtn.run:hover{filter:brightness(1.08)}
+.pyrun .pbtn:disabled{opacity:.45;cursor:not-allowed}
+.pyrun .phint{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:auto}
+.pyrun .pout{display:none;border-top:1px solid var(--line);background:#0f1319;color:#c9d1dc;
+  font-family:var(--mono);font-size:12.4px;line-height:1.7;padding:13px 16px;white-space:pre-wrap;
+  word-break:break-word;max-height:420px;overflow:auto;margin:0}
+.pyrun .pout.show{display:block}
+.pyrun .pout .oerr{color:#e0929a}
+.pyrun .pout .ook{color:#7fd6a0}
+.pyrun .pout .odim{color:#5A6472}
+.pyrun .pexp{border-top:1px solid var(--line);background:var(--gold-soft);padding:11px 16px;font-size:.9rem;color:var(--text);line-height:1.7}
+.pyrun .pexp b{color:#8a5c00}
+@media print{.pyrun .pbar{display:none}.pyrun{break-inside:avoid}.pyrun .pout{display:block;max-height:none}}
+
+/* the shared runtime banner */
+.pyboot{margin:1.5rem 0;border:1px dashed var(--indigo-line);border-radius:12px;background:var(--indigo-soft);padding:14px 17px;font-size:.92rem;line-height:1.7;color:var(--text)}
+.pyboot b{color:var(--indigo)}
+.pyboot .pbootbtn{margin-top:10px;display:inline-block;font-family:var(--mono);font-size:11.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;cursor:pointer;font-weight:600}
+.pyboot .pbootbtn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.cmp{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.cmp .ch{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.cmp .ch .cn{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.cmp .crow{display:grid;grid-template-columns:132px 1fr;border-top:1px solid var(--line)}
+.cmp .crow:first-child{border-top:none}
+.cmp .crow .cl{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.cmp .crow .cv{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.cmp .crow.bad .cl{color:#a33}
+.cmp .crow.good .cl{color:#1c7a42}
+@media (max-width:620px){.cmp .crow{grid-template-columns:1fr}.cmp .crow .cl{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 4 / 11</small>Iterators, Generators &amp; Laziness</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">Python<small>Data Science Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 4 of 11</div>
+      <div class="v">Iterators, Generators &amp; Laziness</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 191 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L3</span> Generators <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#p4-1">4.1 · The iterator protocol ⭐</a></li>
+          <li><a href="#p4-2">4.2 · Iterable vs iterator ⭐</a></li>
+          <li><a href="#p4-3">4.3 · Generators ⭐⭐</a></li>
+          <li><a href="#p4-4">4.4 · Streaming a file too big for RAM ⭐⭐</a></li>
+          <li><a href="#p4-5">4.5 · <code>itertools</code> ⭐</a></li>
+          <li><a href="#p4-6">4.6 · Generator pipelines</a></li>
+          <li><a href="#p4-7">4.7 · Context managers ⭐</a></li>
+          <li><a href="#p4-8">4.8 · Exceptions in a data pipeline ⭐</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← Python home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      Python for Data Science<br>Part 4 — Iterators, Generators &amp; Laziness<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 4 of 11 · Iterators, Generators &amp; Laziness</div>
+        <h1 class="title">Processing more data than you have memory for
+          <span class="sub">The iterator protocol, the iterable-versus-iterator distinction that explains single-use generators, generator functions and expressions, streaming a file larger than RAM, the useful half of <code>itertools</code>, generator pipelines, context managers, and exception handling that fails loudly.</span>
+        </h1>
+        <p class="thesis">The generator question is really a <strong>memory</strong> question, and the answer interviewers want is a number: a list comprehension over ten million rows materialises all ten million; the generator expression holds one. That is the whole point, and §4.4 turns it into the practical skill — aggregating a file bigger than your machine's RAM without ever loading it. The subtlety worth knowing cold is §4.2: a generator is <em>its own iterator</em>, which is why iterating it twice silently gives you nothing the second time, and why that bug is so hard to see in a notebook.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 3</b></span>
+          <span class="chip"><b>8</b> sections</span>
+          <span class="chip">📐 <b>1</b> diagrams</span>
+          <span class="chip">💬 <b>15</b> Q&amp;A</span>
+          <span class="chip">▶ <b>8</b> runnable cells</span>
+          <span class="chip">⏱ <b>~5h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole Python subject — all 191 topics across all 11 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">191</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 191 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <div class="pyboot">
+        <b>▶ Every cell on this page runs.</b> Real CPython 3.14 in your browser via Pyodide.
+        <code class="ic">Ctrl</code>/<code class="ic">⌘</code>&nbsp;+&nbsp;<code class="ic">Enter</code> runs the current cell; each
+        cell also states its expected output.
+        <br><button class="pbootbtn" id="pyWarm">Warm up the Python runtime now</button>
+      </div>
+
+      <article class="topic" id="p4-1">
+        <h3><span class="tn">4.1</span> The iterator protocol <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Every <code class="ic">for</code> loop in Python is sugar over two methods. Knowing them is what lets you answer &ldquo;what's the difference between an iterable and an iterator?&rdquo; crisply.</p>
+
+        <p><code class="ic">for x in obj</code> calls <code class="ic">iter(obj)</code> to get an <b>iterator</b>, then calls <code class="ic">next()</code> on it repeatedly until it raises <code class="ic">StopIteration</code>, which the loop catches silently.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">protocol.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">nums = [10, 20, 30]
+
+it = iter(nums)                       # the list is ITERABLE; this is an ITERATOR
+print("next:", next(it), next(it), next(it))
+try:
+    next(it)
+except StopIteration:
+    print("exhausted -> StopIteration (the for loop swallows this)")
+
+# a hand-rolled iterator, so the protocol is concrete
+class Countdown:
+    def __init__(self, n): self.n = n
+    def __iter__(self): return self          # I am my own iterator
+    def __next__(self):
+        if self.n <= 0:
+            raise StopIteration
+        self.n -= 1
+        return self.n + 1
+
+print("\ncountdown:", list(Countdown(4)))
+
+# a re-iterable container: __iter__ returns a FRESH iterator each time
+class Repeatable:
+    def __init__(self, data): self.data = data
+    def __iter__(self): return iter(self.data)
+
+r = Repeatable([1, 2])
+print("pass 1:", list(r), "pass 2:", list(r), "<- re-iterable")
+
+c = Countdown(2)
+print("pass 1:", list(c), "pass 2:", list(c), "<- exhausted, silently empty")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">10 20 30</code>, then the <code class="ic">StopIteration</code> message. <code class="ic">Countdown(4)</code> yields <code class="ic">[4, 3, 2, 1]</code>. The last two lines are the lesson: the re-iterable container gives <code class="ic">[1, 2]</code> both times, while the self-iterating <code class="ic">Countdown</code> gives <code class="ic">[2, 1]</code> then <code class="ic">[]</code> — <b>silently empty, no error</b>. That silence is why exhausted-iterator bugs are hard to spot.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Iterable vs iterator?</summary>
+              <div class="ans"><p>An <b>iterable</b> implements <code class="ic">__iter__</code> and can produce an iterator — lists, dicts, strings, files. An <b>iterator</b> implements <code class="ic">__next__</code> (and <code class="ic">__iter__</code> returning itself) and holds the <em>position</em>; it is consumed as you advance it.</p><p>The consequence that matters: a list is iterable and re-iterable — <code class="ic">iter(lst)</code> gives you a fresh iterator each time, so you can loop over it twice. A generator <em>is</em> its own iterator, so once exhausted it yields nothing more, <b>silently</b>, with no exception.</p><p>That's the bug this question exists to test: <code class="ic">gen = (x for x in data)</code> then <code class="ic">sum(gen)</code> followed by <code class="ic">max(gen)</code> gives you a correct sum and then a <code class="ic">ValueError</code> on an empty sequence — or worse, <code class="ic">len(list(gen)) == 0</code> and no error at all.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Write a class you can use in a <code class="ic">for</code> loop.</summary>
+              <div class="ans"><p>Two designs, and choosing deliberately is the answer.</p><p><b>Self-iterating</b>: <code class="ic">__iter__</code> returns <code class="ic">self</code> and <code class="ic">__next__</code> advances internal state, raising <code class="ic">StopIteration</code> when done. Simple, but single-use — a second loop is silently empty.</p><p><b>Re-iterable container</b>: <code class="ic">__iter__</code> returns a <em>fresh</em> iterator each call, typically by delegating (<code class="ic">return iter(self.data)</code>) or by being a generator function. This is what you almost always want for something that models a collection.</p><p>Simplest correct version: make <code class="ic">__iter__</code> a generator — <code class="ic">def __iter__(self): yield from self.data</code>. You get a new generator per call, so it's re-iterable, and you never write <code class="ic">__next__</code> or <code class="ic">StopIteration</code> by hand.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-2">
+        <h3><span class="tn">4.2</span> Iterable vs iterator, in practice <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The single-use nature of generators causes a specific, quiet class of bug. It is worth seeing fail.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">exhaustion.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">rows = [{"v": 1}, {"v": 2}, {"v": 3}]
+
+gen = (r["v"] for r in rows)
+print("total :", sum(gen))
+print("count :", sum(1 for _ in gen), "  <- 0! the generator is spent")
+print("max   :", list(gen), "        <- silently empty")
+
+# same trap inside a function that consumes twice
+def bad_stats(values):
+    return {"n": len(list(values)), "total": sum(values)}   # second pass sees nothing
+
+print("\nbad_stats(gen):", bad_stats(r["v"] for r in rows))
+
+def good_stats(values):
+    values = list(values)          # materialise ONCE if you need two passes
+    return {"n": len(values), "total": sum(values)}
+print("good_stats    :", good_stats(r["v"] for r in rows))
+
+# or make one pass do both — the streaming way
+def streaming_stats(values):
+    n = total = 0
+    for v in values:
+        n += 1; total += v
+    return {"n": n, "total": total, "mean": total / n if n else None}
+print("streaming     :", streaming_stats(r["v"] for r in rows))
+
+# itertools.tee duplicates a stream if you must have two passes
+from itertools import tee
+a, b = tee(r["v"] for r in rows)
+print("\ntee:", sum(a), list(b), " (buffers internally — not free)")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">total: 6</code>, then <code class="ic">count: 0</code> and <code class="ic">max: []</code> — the generator is exhausted and nothing complains. <code class="ic">bad_stats</code> returns <code class="ic">{'n': 3, 'total': 0}</code>: the <code class="ic">len(list(...))</code> consumed it, so <code class="ic">sum</code> saw an empty stream and returned a plausible-looking zero. That's the dangerous shape — a wrong number rather than an error. <code class="ic">good_stats</code> and <code class="ic">streaming_stats</code> both give <code class="ic">n=3, total=6</code>.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why does my function return zero for the sum but the right count?</summary>
+              <div class="ans"><p>Because it was passed a <b>generator</b> and iterates it twice. The first pass (<code class="ic">len(list(values))</code>) consumes it; the second (<code class="ic">sum(values)</code>) sees an empty stream and returns <code class="ic">0</code> — a wrong answer with no exception, which is worse than a crash.</p><p>Three fixes, in order of preference. <b>Make one pass do everything</b> — accumulate count and total in a single loop; this keeps the streaming benefit. <b>Materialise once</b> at the top: <code class="ic">values = list(values)</code>, correct but loses the memory advantage. <b><code class="ic">itertools.tee</code></b> if you genuinely need two independent passes over an unrepeatable source — but note it buffers whatever the slower consumer hasn't reached yet, so it isn't free.</p><p>The defensive habit worth mentioning: a function that needs multiple passes should <b>document that it requires a sequence</b>, not an iterator — or convert defensively on the first line.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-3">
+        <h3><span class="tn">4.3</span> Generators <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">A function containing <code class="ic">yield</code> returns a generator: a lazy, resumable stream that holds one item at a time. The interview answer is a <em>memory</em> answer.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 250" role="img" aria-label="Comparison of a list comprehension and a generator expression over ten million rows. The list materialises all ten million values in memory shown as a large filled block; the generator holds one value at a time shown as a single small cell, with a pipeline of transformations applied per item.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">sum(x*x for x in range(10_000_000)) — where does the memory go?</text>
+              <g font-size="10.5">
+                <text x="24" y="46" fill="#e0929a" font-size="11" font-weight="600">[x*x for x in range(10_000_000)]</text>
+                <rect x="24" y="56" width="290" height="44" rx="7" fill="#3a2228" stroke="#a33" stroke-width="1.4"/>
+                <text x="169" y="76" fill="#e0929a" text-anchor="middle">10,000,000 ints materialised</text>
+                <text x="169" y="92" fill="#c9d1dc" text-anchor="middle" font-size="9.5">≈ 400 MB resident before sum() even starts</text>
+                <text x="24" y="118" fill="#8892a0" font-size="9.5">peak memory ∝ n</text>
+
+                <text x="24" y="152" fill="#7fd6a0" font-size="11" font-weight="600">(x*x for x in range(10_000_000))</text>
+                <rect x="24" y="162" width="30" height="30" rx="6" fill="#173026" stroke="#2E9E5B" stroke-width="1.5"/>
+                <text x="39" y="182" fill="#7fd6a0" text-anchor="middle" font-size="9">x</text>
+                <path d="M58 177h26" stroke="#5A6472" stroke-width="1.2" marker-end="url(#pyar4)"/>
+                <defs><marker id="pyar4" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0l7 3.5L0 7z" fill="#5A6472"/></marker></defs>
+                <rect x="88" y="162" width="52" height="30" rx="6" fill="#161b23" stroke="#4B5BD6"/>
+                <text x="114" y="182" fill="#8fa0ff" text-anchor="middle" font-size="9">x*x</text>
+                <path d="M144 177h26" stroke="#5A6472" stroke-width="1.2" marker-end="url(#pyar4)"/>
+                <rect x="174" y="162" width="60" height="30" rx="6" fill="#161b23" stroke="#F0A81E"/>
+                <text x="204" y="182" fill="#F0A81E" text-anchor="middle" font-size="9">sum +=</text>
+                <path d="M204 162v-14h-165v14" stroke="#7fd6a0" stroke-width="1.1" fill="none" stroke-dasharray="3 3"/>
+                <text x="248" y="176" fill="#7fd6a0" font-size="9.5">one item in flight</text>
+                <text x="248" y="190" fill="#7fd6a0" font-size="9.5">at a time</text>
+                <text x="24" y="212" fill="#8892a0" font-size="9.5">peak memory ∝ 1 — constant, whatever n is</text>
+
+                <rect x="392" y="46" width="284" height="166" rx="10" fill="#161b23" stroke="#2c3542"/>
+                <text x="408" y="68" fill="#c9d1dc" font-size="11" font-weight="600">choose by what you do next</text>
+                <text x="408" y="92" fill="#7fd6a0" font-size="10">generator when you consume ONCE:</text>
+                <text x="418" y="108" fill="#8892a0" font-size="9.5">sum / max / any / a for loop / a pipeline</text>
+                <text x="408" y="132" fill="#e0929a" font-size="10">list when you need to:</text>
+                <text x="418" y="148" fill="#8892a0" font-size="9.5">index it, len() it, iterate twice,</text>
+                <text x="418" y="162" fill="#8892a0" font-size="9.5">sort it, or pass it around</text>
+                <text x="408" y="188" fill="#F0A81E" font-size="10">and remember: a generator is</text>
+                <text x="408" y="202" fill="#F0A81E" font-size="10">single-use (§4.2)</text>
+              </g>
+              <text x="20" y="238" fill="#c9d1dc" font-size="11">a generator does not make the work faster — it makes the <tspan fill="#7fd6a0">memory constant</tspan></text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#a33"></i>materialised</span><span><i style="background:#2E9E5B"></i>streamed</span><span><i style="background:#4B5BD6"></i>per-item work</span></div>
+          <figcaption>Same total CPU work either way; the difference is peak resident memory, which is what makes a 200 GB file processable on a laptop.</figcaption>
+        </figure>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">generators.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import sys
+
+N = 200_000
+as_list = [x * x for x in range(N)]
+as_gen  = (x * x for x in range(N))
+
+print(f"list object : {sys.getsizeof(as_list):>10,} bytes")
+print(f"generator   : {sys.getsizeof(as_gen):>10,} bytes  <- constant, whatever N is")
+print("same answer :", sum(as_list) == sum(as_gen))
+
+# generators are LAZY — nothing runs until you iterate
+def noisy():
+    print("  ...started")
+    for i in range(3):
+        print(f"  ...yielding {i}")
+        yield i
+    print("  ...finished")
+
+g = noisy()
+print("\ncreated the generator (nothing printed yet)")
+print("first item:", next(g))
+print("rest      :", list(g))
+
+# generators can be infinite — impossible with a list
+def naturals():
+    n = 0
+    while True:
+        yield n
+        n += 1
+
+from itertools import islice
+print("\nfirst 5 of an infinite stream:", list(islice(naturals(), 5)))
+
+# they can also receive values back, and hold state between resumes
+def running_mean():
+    total = count = 0
+    avg = None
+    while True:
+        x = yield avg            # yield the current mean, receive the next value
+        total += x; count += 1
+        avg = total / count
+
+rm = running_mean(); next(rm)
+print("running means:", [round(rm.send(v), 2) for v in [10, 20, 30]])</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the list weighs ~1.6&nbsp;MB while the generator is a couple of hundred bytes — <b>and that number does not change if you raise N</b>. Both sum to the same value. The <code class="ic">noisy</code> block proves laziness: nothing prints on creation, <code class="ic">...started</code> appears only on the first <code class="ic">next</code>. Then <code class="ic">[0, 1, 2, 3, 4]</code> from an infinite generator, and running means <code class="ic">[10.0, 15.0, 20.0]</code> from a generator holding state across <code class="ic">send</code>.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is a generator and why use one?</summary>
+              <div class="ans"><p>A function containing <code class="ic">yield</code>. Calling it returns a <b>generator object</b> that produces values lazily: execution pauses at each <code class="ic">yield</code>, keeping local state, and resumes on the next <code class="ic">next()</code>.</p><p>Give the reason as a number, because that's the answer: <code class="ic">[x*x for x in range(10_000_000)]</code> materialises ten million ints — hundreds of megabytes — before anything consumes them. The generator expression holds <b>one</b>. Peak memory goes from O(n) to O(1).</p><p>Then the three secondary benefits: you can represent <b>infinite</b> streams; you get <b>early exit</b> for free (<code class="ic">any()</code> over a generator stops at the first match rather than computing everything); and generators <b>compose into pipelines</b> where each stage still holds one item.</p><p>And the honest caveat: generators don't make the work <em>faster</em>, they make the memory constant — and they're single-use.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>List comprehension or generator expression — how do you choose?</summary>
+              <div class="ans"><p>Ask <b>what happens next</b>. If you consume it exactly once — <code class="ic">sum</code>, <code class="ic">max</code>, <code class="ic">any</code>, <code class="ic">"".join</code>, a single <code class="ic">for</code> loop, feeding another generator — use a <b>generator expression</b>. If you need to index it, take its <code class="ic">len</code>, sort it, iterate more than once, or hand it to something that will, use a <b>list</b>.</p><p>Two practical notes. When a generator expression is the <em>only</em> argument to a function you can drop the extra parentheses: <code class="ic">sum(x*x for x in xs)</code>. And for small collections the difference is irrelevant — this is a decision that matters at scale, not a style rule to apply everywhere.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Deep dive</span>What does <code class="ic">yield from</code> do?</summary>
+              <div class="ans"><p>It delegates to another iterable: <code class="ic">yield from sub</code> yields every item <code class="ic">sub</code> produces, and — the part people miss — also forwards <code class="ic">send()</code>, <code class="ic">throw()</code> and the sub-generator's <code class="ic">return</code> value back to the caller.</p><p>The obvious use is flattening a recursive structure without manual loops: a recursive generator that does <code class="ic">yield from walk(child)</code> for each child reads exactly like the tree it's walking. The other common use is composing pipeline stages while keeping laziness.</p><p><code class="ic">for x in sub: yield x</code> is equivalent only for simple iteration; it loses the two-way protocol, which is why <code class="ic">yield from</code> was added rather than left as sugar.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-4">
+        <h3><span class="tn">4.4</span> Streaming a file too big for RAM <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The practical payoff of everything above, and a very common take-home requirement: aggregate a file larger than your machine's memory.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">streaming.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import io, csv
+from collections import defaultdict
+
+# stand in for a 200 GB file on disk
+raw = "country,amount\n" + "\n".join(
+    f"{c},{i}" for i, c in enumerate(["uk", "de", "uk", "fr", "de", "uk"], start=10))
+print("the 'file':\n" + raw + "\n")
+
+def stream_rows(fh):
+    """A generator over parsed rows — never holds more than one."""
+    for row in csv.DictReader(fh):
+        yield {"country": row["country"], "amount": int(row["amount"])}
+
+def aggregate(rows):
+    """One pass, constant memory in the number of ROWS (grows with groups only)."""
+    totals, counts = defaultdict(int), defaultdict(int)
+    for r in rows:
+        totals[r["country"]] += r["amount"]
+        counts[r["country"]] += 1
+    return {k: {"sum": totals[k], "n": counts[k], "mean": totals[k] / counts[k]}
+            for k in totals}
+
+with io.StringIO(raw) as fh:
+    print("aggregated:", aggregate(stream_rows(fh)))
+
+# the file object is ITSELF a lazy iterator of lines — no readlines() needed
+with io.StringIO(raw) as fh:
+    next(fh)                                   # skip the header
+    total = sum(int(line.split(",")[1]) for line in fh)
+print("\none-liner total:", total)
+
+# a chunked variant, for when per-chunk vectorised work is worth it
+def chunks(iterable, size):
+    buf = []
+    for item in iterable:
+        buf.append(item)
+        if len(buf) == size:
+            yield buf; buf = []
+    if buf:
+        yield buf
+
+with io.StringIO(raw) as fh:
+    for i, chunk in enumerate(chunks(stream_rows(fh), 4), start=1):
+        print(f"chunk {i}: {len(chunk)} rows, sum={sum(r['amount'] for r in chunk)}")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the CSV, then <code class="ic">{'uk': {'sum': 36, 'n': 3, ...}, 'de': {...}, 'fr': {...}}</code>. The one-liner total is <code class="ic">90</code>. Two chunks of 4 and 2 rows. The important structural point: <b>memory is bounded by the number of groups, not the number of rows</b> — so this scales to a file of any size as long as the group cardinality is manageable. That framing is what an interviewer is listening for.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>How do you process a 50 GB CSV on a 16 GB machine?</summary>
+              <div class="ans"><p><b>Stream it and aggregate as you go.</b> A file object is already a lazy iterator of lines, so <code class="ic">for line in fh</code> never holds more than one; <code class="ic">csv.DictReader(fh)</code> is the same, parsed. Accumulate into a dict of running totals and counts, so memory scales with the number of <b>groups</b>, not rows.</p><p>Then the pandas-flavoured versions, because that's the expected follow-up: <code class="ic">pd.read_csv(path, chunksize=500_000)</code> gives an iterator of frames, so you aggregate per chunk and combine at the end — this lets each chunk use vectorised operations, which is usually much faster than pure-Python streaming. Read only what you need with <code class="ic">usecols=</code>, and specify <code class="ic">dtype=</code> to avoid pandas inferring float64 for everything.</p><p>And the answer that scores highest: <b>don't do it in pandas at all.</b> Convert to Parquet once (columnar and compressed, so a column subset reads a fraction of the bytes) and query with <b>DuckDB</b> or <b>Polars</b>, both of which stream larger-than-memory joins and aggregations natively. Recognising that the tool choice beats the technique is the senior answer.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>What can't you do in a single streaming pass?</summary>
+              <div class="ans"><p>Anything needing <b>global order or the whole distribution</b>. Exact <b>median</b> and other quantiles, a full <b>sort</b>, exact <b>distinct counts</b> on high cardinality, and anything requiring the <em>last</em> rows while processing the first.</p><p>The workarounds are worth naming: <b>two passes</b> if you can afford to re-read (pass one for the bounds or the group keys, pass two for the work); <b>approximate algorithms</b> — t-digest or reservoir sampling for quantiles, HyperLogLog for distinct counts — which give bounded error in constant memory; <b>external sort</b> (sort chunks, write them out, merge); or <b>push it to a database</b> and let a query engine handle the spilling.</p><p>Interesting sub-case: <b>mean and variance</b> <em>are</em> single-pass via Welford's algorithm, which is numerically stable — better than accumulating the sum of squares. Mentioning that is a nice signal.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-5">
+        <h3><span class="tn">4.5</span> <code class="ic">itertools</code> <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The lazy toolkit. Seven functions cover almost everything you'll need, and they all keep the constant-memory property.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Function</th><th>Does</th><th>Typical use</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">islice</code></td><td>Slice a lazy stream</td><td>Peek at the first N of something huge</td></tr>
+              <tr><td><code class="ic">chain</code></td><td>Concatenate iterables lazily</td><td>Process several files as one stream</td></tr>
+              <tr><td><code class="ic">groupby</code></td><td>Group <b>consecutive</b> equal keys</td><td>Sessionising sorted event logs</td></tr>
+              <tr><td><code class="ic">accumulate</code></td><td>Running totals / any binary op</td><td>Cumulative sums, running max</td></tr>
+              <tr><td><code class="ic">product</code>, <code class="ic">combinations</code></td><td>Cartesian product; k-subsets</td><td>Grid search, pairwise comparisons</td></tr>
+              <tr><td><code class="ic">tee</code></td><td>Duplicate a stream</td><td>Two passes over an unrepeatable source</td></tr>
+              <tr><td><code class="ic">zip_longest</code></td><td>Zip without truncating</td><td>Safer than <code class="ic">zip</code> on unequal data</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">itertools_tour.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">from itertools import (islice, chain, groupby, accumulate,
+                       product, combinations, zip_longest)
+from operator import itemgetter
+
+print("islice     :", list(islice(range(1_000_000), 5)))
+print("chain      :", list(chain([1, 2], [3], [4, 5])))
+print("accumulate :", list(accumulate([1, 2, 3, 4])))
+print("running max:", list(accumulate([3, 1, 4, 1, 5], max)))
+print("product    :", list(product([0.1, 0.2], ["l1", "l2"])))
+print("combos     :", list(combinations("abc", 2)))
+print("zip_longest:", list(zip_longest([1, 2, 3], "ab", fillvalue="-")))
+
+# groupby: THE gotcha — it groups CONSECUTIVE runs, so sort first
+events = [
+    {"user": "a", "t": 1}, {"user": "b", "t": 2},
+    {"user": "a", "t": 3}, {"user": "a", "t": 4},
+]
+
+print("\nunsorted groupby (WRONG):")
+for key, grp in groupby(events, key=itemgetter("user")):
+    print("  ", key, [g["t"] for g in grp])
+
+print("sorted first (RIGHT):")
+for key, grp in groupby(sorted(events, key=itemgetter("user")), key=itemgetter("user")):
+    print("  ", key, [g["t"] for g in grp])
+
+# the other groupby gotcha: the group iterator is consumed as you advance
+groups = list(groupby(sorted(events, key=itemgetter("user")), key=itemgetter("user")))
+print("\nstale group refs:", [(k, list(g)) for k, g in groups], "<- empty!")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the first block is straightforward. The <code class="ic">groupby</code> comparison is the point: unsorted gives <b>three</b> groups (<code class="ic">a</code>, <code class="ic">b</code>, <code class="ic">a</code>) because it only merges <em>adjacent</em> equal keys, while sorted gives two. The final line prints groups with <b>empty</b> lists — because materialising the outer iterator with <code class="ic">list()</code> advances past each group, invalidating its sub-iterator. Both behaviours differ from <code class="ic">pandas.groupby</code>, which sorts and materialises for you.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Gotcha</span>How does <code class="ic">itertools.groupby</code> differ from <code class="ic">pandas.groupby</code>?</summary>
+              <div class="ans"><p>Two important differences. <code class="ic">itertools.groupby</code> groups <b>consecutive runs</b> of equal keys — it does <em>not</em> sort — so unsorted input produces the same key multiple times. <code class="ic">pandas.groupby</code> collects all rows with the same key regardless of order.</p><p>And <code class="ic">itertools.groupby</code> is <b>lazy and single-pass</b>: each group is a sub-iterator that becomes invalid as soon as you advance to the next group, so <code class="ic">list(groupby(...))</code> gives you keys with empty groups. You must consume each group before moving on.</p><p>Why the itertools version is still useful: it's constant-memory, so it groups a sorted stream far larger than RAM. And its run-based behaviour is exactly right for <b>sessionisation</b> — detecting consecutive runs in a time-ordered log is a feature there, not a bug.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-6">
+        <h3><span class="tn">4.6</span> Generator pipelines</h3>
+        <p class="lead">Chain generators and each stage still holds one item. This is the pure-Python analogue of a lazy dataframe engine, and it reads beautifully.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">pipeline.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">lines = [
+    "2026-01-01,uk,100", "bad line", "2026-01-02,de,200",
+    "2026-01-03,uk,not_a_number", "2026-01-04,fr,300",
+]
+
+def parse(rows):
+    for r in rows:
+        parts = r.split(",")
+        if len(parts) != 3:
+            continue                              # skip malformed
+        date, country, amount = parts
+        try:
+            yield {"date": date, "country": country, "amount": int(amount)}
+        except ValueError:
+            continue                              # skip unparseable amounts
+
+def only(rows, country):
+    for r in rows:
+        if r["country"] == country:
+            yield r
+
+def enrich(rows, rate):
+    for r in rows:
+        yield {**r, "amount_eur": round(r["amount"] * rate, 2)}
+
+# compose — nothing has run yet
+pipeline = enrich(only(parse(lines), "uk"), rate=1.17)
+print("built the pipeline, nothing consumed yet")
+print("result:", list(pipeline))
+
+# each stage is independently testable, which is the real win
+print("\nparse only:", [r["country"] for r in parse(lines)])
+
+# early exit costs nothing — 'any' stops at the first match
+big = (r for r in parse(lines) if r["amount"] > 150)
+print("first big row:", next(big, None))
+print("(the rest of the file was never parsed)")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the pipeline yields one row — the <code class="ic">uk</code> row for 2026-01-01 with <code class="ic">amount_eur: 117.0</code>. The <code class="ic">uk</code> row with <code class="ic">not_a_number</code> is dropped by <code class="ic">parse</code>, as is <code class="ic">"bad line"</code>. <code class="ic">parse only</code> lists <code class="ic">['uk', 'de', 'fr']</code>. The early-exit block returns the <code class="ic">de</code> row (amount 200) without ever touching the remaining lines — which is the property that makes lazy pipelines cheap.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>Why build an ETL as a generator pipeline rather than a series of lists?</summary>
+              <div class="ans"><p><b>Constant memory</b> — no intermediate stage is ever materialised, so a five-stage pipeline over a 100 GB file still holds a handful of rows. <b>Early exit</b> — a downstream <code class="ic">any()</code> or <code class="ic">next()</code> stops all upstream work immediately. <b>Testability</b> — each stage is a small function you can feed a three-item list and assert on. <b>Composability</b> — stages combine without knowing about each other.</p><p>The trade-offs to state, so it doesn't sound like advocacy: debugging is harder because nothing exists until consumed, and a print inside a stage fires interleaved rather than per-stage; you cannot inspect an intermediate result without materialising it; and it's <b>single-pass</b>, so anything needing two passes needs restructuring.</p><p>Also worth saying: for tabular numeric work, <b>vectorised pandas or Polars beats a Python generator pipeline</b> on speed by a wide margin. Generators win on memory and on irregular, record-shaped data — not on raw throughput over numbers.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-7">
+        <h3><span class="tn">4.7</span> Context managers <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A <code class="ic">with</code> block guarantees cleanup, even on an exception. Writing your own with <code class="ic">@contextmanager</code> is a generator trick, which is why it lives in this part.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">context_managers.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">from contextlib import contextmanager, suppress
+import time
+
+# the class form: __enter__ / __exit__
+class Timer:
+    def __init__(self, label): self.label = label
+    def __enter__(self):
+        self.t0 = time.perf_counter()
+        return self                      # bound to `as`
+    def __exit__(self, exc_type, exc, tb):
+        print(f"  [{self.label}] {(time.perf_counter()-self.t0)*1000:.2f} ms"
+              f"{' (failed)' if exc_type else ''}")
+        return False                     # False -> propagate any exception
+
+with Timer("sum"):
+    total = sum(range(200_000))
+print("total:", total)
+
+# cleanup runs even when the body raises
+try:
+    with Timer("boom"):
+        raise ValueError("expected")
+except ValueError as e:
+    print("propagated:", e)
+
+# the generator form — much less code
+@contextmanager
+def timed(label):
+    t0 = time.perf_counter()
+    try:
+        yield                            # everything before = __enter__
+    finally:                             # everything after = __exit__
+        print(f"  [{label}] {(time.perf_counter()-t0)*1000:.2f} ms")
+
+with timed("generator form"):
+    sum(range(100_000))
+
+# suppress: a clean replacement for try/except/pass
+with suppress(ZeroDivisionError):
+    1 / 0
+print("\nsuppressed the ZeroDivisionError cleanly")
+
+# several managers in one statement
+with timed("outer"), timed("inner"):
+    sum(range(50_000))</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> a timing line then the total; then <code class="ic">[boom] … (failed)</code> followed by <code class="ic">propagated: expected</code> — proving <code class="ic">__exit__</code> ran <em>and</em> the exception still surfaced because it returned <code class="ic">False</code>. The <code class="ic">@contextmanager</code> version prints its own timing, <code class="ic">suppress</code> swallows the division error, and the last line prints two nested timings, inner first.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is the <code class="ic">with</code> statement for?</summary>
+              <div class="ans"><p><b>Guaranteed setup and teardown.</b> <code class="ic">with</code> calls <code class="ic">__enter__</code> on entry and <code class="ic">__exit__</code> on exit — and <code class="ic">__exit__</code> runs whether the block finished normally, returned early, or raised. It's <code class="ic">try/finally</code> with a name and a reusable implementation.</p><p>The canonical use is files: <code class="ic">with open(p) as fh:</code> closes the handle even if parsing throws, whereas a bare <code class="ic">open</code> leaks the descriptor on the error path. Same pattern for DB connections and transactions, locks, temporary directories, and changing then restoring global state.</p><p>Two details worth adding: <code class="ic">__exit__</code> receives the exception triple and its <b>return value decides suppression</b> — returning <code class="ic">True</code> swallows the exception, which you almost never want. And <code class="ic">contextlib.ExitStack</code> handles a variable number of managers, which is how you open N files without nesting N <code class="ic">with</code> blocks.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Write a context manager that times a block.</summary>
+              <div class="ans"><p>The generator form is the one to write, because it's four lines: decorate with <code class="ic">@contextmanager</code>, record <code class="ic">t0</code>, <code class="ic">yield</code> inside a <code class="ic">try</code>, and report in the <code class="ic">finally</code>.</p><p>Explain the mapping while you write it: everything <em>before</em> the <code class="ic">yield</code> is <code class="ic">__enter__</code>, whatever you yield becomes the <code class="ic">as</code> target, and everything <em>after</em> is <code class="ic">__exit__</code>. The <code class="ic">try/finally</code> is essential — without it, an exception in the body skips your teardown entirely.</p><p>Mention when you'd use the class form instead: when the manager needs to be re-entrant, hold inspectable state after the block (e.g. you want to read <code class="ic">timer.elapsed</code> afterwards), or subclass. Otherwise the generator form wins on brevity.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-8">
+        <h3><span class="tn">4.8</span> Exceptions in a data pipeline <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The question is rarely &ldquo;what is try/except&rdquo;. It is &ldquo;a row is malformed — do you skip it, fail the batch, or quarantine it?&rdquo; That's a design answer.</p>
+
+        <div class="cmp">
+          <div class="ch"><span class="cn">rule</span> The four clauses, and what each is for</div>
+          <div class="crow"><div class="cl">try</div><div class="cv">Wrap the <b>smallest</b> possible block. A broad <code class="ic">try</code> hides which line failed.</div></div>
+          <div class="crow"><div class="cl">except</div><div class="cv">Catch <b>specific</b> types. <code class="ic">except Exception</code> swallows typos, <code class="ic">KeyboardInterrupt</code>-adjacent bugs and real defects.</div></div>
+          <div class="crow good"><div class="cl">else</div><div class="cv">Runs only if no exception. Keeps the &ldquo;happy path&rdquo; out of the <code class="ic">try</code>, so you don't accidentally catch <em>its</em> errors.</div></div>
+          <div class="crow"><div class="cl">finally</div><div class="cv">Always runs. Cleanup, metrics, releasing resources.</div></div>
+          <div class="crow bad"><div class="cl">never</div><div class="cv"><code class="ic">except: pass</code> — the single worst line in data engineering. It converts a loud failure into silently wrong numbers.</div></div>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">exceptions.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">class RowError(Exception):
+    """Carries enough context to find the offending record."""
+    def __init__(self, idx, raw, cause):
+        super().__init__(f"row {idx}: {cause} | raw={raw!r}")
+        self.idx, self.raw, self.cause = idx, raw, cause
+
+rows = ["1,100", "2,oops", "3,300", "bad", "5,500"]
+
+# the quarantine pattern: process what you can, keep what you can't
+good, quarantine = [], []
+for i, raw in enumerate(rows):
+    try:
+        rid, amount = raw.split(",")
+        value = int(amount)
+    except (ValueError, TypeError) as exc:
+        quarantine.append(RowError(i, raw, exc))
+    else:
+        good.append({"id": int(rid), "amount": value})
+
+print(f"parsed {len(good)}, quarantined {len(quarantine)}")
+for err in quarantine:
+    print("  ", err)
+
+# a threshold turns "skip bad rows" into a safe default
+bad_rate = len(quarantine) / len(rows)
+print(f"\nbad rate {bad_rate:.0%}")
+if bad_rate > 0.25:
+    print("  -> ABOVE threshold: fail the batch, do not publish partial results")
+else:
+    print("  -> within tolerance: publish and alert")
+
+# chaining preserves the original traceback context
+try:
+    try:
+        int("x")
+    except ValueError as exc:
+        raise RowError(99, "x", exc) from exc
+except RowError as exc:
+    print("\nchained:", exc)
+    print("cause  :", type(exc.__cause__).__name__)</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">parsed 3, quarantined 2</code>, with each quarantined row printing its index, the failure and the raw text. The bad rate is 40%, which trips the threshold and reports that the batch should fail rather than publish partial results — that's the design point. The chained exception shows <code class="ic">__cause__</code> preserved as <code class="ic">ValueError</code>, which is what <code class="ic">raise … from …</code> buys you in a traceback.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Design</span>A row in your input is malformed. What do you do?</summary>
+              <div class="ans"><p>It depends on the <b>cost of being wrong</b>, and saying so is the answer — this is a judgement question dressed as a coding one.</p><p><b>Quarantine and continue</b> is the usual right answer for analytics: write the bad rows to a dead-letter table with the index, the raw text and the parse error, process the rest, and <b>alert on the bad rate</b>. That gives you a usable result today plus the evidence to fix the source.</p><p><b>Fail the batch</b> when partial results are dangerous — financial reporting, regulatory submissions, anything downstream that will treat your output as complete. A silently-30%-short revenue number is worse than a failed job.</p><p>The mechanism that makes both safe is a <b>threshold</b>: tolerate up to X% bad rows, fail above it. Without one, &ldquo;skip bad rows&rdquo; means a schema change upstream can drop 90% of your data and the pipeline reports success.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why is <code class="ic">except Exception: pass</code> so bad?</summary>
+              <div class="ans"><p>Because it converts <em>every</em> failure — including your own typos, a <code class="ic">KeyError</code> from a renamed column, an out-of-memory condition — into silence, and the pipeline reports success with wrong numbers. In data work that's the worst possible failure mode: a loud crash gets fixed, a quiet wrong answer gets into a dashboard and then into a decision.</p><p>What to do instead: catch the <b>specific</b> exceptions you can actually handle; <b>log</b> the ones you swallow with enough context to find the record; and <b>re-raise</b> anything unexpected. If you truly want to ignore one specific error, <code class="ic">contextlib.suppress(ValueError)</code> at least says so explicitly.</p><p>The related sin worth naming: a bare <code class="ic">except:</code> (no exception class) also catches <code class="ic">KeyboardInterrupt</code> and <code class="ic">SystemExit</code>, so it can make a job impossible to Ctrl-C out of.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>What's <code class="ic">else</code> for in a try block?</summary>
+              <div class="ans"><p>It runs <b>only if no exception was raised</b>, and its purpose is to keep the happy path <em>out</em> of the <code class="ic">try</code>. If you put the success logic inside the <code class="ic">try</code>, you'll accidentally catch exceptions from <em>that</em> code too, which is how a genuine bug in your success handling gets misreported as a parse failure.</p><p>So the shape is: <code class="ic">try</code> the one risky operation, <code class="ic">except</code> the specific failures, <code class="ic">else</code> do the work that depends on success, <code class="ic">finally</code> clean up. It's a narrow tool but it makes the intent unambiguous, and it's a good detail to know because most people have never used it.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="PY_Part03_Functions.html">Part 3 · Functions &amp; Decorators</a></div><ul><li>Closures, decorators, functools</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 4 · Iterators, Generators &amp; Laziness</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="PY_Part05_OOP.html">Part 5 · OOP &amp; Dataclasses</a></div><ul><li>Dunder methods</li><li>A sklearn-compatible estimator</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        Python for Data Science Interviews — Part 4 of 11 · Iterators, Generators &amp; Laziness<br>
+        Library-current as of <b>Aug 2026</b> — Python <b>3.14</b> (PEP 779 free-threading) · pandas <b>3.0</b> (Copy-on-Write only) · NumPy <b>2.5</b> · scikit-learn <b>1.9</b>.<br>
+        Runnable cells execute <b>real CPython 3.14</b> in your browser via Pyodide — nothing is sent to a server.<br>
+        Progress is stored locally under key <code style="color:#8892a0">pyPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 191 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · The Data Model", "l1": "Level 1 · Data Structures", "l2": "Level 2 · Functions &amp; Decorators", "l3": "Level 3 · Generators", "l4": "Level 4 · OOP &amp; Dataclasses", "l5": "Level 5 · NumPy", "l6": "Level 6 · pandas Core", "l7": "Level 7 · pandas Transformation", "l8": "Level 8 · Performance &amp; Memory", "l9": "Level 9 · Production", "iv": "Interview Q&amp;A Drill", "ex": "Coding Exercises"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "iv", "ex"];
+const TRACKER = [
+[1,"l0","Theory","High",0,"Names are bindings, not boxes: what a = b actually does"],
+[2,"l0","Theory","High",0,"Mutable vs immutable, and why it decides everything else"],
+[3,"l0","Theory","High",0,"is vs ==, and why is on small ints looks like it works"],
+[4,"l0","Theory","High",0,"Identity, equality and the __hash__/__eq__ contract"],
+[5,"l0","Theory","High",0,"Why only immutable objects can be dict keys or set members"],
+[6,"l0","Theory","High",0,"The mutable default argument trap"],
+[7,"l0","Theory","High",0,"Shallow copy vs deep copy vs assignment"],
+[8,"l0","Theory","High",0,"Argument passing: neither call-by-value nor call-by-reference"],
+[9,"l0","Theory","High",0,"LEGB scope resolution, global and nonlocal"],
+[10,"l0","Theory","High",0,"Late binding in closures (the classic loop-variable bug)"],
+[11,"l0","Theory","High",0,"Truthiness, None checks, and the or default idiom"],
+[12,"l0","Theory","High",0,"Reference counting, cycles and the generational GC"],
+[13,"l0","Theory","High",0,"__slots__ and where object overhead comes from"],
+[14,"l0","Theory","High",0,"Interning, sys.getsizeof, and why a list of ints is bigger than you think"],
+[15,"l1","Theory","Medium",0,"list vs tuple vs set vs dict: the four-way decision"],
+[16,"l1","Theory","Medium",0,"Time complexity of every common operation (the table you must know)"],
+[17,"l1","Theory","Medium",0,"Why x in list is the most common accidental O(n\u00b2)"],
+[18,"l1","Theory","Medium",0,"Dict insertion order, and when it became a guarantee"],
+[19,"l1","Theory","Medium",0,"dict.get / setdefault / defaultdict / Counter"],
+[20,"l1","Theory","Medium",0,"deque for queues, and why list.pop(0) is a bug at scale"],
+[21,"l1","Theory","Medium",0,"heapq for top-k without sorting everything"],
+[22,"l1","Theory","Medium",0,"Sorting: key=, stability, operator.itemgetter, multi-key with reverse"],
+[23,"l1","Theory","Medium",0,"Comprehensions vs map/filter vs loops"],
+[24,"l1","Theory","Medium",0,"Nested comprehensions and the flatten idiom"],
+[25,"l1","Theory","Medium",0,"Set algebra for dedup, membership and diffing datasets"],
+[26,"l1","Theory","Medium",0,"Tuple unpacking, starred targets and swapping"],
+[27,"l1","Theory","Medium",0,"zip, enumerate, zip(*rows) for transposition"],
+[28,"l1","Theory","Medium",0,"Slicing semantics, negative steps, and slice assignment"],
+[29,"l1","Theory","Medium",0,"str immutability and why += in a loop is quadratic"],
+[30,"l1","Theory","Medium",0,"bisect for sorted lookups and bucketing"],
+[31,"l2","Practical","Medium",0,"Positional, keyword, default, args, *kwargs"],
+[32,"l2","Practical","Medium",0,"Keyword-only and positional-only parameters"],
+[33,"l2","Practical","Medium",0,"First-class functions and higher-order functions"],
+[34,"l2","Practical","Medium",0,"Closures: what gets captured and when"],
+[35,"l2","Practical","Medium",0,"Writing a decorator from scratch"],
+[36,"l2","Practical","Medium",0,"functools.wraps and why omitting it breaks introspection"],
+[37,"l2","Practical","Medium",0,"Decorators with arguments (the three-level nesting)"],
+[38,"l2","Practical","Medium",0,"Practical decorators: timing, retry, caching, logging, validation"],
+[39,"l2","Practical","Medium",0,"functools.lru_cache / cache and its hashability requirement"],
+[40,"l2","Practical","Medium",0,"functools.partial and where it beats a lambda"],
+[41,"l2","Practical","Medium",0,"functools.reduce, and why a loop is usually clearer"],
+[42,"l2","Practical","Medium",0,"Lambdas: what they are for and what they are not for"],
+[43,"l2","Practical","Medium",0,"Type hints on functions, Optional, Callable, generics"],
+[44,"l2","Practical","Medium",0,"Docstrings that answer the caller's actual questions"],
+[45,"l3","Practical","Medium",0,"The iterator protocol: __iter__, __next__, StopIteration"],
+[46,"l3","Practical","Medium",0,"Iterable vs iterator, and why a generator is exhausted once"],
+[47,"l3","Practical","Medium",0,"Generator functions and yield"],
+[48,"l3","Practical","Medium",0,"Generator expressions vs list comprehensions (memory)"],
+[49,"l3","Practical","Medium",0,"yield from and generator delegation"],
+[50,"l3","Practical","Medium",0,"Reading a multi-GB file without loading it"],
+[51,"l3","Practical","Medium",0,"Chunked processing and streaming aggregation"],
+[52,"l3","Practical","Medium",0,"itertools: islice, chain, groupby, product, accumulate, tee"],
+[53,"l3","Practical","Medium",0,"Pipelines of generators as a processing pattern"],
+[54,"l3","Practical","Medium",0,"Two-pass problems and when laziness stops helping"],
+[55,"l3","Practical","Medium",0,"Context managers: with, __enter__/__exit__"],
+[56,"l3","Practical","Medium",0,"contextlib.contextmanager for a generator-based context manager"],
+[57,"l3","Practical","Medium",0,"Exception handling: try/except/else/finally, specific excepts"],
+[58,"l3","Practical","Medium",0,"Custom exceptions and failing loudly in a pipeline"],
+[59,"l4","Practical","Medium",0,"Classes, instances, __init__, and self"],
+[60,"l4","Practical","Medium",0,"Class vs instance attributes (and the shared-mutable trap)"],
+[61,"l4","Practical","Medium",0,"@property for computed and validated attributes"],
+[62,"l4","Practical","Medium",0,"@staticmethod vs @classmethod and alternative constructors"],
+[63,"l4","Practical","Medium",0,"Dunder methods: __repr__, __str__, __eq__, __len__, __getitem__"],
+[64,"l4","Practical","Medium",0,"@dataclass, frozen, field(default_factory=...)"],
+[65,"l4","Practical","Medium",0,"Dataclass vs NamedTuple vs TypedDict vs Pydantic"],
+[66,"l4","Practical","Medium",0,"Inheritance, MRO and super()"],
+[67,"l4","Practical","Medium",0,"Composition over inheritance, with a data-pipeline example"],
+[68,"l4","Practical","Medium",0,"Abstract base classes and duck typing"],
+[69,"l4","Practical","Medium",0,"Protocol and structural typing"],
+[70,"l4","Practical","Medium",0,"Writing a scikit-learn\u2013compatible estimator (fit/transform/get_params)"],
+[71,"l4","Practical","Medium",0,"Mixins, and when they become a maintenance problem"],
+[72,"l5","Practical","High",0,"ndarray anatomy: data buffer, dtype, shape, strides"],
+[73,"l5","Practical","High",0,"Why arrays beat lists: contiguity, fixed dtype, no boxing"],
+[74,"l5","Practical","High",0,"dtypes, overflow, and silent integer wraparound"],
+[75,"l5","Practical","High",0,"Views vs copies, and how to tell which you have"],
+[76,"l5","Practical","High",0,"Strides: how reshape and transpose avoid copying"],
+[77,"l5","Practical","High",0,"C order vs Fortran order and .copy(order=...)"],
+[78,"l5","Practical","High",0,"Basic indexing (view) vs fancy indexing (copy)"],
+[79,"l5","Practical","High",0,"Boolean masking and np.where"],
+[80,"l5","Practical","High",0,"Broadcasting: the three rules"],
+[81,"l5","Practical","High",0,"The [:, None] idiom for outer operations"],
+[82,"l5","Practical","High",0,"Axis semantics, and what axis=0 really reduces"],
+[83,"l5","Practical","High",0,"keepdims and why it saves broadcasting bugs"],
+[84,"l5","Practical","High",0,"Vectorising a loop: pairwise distances worked example"],
+[85,"l5","Practical","High",0,"Universal functions, out= and in-place operations"],
+[86,"l5","Practical","High",0,"Aggregations, nan-aware functions, and NaN propagation"],
+[87,"l5","Practical","High",0,"Float equality, np.isclose, and catastrophic cancellation"],
+[88,"l5","Practical","High",0,"Random number generation: default_rng and reproducibility"],
+[89,"l5","Practical","High",0,"einsum and when it is worth the readability cost"],
+[90,"l5","Practical","High",0,"Structured arrays and memory-mapped arrays"],
+[91,"l5","Practical","High",0,"Where NumPy ends and pandas begins"],
+[92,"l6","Practical","High",0,"Series and DataFrame as index + typed columns"],
+[93,"l6","Practical","High",0,"The index: alignment, duplicates, reset_index, set_index"],
+[94,"l6","Practical","High",0,"dtypes: numeric, str (new default in pandas 3.0), category, datetime, nullable"],
+[95,"l6","Practical","High",0,"Why object dtype used to be everywhere and what changed in 3.0"],
+[96,"l6","Practical","High",0,"category dtype for memory and speed"],
+[97,"l6","Practical","High",0,"loc vs .iloc vs []: label, position and the ambiguous case"],
+[98,"l6","Practical","High",0,"Boolean masking, query, isin, between"],
+[99,"l6","Practical","High",0,"Copy-on-Write in pandas 3.0 and the death of SettingWithCopyWarning"],
+[100,"l6","Practical","High",0,"Why chained assignment now silently does nothing"],
+[101,"l6","Practical","High",0,"Missing data: NaN vs None vs pd.NA"],
+[102,"l6","Practical","High",0,"fillna, dropna, interpolate and choosing between them"],
+[103,"l6","Practical","High",0,"Reading data: dtypes at read time, usecols, chunksize, parsing dates"],
+[104,"l6","Practical","High",0,"Parquet vs CSV, and why CSV loses your schema"],
+[105,"l6","Practical","High",0,"Duplicates: duplicated, drop_duplicates(subset=, keep=)"],
+[106,"l6","Practical","High",0,"Type conversion: astype, to_numeric(errors=), convert_dtypes"],
+[107,"l6","Practical","High",0,"assign and pd.col for readable chains"],
+[108,"l6","Practical","High",0,"Method chaining and pipe"],
+[109,"l7","Practical","High",0,"groupby and the split-apply-combine model"],
+[110,"l7","Practical","High",0,"agg with multiple functions and named aggregation"],
+[111,"l7","Practical","High",0,"transform vs agg vs apply: shape, speed and when each is right"],
+[112,"l7","Practical","High",0,"filter on groups"],
+[113,"l7","Practical","High",0,"groupby(dropna=), observed= and the categorical surprise"],
+[114,"l7","Practical","High",0,"Group-wise fill, rank, and normalisation without a loop"],
+[115,"l7","Practical","High",0,"merge: the five how values and what each keeps"],
+[116,"l7","Practical","High",0,"Validating a join: validate=, indicator=, row-count assertions"],
+[117,"l7","Practical","High",0,"Why row counts explode: many-to-many joins"],
+[118,"l7","Practical","High",0,"join vs merge vs concat"],
+[119,"l7","Practical","High",0,"concat: axis, keys, and index collisions"],
+[120,"l7","Practical","High",0,"merge_asof for nearest-key and point-in-time joins"],
+[121,"l7","Practical","High",0,"Wide vs long, melt and pivot"],
+[122,"l7","Practical","High",0,"pivot vs pivot_table and the aggregation requirement"],
+[123,"l7","Practical","High",0,"stack/unstack and the MultiIndex"],
+[124,"l7","Practical","High",0,"MultiIndex selection: xs, tuples, IndexSlice"],
+[125,"l7","Practical","High",0,"Datetime index, resample, asfreq"],
+[126,"l7","Practical","High",0,"Timezones, and the naive-vs-aware bug"],
+[127,"l7","Practical","High",0,"Rolling, expanding and ewm windows"],
+[128,"l7","Practical","High",0,"shift, diff, pct_change and lag features without leakage"],
+[129,"l7","Practical","High",0,"cut and qcut for binning"],
+[130,"l7","Practical","High",0,"String operations via .str, and regex extraction"],
+[131,"l7","Practical","High",0,"Translating SQL to pandas (and when to just use SQL)"],
+[132,"l8","Practical","High",0,"Where pandas time actually goes: measure before optimising"],
+[133,"l8","Practical","High",0,"The vectorisation ladder: loop \u2192 iterrows \u2192 apply \u2192 vectorised \u2192 NumPy"],
+[134,"l8","Practical","High",0,"Why apply is a loop wearing a costume"],
+[135,"l8","Practical","High",0,"itertuples vs iterrows, and when a loop is genuinely correct"],
+[136,"l8","Practical","High",0,"Reducing memory: dtype downcasting, category, dropping columns early"],
+[137,"l8","Practical","High",0,"Chunked reads and out-of-core aggregation"],
+[138,"l8","Practical","High",0,"Profiling: timeit, cProfile, line profiling, memory_profiler"],
+[139,"l8","Practical","High",0,"Big-O of a pipeline vs constant factors in practice"],
+[140,"l8","Practical","High",0,"The GIL: what it does and does not lock"],
+[141,"l8","Practical","High",0,"Free-threaded Python 3.14 (PEP 779) and what it changes for data work"],
+[142,"l8","Practical","High",0,"Threads vs processes vs async: choosing by workload"],
+[143,"l8","Practical","High",0,"concurrent.futures for embarrassingly parallel work"],
+[144,"l8","Practical","High",0,"multiprocessing pitfalls: pickling, fork vs spawn, memory copies"],
+[145,"l8","Practical","High",0,"asyncio for many API calls, and one blocking call ruining it"],
+[146,"l8","Practical","High",0,"joblib and scikit-learn's n_jobs"],
+[147,"l8","Practical","High",0,"Numba, Cython and when to reach for them"],
+[148,"l8","Practical","High",0,"Polars, DuckDB and Arrow: what they change and when to switch"],
+[149,"l8","Practical","High",0,"Caching: lru_cache, on-disk caches, and invalidation"],
+[150,"l9","Practical","Medium",0,"Project layout, imports and why notebooks break in production"],
+[151,"l9","Practical","Medium",0,"Virtual environments, lockfiles and reproducible installs"],
+[152,"l9","Practical","Medium",0,"Configuration and secrets outside the code"],
+[153,"l9","Practical","Medium",0,"Logging instead of print, with levels and structure"],
+[154,"l9","Practical","Medium",0,"Testing data code with pytest: fixtures, parametrize, tolerances"],
+[155,"l9","Practical","Medium",0,"Testing the untestable: seeds, golden files, property tests"],
+[156,"l9","Practical","Medium",0,"Data validation at boundaries: schemas and assertions"],
+[157,"l9","Practical","Medium",0,"Type hints in practice, and running a checker in CI"],
+[158,"l9","Practical","Medium",0,"scikit-learn Pipeline and ColumnTransformer"],
+[159,"l9","Practical","Medium",0,"Data leakage: fitting on the full dataset, and how pipelines prevent it"],
+[160,"l9","Practical","Medium",0,"Cross-validation with a pipeline, and grouped/time-series splits"],
+[161,"l9","Practical","Medium",0,"Reproducibility: seeds, versions, and the sources of nondeterminism"],
+[162,"l9","Practical","Medium",0,"Serialising models: pickle, joblib, ONNX and version skew"],
+[163,"l9","Practical","Medium",0,"Code review for data code: the checklist"],
+[164,"l9","Practical","Medium",0,"Refactoring a notebook into modules"],
+[165,"l9","Practical","Medium",0,"Docstrings, README and handing work over"],
+[166,"iv","Interview Prep","High",0,"High-frequency: the data model (mutability, copies, identity, scope)"],
+[167,"iv","Interview Prep","High",0,"High-frequency: data structures and complexity"],
+[168,"iv","Interview Prep","High",0,"High-frequency: decorators, generators and context managers"],
+[169,"iv","Interview Prep","High",0,"High-frequency: NumPy (views, broadcasting, vectorisation)"],
+[170,"iv","Interview Prep","High",0,"High-frequency: pandas selection and Copy-on-Write"],
+[171,"iv","Interview Prep","High",0,"High-frequency: groupby, joins and reshaping"],
+[172,"iv","Interview Prep","High",0,"High-frequency: performance, memory and the GIL"],
+[173,"iv","Interview Prep","High",0,"High-frequency: production, testing and leakage"],
+[174,"iv","Interview Prep","High",0,"The trap questions (answered correctly, out loud)"],
+[175,"iv","Interview Prep","High",0,"Live-coding warm-ups timed at 10 minutes each"],
+[176,"iv","Interview Prep","High",0,"Explaining a past project in 90 seconds"],
+[177,"ex","Exercise","High",0,"Exercise: two-sum and the hash-map reflex"],
+[178,"ex","Exercise","High",0,"Exercise: group records without pandas"],
+[179,"ex","Exercise","High",0,"Exercise: running/streaming statistics"],
+[180,"ex","Exercise","High",0,"Exercise: flatten a nested structure"],
+[181,"ex","Exercise","High",0,"Exercise: sessionise events by gap"],
+[182,"ex","Exercise","High",0,"Exercise: top-k per group"],
+[183,"ex","Exercise","High",0,"Exercise: dedupe with a tie-break rule"],
+[184,"ex","Exercise","High",0,"Exercise: pairwise distances, vectorised"],
+[185,"ex","Exercise","High",0,"Exercise: entropy and information gain from scratch"],
+[186,"ex","Exercise","High",0,"Exercise: train/test split by time without leakage"],
+[187,"ex","Exercise","High",0,"Exercise: a retry decorator with backoff"],
+[188,"ex","Exercise","High",0,"Exercise: a chunked CSV aggregator"],
+[189,"ex","Exercise","High",0,"Exercise: rolling median with a deque"],
+[190,"ex","Exercise","High",0,"Exercise: a custom sklearn transformer"],
+[191,"ex","Exercise","High",0,"Exercise: SQL-to-pandas translation drill"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="pyPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 191 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+
+<script>
+/* ------------------------------------------------------------------------
+   Shared in-browser Python runtime for every .pyrun cell on the page.
+   Pyodide (CPython 3.14 compiled to WebAssembly) is loaded LAZILY on the
+   first Run click, so the page itself stays light. numpy / pandas / sklearn
+   wheels are fetched on demand the first time a cell imports them.
+   ------------------------------------------------------------------------ */
+window.PyRT = (function () {
+  var PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/pyodide.js";
+  var pyodide = null, booting = null, loaded = {};
+  var listeners = [];
+
+  function announce(msg, cls) {
+    listeners.forEach(function (fn) { try { fn(msg, cls); } catch (e) {} });
+  }
+  function onStatus(fn) { listeners.push(fn); }
+
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement("script");
+      s.src = src; s.onload = res; s.onerror = function () { rej(new Error("could not load " + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function boot() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (booting) return booting;
+    announce("downloading Python runtime (~12 MB, once per visit)…", "busy");
+    booting = loadScript(PYODIDE_URL)
+      .then(function () {
+        announce("starting CPython…", "busy");
+        return loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/" });
+      })
+      .then(function (py) {
+        pyodide = py;
+        announce("Python ready", "ready");
+        return py;
+      })
+      .catch(function (e) {
+        booting = null;
+        announce("runtime failed to load — you are probably offline. " +
+                 "The expected output is shown under each cell.", "err");
+        throw e;
+      });
+    return booting;
+  }
+
+  /* map an import name -> the Pyodide package that provides it */
+  var PKG = {
+    numpy: "numpy", pandas: "pandas", sklearn: "scikit-learn", scipy: "scipy",
+    matplotlib: "matplotlib", pyarrow: "pyarrow", statsmodels: "statsmodels"
+  };
+  function neededPackages(code) {
+    var want = {};
+    var re = /(?:^|\n)\s*(?:import|from)\s+([A-Za-z_][\w.]*)/g, m;
+    while ((m = re.exec(code))) {
+      var top = m[1].split(".")[0];
+      if (PKG[top] && !loaded[PKG[top]]) want[PKG[top]] = 1;
+    }
+    return Object.keys(want);
+  }
+
+  function run(code) {
+    return boot().then(function (py) {
+      var pkgs = neededPackages(code);
+      var p = Promise.resolve();
+      if (pkgs.length) {
+        announce("fetching " + pkgs.join(", ") + "…", "busy");
+        p = py.loadPackage(pkgs).then(function () {
+          pkgs.forEach(function (k) { loaded[k] = 1; });
+          announce("Python ready", "ready");
+        });
+      }
+      return p.then(function () {
+        var out = [];
+        py.setStdout({ batched: function (s) { out.push(s); } });
+        py.setStderr({ batched: function (s) { out.push(s); } });
+        return py.runPythonAsync(code).then(
+          function (val) {
+            var txt = out.join("\n");
+            /* echo the value of a trailing expression, REPL-style */
+            if (val !== undefined && val !== null) {
+              var r;
+              try { r = py.globals.get("repr")(val); } catch (e) { r = String(val); }
+              if (r !== "None") txt += (txt && !txt.endsWith("\n") ? "\n" : "") + r;
+            }
+            return { ok: true, text: txt };
+          },
+          function (err) {
+            return { ok: false, text: out.join("\n") + (out.length ? "\n" : "") + String(err.message || err) };
+          }
+        );
+      });
+    }).catch(function (e) {
+      return { ok: false, text: String(e.message || e), offline: true };
+    });
+  }
+
+  function reset() { pyodide = null; booting = null; loaded = {}; announce("runtime discarded — next Run reloads it", ""); }
+  function isReady() { return !!pyodide; }
+
+  return { boot: boot, run: run, reset: reset, onStatus: onStatus, isReady: isReady };
+})();
+
+/* wire up every .pyrun cell */
+(function () {
+  var cells = document.querySelectorAll(".pyrun");
+  if (!cells.length) return;
+
+  function setStatus(el, msg, cls) {
+    var s = el.querySelector(".pstat");
+    if (s) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+  }
+  window.PyRT.onStatus(function (msg, cls) {
+    for (var i = 0; i < cells.length; i++) {
+      var s = cells[i].querySelector(".pstat");
+      if (s && !s.dataset.local) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+    }
+  });
+
+  for (var i = 0; i < cells.length; i++) (function (cell) {
+    var ta   = cell.querySelector("textarea");
+    var out  = cell.querySelector(".pout");
+    var run  = cell.querySelector(".pbtn.run");
+    var rst  = cell.querySelector(".pbtn.reset");
+    var seed = ta ? ta.value : "";
+
+    if (ta) {
+      /* size to content, and keep Tab inside the editor */
+      var fit = function () { ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; };
+      fit(); ta.addEventListener("input", fit);
+      ta.addEventListener("keydown", function (e) {
+        if (e.key === "Tab") {
+          e.preventDefault();
+          var s = ta.selectionStart, t = ta.selectionEnd;
+          ta.value = ta.value.slice(0, s) + "    " + ta.value.slice(t);
+          ta.selectionStart = ta.selectionEnd = s + 4;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); doRun(); }
+      });
+    }
+
+    function doRun() {
+      if (!ta || !out) return;
+      run.disabled = true;
+      var s = cell.querySelector(".pstat"); if (s) s.dataset.local = "1";
+      setStatus(cell, "running…", "busy");
+      out.classList.add("show");
+      out.innerHTML = '<span class="odim">running…</span>';
+      window.PyRT.run(ta.value).then(function (r) {
+        run.disabled = false;
+        if (s) delete s.dataset.local;
+        var txt = (r.text || "").replace(/[&<>]/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+        });
+        if (r.ok) {
+          setStatus(cell, "ok", "ready");
+          out.innerHTML = txt ? txt : '<span class="odim">(ran cleanly — no output; add a print())</span>';
+        } else {
+          setStatus(cell, r.offline ? "offline" : "error", "err");
+          out.innerHTML = '<span class="oerr">' + (txt || "failed") + "</span>";
+        }
+      });
+    }
+
+    if (run) run.addEventListener("click", doRun);
+    if (rst) rst.addEventListener("click", function () {
+      if (ta) { ta.value = seed; ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; }
+      if (out) { out.classList.remove("show"); out.innerHTML = ""; }
+      setStatus(cell, window.PyRT.isReady() ? "Python ready" : "idle", window.PyRT.isReady() ? "ready" : "");
+    });
+  })(cells[i]);
+
+  /* page-level "warm up the runtime now" buttons (several in the stitched file) */
+  var warms = document.querySelectorAll(".pbootbtn");
+  for (var w = 0; w < warms.length; w++) (function (btn) {
+    btn.addEventListener("click", function () {
+      for (var j = 0; j < warms.length; j++) { warms[j].disabled = true; warms[j].textContent = "loading…"; }
+      window.PyRT.boot().then(function () {
+        for (var j = 0; j < warms.length; j++) warms[j].textContent = "Python is ready ✓";
+      }).catch(function () {
+        for (var j = 0; j < warms.length; j++) {
+          warms[j].textContent = "failed — check your connection"; warms[j].disabled = false;
+        }
+      });
+    });
+  })(warms[w]);
+})();
+</script>
+
+</body>
+</html>

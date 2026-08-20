@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python for Data Science — Part 2: Data Structures &amp; Complexity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---- interactive widgets (Python) ---- */
+.wdg{margin:1.8rem 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.wdg .wh{background:linear-gradient(135deg,#161b23,#252d3a);color:#fff;padding:12px 18px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wdg .wh .wtag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:#14181f;background:var(--gold-2);padding:3px 8px;border-radius:20px;font-weight:600}
+.wdg .wbody{padding:16px 18px 18px}
+.wdg canvas{width:100%;height:auto;display:block;border-radius:10px;background:#14181f}
+.wdg .wctl{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px}
+.wdg .wctl label{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px;min-width:170px;flex:1}
+.wdg .wctl input[type=range]{width:100%;accent-color:var(--indigo);margin:0}
+.wdg .wbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.wdg .wbtn{font-family:var(--mono);font-size:11.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--text);cursor:pointer;transition:.13s}
+.wdg .wbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.wdg .wbtn.on{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+.wdg .wbtn:disabled{opacity:.45;cursor:not-allowed}
+.wdg .wout{margin-top:13px;font-family:var(--mono);font-size:12.5px;color:var(--text);background:var(--indigo-soft);border:1px solid var(--indigo-line);border-radius:10px;padding:11px 14px;line-height:1.75}
+.wdg .wout .k{color:var(--muted)}
+.wdg .wout .v{font-weight:600;color:var(--indigo)}
+.wdg .wout .warn{color:#a5710a;font-weight:600}
+.wdg .wout .good{color:#1c7a42;font-weight:600}
+.wdg .wnote{margin:12px 0 0;font-size:.88rem;color:var(--muted);line-height:1.65}
+.wdg .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:13px}
+.wdg .wcell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.wdg .wcell .n{display:block;font-size:1.3rem;font-weight:600;color:var(--ink);font-family:var(--disp);letter-spacing:-.4px;text-transform:none}
+@media print{.wdg .wctl,.wdg .wbtns{display:none}.wdg{break-inside:avoid}}
+
+/* ---- live Python runner (Pyodide) ---- */
+.pyrun{margin:1.7rem 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.pyrun .ph{background:#14181f;color:#e6e9ef;padding:9px 15px;font-family:var(--mono);font-size:11.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #2c3542}
+.pyrun .ph .dot3{display:inline-flex;gap:5px;margin-right:4px}
+.pyrun .ph .dot3 i{width:9px;height:9px;border-radius:50%;display:block}
+.pyrun .ph .ptag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;background:#2E9E5B;color:#0b1a10;padding:2px 7px;border-radius:20px;font-weight:700}
+.pyrun .ph .pname{color:#8892a0}
+.pyrun .ph .pspacer{flex:1}
+.pyrun .ph .pstat{font-size:10.5px;color:#8892a0}
+.pyrun .ph .pstat.busy{color:var(--gold-2)}
+.pyrun .ph .pstat.ready{color:#7fd6a0}
+.pyrun .ph .pstat.err{color:#e0929a}
+.pyrun textarea{width:100%;box-sizing:border-box;border:0;outline:0;resize:vertical;display:block;
+  background:#0f1319;color:#e6e9ef;font-family:var(--mono);font-size:12.6px;line-height:1.72;
+  padding:14px 16px;tab-size:4;min-height:96px;caret-color:var(--gold-2)}
+.pyrun textarea::selection{background:#31405c}
+.pyrun .pbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:var(--paper);border-top:1px solid var(--line)}
+.pyrun .pbtn{font-family:var(--mono);font-size:11.5px;padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:.13s}
+.pyrun .pbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.pyrun .pbtn.run{background:var(--indigo);color:#fff;border-color:var(--indigo);font-weight:600}
+.pyrun .pbtn.run:hover{filter:brightness(1.08)}
+.pyrun .pbtn:disabled{opacity:.45;cursor:not-allowed}
+.pyrun .phint{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:auto}
+.pyrun .pout{display:none;border-top:1px solid var(--line);background:#0f1319;color:#c9d1dc;
+  font-family:var(--mono);font-size:12.4px;line-height:1.7;padding:13px 16px;white-space:pre-wrap;
+  word-break:break-word;max-height:420px;overflow:auto;margin:0}
+.pyrun .pout.show{display:block}
+.pyrun .pout .oerr{color:#e0929a}
+.pyrun .pout .ook{color:#7fd6a0}
+.pyrun .pout .odim{color:#5A6472}
+.pyrun .pexp{border-top:1px solid var(--line);background:var(--gold-soft);padding:11px 16px;font-size:.9rem;color:var(--text);line-height:1.7}
+.pyrun .pexp b{color:#8a5c00}
+@media print{.pyrun .pbar{display:none}.pyrun{break-inside:avoid}.pyrun .pout{display:block;max-height:none}}
+
+/* the shared runtime banner */
+.pyboot{margin:1.5rem 0;border:1px dashed var(--indigo-line);border-radius:12px;background:var(--indigo-soft);padding:14px 17px;font-size:.92rem;line-height:1.7;color:var(--text)}
+.pyboot b{color:var(--indigo)}
+.pyboot .pbootbtn{margin-top:10px;display:inline-block;font-family:var(--mono);font-size:11.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;cursor:pointer;font-weight:600}
+.pyboot .pbootbtn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---- deeper-structure helpers ---- */
+.content h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content h4::before{content:"";display:inline-block;width:14px;height:2px;background:var(--gold);vertical-align:middle;margin-right:9px}
+.content h5{font-family:var(--disp);font-weight:600;font-size:.96rem;color:var(--muted);margin:1.3rem 0 .4rem;letter-spacing:.2px}
+.cmp{margin:1.2rem 0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.cmp .ch{background:var(--ink);color:#fff;padding:10px 16px;font-family:var(--disp);font-weight:600;font-size:.98rem;display:flex;align-items:center;gap:10px}
+.cmp .ch .cn{font-family:var(--mono);font-size:11px;color:#14181f;background:var(--gold-2);padding:2px 8px;border-radius:20px;font-weight:600}
+.cmp .crow{display:grid;grid-template-columns:132px 1fr;border-top:1px solid var(--line)}
+.cmp .crow:first-child{border-top:none}
+.cmp .crow .cl{background:var(--paper);padding:11px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--line)}
+.cmp .crow .cv{padding:11px 16px;font-size:.94rem;line-height:1.6}
+.cmp .crow.bad .cl{color:#a33}
+.cmp .crow.good .cl{color:#1c7a42}
+@media (max-width:620px){.cmp .crow{grid-template-columns:1fr}.cmp .crow .cl{border-right:none;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 2 / 11</small>Data Structures &amp; Complexity</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">Python<small>Data Science Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 2 of 11</div>
+      <div class="v">Data Structures &amp; Complexity</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 191 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L1</span> Data Structures <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#p2-1">2.1 · The four-way choice ⭐⭐</a></li>
+          <li><a href="#p2-2">2.2 · The complexity table ⭐⭐</a></li>
+          <li><a href="#p2-3">2.3 · The accidental O(n²) ⭐</a></li>
+          <li><a href="#p2-4">2.4 · Dictionaries in depth ⭐</a></li>
+          <li><a href="#p2-5">2.5 · <code>collections</code> ⭐</a></li>
+          <li><a href="#p2-6">2.6 · <code>deque</code>, <code>heapq</code>, <code>bisect</code></a></li>
+          <li><a href="#p2-7">2.7 · Sorting properly ⭐</a></li>
+          <li><a href="#p2-8">2.8 · Comprehensions ⭐</a></li>
+          <li><a href="#p2-9">2.9 · Slicing, unpacking and <code>zip</code></a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← Python home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      Python for Data Science<br>Part 2 — Data Structures &amp; Complexity<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 2 of 11 · Data Structures &amp; Complexity</div>
+        <h1 class="title">Choosing the right container, and knowing what it costs
+          <span class="sub">list / tuple / set / dict as a decision rather than a habit, the complexity table you are expected to recall, the accidental quadratic that shows up in most take-homes, dictionaries in depth, the <code>collections</code> module, heaps and bisect, sorting with keys, and comprehensions.</span>
+        </h1>
+        <p class="thesis">This part is where live-coding rounds are quietly won and lost. Not because anyone asks you to implement a hash table, but because the difference between a five-second solution and a five-minute one is almost always <strong>one container choice</strong> — a <code class="ic">set</code> instead of a <code class="ic">list</code> for membership, a <code class="ic">Counter</code> instead of a hand-rolled dict, a <code class="ic">heapq</code> instead of a full sort. The complexity table in §2.2 is the one piece of memorisation in this guide that genuinely pays, and §2.3 is the bug interviewers watch for you to notice unprompted.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 1</b></span>
+          <span class="chip"><b>9</b> sections</span>
+          <span class="chip">📐 <b>1</b> diagrams</span>
+          <span class="chip">💬 <b>19</b> Q&amp;A</span>
+          <span class="chip">▶ <b>8</b> runnable cells</span>
+          <span class="chip">⏱ <b>~6h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole Python subject — all 191 topics across all 11 parts. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">191</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 191 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+      <div class="pyboot">
+        <b>▶ Every cell on this page runs.</b> Real CPython 3.14 in your browser via Pyodide — the runtime
+        downloads on your first <b>Run</b> and is then shared by every cell. Edit freely; nothing leaves your
+        machine. <code class="ic">Ctrl</code>/<code class="ic">⌘</code>&nbsp;+&nbsp;<code class="ic">Enter</code> runs the cell
+        you are in, and each cell states its expected output so the page still works offline.
+        <br><button class="pbootbtn" id="pyWarm">Warm up the Python runtime now</button>
+      </div>
+
+      <article class="topic" id="p2-1">
+        <h3><span class="tn">2.1</span> The four-way choice <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">list, tuple, set, dict. Most people pick by habit; the interview asks you to pick by <em>reason</em>. There are only three questions to answer.</p>
+
+        <h4>The decision, in three questions</h4>
+        <p><b>1. Do I need order and duplicates?</b> Yes → list or tuple. No → set. <b>2. Do I need to look things up by a key?</b> Yes → dict. <b>3. Will it change?</b> No → tuple (hashable, cheaper, safe to share). Yes → list.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th></th><th><code class="ic">list</code></th><th><code class="ic">tuple</code></th><th><code class="ic">set</code></th><th><code class="ic">dict</code></th></tr></thead>
+            <tbody>
+              <tr><td>Ordered</td><td>yes</td><td>yes</td><td><b>no</b></td><td>yes (insertion)</td></tr>
+              <tr><td>Duplicates</td><td>yes</td><td>yes</td><td><b>no</b></td><td>keys no, values yes</td></tr>
+              <tr><td>Mutable</td><td>yes</td><td><b>no</b></td><td>yes</td><td>yes</td></tr>
+              <tr><td>Hashable</td><td>no</td><td><b>yes</b>*</td><td>no (<code class="ic">frozenset</code> yes)</td><td>no</td></tr>
+              <tr><td>Membership <code class="ic">in</code></td><td><b>O(n)</b></td><td><b>O(n)</b></td><td>O(1)</td><td>O(1) on keys</td></tr>
+              <tr><td>Typical use</td><td>a sequence you build up</td><td>a fixed record; a dict key</td><td>dedup &amp; membership</td><td>lookup by id</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="color:var(--muted);font-size:.9rem">* only if everything inside it is also hashable — see §1.4.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The one that earns points</span>
+          <p>Row 5 is the whole reason this question is asked. <b><code class="ic">x in some_list</code> is a linear scan.</b> Inside a loop over <em>m</em> items against a list of <em>n</em>, that is O(n·m) — the most common accidental quadratic in data code, and the subject of §2.3.</p>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Difference between a list, tuple, set and dict?</summary>
+              <div class="ans"><p>Give the axes rather than a list of facts: <b>ordered?</b>, <b>duplicates?</b>, <b>mutable?</b>, <b>hashable?</b>, and <b>lookup cost</b>.</p><p><code class="ic">list</code> — ordered, duplicates, mutable, O(n) membership. <code class="ic">tuple</code> — the same but immutable, therefore hashable and usable as a dict key. <code class="ic">set</code> — unordered, unique, mutable, <b>O(1) membership</b>. <code class="ic">dict</code> — key→value, insertion-ordered since 3.7, O(1) lookup by key.</p><p>Then close with the decision rule, because that's what they're actually testing: <b>need lookup by key → dict; need membership or dedup → set; need a fixed record or a dict key → tuple; otherwise list.</b> And name the trap: membership on a list is a linear scan, which is where accidental O(n²) comes from.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why use a tuple when a list does everything?</summary>
+              <div class="ans"><p>Four reasons, in ascending order of how much they matter. <b>Hashability</b> — a tuple can be a dict key or a set member, which is the only one that's a hard capability rather than a preference. <b>Intent</b> — a tuple signals &ldquo;fixed-size record, positions mean something&rdquo;, so <code class="ic">(lat, lon)</code> reads better than a two-element list. <b>Safety</b> — it can't be mutated by a function you pass it to. <b>Slightly cheaper</b> to construct and iterate, and smaller in memory, though rarely enough to matter on its own.</p><p>The honest caveat: if you find yourself indexing a tuple by position in more than a couple of places (<code class="ic">row[3]</code>), you want a <code class="ic">NamedTuple</code> or a dataclass instead — see §5.7.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-2">
+        <h3><span class="tn">2.2</span> The complexity table <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The one piece of memorisation in this guide that genuinely pays. You will be asked, and more importantly you will use it to choose containers under time pressure.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Operation</th><th>list</th><th>deque</th><th>set / dict</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr><td>Index <code class="ic">a[i]</code></td><td><b>O(1)</b></td><td>O(n)</td><td>—</td><td>deque is a linked structure of blocks</td></tr>
+              <tr><td>Lookup by key</td><td>—</td><td>—</td><td><b>O(1)</b></td><td>amortised; O(n) worst case on collisions</td></tr>
+              <tr><td>Membership <code class="ic">in</code></td><td><b>O(n)</b></td><td>O(n)</td><td><b>O(1)</b></td><td><b>the one that matters</b></td></tr>
+              <tr><td>Append to end</td><td>O(1)*</td><td>O(1)</td><td>O(1)</td><td>* amortised — occasional realloc</td></tr>
+              <tr><td>Insert / pop at <b>front</b></td><td><b>O(n)</b></td><td><b>O(1)</b></td><td>—</td><td><code class="ic">list.pop(0)</code> shifts everything</td></tr>
+              <tr><td>Delete by value</td><td>O(n)</td><td>O(n)</td><td><b>O(1)</b></td><td>list must find it first</td></tr>
+              <tr><td>Sort</td><td>O(n log n)</td><td>—</td><td>—</td><td>Timsort; stable</td></tr>
+              <tr><td>Min / max</td><td>O(n)</td><td>O(n)</td><td>O(n)</td><td>use a heap for repeated queries</td></tr>
+              <tr><td>Slice <code class="ic">a[i:j]</code></td><td>O(j−i)</td><td>—</td><td>—</td><td>copies — not free on a big list</td></tr>
+              <tr><td>Concatenate <code class="ic">a + b</code></td><td>O(n+m)</td><td>—</td><td>—</td><td>in a loop this is the quadratic trap</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">complexity.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import time
+from collections import deque
+
+def bench(label, fn, *a):
+    t0 = time.perf_counter(); fn(*a)
+    print(f"{label:<34} {(time.perf_counter()-t0)*1000:8.2f} ms")
+
+N = 40_000
+big_list = list(range(N))
+big_set  = set(range(N))
+
+# membership: O(n) vs O(1)
+bench("40k lookups in a list", lambda: [i in big_list for i in range(0, N, 20)])
+bench("40k lookups in a set",  lambda: [i in big_set  for i in range(0, N, 20)])
+
+# front removal: O(n) vs O(1)
+def pop_front_list(n):
+    a = list(range(n))
+    while a: a.pop(0)
+def pop_front_deque(n):
+    d = deque(range(n))
+    while d: d.popleft()
+
+bench("pop(0) from a 40k list", pop_front_list, N)
+bench("popleft from a 40k deque", pop_front_deque, N)
+
+print("\nsame answers, different asymptotics — that is the whole point")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the set lookups finish in well under a millisecond while the list lookups take hundreds of milliseconds — typically a <b>100–1000× gap</b>, growing with N. Likewise <code class="ic">popleft</code> is near-instant while <code class="ic">pop(0)</code> takes hundreds of milliseconds, because each removal shifts every remaining element. Exact numbers vary with your machine and WebAssembly overhead; the <em>ratio</em> is the lesson.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What's the time complexity of <code class="ic">x in list</code> vs <code class="ic">x in set</code>?</summary>
+              <div class="ans"><p><b>O(n) for a list, O(1) average for a set or dict.</b> A list has to scan element by element; a set hashes <code class="ic">x</code> and jumps straight to a bucket.</p><p>Add the caveats to show depth: the set case is <em>average</em> O(1) and amortised — pathological hash collisions degrade it to O(n), and it costs memory (a set is roughly 3–4× the footprint of the equivalent list) plus the requirement that elements be hashable.</p><p>Then the practical version: converting a list to a set once, before a loop, turns an O(n·m) scan into O(n+m). On a 100k-row filter against a 50k-item allow-list that's minutes to milliseconds — and it's a one-line change, which is why interviewers like it.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Why is <code class="ic">list.pop(0)</code> a problem?</summary>
+              <div class="ans"><p>It's <b>O(n)</b>: removing the first element means shifting every other element down one slot. Do that <em>n</em> times to drain a queue and you've written an O(n²) loop, which looks perfectly innocent.</p><p>Use <code class="ic">collections.deque</code>, which is a doubly-linked list of blocks and gives O(1) <code class="ic">append</code>, <code class="ic">appendleft</code>, <code class="ic">pop</code> and <code class="ic">popleft</code>. The trade is that <code class="ic">deque[i]</code> is O(n), so it's the right structure for a queue and the wrong one for random access.</p><p>Same reasoning applies to <code class="ic">list.insert(0, x)</code> and to <code class="ic">del a[0]</code>. If you only ever push and pop at the <em>end</em>, a list is already O(1) and perfectly fine.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Why is <code class="ic">list.append</code> &ldquo;amortised&rdquo; O(1)?</summary>
+              <div class="ans"><p>Because a list holds a contiguous buffer with spare capacity. Most appends just write into the spare slot — genuinely O(1). When the buffer fills, Python allocates a bigger one (growth is proportional, not fixed) and copies everything across, which is O(n) for that one append.</p><p>Because the reallocation happens geometrically rarely, the <em>average</em> cost per append over many appends is constant — that's what &ldquo;amortised&rdquo; means. The distinction matters in two real situations: a single append can occasionally be slow (which shows up as jitter in latency-sensitive code), and if you know the final size, preallocating or using <code class="ic">array</code>/NumPy avoids the copies entirely.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-3">
+        <h3><span class="tn">2.3</span> The accidental O(n²) <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The most common performance bug in take-home submissions, and interviewers watch to see whether you spot it unprompted. It always looks like reasonable code.</p>
+
+        <figure class="diagram">
+          <div class="dwrap">
+            <svg viewBox="0 0 700 240" role="img" aria-label="Two code paths compared. The left shows a loop over m items checking membership in a list of n items, drawn as a full grid of comparisons, labelled O of n times m. The right converts the list to a set first, drawn as a single hash lookup per item, labelled O of n plus m.">
+              <text x="20" y="20" fill="#8892a0" font-size="12">the same filter, two asymptotics</text>
+              <g font-size="10">
+                <text x="24" y="44" fill="#e0929a" font-size="11" font-weight="600">for x in items:  if x in allowed_list</text>
+                <g transform="translate(24,54)">
+                  <g fill="#3a2228" stroke="#a33" stroke-width=".5">
+                    <rect x="0" y="0" width="14" height="14"/><rect x="16" y="0" width="14" height="14"/><rect x="32" y="0" width="14" height="14"/><rect x="48" y="0" width="14" height="14"/><rect x="64" y="0" width="14" height="14"/><rect x="80" y="0" width="14" height="14"/><rect x="96" y="0" width="14" height="14"/><rect x="112" y="0" width="14" height="14"/>
+                    <rect x="0" y="16" width="14" height="14"/><rect x="16" y="16" width="14" height="14"/><rect x="32" y="16" width="14" height="14"/><rect x="48" y="16" width="14" height="14"/><rect x="64" y="16" width="14" height="14"/><rect x="80" y="16" width="14" height="14"/><rect x="96" y="16" width="14" height="14"/><rect x="112" y="16" width="14" height="14"/>
+                    <rect x="0" y="32" width="14" height="14"/><rect x="16" y="32" width="14" height="14"/><rect x="32" y="32" width="14" height="14"/><rect x="48" y="32" width="14" height="14"/><rect x="64" y="32" width="14" height="14"/><rect x="80" y="32" width="14" height="14"/><rect x="96" y="32" width="14" height="14"/><rect x="112" y="32" width="14" height="14"/>
+                    <rect x="0" y="48" width="14" height="14"/><rect x="16" y="48" width="14" height="14"/><rect x="32" y="48" width="14" height="14"/><rect x="48" y="48" width="14" height="14"/><rect x="64" y="48" width="14" height="14"/><rect x="80" y="48" width="14" height="14"/><rect x="96" y="48" width="14" height="14"/><rect x="112" y="48" width="14" height="14"/>
+                    <rect x="0" y="64" width="14" height="14"/><rect x="16" y="64" width="14" height="14"/><rect x="32" y="64" width="14" height="14"/><rect x="48" y="64" width="14" height="14"/><rect x="64" y="64" width="14" height="14"/><rect x="80" y="64" width="14" height="14"/><rect x="96" y="64" width="14" height="14"/><rect x="112" y="64" width="14" height="14"/>
+                    <rect x="0" y="80" width="14" height="14"/><rect x="16" y="80" width="14" height="14"/><rect x="32" y="80" width="14" height="14"/><rect x="48" y="80" width="14" height="14"/><rect x="64" y="80" width="14" height="14"/><rect x="80" y="80" width="14" height="14"/><rect x="96" y="80" width="14" height="14"/><rect x="112" y="80" width="14" height="14"/>
+                  </g>
+                  <text x="140" y="30" fill="#e0929a" font-size="10.5">every item scans</text>
+                  <text x="140" y="44" fill="#e0929a" font-size="10.5">the whole list</text>
+                  <text x="140" y="66" fill="#c9d1dc" font-size="12" font-family="ui-monospace,monospace">O(n × m)</text>
+                  <text x="0" y="112" fill="#8892a0" font-size="9.5">100k rows × 50k allow-list = 5×10⁹ comparisons</text>
+                </g>
+
+                <line x1="352" y1="34" x2="352" y2="222" stroke="#2c3542"/>
+
+                <text x="376" y="44" fill="#7fd6a0" font-size="11" font-weight="600">allowed = set(allowed_list)</text>
+                <g transform="translate(376,54)">
+                  <g fill="#173026" stroke="#2E9E5B" stroke-width=".6">
+                    <rect x="0" y="0" width="14" height="14"/><rect x="0" y="16" width="14" height="14"/><rect x="0" y="32" width="14" height="14"/>
+                    <rect x="0" y="48" width="14" height="14"/><rect x="0" y="64" width="14" height="14"/><rect x="0" y="80" width="14" height="14"/>
+                  </g>
+                  <text x="30" y="30" fill="#7fd6a0" font-size="10.5">one hash lookup</text>
+                  <text x="30" y="44" fill="#7fd6a0" font-size="10.5">per item</text>
+                  <text x="30" y="66" fill="#c9d1dc" font-size="12" font-family="ui-monospace,monospace">O(n + m)</text>
+                  <text x="0" y="112" fill="#8892a0" font-size="9.5">150k operations — about 30,000× fewer</text>
+                </g>
+              </g>
+              <text x="20" y="232" fill="#c9d1dc" font-size="11">the fix is one line, placed <tspan fill="#7fd6a0">outside</tspan> the loop — which is exactly what makes missing it costly</text>
+            </svg>
+          </div>
+          <div class="legend"><span><i style="background:#a33"></i>comparisons made</span><span><i style="background:#2E9E5B"></i>hash lookups</span></div>
+          <figcaption>Same output, same readability. The only difference is where the <code class="ic">set()</code> call goes.</figcaption>
+        </figure>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">quadratic.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import time
+
+rows    = list(range(20_000))
+allowed = list(range(0, 20_000, 2))        # a LIST — this is the bug
+
+t0 = time.perf_counter()
+slow = [r for r in rows if r in allowed]           # O(n*m)
+t1 = time.perf_counter()
+
+allowed_set = set(allowed)                          # one line, outside the loop
+fast = [r for r in rows if r in allowed_set]       # O(n+m)
+t2 = time.perf_counter()
+
+print(f"list membership : {(t1-t0)*1000:8.1f} ms")
+print(f"set  membership : {(t2-t1)*1000:8.1f} ms")
+print(f"speedup         : {(t1-t0)/max(t2-t1,1e-9):8.0f}x")
+print("same result:", slow == fast)
+
+# the other two shapes of the same bug:
+# 1) growing a string
+t0 = time.perf_counter()
+s = ""
+for i in range(20_000): s += "x"                    # O(n^2) copies
+t1 = time.perf_counter()
+s2 = "".join("x" for _ in range(20_000))            # O(n)
+t2 = time.perf_counter()
+print(f"\nstr +=  : {(t1-t0)*1000:7.1f} ms   join: {(t2-t1)*1000:7.1f} ms")
+
+# 2) list concatenation in a loop
+t0 = time.perf_counter()
+acc = []
+for i in range(4_000): acc = acc + [i]              # rebuilds every time
+t1 = time.perf_counter()
+acc2 = []
+for i in range(4_000): acc2.append(i)               # amortised O(1)
+t2 = time.perf_counter()
+print(f"acc = acc + [i]: {(t1-t0)*1000:7.1f} ms   append: {(t2-t1)*1000:7.1f} ms")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the list-membership version takes on the order of seconds while the set version is a couple of milliseconds — a speedup in the hundreds or thousands, with identical results. The two follow-on blocks show the same asymptotic mistake in its other disguises: <code class="ic">s += "x"</code> versus <code class="ic">join</code>, and <code class="ic">acc = acc + [i]</code> versus <code class="ic">append</code>. All three are &ldquo;rebuild the whole thing each iteration&rdquo;.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Debug</span>Here's a function that's slow on 100k rows. Find the problem.</summary>
+              <div class="ans"><p>Scan for <b>a linear operation inside a loop</b> — that's the shape of nearly every one of these. The four to look for, in frequency order:</p><p><b>1. <code class="ic">x in some_list</code></b> inside a loop → convert to a set once, outside. <b>2. String or list concatenation in a loop</b> (<code class="ic">s += ...</code>, <code class="ic">acc = acc + [...]</code>) → accumulate and join, or <code class="ic">append</code>. <b>3. <code class="ic">df.append</code> / <code class="ic">pd.concat</code> per row</b> → build a list of dicts and construct the frame once (this one is O(n²) in <em>copies of the whole frame</em>, so it's brutal). <b>4. <code class="ic">.pop(0)</code> or <code class="ic">.insert(0, …)</code></b> → use a <code class="ic">deque</code>.</p><p>Then say how you'd confirm rather than guess: time it at two input sizes. If doubling the input quadruples the runtime, it's quadratic, and you've localised the class of bug before reading another line.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>What's the pandas version of this mistake?</summary>
+              <div class="ans"><p><b>Growing a DataFrame row by row.</b> <code class="ic">df = pd.concat([df, new_row])</code> in a loop reallocates and copies the <em>entire</em> frame on every iteration, so building 10,000 rows performs ~50 million row-copies. It is comfortably the slowest thing people routinely write in pandas.</p><p>The fix: accumulate plain Python (a list of dicts, or a list of small frames) and construct once — <code class="ic">pd.DataFrame(records)</code> or a single <code class="ic">pd.concat(list_of_frames)</code> at the end. That's O(n) with one allocation.</p><p>Related and equally common: <code class="ic">for idx in df.index: df.loc[idx, 'col'] = f(...)</code>. Each <code class="ic">.loc</code> assignment is a whole indexing operation; the vectorised or <code class="ic">map</code>-based version is typically 100× faster. Both mistakes come from thinking of a DataFrame as a list of rows rather than a set of columns.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-4">
+        <h3><span class="tn">2.4</span> Dictionaries in depth <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The workhorse. Worth knowing how it's ordered, how to avoid <code class="ic">KeyError</code> in four different ways, and what the merge operators do.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">dicts.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">d = {"b": 2, "a": 1, "c": 3}
+print("insertion order preserved:", list(d))       # NOT sorted
+
+# four ways to avoid KeyError, each with a different meaning
+print("get, no insert   :", d.get("z", 0))
+print("setdefault, INSERTS:", d.setdefault("z", 0), "->", d)
+
+from collections import defaultdict, Counter
+groups = defaultdict(list)                          # factory on miss
+for word in ["apple", "avocado", "banana", "blue"]:
+    groups[word[0]].append(word)
+print("defaultdict      :", dict(groups))
+
+print("Counter          :", Counter("mississippi").most_common(3))
+
+# merging: | (3.9+) vs |= vs {**a, **b}
+a, b = {"x": 1, "y": 2}, {"y": 99, "z": 3}
+print("a | b            :", a | b, " (b wins on conflict)")
+merged = {**a, **b}
+print("{**a, **b}       :", merged)
+
+# views are live, and iterating while mutating raises
+keys = d.keys()
+d["new"] = 0
+print("live view        :", list(keys))
+try:
+    for k in d:
+        if k == "a": del d[k]
+except RuntimeError as exc:
+    print("mutate while iterating ->", type(exc).__name__, "-", exc)
+
+# invert a dict (careful: values must be unique and hashable)
+scores = {"alice": 90, "bob": 85}
+print("inverted         :", {v: k for k, v in scores.items()})</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">['b', 'a', 'c']</code> — insertion order, <em>not</em> sorted, which is the point. <code class="ic">get</code> returns a default without touching the dict; <code class="ic">setdefault</code> returns a default <em>and inserts it</em>. <code class="ic">defaultdict(list)</code> gives the clean grouping idiom. Then <code class="ic">a | b</code> → <code class="ic">{'x': 1, 'y': 99, 'z': 3}</code> (right-hand side wins), and finally <code class="ic">RuntimeError: dictionary changed size during iteration</code> — iterate over <code class="ic">list(d)</code> if you need to delete while looping.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span>Are dictionaries ordered?</summary>
+              <div class="ans"><p><b>Yes — insertion-ordered</b>, and that has been a language guarantee since Python 3.7 (it was a CPython 3.6 implementation detail first). Iteration, <code class="ic">keys()</code>, <code class="ic">values()</code> and <code class="ic">items()</code> all follow insertion order.</p><p>Two precisions worth adding. Insertion order is <em>not</em> sorted order — people conflate them, and <code class="ic">sorted(d)</code> is what you want if you need keys in order. And re-assigning an existing key keeps its <em>original</em> position; only deleting and re-inserting moves it to the end.</p><p><code class="ic">collections.OrderedDict</code> still exists and is still occasionally right: it has <code class="ic">move_to_end</code>, and its <code class="ic">__eq__</code> is order-sensitive, whereas two plain dicts with the same pairs in different orders compare equal.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span><code class="ic">get</code> vs <code class="ic">setdefault</code> vs <code class="ic">defaultdict</code> — when each?</summary>
+              <div class="ans"><p><b><code class="ic">d.get(k, default)</code></b> — read with a fallback, <em>without</em> modifying the dict. The default choice for lookups.</p><p><b><code class="ic">d.setdefault(k, default)</code></b> — read, and <em>insert</em> the default if missing. Only when you want that side effect; otherwise it silently grows your dict, which surprises people reading the code later.</p><p><b><code class="ic">defaultdict(factory)</code></b> — when <em>every</em> miss should produce a fresh container, typically for grouping: <code class="ic">groups[key].append(x)</code>. Cleaner and faster than <code class="ic">setdefault</code> in a loop.</p><p>The gotcha to mention: a <code class="ic">defaultdict</code> creates entries on <em>read</em>, so merely checking <code class="ic">dd[k]</code> inserts <code class="ic">k</code>. Use <code class="ic">k in dd</code> to test membership, and consider converting to a plain <code class="ic">dict</code> before returning it from a function so the caller doesn't inherit the surprise.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-5">
+        <h3><span class="tn">2.5</span> <code class="ic">collections</code> <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Four types that replace code you would otherwise hand-roll. Reaching for these unprompted in a live-coding round reads as fluency.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Type</th><th>Replaces</th><th>Use it when</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">Counter</code></td><td>a dict of counts plus manual increment</td><td>Frequencies, <code class="ic">most_common(k)</code>, multiset arithmetic</td></tr>
+              <tr><td><code class="ic">defaultdict</code></td><td><code class="ic">if k not in d: d[k] = []</code></td><td>Grouping, accumulating, building adjacency</td></tr>
+              <tr><td><code class="ic">deque</code></td><td>a list used as a queue</td><td>FIFO, sliding windows, <code class="ic">maxlen</code> ring buffers</td></tr>
+              <tr><td><code class="ic">namedtuple</code></td><td><code class="ic">row[3]</code></td><td>Lightweight immutable records with names</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">collections_tour.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">from collections import Counter, defaultdict, deque, namedtuple
+
+events = ["click", "view", "click", "buy", "view", "click"]
+
+# Counter — frequencies and multiset maths
+c = Counter(events)
+print("counts     :", dict(c))
+print("top 2      :", c.most_common(2))
+print("subtract   :", dict(c - Counter(["click", "click"])))
+
+# defaultdict — grouping without existence checks
+rows = [("uk", 10), ("de", 7), ("uk", 3)]
+by_country = defaultdict(list)
+for country, value in rows:
+    by_country[country].append(value)
+print("grouped    :", dict(by_country))
+
+# deque with maxlen — a fixed-size rolling window for free
+window = deque(maxlen=3)
+means = []
+for x in [1, 2, 3, 4, 5, 6]:
+    window.append(x)
+    means.append(round(sum(window) / len(window), 2))
+print("rolling m3 :", means)
+
+# namedtuple — self-documenting records
+Point = namedtuple("Point", "lat lon")
+p = Point(51.5, -0.12)
+print("namedtuple :", p, "| p.lat =", p.lat, "| unpacks:", (*p,))</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> counts <code class="ic">{'click': 3, 'view': 2, 'buy': 1}</code>; top-2 as a list of tuples; the subtraction dropping <code class="ic">click</code> to 1. Grouping gives <code class="ic">{'uk': [10, 3], 'de': [7]}</code>. The <code class="ic">deque(maxlen=3)</code> rolling means are <code class="ic">[1.0, 1.5, 2.0, 3.0, 4.0, 5.0]</code> — note the first two are partial windows, exactly the edge case <code class="ic">rolling(min_periods=)</code> controls in pandas. And <code class="ic">Point(lat=51.5, lon=-0.12)</code> prints readably while still behaving as a tuple.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Coding</span>Count word frequencies and return the top 3.</summary>
+              <div class="ans"><p><code class="ic">Counter(words).most_common(3)</code>. One line, and reaching for it immediately is the signal.</p><p>Be ready for the follow-up &ldquo;now without <code class="ic">Counter</code>&rdquo;: build a <code class="ic">defaultdict(int)</code> and increment, then <code class="ic">heapq.nlargest(3, d.items(), key=lambda kv: kv[1])</code>. Mentioning <code class="ic">nlargest</code> rather than <code class="ic">sorted(...)[:3]</code> is worth a point — it's O(n log k) instead of O(n log n), which matters when you want the top 3 of ten million.</p><p>And the detail interviewers sometimes probe: <code class="ic">most_common</code> breaks ties by <b>insertion order</b>, so if the tie-break matters you must sort explicitly with a secondary key.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Practical</span>When would you use <code class="ic">deque</code> over a list in data work?</summary>
+              <div class="ans"><p>Three cases. <b>A queue</b> — BFS over a graph, or a work queue — because <code class="ic">popleft</code> is O(1) and <code class="ic">list.pop(0)</code> is O(n). <b>A fixed-size rolling window</b> — <code class="ic">deque(maxlen=k)</code> evicts from the far end automatically, which makes streaming statistics over a window trivial and constant-memory. <b>A capped buffer</b> for the last N log lines or predictions.</p><p>The counter-case, worth stating so you look balanced: if you need random access or slicing, a deque is <em>worse</em> — indexing is O(n) and slicing isn't supported. And for numeric rolling windows over a whole column, <code class="ic">df.rolling()</code> beats both because it drops into C.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-6">
+        <h3><span class="tn">2.6</span> <code class="ic">deque</code>, <code class="ic">heapq</code>, <code class="ic">bisect</code></h3>
+        <p class="lead">Three standard-library tools that turn a plausible O(n log n) or O(n²) answer into the right one. Knowing they exist is most of the value.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">heap_bisect.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">import heapq, bisect, random
+
+random.seed(0)
+data = [random.randint(0, 10_000) for _ in range(50_000)]
+
+# top-k WITHOUT sorting everything: O(n log k) not O(n log n)
+print("nlargest 5 :", heapq.nlargest(5, data))
+print("nsmallest 5:", heapq.nsmallest(5, data))
+
+# streaming top-k with a bounded min-heap — constant memory
+k, heap = 5, []
+for x in data:
+    if len(heap) < k:
+        heapq.heappush(heap, x)
+    elif x > heap[0]:
+        heapq.heapreplace(heap, x)     # evict the smallest of the k
+print("streaming  :", sorted(heap, reverse=True))
+
+# bisect: O(log n) lookup into a SORTED list, and bucketing
+grades = [0, 60, 70, 80, 90]
+labels = ["F", "D", "C", "B", "A"]
+for score in [55, 72, 90, 99]:
+    idx = bisect.bisect_right(grades, score) - 1
+    print(f"  score {score:>3} -> {labels[idx]}")
+
+# insert while keeping sorted order
+seq = [1, 4, 9]
+bisect.insort(seq, 5)
+print("insort     :", seq)</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the five largest and smallest values; the streaming heap agreeing with <code class="ic">nlargest</code> while only ever holding 5 items in memory; grade bucketing giving F, C, A, A; and <code class="ic">[1, 4, 5, 9]</code>. The streaming block is the one worth internalising — it's how you take a top-k over a stream you can't fit in RAM, and <code class="ic">bisect</code>-based bucketing is the Python equivalent of <code class="ic">pd.cut</code>.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Coding</span>Find the top 10 items from a stream of a billion records.</summary>
+              <div class="ans"><p>A <b>bounded min-heap of size 10</b>. Push the first 10; after that, compare each new item to <code class="ic">heap[0]</code> (the smallest of the current top-10) and if it's larger, <code class="ic">heapreplace</code>. Memory is O(k) regardless of stream length; time is O(n log k).</p><p>Why not the obvious alternatives: <code class="ic">sorted(data)[-10:]</code> needs the whole stream in memory and is O(n log n); <code class="ic">heapq.nlargest(10, stream)</code> is actually fine and does this internally, so mention it — but the manual version is what they're checking you can reason about.</p><p>Good follow-ups to pre-empt: for <em>top-k per group</em> use one small heap per group; if k is large relative to n, sorting is simpler and comparable; and if the data is already in a database or a Parquet file, <code class="ic">ORDER BY … LIMIT</code> or a pushdown query beats anything you write in Python.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-7">
+        <h3><span class="tn">2.7</span> Sorting properly <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Everyone knows <code class="ic">sorted()</code>. The interview is about <code class="ic">key=</code>, stability, and multi-key sorts with mixed directions.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">sorting.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">from operator import itemgetter
+
+people = [
+    {"name": "ada",  "team": "ml", "score": 91},
+    {"name": "brian","team": "de", "score": 91},
+    {"name": "cara", "team": "ml", "score": 78},
+    {"name": "dan",  "team": "de", "score": 95},
+]
+
+print("by score desc:", [p["name"] for p in sorted(people, key=itemgetter("score"), reverse=True)])
+
+# multi-key, SAME direction — one sort
+print("team, then score:",
+      [(p["team"], p["score"]) for p in sorted(people, key=itemgetter("team", "score"))])
+
+# multi-key, MIXED directions — negate a numeric key...
+print("team asc, score desc:",
+      [(p["team"], p["score"]) for p in sorted(people, key=lambda p: (p["team"], -p["score"]))])
+
+# ...or exploit STABILITY: sort by the least significant key first
+tmp = sorted(people, key=itemgetter("score"), reverse=True)
+final = sorted(tmp, key=itemgetter("team"))          # stable: keeps score order within team
+print("via stability       :",
+      [(p["team"], p["score"]) for p in final])
+
+# stability proven: equal keys keep their original relative order
+print("\nstable? ", [p["name"] for p in sorted(people, key=itemgetter("score"))])
+print("ada before brian at equal score = stable")
+
+# sort by a string key case-insensitively without mutating the data
+words = ["Banana", "apple", "Cherry"]
+print("\ncase-insensitive:", sorted(words, key=str.lower))</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> <code class="ic">['dan', 'ada', 'brian', 'cara']</code> by score descending. The mixed-direction sort gives <code class="ic">de</code> before <code class="ic">ml</code>, with 95 before 91 inside <code class="ic">de</code>. The &ldquo;via stability&rdquo; result matches it — that's the general technique when a key isn't numeric and can't be negated. The stability proof shows <code class="ic">cara</code> (78) first, then <code class="ic">ada</code> before <code class="ic">brian</code>, preserving their input order at equal scores.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Sort by one field ascending and another descending.</summary>
+              <div class="ans"><p>Two techniques, and knowing both is the answer.</p><p><b>Negate the numeric key</b>: <code class="ic">sorted(rows, key=lambda r: (r["team"], -r["score"]))</code>. Concise, but only works when the descending key is numeric.</p><p><b>Exploit stability</b>: sort by the <em>least</em> significant key first, then the most significant. Because Python's sort is <b>stable</b> (Timsort), the second sort preserves the first's ordering within ties. This works for any key type, including strings and dates you can't negate.</p><p>The pandas equivalent is <code class="ic">df.sort_values(["team", "score"], ascending=[True, False])</code>, which handles mixed directions directly — worth mentioning, because in a data interview the follow-up is usually &ldquo;and in pandas?&rdquo;</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Conceptual</span>What does &ldquo;stable sort&rdquo; mean and why does it matter?</summary>
+              <div class="ans"><p>A stable sort preserves the relative order of items that compare equal. Python's <code class="ic">sorted</code> and <code class="ic">list.sort</code> use <b>Timsort</b>, which is stable and O(n log n) worst case (and O(n) on already-sorted or nearly-sorted input, which is common in real data).</p><p>Why it matters practically: it makes <b>multi-pass sorting</b> valid, which is the mixed-direction technique above. It also means an existing meaningful order — insertion order, arrival time, a previous sort — survives a subsequent sort on a different key, so you don't scramble ties.</p><p>The trap: <code class="ic">np.sort</code>'s default <code class="ic">quicksort</code> is <b>not</b> stable, and neither is <code class="ic">df.sort_values</code>'s default. If you rely on tie order, pass <code class="ic">kind="stable"</code> (or <code class="ic">mergesort</code>) explicitly — otherwise you have a bug that only appears on some inputs.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span><code class="ic">sorted()</code> vs <code class="ic">.sort()</code>?</summary>
+              <div class="ans"><p><code class="ic">sorted(iterable)</code> returns a <b>new list</b> and accepts any iterable — a generator, a dict, a set. <code class="ic">list.sort()</code> sorts <b>in place</b>, returns <code class="ic">None</code>, and only exists on lists.</p><p>The bug that follows from the <code class="ic">None</code>: <code class="ic">rows = rows.sort()</code> silently sets <code class="ic">rows</code> to <code class="ic">None</code>. It's a classic, and it's why the in-place methods deliberately return <code class="ic">None</code> — to make the mistake loud rather than subtle.</p><p>Prefer <code class="ic">sorted()</code> by default: it doesn't mutate its input, which keeps functions free of surprising side effects (§1.1). Use <code class="ic">.sort()</code> when the list is large and local and you genuinely want to avoid the copy.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-8">
+        <h3><span class="tn">2.8</span> Comprehensions <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">Idiomatic, faster than an equivalent loop, and the thing most likely to be asked to write on the spot. The skill is knowing when they stop being readable.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">comprehensions.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">rows = [{"id": 1, "v": 10}, {"id": 2, "v": None}, {"id": 3, "v": 30}]
+
+# list, dict and set comprehensions
+print("list:", [r["id"] for r in rows])
+print("dict:", {r["id"]: r["v"] for r in rows})
+print("set :", {r["v"] for r in rows if r["v"] is not None})
+
+# filter and transform together
+print("doubled non-null:", [r["v"] * 2 for r in rows if r["v"] is not None])
+
+# conditional EXPRESSION (applies to every item) vs filter (drops items)
+print("with default    :", [r["v"] if r["v"] is not None else 0 for r in rows])
+
+# nested: flatten. read it as the loop order you'd write
+matrix = [[1, 2], [3, 4], [5]]
+print("flatten:", [x for row in matrix for x in row])
+
+# genexp instead of list when you only consume once
+print("sum via genexp :", sum(r["v"] or 0 for r in rows))
+
+# the walrus operator avoids computing twice
+import math
+vals = [4, -1, 9]
+print("walrus:", [root for v in vals if (root := math.sqrt(v) if v >= 0 else None) is not None])
+
+# when NOT to use one — this is unreadable, use a loop
+ugly = [y for x in matrix for y in x if y % 2 == 0 if y > 2]
+print("technically works:", ugly, "  <- but write a loop instead")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> ids <code class="ic">[1, 2, 3]</code>; the dict mapping id→v; the set <code class="ic">{10, 30}</code>; <code class="ic">[20, 60]</code> for the filtered double; <code class="ic">[10, 0, 30]</code> for the conditional expression — note the difference between <em>filtering out</em> a row and <em>substituting</em> a value. Flatten gives <code class="ic">[1, 2, 3, 4, 5]</code>, the genexp sums to 40, and the walrus version computes each square root once.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Explain list, dict and set comprehensions, and when you'd avoid them.</summary>
+              <div class="ans"><p>All three build a container from an iterable in one expression: <code class="ic">[f(x) for x in it if cond]</code>, <code class="ic">{k: v for …}</code>, <code class="ic">{x for …}</code>. They're idiomatic and modestly faster than the equivalent <code class="ic">for</code> loop with <code class="ic">append</code>, because the append is done in C rather than as a bytecode method call.</p><p>The distinction worth drawing: the <code class="ic">if</code> at the end <b>filters</b> (drops items); a conditional expression at the front <b>substitutes</b> (keeps every item). <code class="ic">[x for x in xs if x]</code> and <code class="ic">[x or 0 for x in xs]</code> produce different lengths, and mixing them up is a real bug.</p><p>When to avoid: more than one <code class="ic">for</code> plus a condition, any side effect (never use a comprehension for its side effects — use a loop), or when the expression no longer fits on one line. Readability wins; a comprehension you have to parse twice is worse than four lines of loop.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Flatten a list of lists.</summary>
+              <div class="ans"><p><code class="ic">[x for row in matrix for x in row]</code>. The clause order matches the nested loop you'd write — outer loop first — which is the bit people reverse.</p><p>Alternatives worth naming: <code class="ic">list(itertools.chain.from_iterable(matrix))</code>, which is slightly faster and clearer for a one-level flatten; and <code class="ic">np.concatenate</code> or <code class="ic">.ravel()</code> if it's numeric. For <em>arbitrarily</em> nested structures you need recursion or an explicit stack, and the follow-up question is often exactly that — so be ready to write a small recursive generator with an <code class="ic">isinstance</code> check.</p><p>The anti-pattern to mention: <code class="ic">sum(matrix, [])</code> works and is O(n²), because it builds a new list per concatenation. It shows up in code golf and should never survive review.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p2-9">
+        <h3><span class="tn">2.9</span> Slicing, unpacking and <code class="ic">zip</code></h3>
+        <p class="lead">The syntax that makes Python code look like Python. Cheap to learn, and its absence is conspicuous in a live-coding round.</p>
+
+        <div class="pyrun">
+          <div class="ph"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="ptag">Run it</span><span class="pname">idioms.py</span><span class="pspacer"></span><span class="pstat">idle</span></div>
+          <textarea spellcheck="false">a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+print("a[2:5]   ", a[2:5])          # stop is exclusive
+print("a[:3]    ", a[:3])
+print("a[-3:]   ", a[-3:])          # last three
+print("a[::2]   ", a[::2])          # every other
+print("a[::-1]  ", a[::-1])         # reversed COPY
+print("a[5:2:-1]", a[5:2:-1])       # backwards slice
+
+b = a[:]                             # shallow copy (see 1.6)
+b[0:3] = [99]                        # slice assignment can change length
+print("slice assign ->", b[:5], "len", len(b))
+
+# starred unpacking
+first, *middle, last = a
+print("\nfirst/last:", first, last, "| middle len:", len(middle))
+head, *rest = a
+print("head, rest:", head, rest[:3], "...")
+
+# swap without a temp
+x, y = 1, 2
+x, y = y, x
+print("swapped:", x, y)
+
+# zip: pair, and transpose
+names  = ["ada", "brian", "cara"]
+scores = [91, 85, 78]
+print("\nzip      :", list(zip(names, scores)))
+print("enumerate:", [(i, n) for i, n in enumerate(names, start=1)])
+
+rows = [(1, "a"), (2, "b"), (3, "c")]
+cols = list(zip(*rows))              # transpose — the * is the trick
+print("transpose:", cols)
+
+# zip stops at the SHORTEST — usually a silent bug
+print("\nzip truncates :", list(zip([1, 2, 3], ["x"])))
+from itertools import zip_longest
+print("zip_longest   :", list(zip_longest([1, 2, 3], ["x"], fillvalue="-")))
+print("strict=True raises on length mismatch (3.10+)")</textarea>
+          <div class="pbar">
+            <button class="pbtn run">▶ Run</button>
+            <button class="pbtn reset">Reset</button>
+            <span class="phint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="pout"></pre>
+          <div class="pexp"><b>Expected:</b> the slices behave as labelled — note <code class="ic">a[::-1]</code> is a <em>copy</em>, not a view, so it costs O(n) memory. Slice assignment replaces three elements with one and shortens the list to 8. Starred unpacking gives <code class="ic">0 9</code> with 8 in the middle. <code class="ic">zip(*rows)</code> transposes to <code class="ic">[(1, 2, 3), ('a', 'b', 'c')]</code>. The last block is the important one: <code class="ic">zip</code> <b>silently truncates</b> to the shortest input, which loses rows without any warning — use <code class="ic">strict=True</code> when the lengths should match.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What's dangerous about <code class="ic">zip</code>?</summary>
+              <div class="ans"><p>It <b>stops at the shortest iterable, silently</b>. Zipping a 1000-row list of ids against a 998-row list of predictions gives you 998 pairs and no error — you've just dropped two rows and misaligned nothing visibly. In a data pipeline that's a correctness bug that can survive to production.</p><p>Fixes: <code class="ic">zip(a, b, strict=True)</code> (Python 3.10+) raises <code class="ic">ValueError</code> on a length mismatch, which is what you want almost every time you zip data. <code class="ic">itertools.zip_longest</code> pads with a fill value when unequal lengths are legitimate. Or assert the lengths first.</p><p>The related pandas lesson: this is exactly why aligning on an <b>index</b> or joining on a <b>key</b> beats zipping positionally. Positional alignment assumes an invariant nobody is checking.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Coding</span>Reverse a list, and transpose a list of rows.</summary>
+              <div class="ans"><p><b>Reverse:</b> <code class="ic">a[::-1]</code> for a new list, <code class="ic">a.reverse()</code> in place, <code class="ic">reversed(a)</code> for a lazy iterator. Mention that the slice makes a full copy — on a large list, <code class="ic">reversed()</code> is the memory-cheap option.</p><p><b>Transpose:</b> <code class="ic">list(zip(*rows))</code>. The <code class="ic">*</code> unpacks each row as a separate argument to <code class="ic">zip</code>, so <code class="ic">zip</code> takes one element from each — which is exactly a transpose. It returns tuples; wrap in <code class="ic">[list(c) for c in zip(*rows)]</code> if you need lists.</p><p>Worth adding the caveat: this assumes rows are equal length, and <code class="ic">zip</code> will silently truncate to the shortest if they aren't. For numeric data, <code class="ic">np.array(rows).T</code> is faster and will raise on ragged input rather than truncate — which is usually what you want.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="PY_Part01_DataModel.html">Part 1 · The Data Model</a></div><ul><li>Bindings, mutability, copies</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 2 · Data Structures &amp; Complexity</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="PY_Part03_Functions.html">Part 3 · Functions &amp; Decorators</a></div><ul><li>Closures and capture</li><li>Decorators from scratch</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        Python for Data Science Interviews — Part 2 of 11 · Data Structures &amp; Complexity<br>
+        Library-current as of <b>Aug 2026</b> — Python <b>3.14</b> (PEP 779 free-threading) · pandas <b>3.0</b> (Copy-on-Write only) · NumPy <b>2.5</b> · scikit-learn <b>1.9</b>.<br>
+        Runnable cells execute <b>real CPython 3.14</b> in your browser via Pyodide — nothing is sent to a server.<br>
+        Progress is stored locally under key <code style="color:#8892a0">pyPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 191 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · The Data Model", "l1": "Level 1 · Data Structures", "l2": "Level 2 · Functions &amp; Decorators", "l3": "Level 3 · Generators", "l4": "Level 4 · OOP &amp; Dataclasses", "l5": "Level 5 · NumPy", "l6": "Level 6 · pandas Core", "l7": "Level 7 · pandas Transformation", "l8": "Level 8 · Performance &amp; Memory", "l9": "Level 9 · Production", "iv": "Interview Q&amp;A Drill", "ex": "Coding Exercises"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "iv", "ex"];
+const TRACKER = [
+[1,"l0","Theory","High",0,"Names are bindings, not boxes: what a = b actually does"],
+[2,"l0","Theory","High",0,"Mutable vs immutable, and why it decides everything else"],
+[3,"l0","Theory","High",0,"is vs ==, and why is on small ints looks like it works"],
+[4,"l0","Theory","High",0,"Identity, equality and the __hash__/__eq__ contract"],
+[5,"l0","Theory","High",0,"Why only immutable objects can be dict keys or set members"],
+[6,"l0","Theory","High",0,"The mutable default argument trap"],
+[7,"l0","Theory","High",0,"Shallow copy vs deep copy vs assignment"],
+[8,"l0","Theory","High",0,"Argument passing: neither call-by-value nor call-by-reference"],
+[9,"l0","Theory","High",0,"LEGB scope resolution, global and nonlocal"],
+[10,"l0","Theory","High",0,"Late binding in closures (the classic loop-variable bug)"],
+[11,"l0","Theory","High",0,"Truthiness, None checks, and the or default idiom"],
+[12,"l0","Theory","High",0,"Reference counting, cycles and the generational GC"],
+[13,"l0","Theory","High",0,"__slots__ and where object overhead comes from"],
+[14,"l0","Theory","High",0,"Interning, sys.getsizeof, and why a list of ints is bigger than you think"],
+[15,"l1","Theory","Medium",0,"list vs tuple vs set vs dict: the four-way decision"],
+[16,"l1","Theory","Medium",0,"Time complexity of every common operation (the table you must know)"],
+[17,"l1","Theory","Medium",0,"Why x in list is the most common accidental O(n\u00b2)"],
+[18,"l1","Theory","Medium",0,"Dict insertion order, and when it became a guarantee"],
+[19,"l1","Theory","Medium",0,"dict.get / setdefault / defaultdict / Counter"],
+[20,"l1","Theory","Medium",0,"deque for queues, and why list.pop(0) is a bug at scale"],
+[21,"l1","Theory","Medium",0,"heapq for top-k without sorting everything"],
+[22,"l1","Theory","Medium",0,"Sorting: key=, stability, operator.itemgetter, multi-key with reverse"],
+[23,"l1","Theory","Medium",0,"Comprehensions vs map/filter vs loops"],
+[24,"l1","Theory","Medium",0,"Nested comprehensions and the flatten idiom"],
+[25,"l1","Theory","Medium",0,"Set algebra for dedup, membership and diffing datasets"],
+[26,"l1","Theory","Medium",0,"Tuple unpacking, starred targets and swapping"],
+[27,"l1","Theory","Medium",0,"zip, enumerate, zip(*rows) for transposition"],
+[28,"l1","Theory","Medium",0,"Slicing semantics, negative steps, and slice assignment"],
+[29,"l1","Theory","Medium",0,"str immutability and why += in a loop is quadratic"],
+[30,"l1","Theory","Medium",0,"bisect for sorted lookups and bucketing"],
+[31,"l2","Practical","Medium",0,"Positional, keyword, default, args, *kwargs"],
+[32,"l2","Practical","Medium",0,"Keyword-only and positional-only parameters"],
+[33,"l2","Practical","Medium",0,"First-class functions and higher-order functions"],
+[34,"l2","Practical","Medium",0,"Closures: what gets captured and when"],
+[35,"l2","Practical","Medium",0,"Writing a decorator from scratch"],
+[36,"l2","Practical","Medium",0,"functools.wraps and why omitting it breaks introspection"],
+[37,"l2","Practical","Medium",0,"Decorators with arguments (the three-level nesting)"],
+[38,"l2","Practical","Medium",0,"Practical decorators: timing, retry, caching, logging, validation"],
+[39,"l2","Practical","Medium",0,"functools.lru_cache / cache and its hashability requirement"],
+[40,"l2","Practical","Medium",0,"functools.partial and where it beats a lambda"],
+[41,"l2","Practical","Medium",0,"functools.reduce, and why a loop is usually clearer"],
+[42,"l2","Practical","Medium",0,"Lambdas: what they are for and what they are not for"],
+[43,"l2","Practical","Medium",0,"Type hints on functions, Optional, Callable, generics"],
+[44,"l2","Practical","Medium",0,"Docstrings that answer the caller's actual questions"],
+[45,"l3","Practical","Medium",0,"The iterator protocol: __iter__, __next__, StopIteration"],
+[46,"l3","Practical","Medium",0,"Iterable vs iterator, and why a generator is exhausted once"],
+[47,"l3","Practical","Medium",0,"Generator functions and yield"],
+[48,"l3","Practical","Medium",0,"Generator expressions vs list comprehensions (memory)"],
+[49,"l3","Practical","Medium",0,"yield from and generator delegation"],
+[50,"l3","Practical","Medium",0,"Reading a multi-GB file without loading it"],
+[51,"l3","Practical","Medium",0,"Chunked processing and streaming aggregation"],
+[52,"l3","Practical","Medium",0,"itertools: islice, chain, groupby, product, accumulate, tee"],
+[53,"l3","Practical","Medium",0,"Pipelines of generators as a processing pattern"],
+[54,"l3","Practical","Medium",0,"Two-pass problems and when laziness stops helping"],
+[55,"l3","Practical","Medium",0,"Context managers: with, __enter__/__exit__"],
+[56,"l3","Practical","Medium",0,"contextlib.contextmanager for a generator-based context manager"],
+[57,"l3","Practical","Medium",0,"Exception handling: try/except/else/finally, specific excepts"],
+[58,"l3","Practical","Medium",0,"Custom exceptions and failing loudly in a pipeline"],
+[59,"l4","Practical","Medium",0,"Classes, instances, __init__, and self"],
+[60,"l4","Practical","Medium",0,"Class vs instance attributes (and the shared-mutable trap)"],
+[61,"l4","Practical","Medium",0,"@property for computed and validated attributes"],
+[62,"l4","Practical","Medium",0,"@staticmethod vs @classmethod and alternative constructors"],
+[63,"l4","Practical","Medium",0,"Dunder methods: __repr__, __str__, __eq__, __len__, __getitem__"],
+[64,"l4","Practical","Medium",0,"@dataclass, frozen, field(default_factory=...)"],
+[65,"l4","Practical","Medium",0,"Dataclass vs NamedTuple vs TypedDict vs Pydantic"],
+[66,"l4","Practical","Medium",0,"Inheritance, MRO and super()"],
+[67,"l4","Practical","Medium",0,"Composition over inheritance, with a data-pipeline example"],
+[68,"l4","Practical","Medium",0,"Abstract base classes and duck typing"],
+[69,"l4","Practical","Medium",0,"Protocol and structural typing"],
+[70,"l4","Practical","Medium",0,"Writing a scikit-learn\u2013compatible estimator (fit/transform/get_params)"],
+[71,"l4","Practical","Medium",0,"Mixins, and when they become a maintenance problem"],
+[72,"l5","Practical","High",0,"ndarray anatomy: data buffer, dtype, shape, strides"],
+[73,"l5","Practical","High",0,"Why arrays beat lists: contiguity, fixed dtype, no boxing"],
+[74,"l5","Practical","High",0,"dtypes, overflow, and silent integer wraparound"],
+[75,"l5","Practical","High",0,"Views vs copies, and how to tell which you have"],
+[76,"l5","Practical","High",0,"Strides: how reshape and transpose avoid copying"],
+[77,"l5","Practical","High",0,"C order vs Fortran order and .copy(order=...)"],
+[78,"l5","Practical","High",0,"Basic indexing (view) vs fancy indexing (copy)"],
+[79,"l5","Practical","High",0,"Boolean masking and np.where"],
+[80,"l5","Practical","High",0,"Broadcasting: the three rules"],
+[81,"l5","Practical","High",0,"The [:, None] idiom for outer operations"],
+[82,"l5","Practical","High",0,"Axis semantics, and what axis=0 really reduces"],
+[83,"l5","Practical","High",0,"keepdims and why it saves broadcasting bugs"],
+[84,"l5","Practical","High",0,"Vectorising a loop: pairwise distances worked example"],
+[85,"l5","Practical","High",0,"Universal functions, out= and in-place operations"],
+[86,"l5","Practical","High",0,"Aggregations, nan-aware functions, and NaN propagation"],
+[87,"l5","Practical","High",0,"Float equality, np.isclose, and catastrophic cancellation"],
+[88,"l5","Practical","High",0,"Random number generation: default_rng and reproducibility"],
+[89,"l5","Practical","High",0,"einsum and when it is worth the readability cost"],
+[90,"l5","Practical","High",0,"Structured arrays and memory-mapped arrays"],
+[91,"l5","Practical","High",0,"Where NumPy ends and pandas begins"],
+[92,"l6","Practical","High",0,"Series and DataFrame as index + typed columns"],
+[93,"l6","Practical","High",0,"The index: alignment, duplicates, reset_index, set_index"],
+[94,"l6","Practical","High",0,"dtypes: numeric, str (new default in pandas 3.0), category, datetime, nullable"],
+[95,"l6","Practical","High",0,"Why object dtype used to be everywhere and what changed in 3.0"],
+[96,"l6","Practical","High",0,"category dtype for memory and speed"],
+[97,"l6","Practical","High",0,"loc vs .iloc vs []: label, position and the ambiguous case"],
+[98,"l6","Practical","High",0,"Boolean masking, query, isin, between"],
+[99,"l6","Practical","High",0,"Copy-on-Write in pandas 3.0 and the death of SettingWithCopyWarning"],
+[100,"l6","Practical","High",0,"Why chained assignment now silently does nothing"],
+[101,"l6","Practical","High",0,"Missing data: NaN vs None vs pd.NA"],
+[102,"l6","Practical","High",0,"fillna, dropna, interpolate and choosing between them"],
+[103,"l6","Practical","High",0,"Reading data: dtypes at read time, usecols, chunksize, parsing dates"],
+[104,"l6","Practical","High",0,"Parquet vs CSV, and why CSV loses your schema"],
+[105,"l6","Practical","High",0,"Duplicates: duplicated, drop_duplicates(subset=, keep=)"],
+[106,"l6","Practical","High",0,"Type conversion: astype, to_numeric(errors=), convert_dtypes"],
+[107,"l6","Practical","High",0,"assign and pd.col for readable chains"],
+[108,"l6","Practical","High",0,"Method chaining and pipe"],
+[109,"l7","Practical","High",0,"groupby and the split-apply-combine model"],
+[110,"l7","Practical","High",0,"agg with multiple functions and named aggregation"],
+[111,"l7","Practical","High",0,"transform vs agg vs apply: shape, speed and when each is right"],
+[112,"l7","Practical","High",0,"filter on groups"],
+[113,"l7","Practical","High",0,"groupby(dropna=), observed= and the categorical surprise"],
+[114,"l7","Practical","High",0,"Group-wise fill, rank, and normalisation without a loop"],
+[115,"l7","Practical","High",0,"merge: the five how values and what each keeps"],
+[116,"l7","Practical","High",0,"Validating a join: validate=, indicator=, row-count assertions"],
+[117,"l7","Practical","High",0,"Why row counts explode: many-to-many joins"],
+[118,"l7","Practical","High",0,"join vs merge vs concat"],
+[119,"l7","Practical","High",0,"concat: axis, keys, and index collisions"],
+[120,"l7","Practical","High",0,"merge_asof for nearest-key and point-in-time joins"],
+[121,"l7","Practical","High",0,"Wide vs long, melt and pivot"],
+[122,"l7","Practical","High",0,"pivot vs pivot_table and the aggregation requirement"],
+[123,"l7","Practical","High",0,"stack/unstack and the MultiIndex"],
+[124,"l7","Practical","High",0,"MultiIndex selection: xs, tuples, IndexSlice"],
+[125,"l7","Practical","High",0,"Datetime index, resample, asfreq"],
+[126,"l7","Practical","High",0,"Timezones, and the naive-vs-aware bug"],
+[127,"l7","Practical","High",0,"Rolling, expanding and ewm windows"],
+[128,"l7","Practical","High",0,"shift, diff, pct_change and lag features without leakage"],
+[129,"l7","Practical","High",0,"cut and qcut for binning"],
+[130,"l7","Practical","High",0,"String operations via .str, and regex extraction"],
+[131,"l7","Practical","High",0,"Translating SQL to pandas (and when to just use SQL)"],
+[132,"l8","Practical","High",0,"Where pandas time actually goes: measure before optimising"],
+[133,"l8","Practical","High",0,"The vectorisation ladder: loop \u2192 iterrows \u2192 apply \u2192 vectorised \u2192 NumPy"],
+[134,"l8","Practical","High",0,"Why apply is a loop wearing a costume"],
+[135,"l8","Practical","High",0,"itertuples vs iterrows, and when a loop is genuinely correct"],
+[136,"l8","Practical","High",0,"Reducing memory: dtype downcasting, category, dropping columns early"],
+[137,"l8","Practical","High",0,"Chunked reads and out-of-core aggregation"],
+[138,"l8","Practical","High",0,"Profiling: timeit, cProfile, line profiling, memory_profiler"],
+[139,"l8","Practical","High",0,"Big-O of a pipeline vs constant factors in practice"],
+[140,"l8","Practical","High",0,"The GIL: what it does and does not lock"],
+[141,"l8","Practical","High",0,"Free-threaded Python 3.14 (PEP 779) and what it changes for data work"],
+[142,"l8","Practical","High",0,"Threads vs processes vs async: choosing by workload"],
+[143,"l8","Practical","High",0,"concurrent.futures for embarrassingly parallel work"],
+[144,"l8","Practical","High",0,"multiprocessing pitfalls: pickling, fork vs spawn, memory copies"],
+[145,"l8","Practical","High",0,"asyncio for many API calls, and one blocking call ruining it"],
+[146,"l8","Practical","High",0,"joblib and scikit-learn's n_jobs"],
+[147,"l8","Practical","High",0,"Numba, Cython and when to reach for them"],
+[148,"l8","Practical","High",0,"Polars, DuckDB and Arrow: what they change and when to switch"],
+[149,"l8","Practical","High",0,"Caching: lru_cache, on-disk caches, and invalidation"],
+[150,"l9","Practical","Medium",0,"Project layout, imports and why notebooks break in production"],
+[151,"l9","Practical","Medium",0,"Virtual environments, lockfiles and reproducible installs"],
+[152,"l9","Practical","Medium",0,"Configuration and secrets outside the code"],
+[153,"l9","Practical","Medium",0,"Logging instead of print, with levels and structure"],
+[154,"l9","Practical","Medium",0,"Testing data code with pytest: fixtures, parametrize, tolerances"],
+[155,"l9","Practical","Medium",0,"Testing the untestable: seeds, golden files, property tests"],
+[156,"l9","Practical","Medium",0,"Data validation at boundaries: schemas and assertions"],
+[157,"l9","Practical","Medium",0,"Type hints in practice, and running a checker in CI"],
+[158,"l9","Practical","Medium",0,"scikit-learn Pipeline and ColumnTransformer"],
+[159,"l9","Practical","Medium",0,"Data leakage: fitting on the full dataset, and how pipelines prevent it"],
+[160,"l9","Practical","Medium",0,"Cross-validation with a pipeline, and grouped/time-series splits"],
+[161,"l9","Practical","Medium",0,"Reproducibility: seeds, versions, and the sources of nondeterminism"],
+[162,"l9","Practical","Medium",0,"Serialising models: pickle, joblib, ONNX and version skew"],
+[163,"l9","Practical","Medium",0,"Code review for data code: the checklist"],
+[164,"l9","Practical","Medium",0,"Refactoring a notebook into modules"],
+[165,"l9","Practical","Medium",0,"Docstrings, README and handing work over"],
+[166,"iv","Interview Prep","High",0,"High-frequency: the data model (mutability, copies, identity, scope)"],
+[167,"iv","Interview Prep","High",0,"High-frequency: data structures and complexity"],
+[168,"iv","Interview Prep","High",0,"High-frequency: decorators, generators and context managers"],
+[169,"iv","Interview Prep","High",0,"High-frequency: NumPy (views, broadcasting, vectorisation)"],
+[170,"iv","Interview Prep","High",0,"High-frequency: pandas selection and Copy-on-Write"],
+[171,"iv","Interview Prep","High",0,"High-frequency: groupby, joins and reshaping"],
+[172,"iv","Interview Prep","High",0,"High-frequency: performance, memory and the GIL"],
+[173,"iv","Interview Prep","High",0,"High-frequency: production, testing and leakage"],
+[174,"iv","Interview Prep","High",0,"The trap questions (answered correctly, out loud)"],
+[175,"iv","Interview Prep","High",0,"Live-coding warm-ups timed at 10 minutes each"],
+[176,"iv","Interview Prep","High",0,"Explaining a past project in 90 seconds"],
+[177,"ex","Exercise","High",0,"Exercise: two-sum and the hash-map reflex"],
+[178,"ex","Exercise","High",0,"Exercise: group records without pandas"],
+[179,"ex","Exercise","High",0,"Exercise: running/streaming statistics"],
+[180,"ex","Exercise","High",0,"Exercise: flatten a nested structure"],
+[181,"ex","Exercise","High",0,"Exercise: sessionise events by gap"],
+[182,"ex","Exercise","High",0,"Exercise: top-k per group"],
+[183,"ex","Exercise","High",0,"Exercise: dedupe with a tie-break rule"],
+[184,"ex","Exercise","High",0,"Exercise: pairwise distances, vectorised"],
+[185,"ex","Exercise","High",0,"Exercise: entropy and information gain from scratch"],
+[186,"ex","Exercise","High",0,"Exercise: train/test split by time without leakage"],
+[187,"ex","Exercise","High",0,"Exercise: a retry decorator with backoff"],
+[188,"ex","Exercise","High",0,"Exercise: a chunked CSV aggregator"],
+[189,"ex","Exercise","High",0,"Exercise: rolling median with a deque"],
+[190,"ex","Exercise","High",0,"Exercise: a custom sklearn transformer"],
+[191,"ex","Exercise","High",0,"Exercise: SQL-to-pandas translation drill"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="pyPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 191 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+
+<script>
+/* ------------------------------------------------------------------------
+   Shared in-browser Python runtime for every .pyrun cell on the page.
+   Pyodide (CPython 3.14 compiled to WebAssembly) is loaded LAZILY on the
+   first Run click, so the page itself stays light. numpy / pandas / sklearn
+   wheels are fetched on demand the first time a cell imports them.
+   ------------------------------------------------------------------------ */
+window.PyRT = (function () {
+  var PYODIDE_URL = "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/pyodide.js";
+  var pyodide = null, booting = null, loaded = {};
+  var listeners = [];
+
+  function announce(msg, cls) {
+    listeners.forEach(function (fn) { try { fn(msg, cls); } catch (e) {} });
+  }
+  function onStatus(fn) { listeners.push(fn); }
+
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement("script");
+      s.src = src; s.onload = res; s.onerror = function () { rej(new Error("could not load " + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function boot() {
+    if (pyodide) return Promise.resolve(pyodide);
+    if (booting) return booting;
+    announce("downloading Python runtime (~12 MB, once per visit)…", "busy");
+    booting = loadScript(PYODIDE_URL)
+      .then(function () {
+        announce("starting CPython…", "busy");
+        return loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v314.0.5/full/" });
+      })
+      .then(function (py) {
+        pyodide = py;
+        announce("Python ready", "ready");
+        return py;
+      })
+      .catch(function (e) {
+        booting = null;
+        announce("runtime failed to load — you are probably offline. " +
+                 "The expected output is shown under each cell.", "err");
+        throw e;
+      });
+    return booting;
+  }
+
+  /* map an import name -> the Pyodide package that provides it */
+  var PKG = {
+    numpy: "numpy", pandas: "pandas", sklearn: "scikit-learn", scipy: "scipy",
+    matplotlib: "matplotlib", pyarrow: "pyarrow", statsmodels: "statsmodels"
+  };
+  function neededPackages(code) {
+    var want = {};
+    var re = /(?:^|\n)\s*(?:import|from)\s+([A-Za-z_][\w.]*)/g, m;
+    while ((m = re.exec(code))) {
+      var top = m[1].split(".")[0];
+      if (PKG[top] && !loaded[PKG[top]]) want[PKG[top]] = 1;
+    }
+    return Object.keys(want);
+  }
+
+  function run(code) {
+    return boot().then(function (py) {
+      var pkgs = neededPackages(code);
+      var p = Promise.resolve();
+      if (pkgs.length) {
+        announce("fetching " + pkgs.join(", ") + "…", "busy");
+        p = py.loadPackage(pkgs).then(function () {
+          pkgs.forEach(function (k) { loaded[k] = 1; });
+          announce("Python ready", "ready");
+        });
+      }
+      return p.then(function () {
+        var out = [];
+        py.setStdout({ batched: function (s) { out.push(s); } });
+        py.setStderr({ batched: function (s) { out.push(s); } });
+        return py.runPythonAsync(code).then(
+          function (val) {
+            var txt = out.join("\n");
+            /* echo the value of a trailing expression, REPL-style */
+            if (val !== undefined && val !== null) {
+              var r;
+              try { r = py.globals.get("repr")(val); } catch (e) { r = String(val); }
+              if (r !== "None") txt += (txt && !txt.endsWith("\n") ? "\n" : "") + r;
+            }
+            return { ok: true, text: txt };
+          },
+          function (err) {
+            return { ok: false, text: out.join("\n") + (out.length ? "\n" : "") + String(err.message || err) };
+          }
+        );
+      });
+    }).catch(function (e) {
+      return { ok: false, text: String(e.message || e), offline: true };
+    });
+  }
+
+  function reset() { pyodide = null; booting = null; loaded = {}; announce("runtime discarded — next Run reloads it", ""); }
+  function isReady() { return !!pyodide; }
+
+  return { boot: boot, run: run, reset: reset, onStatus: onStatus, isReady: isReady };
+})();
+
+/* wire up every .pyrun cell */
+(function () {
+  var cells = document.querySelectorAll(".pyrun");
+  if (!cells.length) return;
+
+  function setStatus(el, msg, cls) {
+    var s = el.querySelector(".pstat");
+    if (s) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+  }
+  window.PyRT.onStatus(function (msg, cls) {
+    for (var i = 0; i < cells.length; i++) {
+      var s = cells[i].querySelector(".pstat");
+      if (s && !s.dataset.local) { s.textContent = msg; s.className = "pstat" + (cls ? " " + cls : ""); }
+    }
+  });
+
+  for (var i = 0; i < cells.length; i++) (function (cell) {
+    var ta   = cell.querySelector("textarea");
+    var out  = cell.querySelector(".pout");
+    var run  = cell.querySelector(".pbtn.run");
+    var rst  = cell.querySelector(".pbtn.reset");
+    var seed = ta ? ta.value : "";
+
+    if (ta) {
+      /* size to content, and keep Tab inside the editor */
+      var fit = function () { ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; };
+      fit(); ta.addEventListener("input", fit);
+      ta.addEventListener("keydown", function (e) {
+        if (e.key === "Tab") {
+          e.preventDefault();
+          var s = ta.selectionStart, t = ta.selectionEnd;
+          ta.value = ta.value.slice(0, s) + "    " + ta.value.slice(t);
+          ta.selectionStart = ta.selectionEnd = s + 4;
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); doRun(); }
+      });
+    }
+
+    function doRun() {
+      if (!ta || !out) return;
+      run.disabled = true;
+      var s = cell.querySelector(".pstat"); if (s) s.dataset.local = "1";
+      setStatus(cell, "running…", "busy");
+      out.classList.add("show");
+      out.innerHTML = '<span class="odim">running…</span>';
+      window.PyRT.run(ta.value).then(function (r) {
+        run.disabled = false;
+        if (s) delete s.dataset.local;
+        var txt = (r.text || "").replace(/[&<>]/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+        });
+        if (r.ok) {
+          setStatus(cell, "ok", "ready");
+          out.innerHTML = txt ? txt : '<span class="odim">(ran cleanly — no output; add a print())</span>';
+        } else {
+          setStatus(cell, r.offline ? "offline" : "error", "err");
+          out.innerHTML = '<span class="oerr">' + (txt || "failed") + "</span>";
+        }
+      });
+    }
+
+    if (run) run.addEventListener("click", doRun);
+    if (rst) rst.addEventListener("click", function () {
+      if (ta) { ta.value = seed; ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; }
+      if (out) { out.classList.remove("show"); out.innerHTML = ""; }
+      setStatus(cell, window.PyRT.isReady() ? "Python ready" : "idle", window.PyRT.isReady() ? "ready" : "");
+    });
+  })(cells[i]);
+
+  /* page-level "warm up the runtime now" buttons (several in the stitched file) */
+  var warms = document.querySelectorAll(".pbootbtn");
+  for (var w = 0; w < warms.length; w++) (function (btn) {
+    btn.addEventListener("click", function () {
+      for (var j = 0; j < warms.length; j++) { warms[j].disabled = true; warms[j].textContent = "loading…"; }
+      window.PyRT.boot().then(function () {
+        for (var j = 0; j < warms.length; j++) warms[j].textContent = "Python is ready ✓";
+      }).catch(function () {
+        for (var j = 0; j < warms.length; j++) {
+          warms[j].textContent = "failed — check your connection"; warms[j].disabled = false;
+        }
+      });
+    });
+  })(warms[w]);
+})();
+</script>
+
+</body>
+</html>
