@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Build the "Python for Data Science Interviews" subject shells.
 
-One part per blueprint level (10 levels + a Q&A bank = 11 parts), so every topic
+One part per blueprint level (10 levels + a Q&A bank + the classic
+coding questions = 12 parts), so every topic
 gets room for prose, diagrams, runnable code and its OWN interview Q&A box — the
 pattern the RAG / Classical ML / LangGraph subjects use.
 
@@ -16,7 +17,7 @@ HERE = pathlib.Path(__file__).resolve().parent          # .../output/python
 SITE = HERE.parent                                       # .../output
 SRC  = SITE / "rag" / "RAG_Interview_Prep_Part1_Foundations.html"
 MD   = SITE.parent / "python-data-science-study-guide.md"
-NP   = 11            # number of parts
+NP   = 12            # number of parts
 
 LEVEL_KEY = {
  "Level 0 — The Python Data Model":            ("l0", "Level 0 · The Data Model"),
@@ -29,10 +30,12 @@ LEVEL_KEY = {
  "Level 7 — pandas Transformation":            ("l7", "Level 7 · pandas Transformation"),
  "Level 8 — Performance, Memory & Concurrency":("l8", "Level 8 · Performance &amp; Memory"),
  "Level 9 — Production Python for Data Science":("l9","Level 9 · Production"),
+ "Level 10 — Classic Coding Questions":         ("l10","Level 10 · Classic Coding"),
 }
 CAT = {"l0":"Theory","l1":"Theory","l2":"Practical","l3":"Practical","l4":"Practical",
-       "l5":"Practical","l6":"Practical","l7":"Practical","l8":"Practical","l9":"Practical"}
-HIGH = {"l0","l5","l6","l7","l8"}      # the levels interviews weight most heavily
+       "l5":"Practical","l6":"Practical","l7":"Practical","l8":"Practical","l9":"Practical",
+       "l10":"Coding"}
+HIGH = {"l0","l5","l6","l7","l8","l10"}      # the levels interviews weight most heavily
 
 def clean(s):
     s = re.sub(r'`([^`]*)`', r'\1', s)
@@ -59,7 +62,7 @@ for line in MD.read_text().split("\n"):
 
 PHASES = {k: v for k, v in LEVEL_KEY.values()}
 PHASES.update({"iv": "Interview Q&amp;A Drill", "ex": "Coding Exercises"})
-ORDER = ["l0","l1","l2","l3","l4","l5","l6","l7","l8","l9","iv","ex"]
+ORDER = ["l0","l1","l2","l3","l4","l5","l6","l7","l8","l9","iv","ex","l10"]
 
 tracker_js = "[\n" + ",\n".join(
     f'[{i+1},"{r[0]}","{r[1]}","{r[2]}",0,{json.dumps(r[3])}]' for i, r in enumerate(rows)) + "\n]"
@@ -352,9 +355,10 @@ def part(n, file, title, pk, groups, h1, sub, thesis, chips, prev, prevhref, nxt
 
 def chips(level, topics, diagrams, cells, qa, hours):
     s = ('<span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>%s</b></span>\n'
-         '          <span class="chip"><b>%d</b> sections</span>\n'
-         '          <span class="chip">📐 <b>%d</b> diagrams</span>\n'
-         '          <span class="chip">💬 <b>%d</b> Q&amp;A</span>\n') % (level, topics, diagrams, qa)
+         '          <span class="chip"><b>%d</b> sections</span>\n') % (level, topics)
+    if diagrams:
+        s += '          <span class="chip">📐 <b>%d</b> diagrams</span>\n' % diagrams
+    s += '          <span class="chip">💬 <b>%d</b> Q&amp;A</span>\n' % qa
     if cells:
         s += '          <span class="chip">▶ <b>%d</b> runnable cells</span>\n' % cells
     s += '          <span class="chip">⏱ <b>~%s</b></span>' % hours
@@ -378,7 +382,7 @@ part(1, "PY_Part01_DataModel.html", "The Python Data Model", "L0",
  "and late binding all stop being separate pieces of trivia and become one mechanism seen from different angles. "
  "Interviewers probe here because it is where self-taught fluency and genuine understanding diverge — plenty of people "
  "write pandas daily and still cannot say what <code class=\"ic\">a = b</code> does.",
- chips("Level 0", 9, 5, 11, 26, "6h"),
+ chips("Level 0", 9, 2, 9, 22, "6h"),
  ("Learning Hub","All subjects"), "../index.html",
  ("Part 2 · Data Structures &amp; Complexity",["The four-way choice","The complexity table"]))
 
@@ -399,7 +403,7 @@ part(2, "PY_Part02_DataStructures.html", "Data Structures &amp; Complexity", "L1
  "<code class=\"ic\">Counter</code> instead of a hand-rolled dict, a <code class=\"ic\">heapq</code> instead of a full sort. "
  "The complexity table in §2.2 is the one piece of memorisation in this guide that genuinely pays, and §2.3 is the bug "
  "interviewers watch for you to notice unprompted.",
- chips("Level 1", 9, 4, 12, 24, "6h"),
+ chips("Level 1", 9, 1, 8, 19, "6h"),
  ("Part 1 · The Data Model","Bindings, mutability, copies"), "PY_Part01_DataModel.html",
  ("Part 3 · Functions &amp; Decorators",["Closures and capture","Decorators from scratch"]))
 
@@ -418,7 +422,7 @@ part(3, "PY_Part03_Functions.html", "Functions, Closures &amp; Decorators", "L2"
  "explaining what breaks without it. This part builds to that. The prerequisite is closures: a decorator is just a closure "
  "over a function object, so if §3.2 is solid, §3.3 is bookkeeping. The practical payoff is §3.5, where the timing, retry, "
  "caching and validation decorators are the ones that keep appearing in real data pipelines.",
- chips("Level 2", 8, 4, 12, 22, "6h"),
+ chips("Level 2", 8, 1, 7, 15, "6h"),
  ("Part 2 · Data Structures","Containers and complexity"), "PY_Part02_DataStructures.html",
  ("Part 4 · Generators &amp; Laziness",["The iterator protocol","Streaming a 10 GB file"]))
 
@@ -437,7 +441,7 @@ part(4, "PY_Part04_Generators.html", "Iterators, Generators &amp; Laziness", "L3
  "point, and §4.4 turns it into the practical skill — aggregating a file bigger than your machine's RAM without ever "
  "loading it. The subtlety worth knowing cold is §4.2: a generator is <em>its own iterator</em>, which is why iterating it "
  "twice silently gives you nothing the second time, and why that bug is so hard to see in a notebook.",
- chips("Level 3", 8, 4, 11, 21, "5h"),
+ chips("Level 3", 8, 1, 8, 15, "5h"),
  ("Part 3 · Functions &amp; Decorators","Closures, decorators, functools"), "PY_Part03_Functions.html",
  ("Part 5 · OOP &amp; Dataclasses",["Dunder methods","A sklearn-compatible estimator"]))
 
@@ -459,7 +463,7 @@ part(5, "PY_Part05_OOP.html", "OOP, Dataclasses &amp; Protocols", "L4",
  "<code class=\"ic\">Pipeline</code>, which is a real skill with real rules. §5.2 is the trap: a mutable class attribute "
  "shared across every instance is the OOP twin of the mutable default argument, and it is asked because it tests whether "
  "Part 1 actually landed.",
- chips("Level 4", 9, 4, 12, 23, "6h"),
+ chips("Level 4", 9, 0, 9, 20, "6h"),
  ("Part 4 · Generators","Laziness, itertools, context managers"), "PY_Part04_Generators.html",
  ("Part 6 · NumPy",["Views vs copies","Broadcasting rules"]))
 
@@ -480,7 +484,7 @@ part(6, "PY_Part06_NumPy.html", "NumPy", "L5",
  "views-versus-copies, explains why fancy indexing must copy, and tells you why a slice of an array can mutate its parent. "
  "§6.7 (broadcasting) and §6.9 (vectorising) are the two most-asked; §6.4 is the one that separates people who have "
  "debugged a real aliasing bug from people who have not.",
- chips("Level 5", 10, 6, 15, 28, "8h"),
+ chips("Level 5", 10, 2, 10, 21, "8h"),
  ("Part 5 · OOP &amp; Dataclasses","Classes, dataclasses, estimators"), "PY_Part05_OOP.html",
  ("Part 7 · pandas Core",["Copy-on-Write in pandas 3.0","loc vs iloc"]))
 
@@ -501,7 +505,7 @@ part(7, "PY_Part07_PandasCore.html", "pandas Core", "L6",
  "Copy-on-Write the only mode, which <em>removed</em> <code class=\"ic\">SettingWithCopyWarning</code> entirely and turned "
  "chained assignment from unpredictable into reliably silent. A candidate still reciting the 2019 answer is dating "
  "themselves; a candidate who explains what replaced it sounds current.",
- chips("Level 6", 9, 5, 16, 26, "8h"),
+ chips("Level 6", 9, 2, 9, 18, "8h"),
  ("Part 6 · NumPy","Strides, views, broadcasting"), "PY_Part06_NumPy.html",
  ("Part 8 · pandas Transformation",["agg vs transform vs apply","Joins that explode"]))
 
@@ -523,7 +527,7 @@ part(8, "PY_Part08_PandasTransform.html", "pandas Transformation", "L7",
  "many-to-many join silently multiplying rows, which is why <code class=\"ic\">validate=</code> exists and why you assert "
  "row counts. And §8.9 is where a pandas question becomes a machine-learning question — a rolling mean computed without "
  "shifting leaks the future into your features, and the model looks brilliant until it is deployed.",
- chips("Level 7", 10, 5, 17, 28, "9h"),
+ chips("Level 7", 10, 1, 10, 20, "9h"),
  ("Part 7 · pandas Core","Selection, dtypes, Copy-on-Write"), "PY_Part07_PandasCore.html",
  ("Part 9 · Performance &amp; Memory",["The vectorisation ladder","The GIL in 2026"]))
 
@@ -545,7 +549,7 @@ part(9, "PY_Part09_Performance.html", "Performance, Memory &amp; Concurrency", "
  "vectorised form and why &ldquo;I used apply&rdquo; is not an optimisation. §9.6 is the 2026 currency question: the GIL "
  "answer changed this year, because <strong>PEP 779 made free-threaded builds officially supported in Python 3.14</strong>, "
  "and knowing what that does and does not fix is a genuine differentiator.",
- chips("Level 8", 8, 5, 14, 24, "7h"),
+ chips("Level 8", 8, 2, 8, 15, "7h"),
  ("Part 8 · pandas Transformation","groupby, joins, windows"), "PY_Part08_PandasTransform.html",
  ("Part 10 · Production Python",["Leakage and pipelines","Testing data code"]))
 
@@ -567,7 +571,7 @@ part(10, "PY_Part10_Production.html", "Production Python for Data Science", "L9"
  "that produces a wonderful cross-validation score and a model that fails in production, and §10.6 is the mechanism that "
  "makes it structurally impossible rather than merely discouraged. §10.4 is the section most candidates have no answer "
  "for at all, which makes even a modest one stand out.",
- chips("Level 9", 9, 5, 13, 24, "7h"),
+ chips("Level 9", 9, 1, 8, 15, "7h"),
  ("Part 9 · Performance &amp; Memory","Vectorisation, GIL, memory"), "PY_Part09_Performance.html",
  ("Part 11 · Interview Q&amp;A Bank",["The full question bank","Live-coding playground"]))
 
@@ -593,8 +597,42 @@ part(11, "PY_Part11_QABank.html", "Interview Q&amp;A Bank &amp; Playground", "QA
  "&ldquo;use <code class=\"ic\">inplace=True</code> to save memory&rdquo;. And <strong>§11.11</strong>, where the exercises "
  "run in a real CPython 3.14 in your browser, so you can actually type the solution under time pressure instead of "
  "reading one.",
- chips("Q&amp;A Bank", 17, 2, 24, 104, "7h drill"),
+ chips("Q&amp;A Bank", 17, 0, 9, 130, "7h drill"),
  ("Part 10 · Production Python","Pipelines, leakage, testing"), "PY_Part10_Production.html",
+ ("Part 12 · Classic Coding Questions",["Reverse, palindrome, anagram","Fibonacci, FizzBuzz, Two Sum",
+   "The whiteboard canon, done properly"]))
+
+part(12, "PY_Part12_ClassicCoding.html", "Classic Coding Questions", "L10",
+ [G("L10","The Classics",[("p12-1","12.1 · How the round is scored \u2b50\u2b50"),
+   ("p12-2","12.2 · Reverse a string \u2b50\u2b50"),("p12-3","12.3 · Palindromes \u2b50\u2b50"),
+   ("p12-4","12.4 · Anagrams \u2b50\u2b50"),("p12-5","12.5 · FizzBuzz \u2b50"),
+   ("p12-6","12.6 · Fibonacci \u2b50\u2b50"),("p12-7","12.7 · Factorial &amp; big integers \u2b50"),
+   ("p12-8","12.8 · Primes &amp; number theory \u2b50"),
+   ("p12-9","12.9 · Counting &amp; first unique \u2b50\u2b50"),
+   ("p12-10","12.10 · XOR, missing &amp; majority \u2b50")]),
+  G("PAT","Patterns &amp; Drill",[("p12-11","12.11 · Two Sum &amp; the hash-map reflex \u2b50\u2b50"),
+   ("p12-12","12.12 · Sliding window &amp; subarrays \u2b50"),
+   ("p12-13","12.13 · List &amp; string surgery \u2b50"),
+   ("p12-14","12.14 · Search, sort &amp; top-k \u2b50"),
+   ("p12-15","12.15 · Stacks, brackets &amp; matrices"),
+   ("p12-16","12.16 · The data-science versions \u2b50\u2b50"),
+   ("p12-17","12.17 · Complexity cheat sheet"),
+   ("p12-18","12.18 · Timed drill \u25b6")])],
+ "The whiteboard canon",
+ "Reverse a string, palindrome, anagram, FizzBuzz, Fibonacci, factorial, primes, duplicates, first non-repeating "
+ "character, missing number, Two Sum, sliding windows, binary search, top-k, balanced brackets and matrix rotation "
+ "\u2014 each with the answer they want, the follow-up they ask next, and a cell you can run.",
+ "These are the questions everyone knows are coming and surprisingly many people still fumble, because the trap is not "
+ "difficulty \u2014 it is <strong>depth</strong>. Anyone can type <code class=\"ic\">s[::-1]</code>. The signal is what you "
+ "say in the next thirty seconds: that it is O(n) in time <em>and</em> space, that a two-pointer swap on a "
+ "<code class=\"ic\">list</code> is the in-place version, that it silently corrupts text with combining accents or emoji "
+ "modifiers, and how you would test it. Every section here gives you the one-liner, the from-scratch version an "
+ "interviewer may insist on, the complexity to state unprompted, the edge case to raise before being asked, and the "
+ "follow-up that usually comes next. And because <strong>every claim here has a runnable cell</strong>, you can "
+ "watch the one-liner corrupt an accented string, watch naive Fibonacci fall off a cliff at n=35, and watch a "
+ "nested loop collapse into one pass \u2014 rather than take any of it on trust.",
+ chips("Level 10", 18, 4, 38, 68, "8h"),
+ ("Part 11 · Interview Q&amp;A Bank","130 questions, 8 exercises"), "PY_Part11_QABank.html",
  ("Learning Hub",["All subjects"]))
 
 # ------------------------------------------------------------------- the build

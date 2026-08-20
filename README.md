@@ -14,6 +14,7 @@ or jump straight in:
 
 | Subject | Parts | Start here | One-page edition |
 |---|---|---|---|
+| **Python for Data Science** — incl. the classic coding round | **12** | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Complete.html) |
 | **RAG** — Retrieval-Augmented Generation | 6 | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/rag/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/rag/RAG_Interview_Prep_Complete.html) |
 | **Classical ML** | 17 | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/cml/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/cml/CML_Complete.html) |
 | **NLP** — Natural Language Processing | 7 | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/nlp/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/nlp/NLP_Complete.html) |
@@ -24,6 +25,31 @@ The **Complete edition** of each subject is every part stitched into one scrolla
 the master tracker at the top — that's the one to use for a single-sitting read or to print / save as PDF.
 
 ## Every part, linked
+
+<details>
+<summary><b>Python for Data Science</b> — all parts</summary>
+
+| Part | Live page | Repo path |
+|---|---|---|
+| Part 1 · Level 0 ★ | [The Python Data Model](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part01_DataModel.html) | `python/PY_Part01_DataModel.html` |
+| Part 2 · Level 1 ★ | [Data Structures & Complexity](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part02_DataStructures.html) | `python/PY_Part02_DataStructures.html` |
+| Part 3 · Level 2 | [Functions, Closures & Decorators](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part03_Functions.html) | `python/PY_Part03_Functions.html` |
+| Part 4 · Level 3 | [Iterators, Generators & Laziness](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part04_Generators.html) | `python/PY_Part04_Generators.html` |
+| Part 5 · Level 4 | [OOP, Dataclasses & Protocols](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part05_OOP.html) | `python/PY_Part05_OOP.html` |
+| Part 6 · Level 5 ★ | [NumPy](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part06_NumPy.html) | `python/PY_Part06_NumPy.html` |
+| Part 7 · Level 6 ★ | [pandas Core](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part07_PandasCore.html) | `python/PY_Part07_PandasCore.html` |
+| Part 8 · Level 7 ★ | [pandas Transformation](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part08_PandasTransform.html) | `python/PY_Part08_PandasTransform.html` |
+| Part 9 · Level 8 ★ | [Performance, Memory & Concurrency](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part09_Performance.html) | `python/PY_Part09_Performance.html` |
+| Part 10 · Level 9 ★ | [Production Python for Data Science](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part10_Production.html) | `python/PY_Part10_Production.html` |
+| Part 11 · Q&amp;A Bank | [Interview Q&A Bank & Playground](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part11_QABank.html) | `python/PY_Part11_QABank.html` |
+| Part 12 · Level 10 ★ | [Classic Coding Questions](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Part12_ClassicCoding.html) | `python/PY_Part12_ClassicCoding.html` |
+| **Complete edition** | [Complete edition](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Complete.html) | `python/PY_Complete.html` |
+
+Every code cell on every one of these pages is **editable and runs real CPython 3.14 in the browser**
+via Pyodide — 133 of them. The runtime loads on your first **Run** click and is shared across the page;
+pandas / NumPy / scikit-learn wheels are fetched on demand. Nothing is uploaded.
+
+</details>
 
 <details>
 <summary><b>RAG (Retrieval-Augmented Generation)</b> — all parts</summary>
@@ -122,6 +148,7 @@ the master tracker at the top — that's the one to use for a single-sitting rea
 
 | Subject | Parts | Tracked topics | Diagrams | Interactive | Q&A | Blueprint |
 |---|---|---|---|---|---|---|
+| [Python for Data Science](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/index.html) | **12** | 211 | 17 | **133 runnable cells** | **378** | `python-data-science-study-guide.md` |
 | [RAG](https://subhasish-saha.github.io/Data-Science-Learning-Hub/rag/index.html) | 6 | 206 | 65 | — | 162 | `rag-learning-master-prompt.md` |
 | [Classical ML](https://subhasish-saha.github.io/Data-Science-Learning-Hub/cml/index.html) | **17** | 439 | 69 | **28** | **438** | `classical-ml-study-guide.md` |
 | [NLP](https://subhasish-saha.github.io/Data-Science-Learning-Hub/nlp/index.html) | 7 | 520 | 73 | — | 171 | `nlp-study-guide.md` |
@@ -157,6 +184,13 @@ concatenated into the `*_Complete.html` file.
 │   ├── RAG_Interview_Prep_Complete.html   # all parts stitched (print/PDF-ready)
 │   ├── stitch.py              # rebuilds the Complete file (dev tool, not served)
 │   └── build_shell.py         # regenerates a part's shell (dev tool)
+├── python/                    # subject: Python for Data Science (12 parts, one per level)
+│   ├── index.html
+│   ├── PY_Part01_DataModel.html  … Part02 … Part12
+│   ├── PY_Complete.html
+│   ├── stitch_py.py
+│   ├── build_py.py            # shells + tracker + widget CSS + the Pyodide runtime block
+│   └── insert.py
 ├── cml/                       # subject: Classical Machine Learning (17 parts, one per level)
 │   ├── index.html
 │   ├── CML_Part01_WhatMLIs.html  … Part02 … Part17
@@ -210,6 +244,7 @@ Each subject keeps its own progress-tracker localStorage key so they never colli
 
 | Subject | Key |
 |---|---|
+| Python for Data Science | `pyPrepStatus_v1` |
 | RAG | `ragPrepStatus_v1` |
 | Classical ML | `cmlPrepStatus_v1` (+ `cmlDrill_v1` for the Q&A drill marks) |
 | NLP | `nlpPrepStatus_v1` |
@@ -227,6 +262,7 @@ track separately — there is no cross-device sync (that would need a backend).
 After editing any part, rebuild that subject's stitched `Complete` file:
 
 ```bash
+cd python    && python3 stitch_py.py   # Python       (12 parts)
 cd rag       && python3 stitch.py      # RAG          (6 parts)
 cd cml       && python3 stitch_cml.py  # Classical ML (17 parts)
 cd nlp       && python3 stitch_nlp.py  # NLP          (7 parts)

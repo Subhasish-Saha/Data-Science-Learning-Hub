@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Stitch all 11 Python part files into one print/PDF-ready PY_Complete.html.
+"""Stitch all 12 Python part files into one print/PDF-ready PY_Complete.html.
 Reuses Part 1's head/CSS/tracker/script (including the Pyodide runtime block);
 concatenates each part's content with a part divider; builds a combined sidebar
 nav. Re-run after editing any part."""
 import re, pathlib
 
 OUT = pathlib.Path(__file__).resolve().parent      # run from the python/ folder
-NP  = 11
+NP  = 12
 PARTS = [
     ("PY_Part01_DataModel.html", "The Python Data Model",
      "Bindings, mutability, identity, hashability, copies, scope, late binding, memory"),
@@ -30,6 +30,8 @@ PARTS = [
      "Notebook to module, lockfiles, logging, testing data code, pipelines, data leakage"),
     ("PY_Part11_QABank.html", "Interview Q&amp;A Bank &amp; Playground",
      "130 questions, 14 traps, 8 live-coding exercises, a free playground, SQL drill, cheat sheets"),
+    ("PY_Part12_ClassicCoding.html", "Classic Coding Questions",
+     "Reverse, palindrome, anagram, FizzBuzz, Fibonacci, primes, Two Sum, windows, top-k, brackets"),
 ]
 
 def read(fn): return (OUT / fn).read_text()
@@ -50,31 +52,32 @@ top    = p1[: p1.index("</section>", p1.index('id="tracker"')) + len("</section>
 bottom = p1[p1.index('<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js'):]
 
 top = top.replace("<title>Python for Data Science — Part 1: The Python Data Model</title>",
-                  "<title>Python for Data Science — Complete (All 11 Parts)</title>")
-top = top.replace('<div class="tt"><small>Part 1 / 11</small>The Python Data Model</div>',
-                  '<div class="tt"><small>Complete</small>All 11 Parts</div>')
-top = top.replace('<div class="k">Part 1 of 11</div>\n      <div class="v">The Python Data Model</div>',
-                  '<div class="k">Complete edition</div>\n      <div class="v">All 11 Parts</div>')
+                  "<title>Python for Data Science — Complete (All 12 Parts)</title>")
+top = top.replace('<div class="tt"><small>Part 1 / 12</small>The Python Data Model</div>',
+                  '<div class="tt"><small>Complete</small>All 12 Parts</div>')
+top = top.replace('<div class="k">Part 1 of 12</div>\n      <div class="v">The Python Data Model</div>',
+                  '<div class="k">Complete edition</div>\n      <div class="v">All 12 Parts</div>')
 
 new_hero = ('<header class="hero">\n'
-  '        <div class="eyebrow">Complete Resource · All 11 Parts</div>\n'
+  '        <div class="eyebrow">Complete Resource · All 12 Parts</div>\n'
   '        <h1 class="title">Python for data science interviews, end to end\n'
   '          <span class="sub">The full curriculum in one document — the data model, containers and complexity, '
   'functions and decorators, generators, OOP and dataclasses, NumPy, pandas core and transformation, '
-  'performance and concurrency, production engineering, and a consolidated 130-question interview bank.</span>\n'
+  'performance and concurrency, production engineering, a consolidated 130-question interview bank, and the '
+  'classic whiteboard set from reverse-a-string to Two Sum.</span>\n'
   '        </h1>\n'
-  '        <p class="thesis">This is the stitched edition of all eleven parts, print- and PDF-ready. The master tracker '
-  'below covers every one of the 191 topics across 106 sections; your progress is shared with the individual part files '
+  '        <p class="thesis">This is the stitched edition of all twelve parts, print- and PDF-ready. The master tracker '
+  'below covers every one of the 211 topics across 124 sections; your progress is shared with the individual part files '
   '(same browser). Library-current as of <b>Aug 2026</b> — Python <b>3.14</b> (PEP 779 free-threading), '
   'pandas <b>3.0</b> (Copy-on-Write only), NumPy <b>2.5</b>, scikit-learn <b>1.9</b>. '
-  'The <b>95 runnable cells</b> execute real CPython 3.14 in your browser via Pyodide and work in this combined file '
+  'The <b>133 runnable cells</b> execute real CPython 3.14 in your browser via Pyodide and work in this combined file '
   'too — nothing is sent to a server. Use the sidebar to jump to any part or section.</p>\n'
   '        <div class="meta-chips">\n'
-  '          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>11 parts</b> · 10 levels</span>\n'
-  '          <span class="chip"><b>106</b> sections · <b>191</b> tracked topics</span>\n'
-  '          <span class="chip">📐 <b>13</b> diagrams</span>\n'
-  '          <span class="chip">▶ <b>95</b> runnable cells</span>\n'
-  '          <span class="chip">💬 <b>310</b> Q&amp;A + 14 traps</span>\n'
+  '          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>12 parts</b> · 11 levels</span>\n'
+  '          <span class="chip"><b>124</b> sections · <b>211</b> tracked topics</span>\n'
+  '          <span class="chip">📐 <b>17</b> diagrams</span>\n'
+  '          <span class="chip">▶ <b>133</b> runnable cells</span>\n'
+  '          <span class="chip">💬 <b>378</b> Q&amp;A + 14 traps</span>\n'
   '        </div>\n'
   '      </header>')
 top = re.sub(r'<header class="hero">.*?</header>', lambda m: new_hero, top, count=1, flags=re.DOTALL)
@@ -104,8 +107,8 @@ for i, (fn, title, sub) in enumerate(PARTS, start=1):
     body += divider(i, title, sub) + "\n" + content_of(read(fn)) + "\n"
 
 foot = ('\n      <div class="doc-foot">\n'
-  '        Python for Data Science Interviews — <b>Complete edition</b> · all 11 parts · 106 sections · '
-  '191 tracked topics · 13 diagrams · 95 runnable cells · 310 Q&amp;A.<br>\n'
+  '        Python for Data Science Interviews — <b>Complete edition</b> · all 12 parts · 124 sections · '
+  '211 tracked topics · 17 diagrams · 133 runnable cells · 378 Q&amp;A.<br>\n'
   '        Library-current as of <b>Aug 2026</b> — Python <b>3.14</b> · pandas <b>3.0</b> · NumPy <b>2.5</b> · '
   'scikit-learn <b>1.9</b>.<br>\n'
   '        Runnable cells execute <b>real CPython 3.14</b> in your browser via Pyodide; nothing is uploaded.<br>\n'
