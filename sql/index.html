@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL for Data Science — Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14181F; --paper:#F1F3F6; --surface:#FFFFFF;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95; --green:#2E9E5B;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0; --line:#E2E5EB;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace; --sans:'IBM Plex Sans',system-ui,sans-serif; --disp:'Space Grotesk',var(--sans);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05); --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:var(--indigo);text-decoration:none}
+.wrap{max-width:1000px;margin:0 auto;padding:34px 22px 90px}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--faint);margin-bottom:18px}
+.crumb a{color:var(--muted)} .crumb a:hover{color:var(--indigo)}
+.hero{background:radial-gradient(120% 140% at 15% 0%,#1e2632 0%,#14181f 60%);color:#fff;border-radius:20px;padding:44px 40px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(2rem,5vw,2.9rem);line-height:1.05;letter-spacing:-1.2px;margin:0 0 14px}
+.hero p{color:#c2cad6;max-width:62ch;font-size:1.04rem;margin:0 0 24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:12px;color:#c2cad6;background:#1f2733;border:1px solid #2c3542;padding:6px 12px;border-radius:20px}
+.chip b{color:#fff}
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:26px;background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#3a2a00;font-family:var(--disp);font-weight:700;padding:14px 24px;border-radius:12px;font-size:1.02rem;box-shadow:var(--shadow)}
+.cta:hover{filter:brightness(1.05);text-decoration:none}
+.mark{position:absolute;right:-24px;top:-18px;width:210px;height:210px;opacity:.13}
+h2.sec{font-family:var(--disp);font-weight:700;font-size:1.45rem;letter-spacing:-.4px;margin:50px 0 6px;color:var(--ink)}
+p.seclead{color:var(--muted);margin:0 0 22px;max-width:72ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:22px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s,border-color .15s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--indigo-line);text-decoration:none}
+.card .pk{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
+.card .t{font-family:var(--disp);font-weight:600;font-size:1.16rem;color:var(--ink);margin:6px 0 6px}
+.card .d{color:var(--muted);font-size:.92rem}
+.card .go{display:inline-block;margin-top:13px;font-family:var(--mono);font-size:11.5px;color:var(--indigo);font-weight:500}
+.card.combined{background:linear-gradient(135deg,#fff,#f3f4fb);border-color:var(--indigo-line)}
+.note{margin:44px 0 0;background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:14px;padding:20px 24px}
+.note h3{font-family:var(--disp);font-weight:600;font-size:1.04rem;margin:0 0 8px;color:#a5710a}
+.note p,.note ul{color:#3d3527;font-size:.95rem;margin:.4rem 0 0}
+.note ul{padding-left:1.2rem} .note li{margin:.35rem 0}
+.note code{font-family:var(--mono);font-size:.86em;background:#fff;border:1px solid var(--gold-line);padding:.1em .35em;border-radius:4px}
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--faint);line-height:1.8}
+@media (max-width:560px){.hero{padding:32px 22px} .wrap{padding:20px 14px 70px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="crumb"><a href="../index.html">← Learning Hub</a> &nbsp;/&nbsp; SQL for Data Science</div>
+
+  <header class="hero">
+    <svg class="mark" viewBox="0 0 40 40" fill="none"><ellipse cx="20" cy="9" rx="14" ry="5.5" fill="#3B8CC4"/><path d="M6 9v11c0 3 6.3 5.5 14 5.5s14-2.5 14-5.5V9" fill="#2E6E9E"/><ellipse cx="20" cy="20" rx="14" ry="5.5" fill="#3B8CC4"/><path d="M6 20v11c0 3 6.3 5.5 14 5.5s14-2.5 14-5.5V20" fill="#245A82"/><ellipse cx="20" cy="31" rx="14" ry="5.5" fill="#4B9FD6"/></svg>
+    <div class="eyebrow">Interview Prep · SQL</div>
+    <h1>SQL for Data Science</h1>
+    <p>Written for a data scientist or analyst with roughly <b>3–6 years' experience</b> sitting a SQL screen, a live-coding
+    round or a take-home. <b>Ordered strictly easy to hard</b> — Part 1 is the questions you must not fumble, Part 8 is the
+    one genuinely difficult pattern, Part 11 is the senior conversation. Every topic ends with its own tagged Q&amp;A box,
+    and <b>every query on every page actually runs in your browser</b> against a seeded 12-table database.</p>
+    <div class="chips">
+      <span class="chip"><b>12</b> parts · 11 levels</span>
+      <span class="chip"><b>127</b> sections · <b>119</b> tracked topics</span>
+      <span class="chip">▶ <b>110</b> runnable queries</span>
+      <span class="chip">💬 <b>221</b> Q&amp;A + 14 traps</span>
+      <span class="chip">SQLite <b>3.49</b> in-browser</span>
+    </div>
+    <a class="cta" href="SQL_Complete.html">Open the full resource (all 12 parts) →</a>
+  </header>
+
+  <div class="note" style="background:var(--indigo-soft);border-color:var(--indigo-line)">
+    <h3 style="color:var(--indigo)">▶ The queries on every page run — really</h3>
+    <p style="color:#26304a">Each part is full of editable cells that execute <b>real SQLite 3.49</b> in your browser via
+    <b>sql.js</b> (SQLite compiled to WebAssembly, about 0.7 MB). Nothing is sent to a server and nothing is installed.
+    The runtime downloads on your first <b>Run</b> click and is then shared by every query on the page.
+    <b>⌘/Ctrl + Enter</b> runs a cell.</p>
+    <p style="color:#26304a">They all query the same seeded <b>12-table demo database</b> — 174 rows, small enough to
+    check answers by eye and built to be deliberately awkward: <b>four tied salary pairs</b>, an employee with a NULL
+    department, a department with nobody in it, a user who <b>checked out before adding to cart</b>, overlapping and
+    nested subscription rows, one-to-many order items that inflate a naive SUM, and the same customer three times under
+    different casing. Every trap in this subject fires in front of you rather than being described.</p>
+    <p style="color:#26304a"><b>Part 11 runs <code>EXPLAIN QUERY PLAN</code> for real</b> — create an index and watch the
+    plan flip from <code>SCAN</code> to <code>SEARCH</code>, then wrap the column in a function and watch it flip back.
+    Every cell also states its expected output, so the pages still work offline.</p>
+  </div>
+
+  <h2 class="sec">Read by part, easy to hard</h2>
+  <p class="seclead">Each part is self-contained; the progress tracker at the top of each is shared across all of them on this device. Starred parts carry the most interview weight.</p>
+  <div class="grid">
+    <a class="card" href="SQL_Part01_WarmUp.html">
+      <div class="pk">Part 1 · Level 0 ★</div><div class="t">The Warm-Up</div>
+      <div class="d">The order of execution, the <b>three COUNTs</b>, GROUP BY and the arbitrary-row bug, WHERE vs HAVING vs QUALIFY, <b>NULL and three-valued logic</b>, safe division and integer division, conditional aggregation, UNION vs UNION ALL.</div><span class="go">11 sections · 27 Q&amp;A · ▶ 11 queries</span></a>
+    <a class="card" href="SQL_Part02_Joins.html">
+      <div class="pk">Part 2 · Level 1 ★</div><div class="t">Joins, and How They Go Wrong</div>
+      <div class="d">The five joins stated precisely, <b>the LEFT JOIN + WHERE trap</b> that silently becomes an INNER JOIN, anti-joins three ways and <b>why NOT IN breaks on NULL</b>, row fan-out that doubles your revenue, self-joins, range and as-of joins.</div><span class="go">10 sections · 20 Q&amp;A · ▶ 10 queries</span></a>
+    <a class="card" href="SQL_Part03_Aggregation.html">
+      <div class="pk">Part 3 · Level 2</div><div class="t">Aggregation, Subqueries and CTEs</div>
+      <div class="d">Subquery shapes and where each is legal, correlated subqueries and their window twins, CTEs vs temp tables, <b>recursive CTEs</b>, aggregating an aggregate, percent of total, <b>pivot without PIVOT</b>, GROUPING SETS, FILTER.</div><span class="go">10 sections · 14 Q&amp;A · ▶ 10 queries</span></a>
+    <a class="card" href="SQL_Part04_WindowsRanking.html">
+      <div class="pk">Part 4 · Level 3 ★</div><div class="t">Window Functions I: Ranking</div>
+      <div class="d">The anatomy of OVER, <b>ROW_NUMBER vs RANK vs DENSE_RANK on real ties</b>, <b>Nth highest salary four ways</b>, top-N per group, deduplication, NTILE and its tie bug, why a window cannot go in WHERE, deterministic tie-breaks.</div><span class="go">10 sections · 15 Q&amp;A · ▶ 10 queries</span></a>
+    <a class="card" href="SQL_Part05_WindowsFrames.html">
+      <div class="pk">Part 5 · Level 4 ★</div><div class="t">Window Functions II: Frames and Offsets</div>
+      <div class="d">ROWS vs RANGE, <b>the default frame and the tie bug it causes</b>, running totals, moving averages, LAG and LEAD, month-over-month growth, <b>the frame that breaks LAST_VALUE</b>, rolling features without leakage, cumulative distinct.</div><span class="go">10 sections · 11 Q&amp;A · ▶ 9 queries</span></a>
+    <a class="card" href="SQL_Part06_Dates.html">
+      <div class="pk">Part 6 · Level 5</div><div class="t">Dates, Times and Series</div>
+      <div class="d">Truncation across five dialects, month arithmetic that is not associative, <b>generating a date spine</b>, filling gaps, <b>the BETWEEN-on-timestamp bug</b>, ISO weeks, UTC discipline, rolling actives, <b>point-in-time correctness</b>.</div><span class="go">10 sections · 10 Q&amp;A · ▶ 8 queries</span></a>
+    <a class="card" href="SQL_Part07_ProductAnalytics.html">
+      <div class="pk">Part 7 · Level 6 ★</div><div class="t">Product Analytics Patterns</div>
+      <div class="d">DAU/WAU/MAU and stickiness, funnel conversion, <b>the funnel that must be ordered in time</b>, <b>cohort retention as a triangle</b>, day-N retention and the denominator question, new/retained/churned/reactivated, <b>sessionisation</b>, an A/B readout, attribution, basket pairs.</div><span class="go">10 sections · 10 Q&amp;A · ▶ 9 queries</span></a>
+    <a class="card" href="SQL_Part08_GapsIslands.html">
+      <div class="pk">Part 8 · Level 7 ★</div><div class="t">Gaps and Islands</div>
+      <div class="d"><b>One trick, ten questions.</b> The row_number difference, consecutive days, <b>three or more in a row</b>, longest and current streaks, gap tolerance, <b>merging overlapping intervals</b>, run-length encoding, peak concurrency.</div><span class="go">10 sections · 11 Q&amp;A · ▶ 10 queries</span></a>
+    <a class="card" href="SQL_Part09_HardPatterns.html">
+      <div class="pk">Part 9 · Level 8</div><div class="t">The Hard Patterns</div>
+      <div class="d"><b>Median without a percentile function</b> (and the tie bug in the popular trick), discrete vs continuous percentiles, mode with ties, weighted averages and Simpson's paradox, combinations, <b>recursive hierarchy traversal</b>, drawdown, near-duplicates, <b>SCD Type 2</b>.</div><span class="go">10 sections · 10 Q&amp;A · ▶ 9 queries</span></a>
+    <a class="card" href="SQL_Part10_DirtyData.html">
+      <div class="pk">Part 10 · Level 9</div><div class="t">Dirty Data and Correctness</div>
+      <div class="d">Duplicates as a definition rather than a fact, deleting safely, <b>collation and case</b>, silent type coercion, integer division, <b>money in floating point</b>, <b>assertion queries that prove the total survived</b>, reconciliation ladders, table profiling, reproducible sampling.</div><span class="go">10 sections · 10 Q&amp;A · ▶ 10 queries</span></a>
+    <a class="card" href="SQL_Part11_Performance.html">
+      <div class="pk">Part 11 · Level 10 ★</div><div class="t">Performance and Engine Internals</div>
+      <div class="d"><b>Reading an EXPLAIN plan — and running one</b>, index types and covering indexes, <b>the leftmost-prefix rule</b>, <b>sargability</b>, <b>when an index hurts</b>, join algorithms, partition pruning, data skew, columnar storage, scanned-bytes cost control, materialised and incremental models.</div><span class="go">12 sections · 12 Q&amp;A · ▶ 5 queries</span></a>
+    <a class="card" href="SQL_Part12_Drill.html">
+      <div class="pk">Part 12 · Drill</div><div class="t">Interview Drill &amp; Reference</div>
+      <div class="d">The consolidated bank — <b>66 rapid-recall questions</b> across every level, <b>the 14 trap questions</b>, <b>8 timed drills you write yourself</b> against the live database, a free playground, the <b>dialect cheat sheet</b>, the clarifying questions, a company problem index, and a one-page pattern reference.</div><span class="go">14 sections · 71 Q&amp;A · ▶ 9 queries</span></a>
+    <a class="card combined" href="SQL_Complete.html">
+      <div class="pk">All-in-one</div><div class="t">Complete edition ★</div>
+      <div class="d">Every part stitched into one page with the master tracker at the top — print- and PDF-ready, and the runnable queries still work. Best for a single-scroll read.</div><span class="go">Open →</span></a>
+  </div>
+
+  <div class="note">
+    <h3>⚠ Dialect honesty</h3>
+    <p>The answers are written in <b>portable SQL</b> and the runnable cells execute on SQLite, which is not what you will
+    be interviewed on. Where a dialect genuinely differs, it is called out inline — and the full comparison across
+    PostgreSQL, MySQL, SQL Server, BigQuery, Snowflake and SQLite is in
+    <a href="SQL_Part12_Drill.html#p12-11">§12.11</a>. The differences that cause <em>silent</em> bugs rather than syntax
+    errors are worth memorising:</p>
+    <ul>
+      <li><b>Integer division</b> truncates on PostgreSQL, SQL Server and Oracle; it does not on MySQL and Snowflake. So
+      <code>COUNT(x)/COUNT(*)</code> is <code>0</code> on one and correct on the other, with no error either way.</li>
+      <li><b>Default collation</b> is case-sensitive on PostgreSQL and case-insensitive on MySQL, so the same JOIN matches
+      a different number of rows.</li>
+      <li><b>Divide by zero</b> raises on PostgreSQL and SQL Server, returns <code>NULL</code> on MySQL and SQLite.</li>
+      <li><b>QUALIFY</b>, <b>FILTER</b>, <b>GROUPING SETS</b> and the percentile functions exist on some engines and not
+      others — §12.11 has the grid.</li>
+    </ul>
+    <p>SQLite also lacks <code>GROUPING SETS</code> and <code>PERCENTILE_CONT</code>, which is why §3.9 and §9.1 show you
+    how to build them by hand — a more useful skill than knowing the built-in.</p>
+  </div>
+
+  <div class="foot">
+    SQL for Data Science · 12 parts · 127 sections · 119 tracked topics · 110 runnable queries · 221 Q&amp;A · progress saved per device (<code>sqlPrepStatus_v1</code>)<br>
+    Related: <a href="../python/index.html">Python for Data Science</a> for the pandas side · <a href="../cml/index.html">Classical ML</a> · <a href="../langgraph/index.html">LangGraph &amp; Agentic AI</a>
+  </div>
+
+</div>
+</body>
+</html>

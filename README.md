@@ -14,6 +14,7 @@ or jump straight in:
 
 | Subject | Parts | Start here | One-page edition |
 |---|---|---|---|
+| **SQL for Data Science** — ordered easy to hard | **12** | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Complete.html) |
 | **Python for Data Science** — incl. the classic coding round | **12** | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/PY_Complete.html) |
 | **RAG** — Retrieval-Augmented Generation | 6 | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/rag/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/rag/RAG_Interview_Prep_Complete.html) |
 | **Classical ML** | 17 | [Open →](https://subhasish-saha.github.io/Data-Science-Learning-Hub/cml/index.html) | [Complete](https://subhasish-saha.github.io/Data-Science-Learning-Hub/cml/CML_Complete.html) |
@@ -25,6 +26,31 @@ The **Complete edition** of each subject is every part stitched into one scrolla
 the master tracker at the top — that's the one to use for a single-sitting read or to print / save as PDF.
 
 ## Every part, linked
+
+<details>
+<summary><b>SQL for Data Science</b> — all parts, easy to hard</summary>
+
+| Part | Live page | Repo path |
+|---|---|---|
+| Part 1 · Level 0 ★ | [The Warm-Up](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part01_WarmUp.html) | `sql/SQL_Part01_WarmUp.html` |
+| Part 2 · Level 1 ★ | [Joins, and How They Go Wrong](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part02_Joins.html) | `sql/SQL_Part02_Joins.html` |
+| Part 3 · Level 2 | [Aggregation, Subqueries and CTEs](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part03_Aggregation.html) | `sql/SQL_Part03_Aggregation.html` |
+| Part 4 · Level 3 ★ | [Window Functions I: Ranking](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part04_WindowsRanking.html) | `sql/SQL_Part04_WindowsRanking.html` |
+| Part 5 · Level 4 ★ | [Window Functions II: Frames and Offsets](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part05_WindowsFrames.html) | `sql/SQL_Part05_WindowsFrames.html` |
+| Part 6 · Level 5 | [Dates, Times and Series](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part06_Dates.html) | `sql/SQL_Part06_Dates.html` |
+| Part 7 · Level 6 ★ | [Product Analytics Patterns](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part07_ProductAnalytics.html) | `sql/SQL_Part07_ProductAnalytics.html` |
+| Part 8 · Level 7 ★ | [Gaps and Islands](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part08_GapsIslands.html) | `sql/SQL_Part08_GapsIslands.html` |
+| Part 9 · Level 8 | [The Hard Patterns](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part09_HardPatterns.html) | `sql/SQL_Part09_HardPatterns.html` |
+| Part 10 · Level 9 | [Dirty Data and Correctness](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part10_DirtyData.html) | `sql/SQL_Part10_DirtyData.html` |
+| Part 11 · Level 10 ★ | [Performance and Engine Internals](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part11_Performance.html) | `sql/SQL_Part11_Performance.html` |
+| Part 12 · Drill | [Interview Drill & Reference](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Part12_Drill.html) | `sql/SQL_Part12_Drill.html` |
+| **Complete edition** | [Complete edition](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/SQL_Complete.html) | `sql/SQL_Complete.html` |
+
+Every query on every one of these pages **runs real SQLite 3.49 in your browser** via sql.js (SQLite compiled to
+WebAssembly, ~0.7 MB) against a seeded 12-table demo database — 110 of them. Part 11 runs `EXPLAIN QUERY PLAN`
+for real, so you can create an index and watch the plan change. Nothing is uploaded.
+
+</details>
 
 <details>
 <summary><b>Python for Data Science</b> — all parts</summary>
@@ -148,6 +174,7 @@ pandas / NumPy / scikit-learn wheels are fetched on demand. Nothing is uploaded.
 
 | Subject | Parts | Tracked topics | Diagrams | Interactive | Q&A | Blueprint |
 |---|---|---|---|---|---|---|
+| [SQL for Data Science](https://subhasish-saha.github.io/Data-Science-Learning-Hub/sql/index.html) | **12** | 119 | — | **110 runnable queries** | **221** | `sql-data-science-study-guide.md` |
 | [Python for Data Science](https://subhasish-saha.github.io/Data-Science-Learning-Hub/python/index.html) | **12** | 211 | 17 | **133 runnable cells** | **378** | `python-data-science-study-guide.md` |
 | [RAG](https://subhasish-saha.github.io/Data-Science-Learning-Hub/rag/index.html) | 6 | 206 | 65 | — | 162 | `rag-learning-master-prompt.md` |
 | [Classical ML](https://subhasish-saha.github.io/Data-Science-Learning-Hub/cml/index.html) | **17** | 439 | 69 | **28** | **438** | `classical-ml-study-guide.md` |
@@ -184,6 +211,13 @@ concatenated into the `*_Complete.html` file.
 │   ├── RAG_Interview_Prep_Complete.html   # all parts stitched (print/PDF-ready)
 │   ├── stitch.py              # rebuilds the Complete file (dev tool, not served)
 │   └── build_shell.py         # regenerates a part's shell (dev tool)
+├── sql/                       # subject: SQL for Data Science (12 parts, ordered easy to hard)
+│   ├── index.html
+│   ├── SQL_Part01_WarmUp.html  … Part02 … Part12
+│   ├── SQL_Complete.html
+│   ├── stitch_sql.py
+│   ├── build_sql.py           # shells + tracker + the sql.js runtime and seeded demo database
+│   └── insert.py
 ├── python/                    # subject: Python for Data Science (12 parts, one per level)
 │   ├── index.html
 │   ├── PY_Part01_DataModel.html  … Part02 … Part12
@@ -244,6 +278,7 @@ Each subject keeps its own progress-tracker localStorage key so they never colli
 
 | Subject | Key |
 |---|---|
+| SQL for Data Science | `sqlPrepStatus_v1` |
 | Python for Data Science | `pyPrepStatus_v1` |
 | RAG | `ragPrepStatus_v1` |
 | Classical ML | `cmlPrepStatus_v1` (+ `cmlDrill_v1` for the Q&A drill marks) |
@@ -262,6 +297,7 @@ track separately — there is no cross-device sync (that would need a backend).
 After editing any part, rebuild that subject's stitched `Complete` file:
 
 ```bash
+cd sql       && python3 stitch_sql.py  # SQL          (12 parts)
 cd python    && python3 stitch_py.py   # Python       (12 parts)
 cd rag       && python3 stitch.py      # RAG          (6 parts)
 cd cml       && python3 stitch_cml.py  # Classical ML (17 parts)

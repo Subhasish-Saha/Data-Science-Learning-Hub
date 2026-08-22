@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL for Data Science — Part 4: Window Functions I: Ranking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+:root{
+  --ink:#14181F; --ink-2:#1B212B; --ink-3:#252D3A;
+  --paper:#F1F3F6; --surface:#FFFFFF; --surface-2:#F7F8FA;
+  --indigo:#3B45B5; --indigo-2:#5560D8; --indigo-soft:#ECEEFB; --indigo-line:#C9CDF0;
+  --gold:#E0920C; --gold-2:#F0A81E; --gold-soft:#FBF1DA; --gold-line:#EBCF95;
+  --green:#2E9E5B; --green-soft:#E4F4EA;
+  --rust:#C0392B; --rust-soft:#FBE9E7;
+  --text:#191E27; --muted:#5A6472; --faint:#8A93A0;
+  --line:#E2E5EB; --line-2:#CFD4DC;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+  --sb:288px;
+  --shadow-sm:0 1px 2px rgba(20,24,31,.05),0 1px 3px rgba(20,24,31,.06);
+  --shadow:0 4px 14px rgba(20,24,31,.07),0 1px 3px rgba(20,24,31,.05);
+  --shadow-lg:0 18px 44px rgba(20,24,31,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body{
+  margin:0;font-family:var(--sans);background:var(--paper);color:var(--text);
+  font-size:16.5px;line-height:1.72;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold-soft);color:var(--ink)}
+a{color:var(--indigo);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2.5px solid var(--gold);outline-offset:2px;border-radius:3px}
+
+/* ---------- Layout ---------- */
+.layout{display:flex;min-height:100vh;align-items:flex-start}
+.sidebar{
+  width:var(--sb);flex:0 0 var(--sb);position:sticky;top:0;height:100vh;overflow-y:auto;
+  background:var(--ink);color:#C4CAD4;padding:26px 20px 40px;
+  border-right:1px solid #000;scrollbar-width:thin;scrollbar-color:#3a4250 transparent;
+}
+.sidebar::-webkit-scrollbar{width:8px}
+.sidebar::-webkit-scrollbar-thumb{background:#333c4a;border-radius:8px}
+.main{flex:1 1 auto;min-width:0}
+.content{max-width:860px;margin:0 auto;padding:54px 46px 120px}
+
+/* ---------- Sidebar ---------- */
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.brand-mark{width:34px;height:34px;flex:0 0 34px}
+.brand-txt{font-family:var(--disp);font-weight:700;color:#fff;font-size:16px;letter-spacing:.2px;line-height:1.15}
+.brand-txt small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:1.8px;color:var(--gold-2);text-transform:uppercase;margin-top:2px}
+.sb-part{margin:18px 0 20px;padding:11px 13px;background:linear-gradient(135deg,#1f2733,#191f29);border:1px solid #2c3542;border-radius:10px}
+.sb-part .k{font-family:var(--mono);font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold-2)}
+.sb-part .v{font-family:var(--disp);font-weight:600;color:#fff;font-size:15px;margin-top:3px}
+.sb-progress{margin-top:9px}
+.sb-progress .bar{height:5px;border-radius:4px;background:#2c3542;overflow:hidden}
+.sb-progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));width:0%}
+.sb-progress .lab{font-family:var(--mono);font-size:10.5px;color:#8892a0;margin-top:6px;letter-spacing:.3px}
+nav.toc{margin-top:8px}
+nav.toc .grp{margin-bottom:6px}
+nav.toc .grp>.ghead{
+  display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:#eef1f5;font-family:var(--disp);font-weight:600;font-size:12.5px;
+  letter-spacing:.4px;padding:9px 8px;border-radius:8px;text-transform:uppercase;
+}
+nav.toc .grp>.ghead:hover{background:#1e2530}
+nav.toc .grp>.ghead .num{font-family:var(--mono);color:var(--gold-2);font-size:11px;font-weight:500}
+nav.toc .grp>.ghead .chev{margin-left:auto;transition:transform .2s;color:#697384;font-size:10px}
+nav.toc .grp.collapsed .chev{transform:rotate(-90deg)}
+nav.toc .grp.collapsed .links{display:none}
+nav.toc .links{list-style:none;margin:2px 0 8px;padding:0 0 0 6px;border-left:1px solid #2b3340;margin-left:12px}
+nav.toc .links a{
+  display:block;color:#98a2b0;font-size:12.5px;padding:5px 10px;border-radius:6px;line-height:1.45;
+  border-left:2px solid transparent;margin-left:-1px;
+}
+nav.toc .links a:hover{color:#fff;background:#1c232e;text-decoration:none}
+nav.toc .links a.active{color:#fff;background:#212a36;border-left-color:var(--gold);font-weight:500}
+.sb-foot{margin-top:22px;padding-top:16px;border-top:1px solid #262e3a;font-size:11px;color:#5f6a79;font-family:var(--mono);line-height:1.7}
+
+/* ---------- Topbar (mobile) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:40;background:rgba(20,24,31,.97);backdrop-filter:blur(6px);
+  color:#fff;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #000}
+.topbar .burger{background:#232b37;border:1px solid #333c49;color:#fff;width:40px;height:38px;border-radius:9px;font-size:17px;cursor:pointer}
+.topbar .tt{font-family:var(--disp);font-weight:600;font-size:14px}
+.topbar .tt small{color:var(--gold-2);font-family:var(--mono);font-size:10px;letter-spacing:1.4px;display:block;text-transform:uppercase}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,12,16,.55);z-index:44}
+
+/* ---------- Hero ---------- */
+.hero{margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--indigo);font-weight:500;margin-bottom:16px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--gold);display:inline-block}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(2.3rem,5vw,3.35rem);line-height:1.04;
+  letter-spacing:-1.4px;margin:0 0 16px;color:var(--ink)}
+h1.title .sub{display:block;font-size:.42em;font-weight:500;color:var(--muted);letter-spacing:-.2px;margin-top:12px}
+.thesis{font-size:1.16rem;line-height:1.62;color:#333c48;max-width:64ch;margin:0 0 22px}
+.thesis strong{color:var(--ink);font-weight:600}
+.meta-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-family:var(--mono);
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:20px;box-shadow:var(--shadow-sm)}
+.chip b{color:var(--ink);font-weight:600}
+.chip .dot{width:7px;height:7px;border-radius:50%}
+
+/* ---------- Section rhythm ---------- */
+.phase-head{margin:64px 0 8px;padding-top:30px;border-top:2px solid var(--ink);position:relative}
+.phase-head .pk{font-family:var(--mono);font-size:12px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.phase-head h2{font-family:var(--disp);font-weight:700;font-size:2rem;letter-spacing:-.8px;margin:6px 0 10px;color:var(--ink);line-height:1.1}
+.phase-head .pd{color:var(--muted);font-size:1.02rem;max-width:66ch;margin:0}
+.topic{scroll-margin-top:24px;margin:46px 0 0}
+.topic>h3{font-family:var(--disp);font-weight:600;font-size:1.36rem;letter-spacing:-.4px;color:var(--ink);
+  margin:0 0 4px;display:flex;gap:12px;align-items:baseline;line-height:1.2}
+.topic>h3 .tn{font-family:var(--mono);font-size:.95rem;color:var(--indigo);font-weight:500;flex:0 0 auto}
+.topic .lead{color:var(--muted);font-size:1.02rem;margin:.3rem 0 1rem;font-style:italic}
+.topic h4{font-family:var(--disp);font-weight:600;font-size:1.06rem;color:var(--ink);margin:1.9rem 0 .5rem;letter-spacing:-.2px}
+.content p{margin:.85rem 0}
+.content ul,.content ol{margin:.85rem 0;padding-left:1.35rem}
+.content li{margin:.42rem 0}
+.content li::marker{color:var(--indigo)}
+.content strong{font-weight:600;color:#12161d}
+.content em{color:#2c333d}
+hr.soft{border:none;border-top:1px solid var(--line);margin:2.6rem 0}
+.tag-term{font-family:var(--disp);font-weight:600;color:var(--indigo)}
+
+/* inline code */
+code.ic{font-family:var(--mono);font-size:.86em;background:var(--indigo-soft);color:#2a338f;
+  padding:.12em .4em;border-radius:5px;border:1px solid var(--indigo-line);white-space:nowrap}
+
+/* ---------- Code blocks ---------- */
+figure.code{margin:1.5rem 0;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #0c0f14}
+figure.code .chead{background:var(--ink-2);display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid #0c0f14}
+figure.code .dots{display:flex;gap:6px}
+figure.code .dots i{width:11px;height:11px;border-radius:50%;display:block}
+.d1{background:#e0554e}.d2{background:#e6b23c}.d3{background:#4fb06a}
+figure.code .lang{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#8a94a4;margin-left:4px}
+figure.code .cap{font-family:var(--mono);font-size:11px;color:#6b7482;margin-left:auto}
+figure.code .copy{background:#2c3543;color:#c3cad4;border:1px solid #39424f;
+  font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;margin-left:10px}
+figure.code .copy:hover{background:#39434f;color:#fff}
+figure.code pre{margin:0;padding:16px 18px;overflow-x:auto;background:#1d222c;font-size:13.6px;line-height:1.62}
+figure.code code{font-family:var(--mono)!important;background:none!important;padding:0!important;border:none!important}
+figure.code pre::-webkit-scrollbar{height:9px}
+figure.code pre::-webkit-scrollbar-thumb{background:#39434f;border-radius:8px}
+.hljs{background:transparent!important;color:#e6e9ef}
+
+/* ---------- Callouts ---------- */
+.callout{margin:1.5rem 0;border-radius:12px;padding:16px 18px 16px 50px;position:relative;border:1px solid;box-shadow:var(--shadow-sm);font-size:.98rem}
+.callout .cl-lab{font-family:var(--disp);font-weight:700;font-size:.7rem;letter-spacing:1.6px;text-transform:uppercase;display:block;margin-bottom:5px}
+.callout .ico{position:absolute;left:16px;top:17px;width:22px;height:22px}
+.callout p{margin:.4rem 0}
+.callout p:first-of-type{margin-top:0}
+.callout.tip{background:var(--indigo-soft);border-color:var(--indigo-line)}
+.callout.tip .cl-lab{color:var(--indigo)}
+.callout.pitfall{background:var(--rust-soft);border-color:#eecac4}
+.callout.pitfall .cl-lab{color:var(--rust)}
+.callout.gotcha{background:var(--gold-soft);border-color:var(--gold-line)}
+.callout.gotcha .cl-lab{color:#a5710a}
+.callout.note{background:var(--surface-2);border-color:var(--line-2)}
+.callout.note .cl-lab{color:var(--muted)}
+
+/* ---------- Q&A blocks ---------- */
+.qbox{margin:1.7rem 0;border:1px solid var(--line);border-radius:13px;background:var(--surface);box-shadow:var(--shadow-sm);overflow:hidden}
+.qbox>.qh{background:linear-gradient(135deg,#1c2430,#181e28);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px}
+.qbox>.qh svg{width:18px;height:18px}
+.qbox>.qh span{font-family:var(--disp);font-weight:600;font-size:.82rem;letter-spacing:1.4px;text-transform:uppercase}
+.qbox .qbody{padding:6px 18px 10px}
+details.qa{border-bottom:1px solid var(--line)}
+details.qa:last-child{border-bottom:none}
+details.qa>summary{cursor:pointer;list-style:none;padding:14px 30px 14px 4px;font-weight:600;color:var(--ink);
+  position:relative;font-size:.99rem;line-height:1.45}
+details.qa>summary::-webkit-details-marker{display:none}
+details.qa>summary::after{content:"+";position:absolute;right:6px;top:12px;color:var(--indigo);font-size:1.3rem;font-weight:400;transition:transform .2s}
+details.qa[open]>summary::after{content:"–"}
+details.qa>summary:hover{color:var(--indigo)}
+details.qa .ans{padding:0 4px 16px;color:#2f3742;font-size:.96rem}
+details.qa .ans p:first-child{margin-top:0}
+.qtag{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:5px;
+  background:var(--gold-soft);color:#a5710a;margin-right:8px;vertical-align:middle;border:1px solid var(--gold-line)}
+
+/* ---------- Diagrams ---------- */
+figure.diagram{margin:1.8rem 0;border-radius:14px;overflow:hidden;border:1px solid #0c0f14;box-shadow:var(--shadow)}
+figure.diagram .dwrap{background:radial-gradient(120% 140% at 20% 0%,#1e2632 0%,#14181f 60%);padding:22px 20px 8px}
+figure.diagram svg{width:100%;height:auto;display:block}
+figure.diagram figcaption{background:var(--ink-2);color:#aeb7c4;font-size:.84rem;padding:11px 18px;font-family:var(--sans);border-top:1px solid #0c0f14}
+figure.diagram figcaption b{color:#fff;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:10px 20px 16px;background:transparent}
+.legend .li{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;color:#c2cad6}
+.legend .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* svg palette helpers */
+.svg-q{fill:var(--gold-2)} .svg-d{fill:var(--indigo-2)} .svg-m{fill:var(--green)}
+text{font-family:var(--mono)}
+
+/* ---------- Data tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm)}
+table.data{border-collapse:collapse;width:100%;font-size:.9rem;background:var(--surface);min-width:520px}
+table.data th{background:var(--surface-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:.78rem;
+  letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:2px solid var(--line-2)}
+table.data td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+table.data tr:last-child td{border-bottom:none}
+table.data tbody tr:hover,table.data tr:hover{background:var(--surface-2)}
+table.data code{font-family:var(--mono);font-size:.85em;color:var(--indigo)}
+
+/* ---------- Tracker ---------- */
+#tracker{scroll-margin-top:20px;margin:14px 0 10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.tk-head{padding:20px 22px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fbfbfc)}
+.tk-head .tk-top{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.tk-badge{width:40px;height:40px;flex:0 0 40px}
+.tk-head h2{font-family:var(--disp);font-weight:700;font-size:1.3rem;margin:0;letter-spacing:-.3px;color:var(--ink)}
+.tk-head p.tk-sub{margin:3px 0 0;color:var(--muted);font-size:.92rem;max-width:60ch}
+.tk-overall{margin-left:auto;text-align:right;min-width:150px}
+.tk-overall .pct{font-family:var(--disp);font-weight:700;font-size:2rem;color:var(--indigo);line-height:1}
+.tk-overall .pl{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.tk-obar{height:8px;border-radius:6px;background:var(--line);overflow:hidden;margin-top:8px;display:flex}
+.tk-obar .seg-done{background:var(--green)} .tk-obar .seg-prog{background:var(--gold-2)}
+.tk-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}
+.tk-legend .li{display:flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);color:var(--muted)}
+.tk-legend .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+/* phase bars */
+.tk-phases{padding:14px 22px 6px;display:grid;grid-template-columns:1fr 1fr;gap:6px 30px}
+.tk-prow{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px}
+.tk-prow .pn{flex:1 1 auto;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-prow .pbar{flex:0 0 90px;height:6px;border-radius:5px;background:var(--line);overflow:hidden}
+.tk-prow .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--indigo),var(--indigo-2))}
+.tk-prow .pc{flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted)}
+/* controls */
+.tk-controls{padding:12px 22px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.tk-controls input[type=search]{flex:1 1 180px;min-width:150px;font-family:var(--sans);font-size:13.5px;padding:8px 12px;
+  border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.tk-controls select{font-family:var(--sans);font-size:13px;padding:8px 10px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--text)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:none;background:none;font-family:var(--sans);font-size:12.5px;padding:8px 12px;cursor:pointer;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.btn-ghost{font-family:var(--sans);font-size:12.5px;padding:8px 12px;border:1px solid var(--line-2);border-radius:9px;background:#fff;color:var(--muted);cursor:pointer}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.tk-toggle{width:100%;text-align:center;padding:11px;background:var(--surface-2);border:none;border-top:1px solid var(--line);
+  font-family:var(--disp);font-weight:600;font-size:.86rem;color:var(--indigo);cursor:pointer;letter-spacing:.3px}
+.tk-toggle:hover{background:var(--indigo-soft)}
+/* table */
+.tk-tablewrap{max-height:560px;overflow:auto;border-top:1px solid var(--line);display:none}
+.tk-tablewrap.open{display:block}
+table.tk{border-collapse:collapse;width:100%;font-size:13px}
+table.tk thead th{position:sticky;top:0;background:var(--ink);color:#dfe3ea;font-family:var(--disp);font-weight:600;
+  font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;padding:10px 12px;text-align:left;z-index:2}
+table.tk td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tk tr.phasehdr td{background:var(--indigo-soft);font-family:var(--disp);font-weight:700;color:var(--indigo);
+  font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;padding:8px 12px;position:sticky;top:34px;z-index:1}
+table.tk .cn{font-family:var(--mono);color:var(--faint);font-size:11.5px;white-space:nowrap}
+table.tk .ct{color:var(--text);line-height:1.45}
+table.tk tr.done .ct{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.catpill{font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:12px;white-space:nowrap;border:1px solid}
+.cat-Theory{background:var(--indigo-soft);color:var(--indigo);border-color:var(--indigo-line)}
+.cat-Practical{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+.cat-InterviewPrep{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+.cat-Tools,.cat-Papers,.cat-Capstone,.cat-QABank{background:var(--surface-2);color:var(--muted);border-color:var(--line-2)}
+.prio{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.4px}
+.prio.High{color:var(--rust)} .prio.Medium{color:var(--faint)}
+.newpin{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--gold);color:#3a2a00;padding:1px 5px;border-radius:5px;letter-spacing:.5px;margin-left:6px;vertical-align:middle}
+select.stsel{font-family:var(--mono);font-size:11.5px;padding:4px 6px;border-radius:7px;border:1px solid var(--line-2);cursor:pointer;background:#fff}
+select.stsel[data-s="Done"]{background:var(--green-soft);color:#1c7a42;border-color:#bfe3cc}
+select.stsel[data-s="In Progress"]{background:var(--gold-soft);color:#a5710a;border-color:var(--gold-line)}
+select.stsel[data-s="Not Started"]{background:#fff;color:var(--muted)}
+
+/* ---------- Part footer ---------- */
+.partnav{margin-top:70px;border-top:2px solid var(--ink);padding-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.partnav .pcard{flex:1 1 240px;border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.partnav .pcard .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint)}
+.partnav .pcard .t{font-family:var(--disp);font-weight:600;font-size:1.05rem;color:var(--ink);margin-top:3px}
+.partnav .pcard.next{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.partnav .pcard.next .t{color:var(--indigo)}
+.partnav .pcard ul{margin:8px 0 0;padding-left:1.1rem;font-size:.86rem;color:var(--muted)}
+.doc-foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:.82rem;color:var(--faint);font-family:var(--mono);line-height:1.7}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1040px){
+  .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--shadow-lg)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .backdrop{display:block}
+  .topbar{display:flex}
+  .content{padding:30px 20px 90px}
+  .tk-phases{grid-template-columns:1fr}
+  .tk-overall{margin-left:0;text-align:left}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  h1.title{font-size:2rem}
+  .content{padding:24px 15px 80px}
+  figure.code pre{font-size:12.6px}
+  .callout{padding:14px 15px 14px 15px}
+  .callout .ico{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  :root{--sb:0}
+  .sidebar,.topbar,.backdrop,.tk-controls,.tk-toggle,figure.code .copy{display:none!important}
+  body{background:#fff;font-size:10.5pt}
+  .content{max-width:100%;padding:0}
+  .layout{display:block}
+  figure.diagram,figure.code,.callout,.qbox,.tbl-wrap,.tk-prow,table.tk tr{break-inside:avoid;page-break-inside:avoid}
+  .phase-head{break-before:page;page-break-before:always}
+  details.qa[open]>summary::after,details.qa>summary::after{display:none}
+  details.qa>.ans{display:block!important}
+  details.qa{border-bottom:1px solid #ccc}
+  .tk-tablewrap{max-height:none!important;display:block!important;overflow:visible}
+  a{color:var(--ink);text-decoration:none}
+  figure.diagram .dwrap{background:#f4f5f7;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ---------------- runnable SQL cell ---------------- */
+.sqlrun{margin:1.7rem 0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.sqlrun .sh{background:#14181f;color:#e6e9ef;padding:9px 15px;font-family:var(--mono);font-size:11.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #2c3542}
+.sqlrun .sh .dot3{display:inline-flex;gap:5px;margin-right:4px}
+.sqlrun .sh .dot3 i{width:9px;height:9px;border-radius:50%;display:block}
+.sqlrun .sh .stag{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;background:#3B8CC4;color:#04121c;padding:2px 7px;border-radius:20px;font-weight:700}
+.sqlrun .sh .stag.drill{background:#F0A81E;color:#1a1204}
+.sqlrun .sh .stag.trap{background:#c9564f;color:#fff}
+.sqlrun .sh .sname{color:#8892a0}
+.sqlrun .sh .sspacer{flex:1}
+.sqlrun .sh .sstat{font-size:10.5px;color:#8892a0}
+.sqlrun .sh .sstat.busy{color:var(--gold-2)}
+.sqlrun .sh .sstat.ready{color:#7fd6a0}
+.sqlrun .sh .sstat.err{color:#e0929a}
+.sqlrun textarea{width:100%;box-sizing:border-box;border:0;outline:0;resize:vertical;display:block;
+  background:#0f1319;color:#e6e9ef;font-family:var(--mono);font-size:12.6px;line-height:1.72;
+  padding:14px 16px;tab-size:2;min-height:88px;caret-color:var(--gold-2)}
+.sqlrun textarea::selection{background:#31405c}
+.sqlrun .sbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:var(--paper);border-top:1px solid var(--line)}
+.sqlrun .sbtn{font-family:var(--mono);font-size:11.5px;padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;transition:.13s}
+.sqlrun .sbtn:hover{border-color:var(--indigo-line);background:var(--indigo-soft)}
+.sqlrun .sbtn.run{background:var(--indigo);color:#fff;border-color:var(--indigo);font-weight:600}
+.sqlrun .sbtn.run:hover{filter:brightness(1.08)}
+.sqlrun .sbtn:disabled{opacity:.45;cursor:not-allowed}
+.sqlrun .shint{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:auto}
+.sqlrun .sout{display:none;border-top:1px solid var(--line);background:#0f1319;color:#c9d1dc;
+  font-family:var(--mono);font-size:12.2px;line-height:1.6;padding:12px 14px;
+  max-height:460px;overflow:auto;margin:0}
+.sqlrun .sout.show{display:block}
+.sqlrun .sout .oerr{color:#e0929a;white-space:pre-wrap}
+.sqlrun .sout .ook{color:#7fd6a0}
+.sqlrun .sout .odim{color:#5A6472}
+.sqlrun .sexp{border-top:1px solid var(--line);background:var(--gold-soft);padding:11px 16px;font-size:.9rem;color:var(--text);line-height:1.7}
+.sqlrun .sexp b{color:#8a5c00}
+@media print{.sqlrun .sbar{display:none}.sqlrun{break-inside:avoid}.sqlrun .sout{display:block;max-height:none}}
+
+/* result grid rendered inside .sout */
+table.sqltbl{border-collapse:collapse;font-family:var(--mono);font-size:11.8px;margin:0 0 8px;min-width:100%}
+table.sqltbl th{background:#1b2129;padding:0}
+table.sqltbl thead th{background:#1b2129;color:#8fa0ff;text-align:left;padding:6px 11px;border:1px solid #2c3542;white-space:nowrap;font-weight:600}
+table.sqltbl td{padding:5px 11px;border:1px solid #232b35;color:#dbe1ea;white-space:nowrap}
+table.sqltbl tbody tr:nth-child(even) td{background:#131820}
+table.sqltbl .snull{color:#6b7480;font-style:italic}
+.sqlrun .sout .snote{color:#5A6472;font-size:10.8px;margin:2px 0 12px}
+.sqlrun .sout .slabel{color:#8fa0ff;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;margin:0 0 5px}
+
+/* the shared runtime banner */
+.sqlboot{margin:1.5rem 0;border:1px dashed var(--indigo-line);border-radius:12px;background:var(--indigo-soft);padding:14px 17px;font-size:.92rem;line-height:1.7;color:var(--text)}
+.sqlboot b{color:var(--indigo)}
+.sqlboot .sbootbtn{margin-top:10px;display:inline-block;font-family:var(--mono);font-size:11.5px;padding:7px 14px;border-radius:8px;border:1px solid var(--indigo);background:var(--indigo);color:#fff;cursor:pointer}
+.sqlboot .sbootbtn:hover{filter:brightness(1.08)}
+.sqlboot .sbootbtn:disabled{opacity:.5;cursor:default}
+
+/* schema reference strip */
+.schemastrip{display:flex;flex-wrap:wrap;gap:7px;margin:1rem 0 1.4rem}
+.schemastrip .tchip{font-family:var(--mono);font-size:11px;padding:5px 10px;border-radius:7px;
+  border:1px solid var(--line);background:var(--paper);color:var(--muted)}
+.schemastrip .tchip b{color:var(--indigo);font-weight:600}
+
+/* comparison cards */
+.cmp{display:grid;gap:12px;margin:1.4rem 0}
+@media(min-width:720px){.cmp.two{grid-template-columns:1fr 1fr}.cmp.three{grid-template-columns:1fr 1fr 1fr}}
+.crow{border:1px solid var(--line);border-radius:12px;padding:13px 15px;background:var(--surface)}
+.crow .cl{font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.crow .cv{font-size:.94rem;line-height:1.72}
+.crow.good{border-color:#bfe0cb;background:#f3fbf6}
+.crow.bad{border-color:#e8c9c9;background:#fdf5f5}
+
+h4{font-family:var(--disp);font-size:1.12rem;font-weight:600;letter-spacing:-.2px;margin:1.7rem 0 .5rem;color:var(--text)}
+h5{font-family:var(--mono);font-size:.82rem;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);margin:1.3rem 0 .4rem}
+</style>
+</head>
+<body>
+
+<div class="backdrop" id="backdrop" onclick="closeNav()"></div>
+
+<div class="topbar">
+  <button class="burger" onclick="toggleNav()" aria-label="Open navigation">☰</button>
+  <div class="tt"><small>Part 4 / 12</small>Window Functions I: Ranking</div>
+</div>
+
+<div class="layout">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="38" height="38" rx="9" fill="#1c2430" stroke="#2c3542"/>
+        <circle cx="12" cy="14" r="3.2" fill="#E0920C"/>
+        <circle cx="27" cy="11" r="2.6" fill="#5560D8"/>
+        <circle cx="30" cy="24" r="2.6" fill="#5560D8"/>
+        <circle cx="16" cy="28" r="2.6" fill="#5560D8"/>
+        <circle cx="24" cy="19" r="3.4" fill="#2E9E5B"/>
+        <path d="M12 14 L24 19 M27 11 L24 19 M30 24 L24 19 M16 28 L24 19" stroke="#3a4453" stroke-width="1.1"/>
+      </svg>
+      <div class="brand-txt">SQL<small>Data Science Prep</small></div>
+    </div>
+
+    <div class="sb-part">
+      <div class="k">Part 4 of 12</div>
+      <div class="v">Window Functions I: Ranking</div>
+      <div class="sb-progress">
+        <div class="bar"><div class="fill" id="sbFill"></div></div>
+        <div class="lab" id="sbLab">0 / 119 topics done</div>
+      </div>
+    </div>
+
+    <nav class="toc" id="toc">
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">◆</span> Progress Tracker</button>
+        <ul class="links"><li><a href="#tracker">Master tracker (all parts)</a></li></ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">L3</span> Windows I <span class="chev">▾</span></button>
+        <ul class="links">
+          <li><a href="#p4-1">4.1 · The anatomy of OVER ⭐⭐</a></li>
+          <li><a href="#p4-2">4.2 · Why a window is not an aggregate ⭐</a></li>
+          <li><a href="#p4-3">4.3 · ROW_NUMBER vs RANK vs DENSE_RANK ⭐⭐</a></li>
+          <li><a href="#p4-4">4.4 · Nth highest salary, four ways ⭐⭐</a></li>
+          <li><a href="#p4-5">4.5 · Top-N per group ⭐⭐</a></li>
+          <li><a href="#p4-6">4.6 · Dedup with ROW_NUMBER ⭐</a></li>
+          <li><a href="#p4-7">4.7 · NTILE and buckets</a></li>
+          <li><a href="#p4-8">4.8 · PERCENT_RANK and CUME_DIST</a></li>
+          <li><a href="#p4-9">4.9 · Windows in WHERE: why it fails ⭐</a></li>
+          <li><a href="#p4-10">4.10 · Deterministic tie-breaks ⭐</a></li>
+        </ul>
+      </div>
+      <div class="grp">
+        <button class="ghead" data-t><span class="num">↩</span> Hub</button>
+        <ul class="links"><li><a href="../index.html">← All subjects</a></li><li><a href="index.html">← SQL home</a></li></ul>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      SQL for Data Science<br>Part 4 — Window Functions I: Ranking<br>© your study kit
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="content">
+
+      <!-- HERO -->
+      <header class="hero">
+        <div class="eyebrow">Part 4 of 12 · Window Functions I: Ranking</div>
+        <h1 class="title">The single most-tested topic in a SQL screen
+          <span class="sub">The anatomy of OVER, why a window function does not collapse rows, the three ranking functions on real ties, Nth highest salary four ways, top-N per group, deduplication, NTILE, and why a window function cannot go in WHERE.</span>
+        </h1>
+        <p class="thesis">If a SQL interview has exactly one hard question, it is a window function, and if it has exactly one <em>trick</em> question it is <strong>ties</strong>. The demo table on this page has deliberate duplicate salaries, so <code class="ic">ROW_NUMBER</code>, <code class="ic">RANK</code> and <code class="ic">DENSE_RANK</code> return visibly different answers and you can see which one the question actually wanted. §4.4 is the canonical &ldquo;second highest salary&rdquo; problem &mdash; a question so common that the interesting part is no longer solving it but knowing why <code class="ic">LIMIT 1 OFFSET 1</code> is wrong.</p>
+        <div class="meta-chips">
+          <span class="chip"><span class="dot" style="background:var(--indigo)"></span><b>Level 3</b></span>
+          <span class="chip"><b>10</b> sections</span>
+          <span class="chip">▶ <b>16</b> runnable queries</span>
+          <span class="chip">💬 <b>30</b> Q&amp;A</span>
+          <span class="chip">⏱ <b>~7h</b></span>
+        </div>
+      </header>
+
+      <!-- MASTER TRACKER -->
+      <section id="tracker">
+        <div class="tk-head">
+          <div class="tk-top">
+            <svg class="tk-badge" viewBox="0 0 40 40" fill="none"><rect x="1" y="1" width="38" height="38" rx="10" fill="#ECEEFB" stroke="#C9CDF0"/><path d="M11 20l5 5 13-13" stroke="#3B45B5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2>Master Progress Tracker</h2>
+              <p class="tk-sub">One tracker for the whole SQL subject — all 119 topics across all 12 parts, ordered easy to hard. Set a status on any row; your progress saves in this browser and prints as a clean checklist.</p>
+            </div>
+            <div class="tk-overall">
+              <div class="pct" id="ovPct">0%</div>
+              <div class="pl">complete · <span id="ovDone">0</span>/<span id="ovTotal">119</span></div>
+              <div class="tk-obar"><div class="seg-done" id="ovSegDone" style="width:0"></div><div class="seg-prog" id="ovSegProg" style="width:0"></div></div>
+            </div>
+          </div>
+          <div class="tk-legend">
+            <span class="li"><span class="sw" style="background:var(--green)"></span>Done</span>
+            <span class="li"><span class="sw" style="background:var(--gold-2)"></span>In progress</span>
+            <span class="li"><span class="sw" style="background:var(--line-2)"></span>Not started</span>
+            <span class="li"><span class="sw" style="background:var(--gold)"></span>➕ Added beyond your original tracker</span>
+          </div>
+        </div>
+        <div class="tk-phases" id="tkPhases"></div>
+        <div class="tk-controls">
+          <input type="search" id="tkSearch" placeholder="Search topics… (e.g. HNSW, rerank, RAGAS)">
+          <select id="tkPhaseSel"><option value="">All phases</option></select>
+          <div class="seg" id="tkStatusSeg">
+            <button data-f="all" class="on">All</button>
+            <button data-f="Not Started">To do</button>
+            <button data-f="In Progress">Doing</button>
+            <button data-f="Done">Done</button>
+          </div>
+          <button class="btn-ghost" id="tkExport">Export CSV</button>
+          <button class="btn-ghost" id="tkReset">Reset</button>
+        </div>
+        <button class="tk-toggle" id="tkToggle">Show all 119 topics ▾</button>
+        <div class="tk-tablewrap" id="tkTableWrap">
+          <table class="tk"><thead><tr><th style="width:44px">#</th><th>Topic / pointer</th><th style="width:96px">Category</th><th style="width:64px">Prio</th><th style="width:118px">Status</th></tr></thead>
+          <tbody id="tkBody"></tbody></table>
+        </div>
+      </section>
+
+
+
+      <div class="sqlboot">
+        <b>▶ Every query on this page runs.</b> The <code class="ic">employees</code> table has <b>four tied salary
+        pairs on purpose</b> — 210000, 145000, 120000 and 98000 each appear twice — so the three ranking functions
+        return visibly different answers and you can see which one the question actually wanted.
+        <br><button class="sbootbtn">Start SQLite now</button>
+      </div>
+
+      <article class="topic" id="p4-1">
+        <h3><span class="tn">4.1</span> The anatomy of OVER <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Three independent components. Most people learn two of them, and the third is where §5 lives.</p>
+
+        <figure class="code">
+          <div class="chead">the full form</div>
+          <pre><code class="language-sql">function() OVER (
+    PARTITION BY  ...   -- reset the calculation per group. Optional.
+    ORDER BY      ...   -- the order within the partition. Optional for some functions.
+    ROWS/RANGE    ...   -- the frame: which rows are visible. Optional, and has a default.
+)</code></pre>
+        </figure>
+
+        <p><b><code class="ic">PARTITION BY</code></b> is <code class="ic">GROUP BY</code> that does not collapse — it splits the rows into independent groups, and the function restarts in each. Omit it and the whole result is one partition.</p>
+        <p><b><code class="ic">ORDER BY</code></b> defines the sequence, which ranking, <code class="ic">LAG</code>/<code class="ic">LEAD</code> and running totals all need. It is unrelated to the query's final <code class="ic">ORDER BY</code>; you can order the window one way and the output another.</p>
+        <p><b>The frame</b> restricts which rows within the partition the function sees. Adding <code class="ic">ORDER BY</code> to an aggregate window silently changes the default frame from the whole partition to everything up to the current row — which is what turns <code class="ic">SUM</code> into a running total, and is the source of the tie bug in §5.2.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">the same aggregate with and without PARTITION BY and ORDER BY</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">SELECT name, dept_id, salary,
+       SUM(salary) OVER ()                                       AS whole_table,
+       SUM(salary) OVER (PARTITION BY dept_id)                    AS dept_total,
+       SUM(salary) OVER (PARTITION BY dept_id ORDER BY salary)    AS running_in_dept,
+       AVG(salary) OVER (PARTITION BY dept_id)                    AS dept_avg,
+       COUNT(*)    OVER (PARTITION BY dept_id)                    AS dept_headcount
+FROM employees
+ORDER BY dept_id, salary;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Compare columns 4 and 5.</b> <code class="ic">dept_total</code> is the same on every row of a department; <code class="ic">running_in_dept</code> climbs. The only difference between them is the <code class="ic">ORDER BY</code> inside <code class="ic">OVER</code>, which changed the default frame. That is the single most surprising fact about window functions and it is worth internalising here rather than debugging later.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>What is a window function?</summary>
+              <div class="ans"><p>A function that computes across a set of rows related to the current row, <b>without collapsing them</b>. That last clause is the definition — an aggregate returns one row per group, a window function returns one value per <em>row</em> while still seeing the whole group.</p><p>That is why you can show a salary next to its department average on the same line, which is impossible with <code class="ic">GROUP BY</code> alone without a join back.</p><p>Give the three components — <code class="ic">PARTITION BY</code>, <code class="ic">ORDER BY</code>, frame — and note where they run: <b>after <code class="ic">WHERE</code>, <code class="ic">GROUP BY</code> and <code class="ic">HAVING</code>, before <code class="ic">SELECT</code></b>. Two consequences follow immediately and both get asked: you cannot filter on a window result in <code class="ic">WHERE</code> (§4.9), and a window function <em>can</em> take a grouped aggregate as its argument (§3.6).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What is the difference between <code class="ic">PARTITION BY</code> and <code class="ic">GROUP BY</code>?</summary>
+              <div class="ans"><p><code class="ic">GROUP BY</code> reduces the result to one row per group. <code class="ic">PARTITION BY</code> keeps every row and computes the function within each group. Same grouping concept, opposite effect on cardinality.</p><p>Practical consequences worth listing. With <code class="ic">GROUP BY</code> you lose access to individual rows, so &ldquo;the name of the top earner per department&rdquo; is not expressible (§1.4); with <code class="ic">PARTITION BY</code> it is trivial. You can use both in one query — <code class="ic">GROUP BY</code> first, then a window over the grouped rows, which is how percent-of-total works. And they can partition on different things: <code class="ic">GROUP BY month</code> with a window <code class="ic">PARTITION BY</code> nothing gives you each month's share of the year.</p><p>Performance note: a window function usually costs a sort per distinct <code class="ic">PARTITION BY</code>/<code class="ic">ORDER BY</code> combination, so several windows with the <em>same</em> specification are cheap (one sort, reused) while several with different specifications each pay. Reusing one named window (§5.9) makes that explicit.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-2">
+        <h3><span class="tn">4.2</span> Why a window is not an aggregate <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The distinction that makes half the hard questions easy: you can have the detail row and its group's summary at the same time.</p>
+
+        <p>Before window functions, &ldquo;show each employee alongside their department average&rdquo; required grouping into a derived table and joining it back. With a window it is one expression, one pass, no join — and no risk of the join fanning out.</p>
+
+        <div class="cmp two">
+          <div class="crow"><div class="cl">GROUP BY + join back</div><div class="cv">Two passes, a join to get wrong, and the join key must be unique or you fan out. Still the right answer when the engine has no window functions.</div></div>
+          <div class="crow good"><div class="cl">Window function</div><div class="cv">One pass, no join, and the comparison to the group is available on every row. Also composes: several different windows in one <code class="ic">SELECT</code>.</div></div>
+        </div>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">detail and summary on the same row, both ways</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">-- Window: one pass.
+SELECT e.name, e.dept_id, e.salary,
+       ROUND(AVG(e.salary) OVER (PARTITION BY e.dept_id), 0)              AS dept_avg,
+       e.salary - AVG(e.salary) OVER (PARTITION BY e.dept_id)             AS vs_dept,
+       ROUND(100.0 * e.salary / SUM(e.salary) OVER (PARTITION BY e.dept_id), 1) AS pct_of_dept
+FROM employees e
+ORDER BY e.dept_id, e.salary DESC;
+
+-- The pre-window equivalent: group, then join back. Same answer, more moving parts.
+SELECT e.name, e.dept_id, e.salary, ROUND(d.avg_sal, 0) AS dept_avg
+FROM employees e
+JOIN (SELECT dept_id, AVG(salary) AS avg_sal FROM employees GROUP BY dept_id) d
+  ON d.dept_id = e.dept_id
+ORDER BY e.dept_id, e.salary DESC;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Note what the join version loses:</b> Kabir, whose <code class="ic">dept_id</code> is <code class="ic">NULL</code>. The window version keeps him, because <code class="ic">PARTITION BY</code> puts all <code class="ic">NULL</code>s in one partition (the same rule as <code class="ic">GROUP BY</code>, §1.4), whereas the inner join finds no matching group. Eleven rows versus twelve — another quiet row loss, and a good reason to prefer the window form.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Coding</span>Show each employee's salary as a percentage of their department's total.</summary>
+              <div class="ans"><p><code class="ic">100.0 * salary / SUM(salary) OVER (PARTITION BY dept_id)</code>. One expression, no subquery, no join.</p><p>Three things to mention while writing it. <b><code class="ic">100.0</code> not <code class="ic">100</code></b> — integer division (§1.8). <b>The <code class="ic">NULL</code> department</b> becomes its own partition, so Kabir's share is 100% of a one-person group, which is arithmetically right and probably not what a report wants; decide and say so. And <b>the percentages sum to 100 within each partition</b>, which is a free assertion you should actually check.</p><p>The pre-window alternative — group to a derived table and join back — is worth naming because it is the answer if the engine is old MySQL, and because it exposes a hazard the window version does not have: the join drops rows whose group key is <code class="ic">NULL</code>.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-3">
+        <h3><span class="tn">4.3</span> ROW_NUMBER vs RANK vs DENSE_RANK <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The most-asked window question there is. All three agree until there is a tie, and every interview sample has a tie.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Values 100, 100, 90</th><th>Result</th><th>Behaviour</th><th>Use it for</th></tr></thead>
+            <tbody>
+              <tr><td><code class="ic">ROW_NUMBER()</code></td><td>1, 2, 3</td><td>Always unique. Ties broken <b>arbitrarily</b> unless you add a tie-break</td><td>Deduplication; &ldquo;exactly one row per group&rdquo;; pagination</td></tr>
+              <tr><td><code class="ic">RANK()</code></td><td>1, 1, <b>3</b></td><td>Ties share, then a <b>gap</b></td><td>Competition ranking, where &ldquo;joint first, no second&rdquo; is correct</td></tr>
+              <tr><td><code class="ic">DENSE_RANK()</code></td><td>1, 1, <b>2</b></td><td>Ties share, <b>no gap</b></td><td>&ldquo;Nth distinct value&rdquo; — the second-highest-salary problem</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><b>The decision rule, stated in one line:</b> if the question says &ldquo;<em>the</em> Nth&rdquo; and means a distinct value, use <code class="ic">DENSE_RANK</code>. If it means a position in a list, use <code class="ic">RANK</code>. If you need exactly one row and do not care which, use <code class="ic">ROW_NUMBER</code> — and add a tie-break so &ldquo;which&rdquo; is at least reproducible.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">all three, on a table with four tied pairs</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">SELECT name, salary,
+       ROW_NUMBER() OVER w AS rn,
+       RANK()       OVER w AS rnk,
+       DENSE_RANK() OVER w AS drnk,
+       NTILE(4)     OVER w AS quartile
+FROM employees
+WINDOW w AS (ORDER BY salary DESC)
+ORDER BY salary DESC, name;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Read rows 1–4.</b> Asha and Jaya both earn 210000: <code class="ic">rn</code> gives them 1 and 2 (an arbitrary split), <code class="ic">rnk</code> gives both 1 then jumps Hema to 3, <code class="ic">drnk</code> gives both 1 then Hema 2. So &ldquo;who is second&rdquo; has three different answers depending on which function you pick, and the question's wording is what decides — not your preference.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Difference between <code class="ic">ROW_NUMBER</code>, <code class="ic">RANK</code> and <code class="ic">DENSE_RANK</code>?</summary>
+              <div class="ans"><p>Give the concrete example rather than the prose, because it is unambiguous. On values 100, 100, 90: <code class="ic">ROW_NUMBER</code> gives 1, 2, 3; <code class="ic">RANK</code> gives 1, 1, 3; <code class="ic">DENSE_RANK</code> gives 1, 1, 2.</p><p>So: <code class="ic">ROW_NUMBER</code> is always unique and therefore breaks ties arbitrarily. <code class="ic">RANK</code> lets ties share a rank and then skips, so the numbers reflect how many rows preceded. <code class="ic">DENSE_RANK</code> lets ties share and does not skip, so the numbers count <em>distinct values</em>.</p><p>Then say when each is right, which is what the follow-up is. Deduplicating to one row per key needs <code class="ic">ROW_NUMBER</code>. &ldquo;All employees tied for top salary&rdquo; needs <code class="ic">RANK</code>. &ldquo;The second-highest distinct salary&rdquo; needs <code class="ic">DENSE_RANK</code>. And with <code class="ic">ROW_NUMBER</code>, always add a tie-break column to the <code class="ic">ORDER BY</code> or the result is non-deterministic between runs (§4.10).</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Which one do you use for &ldquo;top 3 per group&rdquo;?</summary>
+              <div class="ans"><p>It depends on what should happen at the boundary, and the honest answer is to ask.</p><p><code class="ic">ROW_NUMBER() &lt;= 3</code> returns <b>exactly three</b> rows per group, cutting arbitrarily through a tie at third place. <code class="ic">RANK() &lt;= 3</code> returns <b>all</b> rows tied at third, so you may get four or more. <code class="ic">DENSE_RANK() &lt;= 3</code> returns everyone in the top three <em>distinct</em> values, which can be more rows still.</p><p>On the demo table, &ldquo;top 2 per department&rdquo; gives <b>7 rows with <code class="ic">ROW_NUMBER</code> and 9 with <code class="ic">RANK</code> or <code class="ic">DENSE_RANK</code></b> — because engineering and marketing each have a tie. That is a two-row difference on a twelve-row table, and on real data it is the difference between a correct and an incorrect answer.</p><p>What to say in the interview: &ldquo;if there's a tie at the cutoff, do you want exactly N rows or all the tied ones?&rdquo; Then implement what they say. Guessing is the only wrong move.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-4">
+        <h3><span class="tn">4.4</span> Nth highest salary, four ways <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">Explicitly named as an asked question in both of the interview-prep documents that motivated this subject. It is asked so often that the interesting part is no longer the answer but the ties.</p>
+
+        <p>The demo table has <b>two people on the top salary</b>, which makes three of the four approaches disagree. Lead with <code class="ic">DENSE_RANK</code> and you have handled the follow-up before it arrives.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag trap">Trap</span><span class="sname">four answers to &ldquo;second highest salary&rdquo;, only two correct</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">-- Asha and Jaya both earn 210000, so "second row" != "second salary".
+SELECT '1. LIMIT 1 OFFSET 1        WRONG' AS method,
+       (SELECT salary FROM employees ORDER BY salary DESC LIMIT 1 OFFSET 1) AS answer
+
+UNION ALL SELECT '2. DISTINCT + OFFSET       ok',
+       (SELECT DISTINCT salary FROM employees ORDER BY salary DESC LIMIT 1 OFFSET 1)
+
+UNION ALL SELECT '3. MAX below the MAX       ok',
+       (SELECT MAX(salary) FROM employees
+        WHERE salary &lt; (SELECT MAX(salary) FROM employees))
+
+UNION ALL SELECT '4. DENSE_RANK = 2         best',
+       (SELECT DISTINCT salary FROM (
+          SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) r FROM employees) WHERE r = 2);
+
+-- The generalisation, which is why DENSE_RANK is the answer to give:
+-- Nth highest per department, in one query, ties handled.
+SELECT dept_id, salary AS second_highest
+FROM (SELECT DISTINCT dept_id, salary,
+             DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS r
+      FROM employees)
+WHERE r = 2
+ORDER BY dept_id;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Expected:</b> method 1 returns <b>210000</b> — the same as the maximum — while 2, 3 and 4 all return <b>156000</b>. Then the per-department version: 145000, 98000, 156000. Method 3 is elegant for N=2 and does not generalise; method 4 changes <code class="ic">r = 2</code> to <code class="ic">r = N</code> and works per group. That is why it is the one to lead with.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Find the second highest salary.</summary>
+              <div class="ans"><p><b>Ask the tie question first</b>, because it determines the answer: if two people share the top salary, is the &ldquo;second highest&rdquo; the next distinct value, or the second person? Almost always the former.</p><p>Then: <code class="ic">SELECT DISTINCT salary FROM (SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) r FROM employees) t WHERE r = 2</code>. <code class="ic">DENSE_RANK</code> because it counts distinct values without gaps, so <code class="ic">r = N</code> is literally &ldquo;the Nth distinct salary&rdquo;.</p><p>Name the alternatives and their limits. <code class="ic">SELECT MAX(salary) WHERE salary &lt; (SELECT MAX(salary))</code> is neat, needs no window functions, and does not generalise past N=2. <code class="ic">SELECT DISTINCT salary ... LIMIT 1 OFFSET 1</code> works and is the answer if windows are banned. <b><code class="ic">LIMIT 1 OFFSET 1</code> without <code class="ic">DISTINCT</code> is wrong</b> whenever the top salary is shared — it returns the maximum again.</p><p>Edge case to volunteer: if there is no second distinct salary the query returns no rows, and if the caller needs a single row containing <code class="ic">NULL</code> instead, wrap it in a scalar subquery. That is the kind of detail that turns a correct answer into a complete one.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Now the second highest <em>per department</em>.</summary>
+              <div class="ans"><p>Add <code class="ic">PARTITION BY dept_id</code> to the window and keep <code class="ic">r = 2</code>. That is the whole change, and it is the reason to prefer the <code class="ic">DENSE_RANK</code> formulation over the clever <code class="ic">MAX</code>-below-<code class="ic">MAX</code> trick: the trick would need a correlated subquery per department and becomes unreadable.</p><p><code class="ic">SELECT dept_id, salary FROM (SELECT DISTINCT dept_id, salary, DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) r FROM employees) WHERE r = 2</code></p><p>Two details. The <code class="ic">DISTINCT</code> inside matters when several employees share that second salary and you want the value once — drop it if you want the people rather than the number. And departments with fewer than two distinct salaries simply do not appear; if the report needs a row per department regardless, <code class="ic">LEFT JOIN</code> this back onto <code class="ic">departments</code>.</p><p>Expect the follow-up &ldquo;now the top 3&rdquo;, which is <code class="ic">r &lt;= 3</code>, and then the tie discussion from §4.3 all over again.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-5">
+        <h3><span class="tn">4.5</span> Top-N per group <span style="color:var(--gold)">⭐⭐</span></h3>
+        <p class="lead">The workhorse. &ldquo;Top 3 products per region&rdquo;, &ldquo;most recent order per customer&rdquo;, &ldquo;highest-scoring attempt per user&rdquo; — all the same query.</p>
+
+        <p><b>The pattern:</b> number the rows within each group, wrap the query, filter on the number. The wrap is not optional — a window function cannot be filtered in <code class="ic">WHERE</code> (§4.9).</p>
+
+        <p><b>The N=1 special case</b> is the most common of all: &ldquo;the latest row per key&rdquo;. <code class="ic">ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC) = 1</code>. Learn that one shape and you have answered a hundred interview questions and about the same number of real tickets.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">top-2 per department under all three ranking functions</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">-- How many rows does "top 2 per department" return? It depends.
+SELECT 'ROW_NUMBER &lt;= 2' AS fn, COUNT(*) AS rows_returned FROM (
+  SELECT ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) r FROM employees) WHERE r &lt;= 2
+UNION ALL SELECT 'RANK &lt;= 2', COUNT(*) FROM (
+  SELECT RANK()       OVER (PARTITION BY dept_id ORDER BY salary DESC) r FROM employees) WHERE r &lt;= 2
+UNION ALL SELECT 'DENSE_RANK &lt;= 2', COUNT(*) FROM (
+  SELECT DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) r FROM employees) WHERE r &lt;= 2;
+
+-- The detail, with RANK, so you can see the ties that cause the difference.
+SELECT dept_id, name, salary, r
+FROM (SELECT dept_id, name, salary,
+             RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS r
+      FROM employees)
+WHERE r &lt;= 2
+ORDER BY dept_id, r, name;
+
+-- The N=1 workhorse: the most recent order per customer.
+SELECT customer_id, order_date, amount
+FROM (SELECT customer_id, order_date, amount,
+             ROW_NUMBER() OVER (PARTITION BY customer_id
+                                ORDER BY order_date DESC, id DESC) AS rn
+      FROM orders WHERE status = 'completed')
+WHERE rn = 1
+ORDER BY customer_id;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Expected:</b> <b>7</b> rows with <code class="ic">ROW_NUMBER</code>, <b>9</b> with either <code class="ic">RANK</code> or <code class="ic">DENSE_RANK</code>. The detail query shows why: engineering has three rows in its &ldquo;top 2&rdquo; (Asha, then Bhavin and Chandra tied) and so does marketing (Eshan, then Farida and Gagan tied). Note the <code class="ic">ORDER BY order_date DESC, id DESC</code> in the last query — the <code class="ic">id</code> is the tie-break that makes &ldquo;most recent&rdquo; deterministic when a customer ordered twice on one day.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Get the top 3 products by revenue in each region.</summary>
+              <div class="ans"><p>Aggregate to the grain first, then rank, then filter — three steps, and stating them in that order is half the answer.</p><p><code class="ic">WITH agg AS (SELECT region, product, SUM(revenue) rev FROM sales GROUP BY region, product), ranked AS (SELECT *, DENSE_RANK() OVER (PARTITION BY region ORDER BY rev DESC) r FROM agg) SELECT * FROM ranked WHERE r &lt;= 3</code></p><p>The mistake to avoid: ranking before aggregating. If a product has several sales rows, ranking the raw rows ranks individual transactions, not products. Get the grain right first.</p><p>Then the tie question — <code class="ic">ROW_NUMBER</code> for exactly three, <code class="ic">RANK</code>/<code class="ic">DENSE_RANK</code> to include ties — and the dialect shortcut: on Snowflake, BigQuery or DuckDB this is one statement with <code class="ic">QUALIFY r &lt;= 3</code> and no wrapping subquery.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Very common</span>Get the most recent record per user.</summary>
+              <div class="ans"><p><code class="ic">ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY ts DESC) = 1</code> in a wrapped subquery. This is the single most useful window pattern in existence.</p><p><b>Add a tie-break.</b> If two rows share the maximum timestamp — very common with date-granularity columns or bulk loads — <code class="ic">ROW_NUMBER</code> picks one arbitrarily and your &ldquo;latest&rdquo; can change between runs. <code class="ic">ORDER BY ts DESC, id DESC</code> makes it deterministic.</p><p>Alternatives worth naming, because interviewers sometimes ban window functions. A correlated subquery: <code class="ic">WHERE ts = (SELECT MAX(ts) FROM t2 WHERE t2.user_id = t.user_id)</code> — correct, but returns all tied rows. A <code class="ic">LATERAL</code>/<code class="ic">CROSS APPLY</code> with <code class="ic">ORDER BY ts DESC LIMIT 1</code>, which is often the fastest plan in PostgreSQL when the table is indexed on <code class="ic">(user_id, ts)</code>. And <code class="ic">DISTINCT ON (user_id)</code>, which is PostgreSQL-only and delightfully concise.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-6">
+        <h3><span class="tn">4.6</span> Deduplication with ROW_NUMBER <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The standard way to collapse duplicates while <em>choosing</em> which copy survives — which is the part <code class="ic">DISTINCT</code> cannot do.</p>
+
+        <p><code class="ic">DISTINCT</code> keeps unique whole rows. It cannot express &ldquo;one row per email, keeping the earliest&rdquo;, because the rows differ in the columns you do not want to key on. <code class="ic">ROW_NUMBER</code> can: partition by the identity you care about, order by your tie-break rule, keep number 1.</p>
+
+        <p><b>The tie-break rule is the requirement.</b> &ldquo;Keep the earliest&rdquo;, &ldquo;keep the most recently updated&rdquo;, &ldquo;keep the one with the most complete record&rdquo; — these are different <code class="ic">ORDER BY</code> clauses and different answers, and the interviewer wants to hear you ask which.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">dedup on a normalised key, keeping the earliest record</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">-- dirty_customers has the same person three times: different case, stray spaces.
+SELECT id, email, name, created FROM dirty_customers ORDER BY id;
+
+-- Deduplicate on a NORMALISED key, keeping the earliest row of each group.
+SELECT id, email, name, created
+FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY LOWER(TRIM(email))
+                                   ORDER BY created, id) AS rn
+      FROM dirty_customers)
+WHERE rn = 1
+ORDER BY id;
+
+-- What DISTINCT can and cannot do here.
+SELECT 'rows'                          AS what, COUNT(*) AS n FROM dirty_customers
+UNION ALL SELECT 'DISTINCT whole rows',  COUNT(*) FROM (SELECT DISTINCT * FROM dirty_customers)
+UNION ALL SELECT 'DISTINCT raw email',   COUNT(*) FROM (SELECT DISTINCT email FROM dirty_customers)
+UNION ALL SELECT 'DISTINCT normalised',  COUNT(*) FROM (SELECT DISTINCT LOWER(TRIM(email)) FROM dirty_customers)
+UNION ALL SELECT 'ROW_NUMBER dedup',     COUNT(*) FROM (
+  SELECT ROW_NUMBER() OVER (PARTITION BY LOWER(TRIM(email)) ORDER BY created, id) rn
+  FROM dirty_customers) WHERE rn = 1;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Expected:</b> 7 rows, and every dedup strategy gives a different count — <code class="ic">DISTINCT *</code> gives 6 (only the exact Ben duplicate collapses), <code class="ic">DISTINCT email</code> gives 5, the normalised version gives 4, and the <code class="ic">ROW_NUMBER</code> dedup gives 4 rows <b>with all their columns</b>. That last distinction is the point: the others give you a count or a key list; only <code class="ic">ROW_NUMBER</code> gives you back usable rows.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Remove duplicate rows, keeping the most recent one per key.</summary>
+              <div class="ans"><p><code class="ic">ROW_NUMBER() OVER (PARTITION BY key ORDER BY updated_at DESC, id DESC)</code> and keep <code class="ic">rn = 1</code>. The <code class="ic">PARTITION BY</code> defines what &ldquo;duplicate&rdquo; means and the <code class="ic">ORDER BY</code> defines which copy wins — both are requirements, not implementation details, so state them back to the interviewer before coding.</p><p>Why not <code class="ic">DISTINCT</code>: it deduplicates whole rows only, so rows that differ in a timestamp or a surrogate id are not duplicates to it. Why not <code class="ic">GROUP BY key</code>: you would have to aggregate every other column, and <code class="ic">MAX()</code> on each one can mix values from different source rows — a genuinely dangerous answer that looks reasonable.</p><p>If they want an actual <code class="ic">DELETE</code> rather than a <code class="ic">SELECT</code>, that is §10.2 — and worth flagging that a <code class="ic">DELETE</code> with a window function needs a CTE or a subquery on the primary key, since you cannot use a window in a <code class="ic">DELETE ... WHERE</code> directly.</p></div>
+            </details>
+            <details class="qa"><summary><span class="qtag">Gotcha</span>What counts as a duplicate?</summary>
+              <div class="ans"><p>A definition, not a fact about the data — and that is the whole answer to this question. The demo table contains <code class="ic">'ada@x.com'</code>, <code class="ic">'ADA@x.com'</code> and <code class="ic">' ada@x.com '</code>. Are those three customers, or one?</p><p>Under exact matching: three. After <code class="ic">TRIM</code>: still three. After <code class="ic">LOWER(TRIM())</code>: one. So the same table has three defensible customer counts, and picking one silently is how two teams end up reporting different numbers from the same source.</p><p>What to say: &ldquo;before deduplicating I'd agree the matching key — usually case-folded and trimmed, and for emails possibly with the domain normalised. Then I'd count how many rows collapse under each rule and show that to the stakeholder, because the difference is itself information about upstream data quality.&rdquo; §10.1 and §10.3 go further, including collation surprises.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-7">
+        <h3><span class="tn">4.7</span> NTILE and buckets</h3>
+        <p class="lead">Split ordered rows into N groups of as-equal-as-possible size. Useful for deciles and quartiles, and it has one property that surprises people.</p>
+
+        <p><code class="ic">NTILE(4)</code> assigns 1–4 by position. If the row count is not divisible by N, <b>the earlier buckets get the extra rows</b> — 12 rows into 4 buckets is 3/3/3/3, but 10 rows is 3/3/2/2.</p>
+        <p><b>The surprise:</b> <code class="ic">NTILE</code> splits on <em>position</em>, not on value, so <b>tied values can land in different buckets</b>. On the demo table Farida and Gagan both earn 98000 and end up in quartiles 3 and 4. If the buckets must respect value boundaries, <code class="ic">NTILE</code> is the wrong tool — use <code class="ic">CUME_DIST</code> or explicit range boundaries.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">NTILE splitting a tie across two buckets</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">SELECT name, salary,
+       NTILE(4) OVER (ORDER BY salary DESC) AS quartile,
+       DENSE_RANK() OVER (ORDER BY salary DESC) AS distinct_rank
+FROM employees
+ORDER BY salary DESC, name;
+
+-- Bucket sizes, and proof that the tie was split.
+SELECT quartile, COUNT(*) AS n, MIN(salary) AS lo, MAX(salary) AS hi
+FROM (SELECT salary, NTILE(4) OVER (ORDER BY salary DESC) AS quartile FROM employees)
+GROUP BY quartile ORDER BY quartile;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Look at quartiles 3 and 4:</b> quartile 3's minimum and quartile 4's maximum are both <b>98000</b>. Farida and Gagan earn the same salary and were placed in different quartiles purely by row position. If you were assigning a discount tier or a bonus band on that basis, two identically-paid employees would get different treatment — which is why value-based bucketing needs <code class="ic">CUME_DIST</code> or explicit thresholds, not <code class="ic">NTILE</code>.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Split customers into deciles by spend. What can go wrong?</summary>
+              <div class="ans"><p><code class="ic">NTILE(10) OVER (ORDER BY spend DESC)</code> is the query, and two things can go wrong with it.</p><p><b>Ties split across buckets.</b> <code class="ic">NTILE</code> divides by row position, so two customers with identical spend can land in different deciles. If the decile drives a business action, that is unfair and hard to defend. Value-based alternatives: <code class="ic">CUME_DIST</code> and a <code class="ic">CASE</code> on the resulting fraction, or explicit spend thresholds — both keep equal values together.</p><p><b>Uneven bucket sizes.</b> With a row count not divisible by 10, the earlier buckets take the extra rows. Usually harmless, occasionally confusing when someone expects exactly 10%.</p><p>And the modelling point worth adding: spend is heavily right-skewed, so equal-sized deciles produce wildly unequal <em>value</em> ranges — decile 1 might span £5,000 and decile 10 span £20. If the goal is value bands rather than population bands, <code class="ic">NTILE</code> is answering the wrong question entirely.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-8">
+        <h3><span class="tn">4.8</span> PERCENT_RANK and CUME_DIST</h3>
+        <p class="lead">Two relative-position functions that differ by exactly one detail, which is of course what gets asked.</p>
+
+        <div class="cmp two">
+          <div class="crow"><div class="cl">PERCENT_RANK()</div><div class="cv"><code class="ic">(rank − 1) / (total − 1)</code>. Ranges <b>0 to 1 inclusive</b> — the first row is always exactly 0. &ldquo;What fraction of rows are strictly below me?&rdquo;</div></div>
+          <div class="crow"><div class="cl">CUME_DIST()</div><div class="cv"><code class="ic">rows ≤ current / total</code>. Ranges <b>&gt;0 to 1</b> — never 0, and the last row is always 1. &ldquo;What fraction of rows are at or below me?&rdquo;</div></div>
+        </div>
+
+        <p><b>Both handle ties by value</b>, unlike <code class="ic">NTILE</code>: tied rows get identical values. That makes <code class="ic">CUME_DIST</code> the right basis for value-respecting bucketing — <code class="ic">CEIL(CUME_DIST() OVER (ORDER BY x) * 10)</code> gives you deciles in which equal values never separate.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">PERCENT_RANK vs CUME_DIST, and tie-safe quartiles</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">SELECT name, salary,
+       ROUND(PERCENT_RANK() OVER w, 3) AS pct_rank,
+       ROUND(CUME_DIST()    OVER w, 3) AS cume_dist,
+       NTILE(4)             OVER w     AS ntile_quartile,
+       CAST(CEIL(CUME_DIST() OVER w * 4) AS INT) AS cume_quartile
+FROM employees
+WINDOW w AS (ORDER BY salary DESC)
+ORDER BY salary DESC, name;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>The two quartile columns are the payoff.</b> <code class="ic">ntile_quartile</code> splits Farida and Gagan (both 98000) into 3 and 4; <code class="ic">cume_quartile</code> keeps them together, because <code class="ic">CUME_DIST</code> is computed from the value, not the position. Also note <code class="ic">pct_rank</code> starts at exactly 0 while <code class="ic">cume_dist</code> never does — that is the whole difference between the two definitions.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Conceptual</span><code class="ic">PERCENT_RANK</code> vs <code class="ic">CUME_DIST</code> vs <code class="ic">NTILE</code>?</summary>
+              <div class="ans"><p><code class="ic">PERCENT_RANK</code> = <code class="ic">(rank − 1)/(n − 1)</code>, so it starts at 0 and answers &ldquo;what proportion is strictly below me&rdquo;. <code class="ic">CUME_DIST</code> = <code class="ic">(rows ≤ me)/n</code>, so it ends at 1 and answers &ldquo;what proportion is at or below me&rdquo;. <code class="ic">NTILE(k)</code> assigns a bucket number 1..k by position.</p><p>The distinction that matters in practice: <b><code class="ic">PERCENT_RANK</code> and <code class="ic">CUME_DIST</code> respect ties</b> — equal values get equal results — while <b><code class="ic">NTILE</code> does not</b>, because it counts rows. So for any bucketing that drives a decision affecting people or money, build it from <code class="ic">CUME_DIST</code> rather than <code class="ic">NTILE</code>.</p><p>Related and worth naming: <code class="ic">PERCENTILE_CONT</code> and <code class="ic">PERCENTILE_DISC</code> go the other way — you give a fraction and get the value at it, which is how you compute a median (§9.1). Those are ordered-set aggregates, not window functions, and neither exists in SQLite or MySQL.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-9">
+        <h3><span class="tn">4.9</span> Window functions in WHERE: why it fails <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">A frequently-hit error with a one-sentence explanation, straight out of the execution order in §1.1.</p>
+
+        <p>Windows are computed at step 5, after <code class="ic">WHERE</code> (step 2), <code class="ic">GROUP BY</code> (3) and <code class="ic">HAVING</code> (4). So at the moment <code class="ic">WHERE</code> is evaluated the window result <b>does not exist yet</b>. It is not a restriction the designers imposed; it is a consequence of when the calculation happens.</p>
+
+        <div class="tbl-wrap">
+          <table class="data">
+            <thead><tr><th>Want to</th><th>Do this</th></tr></thead>
+            <tbody>
+              <tr><td>Filter on a window result</td><td>Wrap in a subquery/CTE and filter outside — or <code class="ic">QUALIFY</code> where available</td></tr>
+              <tr><td>Filter rows <em>before</em> the window sees them</td><td>Ordinary <code class="ic">WHERE</code> — and note this changes the window's input, so ranks renumber</td></tr>
+              <tr><td>Rank only some rows but keep all</td><td><code class="ic">RANK() OVER (ORDER BY CASE WHEN cond THEN x END)</code>, or <code class="ic">FILTER</code> on the aggregate</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><b>The subtlety worth raising:</b> filtering in <code class="ic">WHERE</code> and filtering after the window give different answers, because <code class="ic">WHERE</code> removes rows from the window's input. Rank employees and then keep engineering, versus keep engineering and then rank — the first gives company-wide ranks, the second gives within-engineering ranks. Both are legitimate; the question decides which.</p>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">filter before vs after the window — two different answers</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">-- Filter BEFORE: the window only ever sees engineering, so ranks are within it.
+SELECT name, salary, RANK() OVER (ORDER BY salary DESC) AS rank_within_eng
+FROM employees
+WHERE dept_id = 1
+ORDER BY salary DESC;
+
+-- Filter AFTER: the window ranks the whole company, then we keep engineering.
+SELECT name, salary, company_rank
+FROM (SELECT name, salary, dept_id,
+             RANK() OVER (ORDER BY salary DESC) AS company_rank
+      FROM employees)
+WHERE dept_id = 1
+ORDER BY company_rank;
+
+-- And the error itself. Uncomment to see the engine reject it:
+-- SELECT name FROM employees WHERE RANK() OVER (ORDER BY salary) &lt;= 3;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Compare the two rank columns for the same five people.</b> Filtering first gives Asha rank 1, Bhavin and Chandra joint 2. Filtering after gives Asha rank 1 (she is joint-top company-wide with Jaya), Bhavin and Chandra joint 4. Same rows, different numbers, both correct — and if you do not say which you computed, the reader cannot tell.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Very common</span>Why can't you use a window function in <code class="ic">WHERE</code>?</summary>
+              <div class="ans"><p>Because of evaluation order: <code class="ic">WHERE</code> runs at step 2 and window functions are computed at step 5, after <code class="ic">GROUP BY</code> and <code class="ic">HAVING</code>. The value simply does not exist when <code class="ic">WHERE</code> is evaluated. Same reason it cannot go in <code class="ic">GROUP BY</code> or <code class="ic">HAVING</code>.</p><p>The fix is to introduce another query level: a subquery or CTE that computes the window, with the filter in the outer <code class="ic">WHERE</code>. Snowflake, BigQuery, Teradata, Databricks and DuckDB give you <code class="ic">QUALIFY</code>, which is exactly &ldquo;<code class="ic">HAVING</code> for windows&rdquo; and saves the wrap.</p><p>Then the point that shows real understanding: <b>the two are not interchangeable</b>. A filter in <code class="ic">WHERE</code> removes rows before the window is computed, so ranks and running totals are calculated over the filtered set. A filter outside computes over everything and then discards. &ldquo;Top 3 engineers by company-wide rank&rdquo; and &ldquo;top 3 engineers within engineering&rdquo; are different questions and the placement of one predicate is what distinguishes them.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+      <article class="topic" id="p4-10">
+        <h3><span class="tn">4.10</span> Deterministic tie-breaks <span style="color:var(--gold)">⭐</span></h3>
+        <p class="lead">The habit that stops your query returning different answers on different days. Cheap to add, and volunteering it is a real seniority signal.</p>
+
+        <p>If a window's <code class="ic">ORDER BY</code> does not impose a <b>total order</b>, then <code class="ic">ROW_NUMBER</code>, <code class="ic">FIRST_VALUE</code>, <code class="ic">LAG</code> and &ldquo;the latest row per key&rdquo; are all non-deterministic among the tied rows. The engine may return one row today and another after an index is added, a vacuum runs, or the plan flips to a parallel scan. Nothing errors and nothing warns.</p>
+
+        <div class="callout tip">
+          <svg class="ico" viewBox="0 0 24 24" fill="none"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="#F0A81E" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="cl-lab">The rule</span>
+          <p>Append a unique column to every <code class="ic">ORDER BY</code> whose result you depend on — in windows, in <code class="ic">LIMIT</code> queries, and in anything a test asserts against. <code class="ic">ORDER BY updated_at DESC, id DESC</code> costs nothing and converts &ldquo;usually right&rdquo; into &ldquo;always the same&rdquo;. If there is no unique column, that is itself worth flagging: it means the table has no reliable identity.</p>
+        </div>
+
+        <div class="sqlrun">
+          <div class="sh"><span class="dot3"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="stag">Run it</span><span class="sname">a tie the engine resolves silently, and the deterministic version</span><span class="sspacer"></span><span class="sstat">idle</span></div>
+          <textarea spellcheck="false">-- Gita placed four orders of 35.00 each, on four consecutive days.
+-- "Her largest order" is a four-way tie: which row do you get?
+SELECT o.id, o.order_date, o.amount, 'no tie-break' AS ordering
+FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id
+                                   ORDER BY amount DESC) AS rn
+      FROM orders WHERE customer_id = 7) o
+WHERE rn = 1
+
+UNION ALL
+
+-- Deterministic: earliest such order wins, and it will be the same every run.
+SELECT o.id, o.order_date, o.amount, 'tie-break on date, id'
+FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id
+                                   ORDER BY amount DESC, order_date, id) AS rn
+      FROM orders WHERE customer_id = 7) o
+WHERE rn = 1;
+
+-- How many rows are actually tied on the max?
+SELECT amount, COUNT(*) AS tied_rows
+FROM orders WHERE customer_id = 7
+GROUP BY amount ORDER BY amount DESC;</textarea>
+          <div class="sbar">
+            <button class="sbtn run">▶ Run</button>
+            <button class="sbtn reset">Reset</button>
+            <button class="sbtn schema">Schema</button>
+            <span class="shint">⌘/Ctrl + Enter</span>
+          </div>
+          <pre class="sout"></pre>
+          <div class="sexp"><b>Both rows will probably show the same order id here</b>, because SQLite happens to scan in rowid order on this tiny table — and that is exactly the danger. The first query is <em>not guaranteed</em> to return that row; it just does today, on this engine, with this plan. The second query is guaranteed. On a warehouse with parallel scans the first one genuinely varies between runs, which is how a reconciliation test starts failing intermittently with no code change.</div>
+        </div>
+
+        <div class="qbox">
+          <div class="qh"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 9a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.1 1-1.1 1.9M12 17h.01" stroke="#F0A81E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Likely interview questions</span></div>
+          <div class="qbody">
+            <details class="qa"><summary><span class="qtag">Gotcha</span>Your &ldquo;latest record per user&rdquo; query returns different rows on different runs. Why?</summary>
+              <div class="ans"><p>Because several rows share the maximum timestamp and the <code class="ic">ORDER BY</code> does not say which of them wins. <code class="ic">ROW_NUMBER</code> must assign 1 to exactly one of them, so it picks arbitrarily — and &ldquo;arbitrarily&rdquo; can change with the execution plan, parallelism, index availability, or the physical order after a rewrite.</p><p>This is extremely common with <b>date-granularity</b> columns (two updates the same day) and with <b>bulk loads</b> that stamp every row with the same ingestion timestamp.</p><p>The fix is a total order: <code class="ic">ORDER BY updated_at DESC, id DESC</code>. If you genuinely want all tied rows, use <code class="ic">RANK</code> instead and handle the multiplicity downstream. If ties should be impossible, the real fix is upstream — a uniqueness constraint — and saying that is a better answer than either query.</p><p>Related habit worth mentioning: the same non-determinism applies to <code class="ic">LIMIT</code> without a total order, and it is why intermittently-failing data tests are so often an <code class="ic">ORDER BY</code> problem rather than a data problem.</p></div>
+            </details>
+          </div>
+        </div>
+      </article>
+
+
+            <!-- PART NAV -->
+      <nav class="partnav">
+        <div class="pcard"><div class="k">Previously</div><div class="t"><a href="SQL_Part03_Aggregation.html">Part 3 · Aggregation &amp; CTEs</a></div><ul><li>Conditional aggregation, recursion</li></ul></div>
+        <div class="pcard"><div class="k">You are here</div><div class="t">Part 4 · Window Functions I: Ranking</div></div>
+        <div class="pcard next"><div class="k">Coming next</div><div class="t"><a href="SQL_Part05_WindowsFrames.html">Part 5 · Window functions II</a></div><ul><li>Frames: ROWS vs RANGE</li><li>Running totals</li><li>LAG, LEAD and growth</li></ul></div>
+      </nav>
+
+      <div class="doc-foot">
+        SQL for Data Science Interviews — Part 4 of 12 · Window Functions I: Ranking<br>
+        Runnable queries execute <b>real SQLite 3.49</b> in your browser via sql.js (SQLite compiled to WebAssembly) — nothing is sent to a server.<br>
+        Answers are written in portable SQL; dialect differences are called out where they matter — see the cheat sheet in <a href="SQL_Part12_Drill.html#p12-11" style="color:#8892a0">§12.11</a>.<br>
+        Progress is stored locally under key <code style="color:#8892a0">sqlPrepStatus_v1</code> and is shared by every part of this subject.
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+/* ============ TRACKER DATA (all 119 items, whole resource) ============ */
+/* [n, phaseKey, category, priority, isNew(0/1), topic] */
+const PHASES = {"l0": "Level 0 · Warm-Up", "l1": "Level 1 · Joins", "l2": "Level 2 · Aggregation &amp; CTEs", "l3": "Level 3 · Windows I", "l4": "Level 4 · Windows II", "l5": "Level 5 · Dates &amp; Series", "l6": "Level 6 · Product Analytics", "l7": "Level 7 · Gaps &amp; Islands", "l8": "Level 8 · Hard Patterns", "l9": "Level 9 · Dirty Data", "l10": "Level 10 · Performance", "iv": "Interview Drill"};
+const ORDER = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "iv"];
+const TRACKER = [
+[1,"l0","Fundamentals","High",0,"The logical order of execution, and why an alias fails in WHERE"],
+[2,"l0","Fundamentals","High",0,"SELECT, WHERE, ORDER BY, LIMIT and the OFFSET trap"],
+[3,"l0","Fundamentals","High",0,"COUNT(*) vs COUNT(col) vs COUNT(DISTINCT col)"],
+[4,"l0","Fundamentals","High",0,"GROUP BY, and the every-column rule across dialects"],
+[5,"l0","Fundamentals","High",0,"WHERE vs HAVING vs QUALIFY"],
+[6,"l0","Fundamentals","High",0,"NULL semantics: three-valued logic and IS NULL"],
+[7,"l0","Fundamentals","High",0,"NULLs inside aggregates, and the COUNT that lies"],
+[8,"l0","Fundamentals","High",0,"COALESCE, NULLIF and safe division"],
+[9,"l0","Fundamentals","High",0,"DISTINCT vs GROUP BY for dedup"],
+[10,"l0","Fundamentals","High",0,"CASE WHEN and conditional aggregation"],
+[11,"l0","Fundamentals","High",0,"UNION vs UNION ALL, INTERSECT, EXCEPT"],
+[12,"l1","Joins","High",0,"The five join types, stated precisely"],
+[13,"l1","Joins","High",0,"The LEFT JOIN + WHERE trap that silently becomes an INNER JOIN"],
+[14,"l1","Joins","High",0,"Filter in ON vs filter in WHERE"],
+[15,"l1","Joins","High",0,"Anti-joins three ways, and why NOT IN breaks on NULL"],
+[16,"l1","Joins","High",0,"Semi-joins: EXISTS vs IN vs JOIN plus DISTINCT"],
+[17,"l1","Joins","High",0,"Fan-out: the join that multiplies your rows and your revenue"],
+[18,"l1","Joins","High",0,"Self-joins: employees earning more than their manager"],
+[19,"l1","Joins","High",0,"CROSS JOIN, and when it is the right answer"],
+[20,"l1","Joins","High",0,"Joining on a range, and the as-of join"],
+[21,"l1","Joins","High",0,"Multi-column and composite-key joins"],
+[22,"l2","Aggregation","Medium",0,"Scalar, row and table subqueries"],
+[23,"l2","Aggregation","Medium",0,"Correlated subqueries, and what they cost"],
+[24,"l2","Aggregation","Medium",0,"CTEs vs subqueries vs temp tables"],
+[25,"l2","Aggregation","Medium",0,"Recursive CTEs: anchor, recursion, termination"],
+[26,"l2","Aggregation","Medium",0,"Aggregating an aggregate"],
+[27,"l2","Aggregation","Medium",0,"Percent of total, and percent of group"],
+[28,"l2","Aggregation","Medium",0,"Pivot without PIVOT: conditional aggregation"],
+[29,"l2","Aggregation","Medium",0,"Unpivot without UNPIVOT"],
+[30,"l2","Aggregation","Medium",0,"GROUPING SETS, ROLLUP and CUBE"],
+[31,"l2","Aggregation","Medium",0,"FILTER (WHERE ...) and the portable equivalent"],
+[32,"l3","Windows","High",0,"The anatomy of OVER: PARTITION BY, ORDER BY, frame"],
+[33,"l3","Windows","High",0,"Why a window function is not an aggregate"],
+[34,"l3","Windows","High",0,"ROW_NUMBER vs RANK vs DENSE_RANK on real ties"],
+[35,"l3","Windows","High",0,"Nth highest salary, four ways, with ties handled"],
+[36,"l3","Windows","High",0,"Top-N per group"],
+[37,"l3","Windows","High",0,"Deduplication with ROW_NUMBER"],
+[38,"l3","Windows","High",0,"NTILE, buckets and uneven splits"],
+[39,"l3","Windows","High",0,"PERCENT_RANK and CUME_DIST"],
+[40,"l3","Windows","High",0,"Window functions in WHERE: why it fails and what to do"],
+[41,"l3","Windows","High",0,"Ranking with a deterministic tie-break"],
+[42,"l4","Windows","High",0,"The frame clause: ROWS vs RANGE vs GROUPS"],
+[43,"l4","Windows","High",0,"The default frame, and the tie bug it causes"],
+[44,"l4","Windows","High",0,"Running totals and cumulative sums"],
+[45,"l4","Windows","High",0,"Moving averages, trailing and centred"],
+[46,"l4","Windows","High",0,"LAG and LEAD, with defaults and offsets"],
+[47,"l4","Windows","High",0,"Month-over-month and year-over-year growth"],
+[48,"l4","Windows","High",0,"FIRST_VALUE, LAST_VALUE and the frame that breaks LAST_VALUE"],
+[49,"l4","Windows","High",0,"Rolling metrics without leaking the current row"],
+[50,"l4","Windows","High",0,"Named windows and several windows in one query"],
+[51,"l4","Windows","High",0,"Cumulative distinct count"],
+[52,"l5","Dates","Medium",0,"Truncating a date, in five dialects"],
+[53,"l5","Dates","Medium",0,"Date arithmetic and intervals"],
+[54,"l5","Dates","Medium",0,"Generating a date spine, and why you need one"],
+[55,"l5","Dates","Medium",0,"Filling gaps in a time series"],
+[56,"l5","Dates","Medium",0,"BETWEEN on timestamps: the last-day bug"],
+[57,"l5","Dates","Medium",0,"Week boundaries and ISO weeks"],
+[58,"l5","Dates","Medium",0,"Time zones and UTC discipline"],
+[59,"l5","Dates","Medium",0,"Tenure, age and difference in days"],
+[60,"l5","Dates","Medium",0,"Rolling 7-day and 28-day actives"],
+[61,"l5","Dates","Medium",0,"Point-in-time correctness"],
+[62,"l6","Analytics","High",0,"DAU, WAU, MAU and the stickiness ratio"],
+[63,"l6","Analytics","High",0,"Funnel conversion, step by step"],
+[64,"l6","Analytics","High",0,"The funnel that must be ordered in time"],
+[65,"l6","Analytics","High",0,"Cohort retention as a triangle"],
+[66,"l6","Analytics","High",0,"Day-N retention and the denominator question"],
+[67,"l6","Analytics","High",0,"New, retained, churned and reactivated"],
+[68,"l6","Analytics","High",0,"Sessionisation from an event stream"],
+[69,"l6","Analytics","High",0,"A/B test readout in pure SQL"],
+[70,"l6","Analytics","High",0,"First-touch and last-touch attribution"],
+[71,"l6","Analytics","High",0,"Co-purchase pairs and basket analysis"],
+[72,"l7","Patterns","High",0,"The pattern, and the one trick behind all of it"],
+[73,"l7","Patterns","High",0,"Consecutive days: the row_number difference"],
+[74,"l7","Patterns","High",0,"Three or more consecutive days"],
+[75,"l7","Patterns","High",0,"The longest streak per user"],
+[76,"l7","Patterns","High",0,"Current streak vs longest streak"],
+[77,"l7","Patterns","High",0,"Islands with a tolerance for gaps"],
+[78,"l7","Patterns","High",0,"Merging overlapping intervals"],
+[79,"l7","Patterns","High",0,"Periods where a value stayed unchanged"],
+[80,"l7","Patterns","High",0,"Gaps: what is missing from a sequence"],
+[81,"l7","Patterns","High",0,"Concurrent sessions and peak concurrency"],
+[82,"l8","Patterns","Medium",0,"Median without a percentile function"],
+[83,"l8","Patterns","Medium",0,"Percentiles, discrete and continuous"],
+[84,"l8","Patterns","Medium",0,"Mode, and ties in the mode"],
+[85,"l8","Patterns","Medium",0,"Weighted averages and compressed histograms"],
+[86,"l8","Patterns","Medium",0,"Combinations and pairs with a self-join"],
+[87,"l8","Patterns","Medium",0,"Recursive hierarchy traversal and path building"],
+[88,"l8","Patterns","Medium",0,"Running maximum and drawdown"],
+[89,"l8","Patterns","Medium",0,"Deduplicating near-duplicates"],
+[90,"l8","Patterns","Medium",0,"SCD Type 2 and slowly changing history"],
+[91,"l8","Patterns","Medium",0,"The query you should refuse to write"],
+[92,"l9","Correctness","Medium",0,"Finding duplicates, and defining what duplicate means"],
+[93,"l9","Correctness","Medium",0,"Deleting duplicates while keeping one"],
+[94,"l9","Correctness","Medium",0,"Case-folding, trimming and collation surprises"],
+[95,"l9","Correctness","Medium",0,"Implicit type coercion and silent comparison failures"],
+[96,"l9","Correctness","Medium",0,"Divide by zero, and integer division"],
+[97,"l9","Correctness","Medium",0,"Floating point in SQL, and money columns"],
+[98,"l9","Correctness","Medium",0,"Assertions: proving the query conserved the total"],
+[99,"l9","Correctness","Medium",0,"Reconciling two sources that disagree"],
+[100,"l9","Correctness","Medium",0,"Row-count and sample-ratio sanity checks"],
+[101,"l9","Correctness","Medium",0,"Making a query reproducible"],
+[102,"l10","Performance","Medium",0,"Logical order vs the physical plan"],
+[103,"l10","Performance","Medium",0,"Reading an EXPLAIN plan"],
+[104,"l10","Performance","Medium",0,"Index types: B-tree, hash, composite, covering"],
+[105,"l10","Performance","Medium",0,"The leftmost-prefix rule"],
+[106,"l10","Performance","Medium",0,"Sargability: why a function on a column kills the index"],
+[107,"l10","Performance","Medium",0,"When an index hurts"],
+[108,"l10","Performance","Medium",0,"Join algorithms: nested loop, hash, merge"],
+[109,"l10","Performance","Medium",0,"Partitioning, clustering and pruning"],
+[110,"l10","Performance","Medium",0,"Data skew and the straggler"],
+[111,"l10","Performance","Medium",0,"OLTP vs OLAP, rows vs columns"],
+[112,"l10","Performance","Medium",0,"Cost control on a scanned-bytes engine"],
+[113,"l10","Performance","Medium",0,"Materialised views and incremental models"],
+[114,"iv","Interview Prep","High",0,"The questions to answer out loud"],
+[115,"iv","Interview Prep","High",0,"The trap questions, answered correctly"],
+[116,"iv","Interview Prep","High",0,"Timed live-coding drills"],
+[117,"iv","Interview Prep","High",0,"The dialect cheat sheet"],
+[118,"iv","Interview Prep","High",0,"How to clarify a question before writing SQL"],
+[119,"iv","Interview Prep","High",0,"How to talk about a query you cannot finish"]
+];
+
+/* ============ TRACKER ENGINE ============ */
+const LS_KEY="sqlPrepStatus_v1";
+const STATUSES=["Not Started","In Progress","Done"];
+let statusMap={};
+try{statusMap=JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){statusMap={}}
+function saveStatus(){try{localStorage.setItem(LS_KEY,JSON.stringify(statusMap))}catch(e){}}
+function stFor(n){return statusMap[n]||"Not Started"}
+
+let filterStatus="all", filterPhase="", filterText="";
+
+function catClass(c){return "cat-"+c.replace(/[^A-Za-z]/g,"")}
+
+function renderPhases(){
+  const box=document.getElementById("tkPhases"); box.innerHTML="";
+  ORDER.forEach(pk=>{
+    const items=TRACKER.filter(r=>r[1]===pk);
+    const done=items.filter(r=>stFor(r[0])==="Done").length;
+    const pctv=items.length?Math.round(done/items.length*100):0;
+    const row=document.createElement("div"); row.className="tk-prow";
+    row.innerHTML=`<span class="pn" title="${PHASES[pk]}">${PHASES[pk]}</span>
+      <span class="pbar"><i style="width:${pctv}%"></i></span>
+      <span class="pc">${done}/${items.length}</span>`;
+    box.appendChild(row);
+  });
+}
+function renderOverall(){
+  const done=TRACKER.filter(r=>stFor(r[0])==="Done").length;
+  const prog=TRACKER.filter(r=>stFor(r[0])==="In Progress").length;
+  const total=TRACKER.length;
+  const pctD=Math.round(done/total*100), pctP=Math.round(prog/total*100);
+  document.getElementById("ovPct").textContent=pctD+"%";
+  document.getElementById("ovDone").textContent=done;
+  document.getElementById("ovTotal").textContent=total;
+  document.getElementById("ovSegDone").style.width=pctD+"%";
+  document.getElementById("ovSegProg").style.width=pctP+"%";
+  document.getElementById("sbFill").style.width=pctD+"%";
+  document.getElementById("sbLab").textContent=`${done} / ${total} topics done`;
+}
+function passFilter(r){
+  const st=stFor(r[0]);
+  if(filterStatus!=="all" && st!==filterStatus) return false;
+  if(filterPhase && r[1]!==filterPhase) return false;
+  if(filterText){
+    const hay=(r[5]+" "+PHASES[r[1]]+" "+r[2]).toLowerCase();
+    if(!hay.includes(filterText)) return false;
+  }
+  return true;
+}
+function renderTable(){
+  const body=document.getElementById("tkBody"); body.innerHTML="";
+  let lastPhase=null, shown=0;
+  ORDER.forEach(pk=>{
+    const rows=TRACKER.filter(r=>r[1]===pk && passFilter(r));
+    if(!rows.length) return;
+    const hdr=document.createElement("tr"); hdr.className="phasehdr";
+    hdr.innerHTML=`<td colspan="5">${PHASES[pk]} · ${rows.length}</td>`;
+    body.appendChild(hdr);
+    rows.forEach(r=>{
+      shown++;
+      const st=stFor(r[0]);
+      const tr=document.createElement("tr");
+      if(st==="Done") tr.className="done";
+      const newpin=r[4]?`<span class="newpin">NEW</span>`:"";
+      tr.innerHTML=`<td class="cn">${r[0]}</td>
+        <td class="ct">${r[5]}${newpin}</td>
+        <td><span class="catpill ${catClass(r[2])}">${r[2]}</span></td>
+        <td><span class="prio ${r[3]}">${r[3]}</span></td>
+        <td><select class="stsel" data-n="${r[0]}" data-s="${st}">
+          ${STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("")}
+        </select></td>`;
+      body.appendChild(tr);
+    });
+  });
+  if(!shown){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td colspan="5" style="padding:26px;text-align:center;color:var(--faint)">No topics match these filters.</td>`;
+    body.appendChild(tr);
+  }
+}
+function refresh(){renderPhases();renderOverall();renderTable();}
+
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("stsel")){
+    const n=+e.target.dataset.n;
+    statusMap[n]=e.target.value; saveStatus();
+    e.target.dataset.s=e.target.value;
+    const tr=e.target.closest("tr");
+    tr.classList.toggle("done",e.target.value==="Done");
+    renderPhases();renderOverall();
+    if(filterStatus!=="all") renderTable();
+  }
+});
+
+/* controls */
+function initControls(){
+  const sel=document.getElementById("tkPhaseSel");
+  ORDER.forEach(pk=>{const o=document.createElement("option");o.value=pk;o.textContent=PHASES[pk];sel.appendChild(o)});
+  sel.addEventListener("change",()=>{filterPhase=sel.value;renderTable();openTable(true)});
+  document.getElementById("tkSearch").addEventListener("input",e=>{filterText=e.target.value.toLowerCase().trim();renderTable();openTable(true)});
+  document.querySelectorAll("#tkStatusSeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#tkStatusSeg button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); filterStatus=b.dataset.f; renderTable(); openTable(true);
+    });
+  });
+  document.getElementById("tkReset").addEventListener("click",()=>{
+    if(confirm("Reset all progress? This clears every status back to Not Started.")){
+      statusMap={};saveStatus();refresh();
+    }
+  });
+  document.getElementById("tkExport").addEventListener("click",exportCSV);
+  document.getElementById("tkToggle").addEventListener("click",()=>{
+    const w=document.getElementById("tkTableWrap");
+    openTable(!w.classList.contains("open"));
+  });
+}
+function openTable(open){
+  const w=document.getElementById("tkTableWrap"), t=document.getElementById("tkToggle");
+  w.classList.toggle("open",open);
+  t.textContent=open?"Hide topic list ▴":"Show all 119 topics ▾";
+}
+function exportCSV(){
+  let csv="S.No,Phase,Category,Priority,Added,Status,Topic\n";
+  TRACKER.forEach(r=>{
+    const topic='"'+r[5].replace(/"/g,'""')+'"';
+    csv+=[r[0],'"'+PHASES[r[1]]+'"',r[2],r[3],r[4]?"NEW":"",stFor(r[0]),topic].join(",")+"\n";
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rag_prep_progress.csv";a.click();
+}
+
+/* ============ NAV / UI ============ */
+function toggleNav(){document.body.classList.toggle("nav-open")}
+function closeNav(){document.body.classList.remove("nav-open")}
+function initNav(){
+  document.querySelectorAll("nav.toc .ghead[data-t]").forEach(h=>{
+    h.addEventListener("click",()=>h.parentElement.classList.toggle("collapsed"));
+  });
+  document.querySelectorAll("nav.toc a").forEach(a=>a.addEventListener("click",()=>{if(window.innerWidth<=1040)closeNav()}));
+  // scroll spy
+  const links=[...document.querySelectorAll("nav.toc .links a")];
+  const map={};links.forEach(a=>{const id=a.getAttribute("href").slice(1);const el=document.getElementById(id);if(el)map[id]=a;});
+  const obs=new IntersectionObserver(es=>{
+    es.forEach(en=>{if(en.isIntersecting){
+      links.forEach(l=>l.classList.remove("active"));
+      const a=map[en.target.id]; if(a){a.classList.add("active");}
+    }});
+  },{rootMargin:"-15% 0px -70% 0px",threshold:0});
+  Object.keys(map).forEach(id=>obs.observe(document.getElementById(id)));
+}
+function initCode(){
+  if(window.hljs){document.querySelectorAll("figure.code pre code").forEach(el=>{try{hljs.highlightElement(el)}catch(e){}});}
+  document.querySelectorAll("figure.code .copy").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const code=btn.closest("figure.code").querySelector("code").innerText;
+      navigator.clipboard.writeText(code).then(()=>{const t=btn.textContent;btn.textContent="Copied ✓";setTimeout(()=>btn.textContent=t,1400)});
+    });
+  });
+}
+document.addEventListener("DOMContentLoaded",()=>{
+  initControls();refresh();initNav();initCode();
+});
+</script>
+
+<script>
+/* ------------------------------------------------------------------------
+   Live SQL runtime: sql.js 1.14.2 == SQLite 3.49.1 compiled to WebAssembly.
+   Lazy: nothing is fetched until the first Run click. One shared database per
+   page, seeded with the demo schema. Nothing leaves the browser.
+   ------------------------------------------------------------------------ */
+window.SqlRT = (function () {
+  var JSURL = "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/sql-wasm.js";
+  var BASE  = "https://cdn.jsdelivr.net/npm/sql.js@1.14.2/dist/";
+  var SQL = null, db = null, booting = null, cbs = [];
+  var SEED = "\nCREATE TABLE departments (id INTEGER PRIMARY KEY, name TEXT, city TEXT);\nINSERT INTO departments VALUES\n (1,'engineering','Chennai'),(2,'marketing','Mumbai'),(3,'sales','Chennai'),\n (4,'research','Bengaluru');\n\nCREATE TABLE employees (\n  id INTEGER PRIMARY KEY, name TEXT, dept_id INTEGER, manager_id INTEGER,\n  salary INTEGER, hire_date TEXT);\nINSERT INTO employees VALUES\n ( 1,'Asha',      1, NULL, 210000,'2019-04-01'),\n ( 2,'Bhavin',    1,    1, 145000,'2020-06-15'),\n ( 3,'Chandra',   1,    1, 145000,'2021-01-11'),\n ( 4,'Deepa',     1,    2, 120000,'2022-03-02'),\n ( 5,'Eshan',     2,    1, 132000,'2020-09-21'),\n ( 6,'Farida',    2,    5,  98000,'2023-07-17'),\n ( 7,'Gagan',     2,    5,  98000,'2023-08-01'),\n ( 8,'Hema',      3,    1, 156000,'2018-11-05'),\n ( 9,'Irfan',     3,    8,  87000,'2024-02-19'),\n (10,'Jaya',      3,    8, 210000,'2021-05-30'),\n (11,'Kabir',  NULL,    1,  90000,'2025-01-06'),\n (12,'Lakshmi',   1,    2, 120000,'2024-10-14');\n\nCREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, country TEXT, signup_date TEXT);\nINSERT INTO customers VALUES\n (1,'Ada','IN','2026-01-03'),(2,'Ben','IN','2026-01-17'),(3,'Cleo','UK','2026-02-02'),\n (4,'Dev','IN','2026-02-11'),(5,'Elif','DE','2026-02-25'),(6,'Fabio','IT','2026-03-04'),\n (7,'Gita','IN','2026-03-19'),(8,'Hugo','UK','2026-03-28');\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY, customer_id INTEGER, order_date TEXT,\n  amount REAL, status TEXT);\nINSERT INTO orders VALUES\n ( 1,1,'2026-01-05', 120.00,'completed'),\n ( 2,1,'2026-01-06',  80.00,'completed'),\n ( 3,1,'2026-01-07',  45.00,'cancelled'),\n ( 4,2,'2026-01-20', 300.00,'completed'),\n ( 5,2,'2026-02-20', 150.00,'completed'),\n ( 6,2,'2026-03-20', 220.00,'completed'),\n ( 7,3,'2026-02-05', 500.00,'completed'),\n ( 8,3,'2026-02-06',  60.00,'refunded'),\n ( 9,4,'2026-02-12',  90.00,'completed'),\n (10,4,'2026-02-13',  90.00,'completed'),\n (11,4,'2026-02-14', 110.00,'completed'),\n (12,4,'2026-02-16',  70.00,'completed'),\n (13,5,'2026-02-26', 410.00,'completed'),\n (14,5,'2026-03-26', 380.00,'completed'),\n (15,6,'2026-03-06', 200.00,'cancelled'),\n (16,7,'2026-03-21',  35.00,'completed'),\n (17,7,'2026-03-22',  35.00,'completed'),\n (18,7,'2026-03-23',  35.00,'completed'),\n (19,7,'2026-03-24',  35.00,'completed'),\n (20,1,'2026-03-01', 640.00,'completed'),\n (21,3,'2026-03-15', 275.00,'completed'),\n (22,2,'2026-03-29',  95.00,'completed'),\n (23,4,'2026-03-30', 130.00,'completed'),\n (24,5,'2026-01-31', 150.00,'completed');\n\nCREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category TEXT, price REAL);\nINSERT INTO products VALUES\n (1,'keyboard','hardware', 60.0),(2,'mouse','hardware', 25.0),\n (3,'monitor','hardware',220.0),(4,'licence','software',120.0),\n (5,'support','service',  90.0),(6,'cable','hardware',  10.0);\n\nCREATE TABLE order_items (order_id INTEGER, product_id INTEGER, qty INTEGER);\nINSERT INTO order_items VALUES\n (1,1,1),(1,2,2),(2,4,1),(4,3,1),(4,6,3),(5,5,1),(7,3,2),(7,4,1),\n (9,2,1),(10,2,1),(11,1,1),(13,3,1),(13,4,1),(14,5,1),(20,3,2),(20,4,2),(21,1,3);\n\nCREATE TABLE events (user_id INTEGER, event_name TEXT, ts TEXT);\nINSERT INTO events VALUES\n (1,'view','2026-03-01 09:00:00'),(1,'add_to_cart','2026-03-01 09:04:00'),\n (1,'checkout','2026-03-01 09:09:00'),(1,'purchase','2026-03-01 09:12:00'),\n (2,'view','2026-03-01 10:00:00'),(2,'add_to_cart','2026-03-01 10:02:00'),\n (3,'view','2026-03-01 11:00:00'),\n (4,'view','2026-03-01 12:00:00'),(4,'add_to_cart','2026-03-01 12:20:00'),\n (4,'checkout','2026-03-01 12:26:00'),\n (5,'view','2026-03-02 08:00:00'),(5,'checkout','2026-03-02 08:03:00'),\n (5,'add_to_cart','2026-03-02 08:05:00'),(5,'purchase','2026-03-02 08:10:00'),\n (6,'view','2026-03-02 14:00:00'),(6,'add_to_cart','2026-03-02 14:07:00'),\n (6,'checkout','2026-03-02 14:40:00'),(6,'purchase','2026-03-02 14:44:00'),\n (1,'view','2026-03-01 11:30:00'),(1,'view','2026-03-01 11:33:00'),\n (7,'view','2026-03-03 07:15:00'),(7,'add_to_cart','2026-03-03 07:19:00');\n\nCREATE TABLE logins (user_id INTEGER, login_date TEXT);\nINSERT INTO logins VALUES\n (1,'2026-03-01'),(1,'2026-03-02'),(1,'2026-03-03'),(1,'2026-03-07'),(1,'2026-03-08'),\n (2,'2026-03-01'),(2,'2026-03-03'),(2,'2026-03-05'),\n (3,'2026-03-01'),(3,'2026-03-02'),(3,'2026-03-03'),(3,'2026-03-04'),(3,'2026-03-05'),\n (4,'2026-03-10'),\n (5,'2026-03-01'),(5,'2026-03-01'),(5,'2026-03-02'),\n (6,'2026-03-02'),(6,'2026-03-03'),(6,'2026-03-06'),(6,'2026-03-07'),(6,'2026-03-08');\n\nCREATE TABLE subscriptions (user_id INTEGER, plan TEXT, start_date TEXT, end_date TEXT);\nINSERT INTO subscriptions VALUES\n (1,'basic','2026-01-01','2026-01-31'),\n (1,'pro',  '2026-01-20','2026-03-15'),\n (1,'pro',  '2026-04-01','2026-05-31'),\n (2,'basic','2026-02-01','2026-02-10'),\n (2,'basic','2026-02-10','2026-02-28'),\n (3,'pro',  '2026-01-05','2026-06-30'),\n (3,'basic','2026-02-01','2026-02-20');\n\nCREATE TABLE salary_history (emp_id INTEGER, salary INTEGER, valid_from TEXT, valid_to TEXT);\nINSERT INTO salary_history VALUES\n (2,120000,'2020-06-15','2022-04-01'),\n (2,135000,'2022-04-01','2024-04-01'),\n (2,145000,'2024-04-01','9999-12-31'),\n (5,110000,'2020-09-21','2023-01-01'),\n (5,132000,'2023-01-01','9999-12-31');\n\nCREATE TABLE ab_test (user_id INTEGER, variant TEXT, converted INTEGER, revenue REAL);\nINSERT INTO ab_test VALUES\n (1,'control',1, 42.0),(2,'control',0, 0.0),(3,'control',0, 0.0),(4,'control',1, 18.0),\n (5,'control',0, 0.0),(6,'control',0, 0.0),(7,'control',1, 25.0),(8,'control',0, 0.0),\n (9,'control',0, 0.0),(10,'control',0,0.0),\n (11,'treatment',1,55.0),(12,'treatment',1,31.0),(13,'treatment',0,0.0),\n (14,'treatment',1,47.0),(15,'treatment',0,0.0),(16,'treatment',1,22.0),\n (17,'treatment',0,0.0),(18,'treatment',0,0.0),(19,'treatment',1,39.0),\n (20,'treatment',0,0.0);\n\nCREATE TABLE dirty_customers (id INTEGER, email TEXT, name TEXT, created TEXT);\nINSERT INTO dirty_customers VALUES\n (1,'ada@x.com','Ada','2026-01-03'),\n (2,'ADA@x.com','Ada L','2026-01-05'),\n (3,' ada@x.com ','ada','2026-01-09'),\n (4,'ben@x.com','Ben','2026-01-17'),\n (5,'ben@x.com','Ben','2026-01-17'),\n (6,'cleo@x.com','Cleo','2026-02-02'),\n (7,NULL,'Unknown','2026-02-03');\n";
+
+  function status(s) { cbs.forEach(function (f) { try { f(s); } catch (e) {} }); }
+
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      if (window.initSqlJs) { res(); return; }
+      var t = document.createElement("script");
+      t.src = src;
+      t.onload = function () { res(); };
+      t.onerror = function () { rej(new Error("could not reach the CDN to load sql.js")); };
+      document.head.appendChild(t);
+    });
+  }
+
+  function boot() {
+    if (db) return Promise.resolve(db);
+    if (booting) return booting;
+    status("fetching SQLite (~0.7 MB)");
+    booting = loadScript(JSURL)
+      .then(function () { return window.initSqlJs({ locateFile: function (f) { return BASE + f; } }); })
+      .then(function (mod) {
+        SQL = mod;
+        db = new SQL.Database();
+        db.run(SEED);
+        status("ready");
+        return db;
+      })
+      .catch(function (e) { booting = null; status("failed"); throw e; });
+    return booting;
+  }
+
+  function exec(sql) { return boot().then(function (d) { return d.exec(sql); }); }
+
+  function changes() { try { return db.getRowsModified(); } catch (e) { return 0; } }
+
+  function reseed() {
+    if (db) { try { db.close(); } catch (e) {} db = null; }
+    booting = null;
+    return boot();
+  }
+
+  function tables() {
+    return exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+      .then(function (r) { return r.length ? r[0].values.map(function (v) { return v[0]; }) : []; });
+  }
+
+  return { boot: boot, exec: exec, reseed: reseed, changes: changes, tables: tables,
+           onStatus: function (f) { cbs.push(f); },
+           isReady: function () { return !!db; },
+           seedSql: function () { return SEED; } };
+})();
+
+/* ---------------------------- cell wiring ---------------------------- */
+(function () {
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function cellv(v) {
+    if (v === null || v === undefined) return '<span class="snull">NULL</span>';
+    if (v instanceof Uint8Array) return '<span class="snull">blob</span>';
+    return esc(v);
+  }
+  var ROWCAP = 200;
+  function renderResult(r, idx, many) {
+    var h = "";
+    if (many) h += '<div class="slabel">result ' + (idx + 1) + '</div>';
+    h += '<table class="sqltbl"><thead><tr>';
+    r.columns.forEach(function (c) { h += "<th>" + esc(c) + "</th>"; });
+    h += "</tr></thead><tbody>";
+    r.values.slice(0, ROWCAP).forEach(function (row) {
+      h += "<tr>";
+      row.forEach(function (v) { h += "<td>" + cellv(v) + "</td>"; });
+      h += "</tr>";
+    });
+    h += "</tbody></table>";
+    var n = r.values.length;
+    h += '<div class="snote">' + n + (n === 1 ? " row" : " rows") + " &middot; " +
+         r.columns.length + (r.columns.length === 1 ? " column" : " columns");
+    if (n > ROWCAP) h += " &middot; showing the first " + ROWCAP;
+    h += "</div>";
+    return h;
+  }
+
+  function wire(cell) {
+    var ta   = cell.querySelector("textarea");
+    var out  = cell.querySelector(".sout");
+    var stat = cell.querySelector(".sstat");
+    var runB = cell.querySelector(".sbtn.run");
+    var rstB = cell.querySelector(".sbtn.reset");
+    var schB = cell.querySelector(".sbtn.schema");
+    var seedB = cell.querySelector(".sbtn.reseed");
+    if (!ta || !out || !runB) return;
+    var original = ta.value;
+
+    function grow() { ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 2) + "px"; }
+    grow();
+    ta.addEventListener("input", grow);
+    ta.addEventListener("keydown", function (e) {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        var s = ta.selectionStart, t = ta.selectionEnd;
+        ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(t);
+        ta.selectionStart = ta.selectionEnd = s + 2;
+      } else if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        go();
+      }
+    });
+
+    function say(txt, cls) { stat.textContent = txt; stat.className = "sstat" + (cls ? " " + cls : ""); }
+
+    function go() {
+      var sql = ta.value;
+      runB.disabled = true;
+      out.classList.add("show");
+      if (!window.SqlRT.isReady()) {
+        out.innerHTML = '<span class="odim">starting SQLite in your browser…</span>';
+        say("loading", "busy");
+      } else {
+        say("running", "busy");
+      }
+      window.SqlRT.exec(sql).then(function (res) {
+        if (!res || !res.length) {
+          var ch = window.SqlRT.changes();
+          out.innerHTML = '<span class="ook">OK</span> <span class="odim">&mdash; statement ran and returned no rows' +
+                          (ch ? " (" + ch + " row" + (ch === 1 ? "" : "s") + " changed)" : "") + "</span>";
+        } else {
+          out.innerHTML = res.map(function (r, i) { return renderResult(r, i, res.length > 1); }).join("");
+        }
+        say("ok", "ready");
+        runB.disabled = false;
+      }).catch(function (e) {
+        out.innerHTML = '<span class="oerr">' + esc(e && e.message ? e.message : e) + "</span>";
+        say("error", "err");
+        runB.disabled = false;
+      });
+    }
+
+    runB.addEventListener("click", go);
+    if (rstB) rstB.addEventListener("click", function () {
+      ta.value = original; grow(); out.classList.remove("show"); out.innerHTML = ""; say("idle", "");
+    });
+    if (schB) schB.addEventListener("click", function () {
+      out.classList.add("show");
+      say("schema", "busy");
+      window.SqlRT.exec("SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name")
+        .then(function (r) {
+          var h = '<div class="slabel">tables in this database</div>';
+          (r.length ? r[0].values : []).forEach(function (row) {
+            h += '<div class="ook">' + esc(row[0]) + "</div><div class=\"snote\">" +
+                 esc(String(row[1]).replace(/\s+/g, " ")) + "</div>";
+          });
+          out.innerHTML = h;
+          say("ok", "ready");
+        }).catch(function (e) {
+          out.innerHTML = '<span class="oerr">' + esc(e.message || e) + "</span>"; say("error", "err");
+        });
+    });
+    if (seedB) seedB.addEventListener("click", function () {
+      out.classList.add("show");
+      out.innerHTML = '<span class="odim">rebuilding the demo database…</span>';
+      say("reseeding", "busy");
+      window.SqlRT.reseed().then(function () {
+        out.innerHTML = '<span class="ook">OK</span> <span class="odim">&mdash; every table is back to its seeded state</span>';
+        say("ok", "ready");
+      }).catch(function (e) {
+        out.innerHTML = '<span class="oerr">' + esc(e.message || e) + "</span>"; say("error", "err");
+      });
+    });
+  }
+
+  document.querySelectorAll(".sqlrun").forEach(wire);
+
+  document.querySelectorAll(".sbootbtn").forEach(function (b) {
+    b.addEventListener("click", function () {
+      b.disabled = true;
+      var t = b.textContent;
+      b.textContent = "starting SQLite…";
+      window.SqlRT.boot().then(function () {
+        b.textContent = "SQLite is ready — every query on this page will run instantly";
+      }).catch(function (e) {
+        b.disabled = false;
+        b.textContent = t;
+        alert("Could not load SQLite: " + (e.message || e) + "\nThe expected output is written under every query, so the page still works.");
+      });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
